@@ -30,7 +30,7 @@
   },
   "homepage": "https://github.com/G-Core/gcore-videoplayer-js#readme",
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^28.0.1",
+    "@rollup/plugin-commonjs": "^28.0.2",
     "@rollup/plugin-node-resolve": "^15.3.0",
     "@types/can-autoplay": "^3.0.5",
     "@types/node": "^22.10.1",
