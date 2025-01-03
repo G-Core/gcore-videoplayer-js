@@ -46,7 +46,7 @@
   "dependencies": {
     "@clappr/core": "^0.11.3",
     "@clappr/plugins": "^0.8.3",
-    "@sentry/browser": "^8.41.0",
+    "@sentry/browser": "^8.47.0",
     "can-autoplay": "^3.0.2",
     "dashjs": "^4.7.4",
     "event-lite": "^1.0.0",
