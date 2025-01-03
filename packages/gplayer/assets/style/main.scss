@@ -1,0 +1,50 @@
+@use "variables";
+@use "theme";
+
+@import "https://fonts.googleapis.com/css?family=Roboto";
+
+* {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+
+.player-poster[data-poster] {
+  background-size: contain !important;
+}
+
+.spinner-three-bounce {
+  & > .gcore-skin-main-color {
+    box-shadow: 4px 4px 9px 1px rgb(36 61 81 / 51%);
+  }
+}
+
+.gplayer-lite-btn {
+  cursor: pointer;
+  border: none;
+  margin: 0;
+  padding: 0;
+  width: auto;
+  overflow: visible;
+  background: transparent;
+
+  /* inherit font & color from ancestor */
+  color: inherit;
+  font: inherit;
+
+  /* Normalize `line-height`. Cannot be changed from `normal` in Firefox 4+. */
+  line-height: normal;
+
+  /* Corrects font smoothing for webkit */
+  -webkit-font-smoothing: inherit;
+  -moz-osx-font-smoothing: inherit;
+
+  /* Corrects inability to style clickable `input` types in iOS */
+  appearance: none;
+
+  /* Remove excess padding and border in Firefox 4+ */
+  &::-moz-focus-inner {
+    border: 0;
+    padding: 0;
+  }
+}

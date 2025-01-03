@@ -1,0 +1,29 @@
+<button data-multicamera-button class='gcore-skin-button-color'>
+    <span class="multicamera-icon"></span>
+</button>
+
+<ul class="gcore-skin-bg-color">
+    <% for (var i = 0; i < streams.length; i++) { %>
+        <% if(!streams[i].live && multisources_mode === 'only_live') { %>
+            <% continue; %>
+        <% } %>
+        <li>
+            <div class="multicamera-item" data-multicamera-selector-live="<%= streams[i].live %>"
+                 data-multicamera-selector-select="<%= streams[i].id %>">
+                <div class="multicamera-screenshot">
+                    <% if (streams[i].screenshot) { %>
+                        <img src="<%= streams[i].screenshot %>" alt="<%= streams[i].title %>"/>
+                    <% } %>
+                </div>
+                <div class="multicamera-text gcore-skin-text-color">
+                    <% if (streams[i].title) { %>
+                        <div class="multicamera-title gcore-skin-text-color"><%= streams[i].title %></div>
+                    <% } %>
+                    <% if (streams[i].description) { %>
+                        <div class="multicamera-description gcore-skin-text-color"><%= streams[i].description %></div>
+                    <% } %>
+                </div>
+            </div>
+        </li>
+    <% } %>
+</ul>

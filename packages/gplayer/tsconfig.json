@@ -1,0 +1,43 @@
+{
+  "include": [
+    "src/**/*",
+    "src/**/*.ts",
+    "src/**/*.js"
+  ],
+  "exclude": [
+    "src/**/__tests__/*"
+  ],
+  "compilerOptions": {
+    "composite": true,
+    "baseUrl": ".",
+    "target": "es2022",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "Bundler",
+    "outDir": "lib",
+    "rootDir": "src",
+    "declaration": true,
+    "declarationMap": true,
+    "lib": [
+      "es2022",
+      "dom",
+      "DOM.Iterable"
+    ],
+    "module": "ESNext",
+    // "paths": {
+    //   // "@assets/*": ["src/assets/*"],
+    //   // "@vendor/*": ["src/vendor/*"],
+    // },
+    "types": [
+      "node",
+      // "@clappr/core",
+      // "@clappr/plugins",
+    ],
+    "typeRoots": [
+      "node_modules/@types",
+      "src/typings"
+    ]
+  }
+}

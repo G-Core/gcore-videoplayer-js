@@ -1,0 +1,44 @@
+import "clappr-zepto";
+
+declare module "clappr-zepto" {
+    declare type ZeptoResult = {
+        bind: (event: string, handler: (...args: any[]) => void) => void;
+        unbind: (event: string, handler: (...args: any[]) => void) => void;
+        // on: (event: string, handler: (...args: any[]) => void) => void;
+        // off: (event: string, handler: (...args: any[]) => void) => void;
+        find: (selector: string) => ZeptoResult;
+        slice: (start: number, end?: number) => ZeptoResult;
+        // get: () => HTMLElement[];
+        get: (index: number) => HTMLElement[] | HTMLElement | null;
+
+        append: (element: HTMLElement | string | ZeptoResult) => void;
+        remove: () => void;
+        empty: () => void;
+        
+        attr: (name: string, value: string) => void;
+        // css: (property: string, value: string | number) => void;
+        css: (styles: Record<string, string | number>) => void;
+        data: (name: string, value: unknown) => void;
+        // html: () => string;
+        html: (value: string) => void;
+        // text: () => string;
+        text: (value: string) => void;
+
+        show: () => void;
+        hide: () => void;
+
+        addClass: (className: string) => void;
+        removeClass: (className: string) => void;
+        hasClass: (className: string) => boolean;
+        toggleClass: (className: string) => void;
+
+        offset: () => { top: number; left: number };
+        width: () => number;
+        height: () => number;
+    };
+
+    declare const $: ((selector: string | Element | Document | ZeptoResult) => ZeptoResult) & {
+        extend(target: Record<string, any>, ...sources: Record<string, any>[]): Record<string, any>;
+        extend(deep: true, target: Record<string, any>, ...sources: Record<string, any>[]): Record<string, any>;
+    };
+}

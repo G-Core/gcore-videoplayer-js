@@ -1,0 +1,26 @@
+{
+  "name": "kibo",
+  "version": "0.0.1",
+  "description": "Kibo is a simple JavaScript library for handling keyboard events",
+  "keywords": [
+    "browser",
+    "dom",
+    "keyinput"
+  ],
+  "homepage": "https://github.com/marquete/kibo#readme",
+  "bugs": {
+    "url": "https://github.com/marquete/kibo/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/marquete/kibo.git"
+  },
+  "license": "MIT",
+  "author": "marquete <marquete@gmail.com>",
+  "type": "module",
+  "typings": "index.d.ts",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}

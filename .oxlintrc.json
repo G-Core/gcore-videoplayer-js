@@ -1,0 +1,13 @@
+{
+  "env": {
+    "browser": true
+  },
+  "globals": {
+    "window": "readonly"
+  },
+  "quotes": "single",
+  "settings": {},
+  "rules": {
+    "eqeqeq": "warn"
+  }
+}

@@ -1,0 +1,20 @@
+<button class="gplayer-lite-btn go-back gcore-skin-text-color">
+    <span class="arrow-left-icon"><%= arrowLeftIcon %></span>
+    Quality
+</button>
+<ul class="gear-sub-menu">
+    <li>
+        <a href="#" class='gear-sub-menu_btn gcore-skin-text-color' data-id="-1">
+            <span class="check-icon"><%= checkIcon %></span>
+            Auto
+        </a>
+    </li>
+    <% for (var i = levels.length - 1; i >= 0; i--) { %>
+        <li>
+            <a href="#" class='gear-sub-menu_btn gcore-skin-text-color' data-id="<%= levels[i].id %>">
+                <span class="check-icon"><%= checkIcon %></span>
+                <%= labels[i] %>
+            </a>
+        </li>
+    <% } %>
+</ul>

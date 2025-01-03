@@ -1,0 +1,12 @@
+<button data-level-selector-button class='gcore-skin-button-color'>
+  <span class='quality-text'>Auto</span> <span class="quality-arrow"></span>
+</button>
+<ul class='gcore-skin-bg-color'>
+  <% if (title) { %>
+  <li data-title><%= title %></li>
+  <% }; %>
+  <li><a href="#" class='gcore-skin-text-color' data-level-selector-select="-1">Auto</a></li>
+  <% for (var i = 0; i < levels.length; i++) { %>
+    <li><a href="#" class='gcore-skin-text-color' data-level-selector-select="<%= levels[i].id %>"><%= labels[i] %></a></li>
+  <% }; %>
+</ul>
