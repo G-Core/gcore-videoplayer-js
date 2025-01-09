@@ -12,13 +12,6 @@ declare module "@clappr/core" {
 
     type PlayerMediaSource = string | PlayerMediaSourceDesc;
 
-    type ExternalTrack = {
-        kind?: "subtitles";
-        src: string;
-        label: string;
-        lang: string;
-    }
-
     type HlsjsConfig = {
         debug?: boolean;
         startLevel?: number;

@@ -1,10 +1,16 @@
 import type {
   CorePlugin,
   ContainerPlugin,
-  Playback as PlaybackPlugin,
-  ExternalTrack,
+  Playback as ClapprPlayback,
 } from "@clappr/core";
 import { PlaybackType, PlayerDebugTag, StreamMediaSource } from "./types";
+
+type ExternalTrack = {
+  kind?: "subtitles" | "captions";
+  src: string;
+  label: string;
+  lang: string;
+}
 
 type MediacontrolStyles = {
   // TODO
@@ -76,10 +82,12 @@ export type ClapprVersionSpec = {
   // TODO
 }
 
+export type PlaybackPluginFactory = typeof ClapprPlayback;
+
 export type CorePluginOptions = {
   core?: CorePlugin[];
   container?: ContainerPlugin[];
-  playback?: PlaybackPlugin[];
+  playback?: PlaybackPluginFactory[];
   loadExternalPluginsFirst?: boolean;
   loadExternalPlaybacksFirst?: boolean;
 }

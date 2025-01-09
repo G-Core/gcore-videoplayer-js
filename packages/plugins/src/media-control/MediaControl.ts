@@ -22,7 +22,7 @@ import {
   TimeProgress,
   trace,
 } from '@gcorevideo/player';
-import Kibo from 'kibo';
+import Kibo from '../kibo/index.js';
 
 import { CLAPPR_VERSION } from '../build.js';
 import { ZeptoResult } from "../types";
@@ -321,10 +321,6 @@ export class MediaControl extends UICorePlugin {
   }
 
   enable() {
-    trace(`${T} enable`, {
-      userDisabled: this.userDisabled,
-      chromeless: this.options.chromeless,
-    })
     if (this.options.chromeless) {
       return;
     }
@@ -334,17 +330,14 @@ export class MediaControl extends UICorePlugin {
   }
 
   play() {
-    trace(`${T} play`)
     this.container && this.container.play();
   }
 
   pause() {
-    trace(`${T} pause`)
     this.container && this.container.pause();
   }
 
   stop() {
-    trace(`${T} stop`)
     this.container && this.container.stop();
   }
 
@@ -361,8 +354,6 @@ export class MediaControl extends UICorePlugin {
 
   onLoadedMetadataOnVideoTag(event: any) {
     const video = this.playback && this.playback.el;
-
-    trace(`${T} onLoadedMetadataOnVideoTag`, { event });
 
     // video.webkitSupportsFullscreen is deprecated but iOS appears to only use this
     // see https://github.com/clappr/clappr/issues/1127
@@ -471,11 +462,12 @@ export class MediaControl extends UICorePlugin {
   }
 
   playerResize(size: { width: number; height: number }) {
-    // assert.ok(this.$fullscreenToggle, 'fullscreen toggle must be present');
-    if (isFullscreen(this.container.el)) {
-      this.$fullscreenToggle?.html(fullscreenOnIcon);
-    } else {
-      this.$fullscreenToggle?.html(fullscreenOffIcon);
+    if (this.container.el) {
+      if (isFullscreen(this.container.el)) {
+        this.$fullscreenToggle?.html(fullscreenOnIcon);
+      } else {
+        this.$fullscreenToggle?.html(fullscreenOffIcon);
+      }
     }
 
     this.applyButtonStyle(this.$fullscreenToggle);
@@ -611,7 +603,6 @@ export class MediaControl extends UICorePlugin {
   }
 
   onActiveContainerChanged() {
-    trace(`${T} onActiveContainerChanged`)
     this.fullScreenOnVideoTagSupported = null;
     this.bindEvents();
     // set the new container to match the volume of the last one
@@ -824,11 +815,6 @@ export class MediaControl extends UICorePlugin {
 
   settingsUpdate(event: any) {
     const newSettings = this.getSettings();
-    trace(`${T} settingsUpdate`, {
-      event,
-      // newSettings,
-      // settings: this.settings,
-    })
 
     $.extend(true, newSettings, {
       left: [],
@@ -969,7 +955,7 @@ export class MediaControl extends UICorePlugin {
     this.container.seekPercentage(position);
   }
 
-  bindKeyAndShow(key: string, callback: () => void) { // TODO or boolean return type
+  bindKeyAndShow(key: string, callback: () => boolean | undefined) { // TODO or boolean return type
     this.kibo.down(key, () => {
       this.show();
 
@@ -985,17 +971,36 @@ export class MediaControl extends UICorePlugin {
     this.unbindKeyEvents();
     this.kibo = new Kibo(this.options.focusElement || this.options.parentElement);
     this.bindKeyAndShow('space', () => this.togglePlayPause());
-    this.bindKeyAndShow('left', () => this.seekRelative(-5));
-    this.bindKeyAndShow('right', () => this.seekRelative(5));
-    this.bindKeyAndShow('shift left', () => this.seekRelative(-10));
-    this.bindKeyAndShow('shift right', () => this.seekRelative(10));
-    this.bindKeyAndShow('shift ctrl left', () => this.seekRelative(-15));
-    this.bindKeyAndShow('shift ctrl right', () => this.seekRelative(15));
+    this.bindKeyAndShow('left', () => {
+      this.seekRelative(-5);
+      return true;
+    });
+    this.bindKeyAndShow('right', () => {
+      this.seekRelative(5);
+      return true;
+    });
+    this.bindKeyAndShow('shift left', () => {
+      this.seekRelative(-10);
+      return true;
+    });
+    this.bindKeyAndShow('shift right', () => {
+      this.seekRelative(10);
+      return true;
+    });
+    this.bindKeyAndShow('shift ctrl left', () => {
+      this.seekRelative(-15);
+      return true;
+    });
+    this.bindKeyAndShow('shift ctrl right', () => {
+      this.seekRelative(15);
+      return true;
+    });
     const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'];
 
     keys.forEach((i) => {
       this.bindKeyAndShow(i, () => {
         this.settings.seekEnabled && this.container && this.container.seekPercentage(Number(i) * 10);
+        return false;
       });
     });
   }
@@ -1071,24 +1076,11 @@ export class MediaControl extends UICorePlugin {
   }
 
   render() {
-    trace(`${T} render`, {
-      settings: !!this.settings,
-      rendered: this.rendered,
-      disabled: this.disabled,
-      options: !!this.options,
-      $el: !!this.$el,
-    });
-    console.log(`${T} render settings`, JSON.stringify(this.settings));
     const timeout = this.options.hideMediaControlDelay || 2000;
 
-    // if (this.settings) {
     const html = this.template({ settings: this.settings ?? {} });
-    // trace(`${T} render html`, { html });
     this.$el.html(html);
-    // }
-    // this.settings && this.$el.html(html);
     // const style = Styler.getStyleFor(mediaControlStyle, { baseUrl: this.options.baseUrl });
-
     // this.$el.append(style[0]);
     this.createCachedElements();
 
@@ -1140,9 +1132,7 @@ export class MediaControl extends UICorePlugin {
 
     this.rendered = true;
     this.updateVolumeUI();
-    trace(`${T} render triggering rendered`);
     this.trigger(Events.MEDIACONTROL_RENDERED);
-    trace(`${T} render triggered rendered`);
 
     return this;
   }

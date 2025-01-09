@@ -1,6 +1,6 @@
 {
   "name": "@gcorevideo/player",
-  "version": "0.0.1",
+  "version": "0.2.4",
   "description": "Gcore JavaScript video player",
   "main": "dist/index.js",
   "type": "module",
@@ -31,27 +31,22 @@
   "homepage": "https://github.com/G-Core/gcore-videoplayer-js#readme",
   "devDependencies": {
     "@rollup/plugin-commonjs": "^28.0.1",
+    "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^15.3.0",
-    "@types/can-autoplay": "^3.0.5",
     "@types/node": "^22.10.1",
-    "@types/ua-parser-js": "^0.7.39",
     "assert": "^2.1.0",
     "rollup": "^4.27.4",
+    "rollup-plugin-polyfill-node": "^0.13.0",
     "rollup-plugin-sass": "^1.14.0",
-    "rollup-plugin-scss": "^4.0.1",
     "rollup-plugin-string": "^3.0.0",
     "sass": "^1.83.0",
     "typescript": "^5.7.2"
   },
   "dependencies": {
     "@clappr/core": "^0.11.3",
-    "@clappr/plugins": "^0.8.3",
-    "@sentry/browser": "^8.41.0",
-    "can-autoplay": "^3.0.2",
+    "@sentry/types": "^8.47.0",
     "dashjs": "^4.7.4",
     "event-lite": "^1.0.0",
-    "hls.js": "^1.5.17",
-    "kibo": "file:../kibo",
-    "ua-parser-js": "^2.0.0"
+    "hls.js": "^1.5.17"
   }
 }

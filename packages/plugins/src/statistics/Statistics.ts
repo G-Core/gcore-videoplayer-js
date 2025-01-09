@@ -1,6 +1,6 @@
 import { Browser, Container, ContainerPlugin, Events, Playback } from '@clappr/core';
 import { StreamMediaSource } from '@gcorevideo/player';
-import Fingerprint2 from 'fingerprintjs2';
+import Fingerprint from '@fingerprintjs/fingerprintjs';
 import { Events as HlsEvents, FragChangedData } from 'hls.js';
 
 import { CLAPPR_VERSION } from '../build.js';
@@ -147,13 +147,11 @@ export class Statistics extends ContainerPlugin {
 
       return;
     }
-    Fingerprint2.get((components) => {
-      const values = components.map(function (component) {
-        return component.value;
+    Fingerprint.load()
+      .then(agent => agent.get())
+      .then((res) => {
+        this.uuid = res.visitorId;
       });
-
-      this.uuid = Fingerprint2.x64hash128(values.join(''), 31);
-    });
 
     this.streamID = element.id;
 

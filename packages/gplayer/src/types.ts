@@ -7,10 +7,8 @@ export type TransportPreference = MediaTransport | 'auto';
 
 export type PlayerPlugin = {
   new(...args: any[]): unknown;
-  type: 'core' | 'container' | 'playback';
+  type: string; // 'core' | 'container' | 'playback';
 }
-
-// export type PluginName = StdPluginName | string;
 
 export type PlayerConfig = {
   autoPlay?: boolean;
@@ -20,7 +18,6 @@ export type PlayerConfig = {
   multisources: StreamMediaSource[];
   mute?: boolean;
   playbackType: PlaybackType;
-  // plugins?: PluginName[];
   pluginSettings?: Record<string, unknown>;
   poster?: string;
   priorityTransport?: TransportPreference;
@@ -79,8 +76,8 @@ export type StreamMediaSourceDto = {
 export type StreamMediaSource = {
   description: string;
   dvr: boolean;
-  hlsCmafUrl?: string;
-  hlsMpegtsUrl?: string;
+  hlsCmafUrl: string | null;
+  hlsMpegtsUrl: string | null;
   id: number;
   live: boolean;
   priorityTransport: TransportPreference;
@@ -98,3 +95,18 @@ export type SrcProjectionType = 'regular' | '360' | 'vr180' | 'vr360tb';
 export type ProjectionType = '360' | '180' | '360_TB';
 
 export type TranslationSettings = Partial<Record<LangTag, Record<TranslationKey, string>>>;
+
+export type BitrateInfo = {
+  height: number;
+  width: number;
+  bitrate: number;
+  level: number;
+};
+
+export enum PlayerEvent {
+  Ready = 'ready',
+  Play = 'play',
+  Pause = 'pause',
+  Stop = 'stop',
+  Ended = 'ended',
+}

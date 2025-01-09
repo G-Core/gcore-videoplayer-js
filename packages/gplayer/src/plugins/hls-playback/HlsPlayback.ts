@@ -16,14 +16,14 @@ import HLSJS, {
   type LevelLoadedData,
   type LevelSwitchingData,
 } from 'hls.js';
-import { PlaybackType } from '../../types';
+
 import { TimePosition } from '../../playback.types.js';
+import { PlaybackType } from '../../types';
 import { TimerId } from '../../utils/types';
 
 const { now, listContainsIgnoreCase } = Utils;
 
-assert(process.env.CLAPPR_VERSION, 'CLAPPR_VERSION is required');
-const CLAPPR_VERSION: string = process.env.CLAPPR_VERSION;
+import { CLAPPR_VERSION } from "../../build.js";
 
 const AUTO = -1;
 const DEFAULT_RECOVER_ATTEMPTS = 16;
@@ -904,6 +904,9 @@ export default class HlsPlayback extends HTML5Video {
 HlsPlayback.canPlay = function (resource: string, mimeType?: string): boolean {
   const resourceParts = resource.split('?')[0].match(/.*\.(.*)$/) || [];
   const isHls = ((resourceParts.length > 1 && resourceParts[1].toLowerCase() === 'm3u8') || listContainsIgnoreCase(mimeType, ['application/vnd.apple.mpegurl', 'application/x-mpegURL']));
-
-  return !!(HLSJS.isSupported() && isHls);
+  const isSupported = HLSJS.isSupported();
+  Log.debug(T, 'canPlay', {
+    isSupported, isHls,
+  })
+  return !!(isSupported && isHls);
 };

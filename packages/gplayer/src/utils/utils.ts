@@ -36,29 +36,3 @@ export function strtimeToMiliseconds(str: string): number {
 
   return (h + m + s);
 }
-
-// TODO refactor
-export function isFullscreen(el: HTMLElement): boolean {
-  const video = el.nodeName === "video" ? el as HTMLVideoElement : el.querySelector('video');
-  assert.ok(video, 'element must be a video or contain a video element');
-
-  if (Browser.isiOS) {
-    return FullscreenIOS.isFullscreen(video);
-  }
-  return !!(document.fullscreenElement);
-}
-
-export const FullscreenIOS = {
-  isFullscreen: function (el: HTMLVideoElement): boolean {
-    try {
-      if (el.webkitDisplayingFullscreen !== undefined) {
-        return !!(el.webkitDisplayingFullscreen);
-      }
-    } catch (e) {
-      // LogManager.exception(error);
-      reportError(e);
-    }
-
-    return false;
-  }
-};

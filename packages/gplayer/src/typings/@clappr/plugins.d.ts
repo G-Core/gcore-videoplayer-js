@@ -20,10 +20,4 @@ declare module "@clappr/plugins" {
             seekbar: string;
         }
     }
-
-    // declare class MediaControl extends UICorePlugin {
-    //     constructor(core: Core);
-
-    //     configure(options: MediaControlOptions): void;
-    // }
 }

@@ -1,4 +1,4 @@
-import { Container, Events, Playback, UICorePlugin, Browser, template, $ } from '@clappr/core';
+import { Container, Events, Playback, UICorePlugin, Browser, template, $, Core } from '@clappr/core';
 import assert from 'assert';
 import {
   type TimeValue,
@@ -19,6 +19,8 @@ import type { ZeptoResult } from '../types.js';
 const VERSION: string = '0.0.1';
 
 const LOCAL_STORAGE_SUBTITLES_ID = 'subtitles_select';
+
+const T = 'plugins.subtitles';
 
 type TextTrackInfo = {
   language: string;
@@ -106,19 +108,20 @@ export class Subtitles extends UICorePlugin {
     // @ts-ignore
     this.stopListening(this.core.mediaControl, Events.MEDIACONTROL_SHOW);
     if (this.currentContainer) {
-        // @ts-ignore
-        this.stopListening(this.currentContainer, Events.CONTAINER_FULLSCREEN);
-        // @ts-ignore
-        this.stopListening(this.currentContainer, 'container:advertisement:start', this.onStartAd);
-        // @ts-ignore
-        this.stopListening(this.currentContainer, 'container:advertisement:finish', this.onFinishAd);
+      // @ts-ignore
+      this.stopListening(this.currentContainer, Events.CONTAINER_FULLSCREEN);
+      // @ts-ignore
+      this.stopListening(this.currentContainer, 'container:advertisement:start', this.onStartAd);
+      // @ts-ignore
+      this.stopListening(this.currentContainer, 'container:advertisement:finish', this.onFinishAd);
     }
   }
 
-  bindPlaybackEvents() {
+  private bindPlaybackEvents() {
     if (this.currentPlayback && this.currentPlayback === this.core.activePlayback) {
       return;
     }
+
     this.currentPlayback = this.core.activePlayback;
     this.currentContainer = this.core.activeContainer;
 
@@ -150,8 +153,6 @@ export class Subtitles extends UICorePlugin {
 
         tracks.length > 0 && this.fillLevels(tracks);
       } catch (error) {
-        // console.error(error);
-        // LogManager.exception(error);
         reportError(error);
       }
     }
@@ -190,7 +191,6 @@ export class Subtitles extends UICorePlugin {
     try {
       this.resizeFont();
     } catch (error) {
-      // LogManager.exception(error);
       reportError(error);
     }
   }
@@ -253,9 +253,9 @@ export class Subtitles extends UICorePlugin {
       this.$string = $(this.templateString());
       this.resizeFont();
 
-      this.currentContainer?.$el.append(this.$string);
+      this.currentContainer?.$el.append(this.$string[0]);
       if (
-        Object.prototype.hasOwnProperty.call(this.core.mediaControl, '$subtitlesSelector') &&
+        this.core.mediaControl.$subtitlesSelector &&
         this.core.mediaControl.$subtitlesSelector.length > 0
       ) {
         this.core.mediaControl.$subtitlesSelector.append(this.el);
@@ -294,7 +294,7 @@ export class Subtitles extends UICorePlugin {
 
   private selectLevel(id: string) {
     this.clearSubtitleText();
-    this.track = this.findLevelBy(id) || { ...NO_TRACK};
+    this.track = this.findLevelBy(id) || { ...NO_TRACK };
 
     this.hideSelectLevelMenu();
     if (!this.track) {
@@ -362,11 +362,11 @@ export class Subtitles extends UICorePlugin {
         const track = this.tracks[i];
         if (track.language === this.currentLevel.language) {
           track.mode = 'showing';
-  
+
           const currentTime = this.currentPlayback?.getCurrentTime() ?? 0;
           const cues = track.cues;
           let subtitleText = '';
-  
+
           if (cues && cues.length) {
             for (const cue of cues) {
               if (currentTime >= cue.startTime && currentTime <= cue.endTime) {
@@ -374,14 +374,14 @@ export class Subtitles extends UICorePlugin {
               }
             }
           }
-  
+
           this.setSubtitleText(subtitleText);
-  
+
           track.oncuechange = (e) => {
             try {
               if (track.activeCues?.length) {
                 const html = (track.activeCues[0] as VTTCue).getCueAsHTML();
-  
+
                 this.setSubtitleText(html);
               } else {
                 this.clearSubtitleText();

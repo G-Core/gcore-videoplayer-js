@@ -7,3 +7,4 @@ export * from "./trace/index.js";
 export * from "./trace/types.js";
 export * from "./types.js";
 export * from "./utils/Logger.js";
+export * from "./version.js";

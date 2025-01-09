@@ -26,6 +26,7 @@ export * from "./spinner-three-bounce/SpinnerThreeBounce.js";
 export * from "./statistics/Statistics.js";
 export * from "./subtitles/Subtitles.js";
 export * from "./thumbnails/Thumbnails.js";
+export * from "./tracer/index.js";
 // _ vast-ads
 // _ video360
 export * from "./volume-fade/VolumeFade.js";

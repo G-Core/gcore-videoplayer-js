@@ -1,9 +1,9 @@
 // https://github.com/rollup/rollup-starter-lib
-// import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
-// import scss from 'rollup-plugin-scss';
+import resolve from '@rollup/plugin-node-resolve';
 import sass from 'rollup-plugin-sass';
 import { string } from 'rollup-plugin-string';
+import polyfillNode from 'rollup-plugin-polyfill-node';
 
 export default [
   {
@@ -14,6 +14,7 @@ export default [
         verbose: true,
       }),
       commonjs(),
+      resolve(),
       string({
         include: [
           '**/*.ejs',
@@ -22,6 +23,7 @@ export default [
           '**/*.worker.js',
         ],
       }),
+      polyfillNode(),
     ],
     output: [
       {

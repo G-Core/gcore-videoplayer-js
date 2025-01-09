@@ -12,7 +12,6 @@ import DASHJS,  {
   IManifestInfo
 } from 'dashjs';
 
-import { trace } from '../../trace/index.js';
 import { Duration, TimePosition, TimeValue } from '../../playback.types.js';
 
 const AUTO = -1;
@@ -243,7 +242,6 @@ export default class DashPlayback extends HTML5Video {
   }
 
   _setup() {
-    trace(`${T} _setup`, { el: this.el });
     const dash = DASHJS.MediaPlayer().create();
     this._dash = dash;
     this._dash.initialize();
@@ -265,7 +263,6 @@ export default class DashPlayback extends HTML5Video {
 
     this._dash.on(DASHJS.MediaPlayer.events.STREAM_INITIALIZED, () => {
       const bitrates = dash.getBitrateInfoListFor('video');
-      trace(`${T} STREAM_INITIALIZED`, { bitrates });
 
       this._updatePlaybackType();
       this._fillLevels(bitrates);
@@ -279,13 +276,10 @@ export default class DashPlayback extends HTML5Video {
     });
 
     this._dash.on(DASHJS.MediaPlayer.events.METRIC_ADDED, (e: DashMetricEvent) => {
-      // console.log(`${T} onMetricAdded`, e);
-      // TODO
       // Listen for the first manifest request in order to update player UI
       if ((e.metric as string) === 'DVRInfo') { // TODO fix typings
         assert.ok(this._dash, 'An instance of dashjs MediaPlayer is required to get metrics');
         const dvrInfo = this._dash.getDashMetrics().getCurrentDVRInfo('video');
-        // trace(`${T} onMetricAdded DVRInfo`, {metric: e.metric, dvrInfo});
         if (dvrInfo) {
           // Extract time info
           this.manifestInfo = dvrInfo.manifestInfo;
@@ -578,7 +572,6 @@ export default class DashPlayback extends HTML5Video {
   }
 
   play() {
-    trace(`${T} play`, { dash: !!this._dash });
     if (!this._dash) {
       this._setup();
     }
@@ -622,13 +615,9 @@ export default class DashPlayback extends HTML5Video {
   _updatePlaybackType() {
     assert.ok(this._dash, 'An instance of dashjs MediaPlayer is required to update the playback type');
     this._playbackType = this._dash.isDynamic() ? Playback.LIVE : Playback.VOD;
-    trace(`${T} _updatePlaybackType`, {
-      playbackType: this._playbackType,
-    });
   }
 
   _fillLevels(levels: BitrateInfo[]) {
-    // trace(`${T} _fillLevels`, {levels});
     // TOOD check that levels[i].qualityIndex === i
     this._levels = levels.map((level) => {
       return { id: level.qualityIndex, level: level };
@@ -778,7 +767,6 @@ export default class DashPlayback extends HTML5Video {
   // }
 
   private onLevelSwitch(currentLevel: BitrateInfo) {
-    trace(`${T} onLevelSwitch`, {currentLevel});
     this.trigger(Events.PLAYBACK_BITRATE, {
       height: currentLevel.height,
       width: currentLevel.width,
@@ -797,12 +785,11 @@ export default class DashPlayback extends HTML5Video {
 }
 
 DashPlayback.canPlay = function (resource, mimeType) {
-  console.log(`${T} canPlay resource:%s mimeType:%s`, resource, mimeType);
   const resourceParts = resource.split('?')[0].match(/.*\.(.*)$/) || [];
   const isDash = ((resourceParts.length > 1 && resourceParts[1].toLowerCase() === 'mpd') ||
     mimeType === 'application/dash+xml' || mimeType === 'video/mp4');
   const ctor = window.MediaSource || ('WebKitMediaSource' in window ? window.WebKitMediaSource : undefined);
-  const isSupportByBrowser = typeof ctor === 'function';
-  console.log(`${T} canPlay isSupportByBrowser:%s isDash:%s`, isSupportByBrowser, isDash);
-  return !!(isSupportByBrowser && isDash);
+  const hasBrowserSupport = typeof ctor === 'function';
+  Log.debug(T, 'canPlay', {hasBrowserSupport, isDash});
+  return !!(hasBrowserSupport && isDash);
 };

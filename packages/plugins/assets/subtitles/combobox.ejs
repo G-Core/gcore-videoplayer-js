@@ -4,11 +4,11 @@
 
 <ul class='gcore-skin-bg-color'>
     <li><a href="#" class='gcore-skin-text-color' data-subtitles-select="off">off</a></li>
-    <% for (var i = 0; i < tracks.length; i++) { %>
-        <% if (tracks[i].kind === 'subtitles') { %>
+    <% for (const track of tracks) { %>
+        <% if (track.kind === 'subtitles' || track.kind === 'captions') { %>
             <li>
-                <a href="#" class='gcore-skin-text-color' data-subtitles-select="<%= tracks[i].language %>">
-                    <%= tracks[i].label %>
+                <a href="#" class='gcore-skin-text-color' data-subtitles-select="<%= track.language %>">
+                    <%= track.label %>
                 </a>
             </li>
         <% } %>

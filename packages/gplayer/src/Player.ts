@@ -1,15 +1,14 @@
 import {
   Browser,
+  Events as ClapprEvents,
+  HTML5Video,
   Log,
   Player as PlayerClappr,
   $,
   Loader,
 } from '@clappr/core';
 import assert from 'assert';
-import Hls from 'hls.js';
 import EventLite from "event-lite";
-
-import '../assets/style/main.scss'; // TODO check if needed
 
 import type {
   CorePlayerEvents,
@@ -18,36 +17,34 @@ import type {
   PlayerMediaSource,
 } from "./internal.types.js";
 import type {
+  BitrateInfo,
+  PlaybackType,
   PlayerPlugin,
   StreamMediaSource,
-} from "./types";
-
-import { reportError, trace } from "./trace/index.js";
+} from "./types.js";
+import { reportError } from "./trace/index.js";
 import {
   PlayerConfig,
-  MediaTransport,
-  TransportPreference,
+  PlayerEvent,
 } from "./types.js";
+import DashPlayback from './plugins/dash-playback/DashPlayback.js';
+import HlsPlayback from './plugins/hls-playback/HlsPlayback.js';
 
-export enum PlayerEvent {
-  Ready = 'ready',
-  Play = 'play',
-  Pause = 'pause',
-  Stop = 'stop',
-  Ended = 'ended',
-}
+import '../assets/style/main.scss'; // TODO check if needed
 
 // TODO implement transport retry/failover and fallback logic
 
 type PlayerEventHandler<T extends PlayerEvent> = () => void;
 
-const T = "Player";
+const T = "GPlayer";
 
 const DEFAULT_OPTIONS: Partial<PlayerConfig> = {
   autoPlay: false,
   mute: false,
   loop: false,
 }
+
+export type PlaybackModule = 'dash' | 'hls' | 'native';
 
 type PluginOptions = Record<string, unknown>;
 
@@ -67,9 +64,35 @@ export class Player {
 
   private tuneInEntered = false;
 
-  private supportedMediaTransports: MediaTransport[] = [];
-
   private config: PlayerConfig;
+
+  private bitrateInfo: BitrateInfo | null = null;
+
+  get activePlayback(): PlaybackModule | null {
+    if (!this.player?.core.activePlayback) {
+      return null;
+    }
+    switch (this.player.core.activePlayback.name) {
+      case 'dash':
+        return 'dash';
+      case 'hls':
+        return 'hls';
+      default:
+        return 'native';
+    }
+  }
+
+  get bitrate(): BitrateInfo | null {
+    return this.bitrateInfo;
+  }
+
+  get hd() {
+    return this.player?.core.activePlayback?.isHighDefinitionInUse || false;
+  }
+
+  get playbackType(): PlaybackType | undefined{
+    return this.player?.core.activePlayback?.getPlaybackType();
+  }
 
   get playing() {
     return this.player ? this.player.isPlaying() : false;
@@ -93,9 +116,13 @@ export class Player {
     this.emitter.off(event, handler);
   }
 
+  configure(config: Partial<PlayerConfig>) {
+    $.extend(true, this.config, config);
+  }
+
   async init(playerElement: HTMLElement) {
     assert.ok(!this.player, 'Player already initialized');
-    assert.ok(playerElement, 'Player element is required');
+    assert.ok(playerElement, 'Player container element is required');
     if (
       this.config.debug === 'all' ||
       this.config.debug === 'clappr'
@@ -103,27 +130,25 @@ export class Player {
       Log.setLevel(0);
     }
 
-    Log.debug('Config', this.config);
+    Log.debug(T, 'Config', this.config);
 
-    this.configurePlugins();
-    return this.loadPlugins().then(async () => {
-      const coreOpts = this.buildCoreOptions(playerElement);
-      const {
-        core,
-        container,
-      } = Loader.registeredPlugins;
-      coreOpts.plugins = {
-        core: Object.values(core),
-        container: Object.values(container),
-        playback: Loader.registeredPlaybacks,
-      } as CorePluginOptions;
-      console.log('plugins', coreOpts.plugins);
-      return this.initPlayer(coreOpts);
-    });
+    this.configurePlaybacks();
+    const coreOpts = this.buildCoreOptions(playerElement);
+    const {
+      core,
+      container,
+    } = Loader.registeredPlugins;
+    coreOpts.plugins = {
+      core: Object.values(core),
+      container: Object.values(container),
+      playback: Loader.registeredPlaybacks,
+    } as CorePluginOptions;
+    Log.debug(T, 'coreOpts', coreOpts);
+    return this.initPlayer(coreOpts);
   }
 
   destroy() {
-    trace(`${T} destroy`, { player: !!this.player });
+    Log.debug(T, 'destroy', { player: !!this.player });
     if (this.player) {
       this.player.destroy();
       this.player = null;
@@ -154,8 +179,8 @@ export class Player {
     Loader.registerPlugin(plugin);
   }
 
-  private loadPlugins(): Promise<void> {
-    return Promise.all(this.pluginLoaders.map((loader) => loader())).then(() => { });
+  static unregisterPlugin(plugin: PlayerPlugin) {
+    Loader.unregisterPlugin(plugin);
   }
 
   private initPlayer(coreOptions: CoreOptions) {
@@ -186,7 +211,7 @@ export class Player {
   // TODO sort this out
   private async tuneIn() {
     assert.ok(this.player);
-    trace(`${T} tuneIn enter`, {
+    Log.debug(T, 'tuneIn enter', {
       ready: this.clapprReady,
       tuneInEntered: this.tuneInEntered,
     });
@@ -195,6 +220,17 @@ export class Player {
     }
     this.tuneInEntered = true;
     const player = this.player;
+    try {
+      this.emitter.emit(PlayerEvent.Ready);
+    } catch (e) {
+      reportError(e);
+    }
+    if (player.core.activeContainer) {
+      this.bindBitrateChangeHandler();
+    }
+    player.core.on(ClapprEvents.CORE_ACTIVE_CONTAINER_CHANGED, () => {
+      this.bindBitrateChangeHandler();
+    }, null);
     if (
       Browser.isiOS &&
       player.core.activePlayback
@@ -212,40 +248,19 @@ export class Player {
     }
   }
 
-  private configurePlugins() {
-    if (!Browser.isiOS && this.config.multisources.some((el) => el.sourceDash)) {
-      this.scheduleLoad(async () => {
-        const module = await import('./plugins/dash-playback/DashPlayback.js');
-        Loader.registerPlayback(module.default);
-      })
-    }
-    // TODO remove !isiOS?
-    // if (!Browser.isiOS && this.config.multisources.some((el) => el.hls_mpegts_url)) {
-    if (this.config.multisources.some((el) => el.hlsMpegtsUrl || el.hlsCmafUrl || el.source.endsWith('.m3u8'))) {
-      this.scheduleLoad(async () => {
-        const module = await import('./plugins/hls-playback/HlsPlayback.js');
-        Loader.registerPlayback(module.default);
-      })
-    }
-  }
-
   private events: CorePlayerEvents = {
     onReady: () => {
+      Log.debug(T, 'onReady', { clapprReady: this.clapprReady, player: !!this.player, core: !!this.player?.core, activeContainer: !!this.player?.core.activeContainer });
       if (this.clapprReady) {
         return;
       }
       this.clapprReady = true;
+      // TODO figure out what's for
       if (this.timer) {
         clearTimeout(this.timer);
         this.timer = null;
       }
-      trace(`${T} onReady`);
       setTimeout(() => this.tuneIn(), 0);
-      try {
-        this.emitter.emit(PlayerEvent.Ready);
-      } catch (e) {
-        reportError(e);
-      }
     },
     onPlay: () => {
       try {
@@ -278,20 +293,21 @@ export class Player {
   };
 
   private buildCoreOptions(playerElement: HTMLElement): CoreOptions {
-    this.checkMediaTransportsSupport();
-    const multisources = this.processMultisources(this.config.priorityTransport);
-    const mediaSources = multisources.map(ms => ms.source);
-    const mainSource = this.findMainSource();
-    const mainSourceUrl = unwrapSource(mainSource ? this.selectMediaTransport(mainSource, this.config.priorityTransport) : undefined);
+    const multisources = this.config.multisources;
+    const mainSource = this.config.playbackType === 'live' ? multisources.find(ms => ms.live !== false) : multisources[0];
+    const mediaSources = mainSource ? this.buildMediaSourcesList(mainSource): [];
+    const mainSourceUrl = mediaSources[0];
     const poster = mainSource?.poster ?? this.config.poster;
 
     const coreOptions: CoreOptions & PluginOptions = {
+      ...this.config.pluginSettings,
       autoPlay: this.config.autoPlay,
       debug: this.config.debug || 'none',
       events: this.events,
+      height: playerElement.clientHeight,
+      loop: this.config.loop,
       multisources,
       mute: this.config.mute,
-      ...this.config.pluginSettings,
       playback: {
         controls: false,
         preload: Browser.isiOS ? 'metadata' : 'none',
@@ -305,86 +321,62 @@ export class Player {
       playbackType: this.config.playbackType,
       poster,
       width: playerElement.clientWidth,
-      height: playerElement.clientHeight,
-      loop: this.config.loop,
-      strings: this.config.strings,
       source: mainSourceUrl,
       sources: mediaSources,
+      strings: this.config.strings,
     };
-    trace(`${T} buildCoreOptions`, coreOptions);
     return coreOptions;
   }
 
-  private findMainSource(): StreamMediaSource | undefined {
-    return this.config.multisources.find(ms => ms.live !== false);
+  private configurePlaybacks() {
+    Loader.registerPlayback(DashPlayback);
+    Loader.registerPlayback(HlsPlayback);
+    Loader.registerPlayback(HTML5Video);
   }
 
-  private scheduleLoad(cb: () => Promise<void>) {
-    this.pluginLoaders.push(cb);
+  private bindBitrateChangeHandler() {
+    this.player?.core.activeContainer.on(ClapprEvents.CONTAINER_BITRATE, (bitrate: BitrateInfo) => {
+      this.bitrateInfo = bitrate;
+    });
   }
 
-  private selectMediaTransport(ms: StreamMediaSource, priorityTransport: TransportPreference = ms.priorityTransport): string {
-    const cmafUrl = ms.hlsCmafUrl || ms.source; // source is default url for hls
-    const mpegtsUrl = ms.hlsMpegtsUrl; // no-low-latency HLS
-    const dashUrl = ms.sourceDash;
-    const masterSource = ms.source;
-
-    const mts = this.getAvailableTransportsPreference(priorityTransport);
-    for (const mt of mts) {
-      switch (mt) {
-        case 'dash':
-          if (dashUrl) {
-            return dashUrl;
-          }
-          break;
-        case 'hls':
-          if (cmafUrl) {
-            return cmafUrl;
-          }
-          break;
-        default:
-          return mpegtsUrl || masterSource;
+  private buildMediaSourcesList(ms: StreamMediaSource): string[] {
+    const msl: string[] = [];
+    const sources: Record<'dash' | 'master' | 'hls' | 'mpegts', string | null> = {
+      dash: ms.sourceDash,
+      master: ms.source,
+      hls: ms.hlsCmafUrl,
+      mpegts: ms.hlsMpegtsUrl,
+    }
+    switch (this.config.priorityTransport) {
+      case 'dash':
+        if (sources.dash) {
+          msl.push(sources.dash);
+          sources.dash = null;
+        }
+        break;
+      case 'hls':
+        if (sources.hls) {
+          msl.push(sources.hls);
+          sources.hls = null;
+        }
+        if (sources.master?.endsWith('.m3u8')) {
+          msl.push(sources.master);
+          sources.master = null;
+        }
+        break;
+      case 'mpegts':
+        if (sources.mpegts) {
+          msl.push(sources.mpegts);
+          sources.mpegts = null
+        }
+        break;
+    }
+    Object.values(sources).forEach(s => {
+      if (s) {
+        msl.push(s);
       }
-    }
-    // no supported transport found
-    return '';
+    });
+    return msl;
   }
-
-  private getAvailableTransportsPreference(priorityTransport: TransportPreference): MediaTransport[] {
-    const mtp: MediaTransport[] = [];
-    if (priorityTransport !== 'auto' && this.supportedMediaTransports.includes(priorityTransport)) {
-      mtp.push(priorityTransport);
-    }
-    for (const mt of this.supportedMediaTransports) {
-      if (mt !== priorityTransport) {
-        mtp.push(mt);
-      }
-    }
-    return mtp;
-  }
-
-  private checkMediaTransportsSupport() {
-    const isDashSupported = typeof (globalThis.MediaSource || (globalThis as any).WebKitMediaSource) === 'function';
-    if (isDashSupported) {
-      this.supportedMediaTransports.push('dash');
-    }
-    if (Hls.isSupported()) {
-      this.supportedMediaTransports.push('hls');
-    }
-    this.supportedMediaTransports.push('mpegts');
-  }
-
-  private processMultisources(transport?: TransportPreference): StreamMediaSource[] {
-    return this.config.multisources.map((ms: StreamMediaSource): StreamMediaSource => ({
-      ...ms,
-      source: this.selectMediaTransport(ms, transport),
-    })).filter((el): el is StreamMediaSource => !!el.source);
-  }
-}
-
-function unwrapSource(s: PlayerMediaSource | undefined): string | undefined {
-  if (!s) {
-    return;
-  }
-  return typeof s === "string" ? s : s.source;
 }

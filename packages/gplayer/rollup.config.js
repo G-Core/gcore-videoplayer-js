@@ -1,29 +1,29 @@
 // https://github.com/rollup/rollup-starter-lib
-import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
-// import scss from 'rollup-plugin-scss';
+import json from '@rollup/plugin-json';
+import resolve from '@rollup/plugin-node-resolve';
 import sass from 'rollup-plugin-sass';
 import { string } from 'rollup-plugin-string';
+import polyfillNode from 'rollup-plugin-polyfill-node';
 
 export default [
   {
     input: 'lib/index.js',
     plugins: [
       sass({
-        // fileName: 'index.css',
         output: 'dist/index.css',
         verbose: true,
       }),
-      resolve({
-        resolveOnly: ["ms"],
-      }),
+      resolve(),
       commonjs(),
+      json(),
       string({
         include: [
           '**/*.ejs',
           '**/*.svg',
         ],
       }),
+      polyfillNode(),
     ],
     output: [
       {
