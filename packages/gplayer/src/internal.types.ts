@@ -47,6 +47,7 @@ type CorePlaybackConfig = {
   minimumDvrSize?: number; // TODO ?
   // maxAdaptiveBitrate?: number;
   // maxAdaptiveVideoDimensions?: unknown; // TODO
+  mute?: boolean;
   playInline: boolean;
   preload?: 'metadata' | 'auto' | 'none';
   // preferredAudioLanguage?: string;

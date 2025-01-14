@@ -415,13 +415,12 @@ export default class HlsPlayback extends HTML5Video {
   }
 
   _recover(evt: HlsEvents.ERROR, data: HlsErrorData, error: ErrorInfo) {
+    assert(this._hls, 'Hls.js instance is not available');
     if (!this._recoveredDecodingError) {
       this._recoveredDecodingError = true;
-      assert(this._hls, 'Hls.js instance is not available');
       this._hls.recoverMediaError();
     } else if (!this._recoveredAudioCodecError) {
       this._recoveredAudioCodecError = true;
-      assert(this._hls, 'Hls.js instance is not available');
       this._hls.swapAudioCodec();
       this._hls.recoverMediaError();
     } else {

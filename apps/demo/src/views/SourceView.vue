@@ -118,7 +118,6 @@ function setStreamInfo(si: Record<string, unknown>) {
 function fetchItem() {
   pending.value = true;
   error.value = '';
-  console.log("fetchItem", resourceUrl.value, token.value);
 
   fetch(resourceUrl.value, {
     headers: {

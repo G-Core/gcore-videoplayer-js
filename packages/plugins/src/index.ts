@@ -12,6 +12,7 @@ export * from "./error-screen/ErrorScreen.js";
 export * from "./favicon/Favicon.js";
 // _ ga-events
 export * from "./google-analytics/GoogleAnalytics.js";
+export * from "./kibo/index.js";
 export * from "./level-selector/LevelSelector.js";
 export * from "./logo/Logo.js";
 export * from "./media-control/MediaControl.js";

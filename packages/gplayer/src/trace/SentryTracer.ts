@@ -1,17 +1,20 @@
-import {Client} from "@sentry/types";
+import { Client, Scope } from "@sentry/core";
 
 /**
  * @beta
  */
 export class SentryTracer {
-  constructor(private client: Client) {}
+  constructor(private client: Client, private scope: Scope) {}
 
   reportError(e: Error) {
     this.client.captureException(e);
   }
 
-  trace(msg: string, data?: Record<string, unknown>) {
-    this.client.captureMessage(msg, "info", {
+  trace(message: string, data?: Record<string, unknown>) {
+    this.scope.addBreadcrumb({
+      type: "default",
+      level: "info",
+      message,
       data,
     });
   }

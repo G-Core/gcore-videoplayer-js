@@ -44,8 +44,6 @@ export class PictureInPicture extends UICorePlugin {
       pictureInPictureEnabled: document.pictureInPictureEnabled,
       requestPictureInPicture: HTMLVideoElement.prototype.requestPictureInPicture,
     });
-    // console.log(document.pictureInPictureEnabled);
-    // console.log(HTMLVideoElement.prototype.requestPictureInPicture);
 
     return document.pictureInPictureEnabled && !!HTMLVideoElement.prototype.requestPictureInPicture;
   }

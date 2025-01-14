@@ -1,5 +1,4 @@
 export * from "./Player.js"
-export * from "./backend.js";
 export * from "./playback.types.js";
 export * from "./trace/LogTracer.js";
 export * from "./trace/SentryTracer.js";

@@ -1,7 +1,6 @@
 import {
   Browser,
   Events as ClapprEvents,
-  HTML5Video,
   Log,
   Player as PlayerClappr,
   $,
@@ -14,7 +13,6 @@ import type {
   CorePlayerEvents,
   CoreOptions,
   CorePluginOptions,
-  PlayerMediaSource,
 } from "./internal.types.js";
 import type {
   BitrateInfo,
@@ -52,21 +50,19 @@ type PluginOptions = Record<string, unknown>;
  * @beta
  */
 export class Player {
+  private bitrateInfo: BitrateInfo | null = null;
+
+  private config: PlayerConfig;
+
   private emitter = new EventLite();
 
   private player: PlayerClappr | null = null;
 
-  private pluginLoaders: Array<() => Promise<void>> = [];
+  private ready = false;
 
-  private clapprReady = false;
+  private tuneInTimerId: ReturnType<typeof setTimeout> | null = null;
 
-  private timer: ReturnType<typeof setTimeout> | null = null;
-
-  private tuneInEntered = false;
-
-  private config: PlayerConfig;
-
-  private bitrateInfo: BitrateInfo | null = null;
+  private tunedIn = false;
 
   get activePlayback(): PlaybackModule | null {
     if (!this.player?.core.activePlayback) {
@@ -90,16 +86,8 @@ export class Player {
     return this.player?.core.activePlayback?.isHighDefinitionInUse || false;
   }
 
-  get playbackType(): PlaybackType | undefined{
+  get playbackType(): PlaybackType | undefined {
     return this.player?.core.activePlayback?.getPlaybackType();
-  }
-
-  get playing() {
-    return this.player ? this.player.isPlaying() : false;
-  }
-
-  get ready() {
-    return this.clapprReady;
   }
 
   constructor(
@@ -153,6 +141,13 @@ export class Player {
       this.player.destroy();
       this.player = null;
     }
+    this.ready = false;
+    this.tunedIn = false;
+    if (this.tuneInTimerId) {
+      clearTimeout(this.tuneInTimerId);
+      this.tuneInTimerId = null;
+    }
+    this.bitrateInfo = null;
   }
 
   pause() {
@@ -191,34 +186,24 @@ export class Player {
     );
     this.player = player;
 
-    this.timer = globalThis.setTimeout(() => {
-      try {
-        if (
-          !this.clapprReady &&
-          player.core &&
-          player.core
-            .activePlayback
-        ) {
-          this.tuneIn();
-          // player.onReady = null; // TODO ?
-        }
-      } catch (e) {
-        reportError(e);
-      }
+    // TODO checks if the whole thing is necessary
+    this.tuneInTimerId = globalThis.setTimeout(() => {
+      Log.debug(T, 'tuneInTimer', { ready: this.ready, tunedIn: this.tunedIn });
+      this.tuneInTimerId = null;
+      this.tuneIn();
     }, 4000);
   }
 
-  // TODO sort this out
   private async tuneIn() {
     assert.ok(this.player);
-    Log.debug(T, 'tuneIn enter', {
-      ready: this.clapprReady,
-      tuneInEntered: this.tuneInEntered,
+    Log.debug(T, 'tuneIn', {
+      ready: this.ready,
+      tunedIn: this.tunedIn,
     });
-    if (this.tuneInEntered) {
+    if (this.tunedIn) {
       return;
     }
-    this.tuneInEntered = true;
+    this.tunedIn = true;
     const player = this.player;
     try {
       this.emitter.emit(PlayerEvent.Ready);
@@ -246,19 +231,27 @@ export class Player {
         },
       );
     }
+    if (this.config.autoPlay) {
+      setTimeout(() => {
+        Log.debug(T, 'autoPlay');
+        assert(this.player);
+        this.player.play({ autoPlay: true });
+      }, 0)
+    }
   }
 
   private events: CorePlayerEvents = {
     onReady: () => {
-      Log.debug(T, 'onReady', { clapprReady: this.clapprReady, player: !!this.player, core: !!this.player?.core, activeContainer: !!this.player?.core.activeContainer });
-      if (this.clapprReady) {
+      Log.debug(T, 'onReady', {
+        ready: this.ready,
+      });
+      if (this.ready) {
         return;
       }
-      this.clapprReady = true;
-      // TODO figure out what's for
-      if (this.timer) {
-        clearTimeout(this.timer);
-        this.timer = null;
+      this.ready = true;
+      if (this.tuneInTimerId) {
+        clearTimeout(this.tuneInTimerId);
+        this.tuneInTimerId = null;
       }
       setTimeout(() => this.tuneIn(), 0);
     },
@@ -295,13 +288,13 @@ export class Player {
   private buildCoreOptions(playerElement: HTMLElement): CoreOptions {
     const multisources = this.config.multisources;
     const mainSource = this.config.playbackType === 'live' ? multisources.find(ms => ms.live !== false) : multisources[0];
-    const mediaSources = mainSource ? this.buildMediaSourcesList(mainSource): [];
+    const mediaSources = mainSource ? this.buildMediaSourcesList(mainSource) : [];
     const mainSourceUrl = mediaSources[0];
     const poster = mainSource?.poster ?? this.config.poster;
 
     const coreOptions: CoreOptions & PluginOptions = {
       ...this.config.pluginSettings,
-      autoPlay: this.config.autoPlay,
+      autoPlay: false,
       debug: this.config.debug || 'none',
       events: this.events,
       height: playerElement.clientHeight,
@@ -312,6 +305,7 @@ export class Player {
         controls: false,
         preload: Browser.isiOS ? 'metadata' : 'none',
         playInline: true,
+        mute: this.config.mute,
         crossOrigin: 'anonymous', // TODO
         hlsjsConfig: {
           debug: this.config.debug === 'all' || this.config.debug === 'hls',
@@ -331,7 +325,6 @@ export class Player {
   private configurePlaybacks() {
     Loader.registerPlayback(DashPlayback);
     Loader.registerPlayback(HlsPlayback);
-    Loader.registerPlayback(HTML5Video);
   }
 
   private bindBitrateChangeHandler() {

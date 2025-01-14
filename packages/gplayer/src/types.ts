@@ -15,13 +15,12 @@ export type PlayerConfig = {
   debug?: PlayerDebugSettings;
   language?: string;
   loop?: boolean;
-  multisources: StreamMediaSource[];
+  multisources: StreamMediaSource[]; // TODO rename sources or better split the sources and the source description settings
   mute?: boolean;
-  playbackType: PlaybackType;
+  playbackType?: PlaybackType;
   pluginSettings?: Record<string, unknown>;
   poster?: string;
   priorityTransport?: TransportPreference;
-  realtimeApi?: string;
   strings: TranslationSettings;
 }
 
@@ -73,6 +72,7 @@ export type StreamMediaSourceDto = {
   vtt: string | null;
 }
 
+// TODO split into sources and source attributes
 export type StreamMediaSource = {
   description: string;
   dvr: boolean;
@@ -84,7 +84,7 @@ export type StreamMediaSource = {
   poster: string | null;
   projection: ProjectionType | null;
   screenshot: string | null;
-  source: string
+  source: string | null;
   sourceDash: string | null;
   sprite: string | null;
   title: string;

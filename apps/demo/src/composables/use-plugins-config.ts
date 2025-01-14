@@ -62,7 +62,6 @@ const usePluginsConfig = () => {
 
   function configurePlugins() {
     Object.entries(PLUGINS).forEach(([name, plugin]) => {
-      console.log("configurePlugins", name, settings.plugins.includes(name))
       if (settings.plugins.includes(name)) {
         Player.registerPlugin(plugin)
       }

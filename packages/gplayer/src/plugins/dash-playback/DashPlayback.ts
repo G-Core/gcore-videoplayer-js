@@ -186,10 +186,9 @@ export default class DashPlayback extends HTML5Video {
 
   get _duration() {
     if (!this._dash) {
-      return null;
+      return Infinity;
     }
-
-    return this._dash.duration();
+    return this._dash.duration() ?? Infinity;
   }
 
   constructor(options: any, i18n: string, playerError?: any) {
@@ -329,7 +328,6 @@ export default class DashPlayback extends HTML5Video {
 
   // override
   _setupSrc() {
-    console.log(`${T} _setupSrc`);
     // this playback manages the src on the video element itself
   }
 

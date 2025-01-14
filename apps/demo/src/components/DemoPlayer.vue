@@ -29,7 +29,6 @@ import {
   type PlayerDebugTag,
   type StreamMediaSourceDto,
   type TransportPreference,
-  fromStreamMediaSourceDto,
 } from '@gcorevideo/player'
 
 import usePluginsConfig from "../composables/use-plugins-config";
@@ -270,6 +269,17 @@ function formatQuality(width: number, height: number): string {
 
 function buildMultisources(): StreamMediaSourceDto[] {
   return settings.multisources.map(fromStreamMediaSourceDto)
+}
+
+function fromStreamMediaSourceDto(s: StreamMediaSourceDto): StreamMediaSource {
+  return ({
+    ...s,
+    hlsCmafUrl: s.hls_cmaf_url ?? null,
+    hlsMpegtsUrl: s.hls_mpegts_url ?? null,
+    priorityTransport: s.priority_transport,
+    sourceDash: s.source_dash,
+    vtt: s.vtt,
+  });
 }
 </script>
 

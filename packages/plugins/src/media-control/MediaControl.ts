@@ -20,9 +20,8 @@ import {
 import {
   reportError,
   TimeProgress,
-  trace,
 } from '@gcorevideo/player';
-import Kibo from '../kibo/index.js';
+import { Kibo } from '../kibo/index.js';
 
 import { CLAPPR_VERSION } from '../build.js';
 import { ZeptoResult } from "../types";

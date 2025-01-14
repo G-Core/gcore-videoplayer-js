@@ -11,7 +11,7 @@ type KeyboardEventBindings = {
 
 type UpDown = 'up' | 'down';
 
-export default class Kibo {
+export class Kibo {
   private lastKeyCode = -1;
 
   private lastModifiers: Record<string, boolean> = {};
