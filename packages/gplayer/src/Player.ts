@@ -20,14 +20,8 @@ import type {
   PlayerPlugin,
   StreamMediaSource,
 } from './types.js'
-import {
-  reportError,
-  trace,
-} from './trace/index.js'
-import {
-  PlayerConfig,
-  PlayerEvent,
-} from './types.js'
+import { reportError, trace } from './trace/index.js'
+import { PlayerConfig, PlayerEvent } from './types.js'
 import DashPlayback from './plugins/dash-playback/DashPlayback.js'
 import HlsPlayback from './plugins/hls-playback/HlsPlayback.js'
 
@@ -35,9 +29,7 @@ import '../assets/style/main.scss' // TODO check if needed
 
 // TODO implement transport retry/failover and fallback logic
 
-type PlayerEventHandler<
-  T extends PlayerEvent,
-> = () => void
+type PlayerEventHandler<T extends PlayerEvent> = () => void
 
 const T = 'GPlayer'
 
@@ -54,49 +46,33 @@ const DEFAULT_OPTIONS: PlayerConfig = {
   poster: '',
 }
 
-export type PlaybackModule =
-  | 'dash'
-  | 'hls'
-  | 'native'
+export type PlaybackModule = 'dash' | 'hls' | 'native'
 
-type PluginOptions = Record<
-  string,
-  unknown
->
+type PluginOptions = Record<string, unknown>
 
 /**
  * @beta
  */
 export class Player {
-  private bitrateInfo: BitrateInfo | null =
-    null
+  private bitrateInfo: BitrateInfo | null = null
 
-  private config: PlayerConfig =
-    DEFAULT_OPTIONS
+  private config: PlayerConfig = DEFAULT_OPTIONS
 
   private emitter = new EventLite()
 
-  private player: PlayerClappr | null =
-    null
+  private player: PlayerClappr | null = null
 
   private ready = false
 
-  private tuneInTimerId: ReturnType<
-    typeof setTimeout
-  > | null = null
+  private tuneInTimerId: ReturnType<typeof setTimeout> | null = null
 
   private tunedIn = false
 
   get activePlayback(): PlaybackModule | null {
-    if (
-      !this.player?.core.activePlayback
-    ) {
+    if (!this.player?.core.activePlayback) {
       return null
     }
-    switch (
-      this.player.core.activePlayback
-        .name
-    ) {
+    switch (this.player.core.activePlayback.name) {
       case 'dash':
         return 'dash'
       case 'hls':
@@ -111,15 +87,10 @@ export class Player {
   }
 
   get hd() {
-    return (
-      this.player?.core.activePlayback
-        ?.isHighDefinitionInUse || false
-    )
+    return this.player?.core.activePlayback?.isHighDefinitionInUse || false
   }
 
-  get playbackType():
-    | PlaybackType
-    | undefined {
+  get playbackType(): PlaybackType | undefined {
     return this.player?.core.activePlayback?.getPlaybackType()
   }
 
@@ -127,51 +98,26 @@ export class Player {
     this.setConfig(config)
   }
 
-  on<T extends PlayerEvent>(
-    event: T,
-    handler: PlayerEventHandler<T>,
-  ) {
+  on<T extends PlayerEvent>(event: T, handler: PlayerEventHandler<T>) {
     this.emitter.on(event, handler)
   }
 
-  off<T extends PlayerEvent>(
-    event: T,
-    handler: PlayerEventHandler<T>,
-  ) {
+  off<T extends PlayerEvent>(event: T, handler: PlayerEventHandler<T>) {
     this.emitter.off(event, handler)
   }
 
-  configure(
-    config: Partial<PlayerConfig>,
-  ) {
+  configure(config: Partial<PlayerConfig>) {
     this.setConfig(config)
   }
 
-  private setConfig(
-    config: Partial<PlayerConfig>,
-  ) {
-    this.config = $.extend(
-      true,
-      this.config,
-      config,
-    )
+  private setConfig(config: Partial<PlayerConfig>) {
+    this.config = $.extend(true, this.config, config)
   }
 
-  async init(
-    playerElement: HTMLElement,
-  ) {
-    assert.ok(
-      !this.player,
-      'Player already initialized',
-    )
-    assert.ok(
-      playerElement,
-      'Player container element is required',
-    )
-    if (
-      this.config.debug === 'all' ||
-      this.config.debug === 'clappr'
-    ) {
+  async init(playerElement: HTMLElement) {
+    assert.ok(!this.player, 'Player already initialized')
+    assert.ok(playerElement, 'Player container element is required')
+    if (this.config.debug === 'all' || this.config.debug === 'clappr') {
       Log.setLevel(0)
     }
 
@@ -180,24 +126,15 @@ export class Player {
     })
 
     this.configurePlaybacks()
-    const coreOpts =
-      this.buildCoreOptions(
-        playerElement,
-      )
-    const { core, container } =
-      Loader.registeredPlugins
+    const coreOpts = this.buildCoreOptions(playerElement)
+    const { core, container } = Loader.registeredPlugins
     trace(`${T} init`, {
-      registeredPlaybacks:
-        Loader.registeredPlaybacks.map(
-          (p) => p.name,
-        ),
+      registeredPlaybacks: Loader.registeredPlaybacks.map((p) => p.name),
     })
     coreOpts.plugins = {
       core: Object.values(core),
-      container:
-        Object.values(container),
-      playback:
-        Loader.registeredPlaybacks,
+      container: Object.values(container),
+      playback: Loader.registeredPlaybacks,
     } as CorePluginOptions
     return this.initPlayer(coreOpts)
   }
@@ -220,76 +157,52 @@ export class Player {
   }
 
   pause() {
-    assert.ok(
-      this.player,
-      'Player not initialized',
-    )
+    assert.ok(this.player, 'Player not initialized')
     this.player.pause()
   }
 
   play() {
-    assert.ok(
-      this.player,
-      'Player not initialized',
-    )
+    assert.ok(this.player, 'Player not initialized')
     this.player.play()
   }
 
   seekTo(time: number) {
-    assert.ok(
-      this.player,
-      'Player not initialized',
-    )
+    assert.ok(this.player, 'Player not initialized')
     this.player.seek(time)
   }
 
   stop() {
-    assert.ok(
-      this.player,
-      'Player not initialized',
-    )
+    assert.ok(this.player, 'Player not initialized')
     this.player.stop()
   }
 
-  static registerPlugin(
-    plugin: PlayerPlugin,
-  ) {
+  static registerPlugin(plugin: PlayerPlugin) {
     Loader.registerPlugin(plugin)
   }
 
-  static unregisterPlugin(
-    plugin: PlayerPlugin,
-  ) {
+  static unregisterPlugin(plugin: PlayerPlugin) {
     Loader.unregisterPlugin(plugin)
   }
 
-  private initPlayer(
-    coreOptions: CoreOptions,
-  ) {
+  private initPlayer(coreOptions: CoreOptions) {
     trace(`${T} initPlayer`, {
       coreOptions,
     })
 
-    assert.ok(
-      !this.player,
-      'Player already initialized',
-    )
+    assert.ok(!this.player, 'Player already initialized')
 
-    const player = new PlayerClappr(
-      coreOptions,
-    )
+    const player = new PlayerClappr(coreOptions)
     this.player = player
 
     // TODO checks if the whole thing is necessary
-    this.tuneInTimerId =
-      globalThis.setTimeout(() => {
-        trace(`${T} tuneInTimer`, {
-          ready: this.ready,
-          tunedIn: this.tunedIn,
-        })
-        this.tuneInTimerId = null
-        this.tuneIn()
-      }, 4000)
+    this.tuneInTimerId = globalThis.setTimeout(() => {
+      trace(`${T} tuneInTimer`, {
+        ready: this.ready,
+        tunedIn: this.tunedIn,
+      })
+      this.tuneInTimerId = null
+      this.tuneIn()
+    }, 4000)
   }
 
   private async tuneIn() {
@@ -304,9 +217,7 @@ export class Player {
     this.tunedIn = true
     const player = this.player
     try {
-      this.emitter.emit(
-        PlayerEvent.Ready,
-      )
+      this.emitter.emit(PlayerEvent.Ready)
     } catch (e) {
       reportError(e)
     }
@@ -320,34 +231,29 @@ export class Player {
       },
       null,
     )
-    if (
-      Browser.isiOS &&
-      player.core.activePlayback
-    ) {
-      player.core.activePlayback.$el.on(
-        'webkitendfullscreen',
-        () => {
-          try {
-            player.core.handleFullscreenChange()
-          } catch (e) {
-            reportError(e)
-          }
-        },
-      )
+    if (Browser.isiOS && player.core.activePlayback) {
+      player.core.activePlayback.$el.on('webkitendfullscreen', () => {
+        try {
+          player.core.handleFullscreenChange()
+        } catch (e) {
+          reportError(e)
+        }
+      })
     }
     player.core.on(
       ClapprEvents.CORE_SCREEN_ORIENTATION_CHANGED,
-      ({
-        orientation,
-      }: {
-        orientation:
-          | 'landscape'
-          | 'portrait'
-      }) => {
-        trace(
-          `${T} CORE_SCREEN_ORIENTATION_CHANGED`,
-          { orientation },
-        )
+      ({ orientation }: { orientation: 'landscape' | 'portrait' }) => {
+        trace(`${T} CORE_SCREEN_ORIENTATION_CHANGED`, { orientation })
+      },
+      null,
+    )
+    player.core.on(
+      ClapprEvents.CORE_RESIZE,
+      ({ width, height }: { width: number; height: number }) => {
+        trace(`${T} CORE_RESIZE`, {
+          width,
+          height,
+        })
       },
       null,
     )
@@ -355,12 +261,8 @@ export class Player {
       setTimeout(() => {
         trace(`${T} autoPlay`, {
           player: !!this.player,
-          container:
-            !!this.player?.core
-              .activeContainer,
-          playback:
-            this.player?.core
-              .activePlayback.name,
+          container: !!this.player?.core.activeContainer,
+          playback: this.player?.core.activePlayback.name,
         })
         assert(this.player)
         this.player.play({
@@ -385,105 +287,75 @@ export class Player {
       }
       setTimeout(() => this.tuneIn(), 0)
     },
-    onResize: (newSize: {
-      width: number
-      height: number
-    }) => {
+    onResize: (newSize: { width: number; height: number }) => {
       trace(`${T} CORE_RESIZE`, {
         newSize,
       })
     },
     onPlay: () => {
       try {
-        this.emitter.emit(
-          PlayerEvent.Play,
-        )
+        this.emitter.emit(PlayerEvent.Play)
       } catch (e) {
         reportError(e)
       }
     },
     onPause: () => {
       try {
-        this.emitter.emit(
-          PlayerEvent.Pause,
-        )
+        this.emitter.emit(PlayerEvent.Pause)
       } catch (e) {
         reportError(e)
       }
     },
     onEnded: () => {
       try {
-        this.emitter.emit(
-          PlayerEvent.Ended,
-        )
+        this.emitter.emit(PlayerEvent.Ended)
       } catch (e) {
         reportError(e)
       }
     },
     onStop: () => {
       try {
-        this.emitter.emit(
-          PlayerEvent.Stop,
-        )
+        this.emitter.emit(PlayerEvent.Stop)
       } catch (e) {
         reportError(e)
       }
     },
   }
 
-  private buildCoreOptions(
-    playerElement: HTMLElement,
-  ): CoreOptions {
-    const multisources =
-      this.config.multisources
+  private buildCoreOptions(playerElement: HTMLElement): CoreOptions {
+    const multisources = this.config.multisources
     const mainSource =
-      this.config.playbackType ===
-      'live'
-        ? multisources.find(
-            (ms) => ms.live !== false,
-          )
+      this.config.playbackType === 'live'
+        ? multisources.find((ms) => ms.live !== false)
         : multisources[0]
     const mediaSources = mainSource
-      ? this.buildMediaSourcesList(
-          mainSource,
-        )
+      ? this.buildMediaSourcesList(mainSource)
       : []
     // const mainSourceUrl = mediaSources[0];
-    const poster =
-      mainSource?.poster ??
-      this.config.poster
+    const poster = mainSource?.poster ?? this.config.poster
 
-    const coreOptions: CoreOptions &
-      PluginOptions = {
+    const coreOptions: CoreOptions & PluginOptions = {
       ...this.config.pluginSettings,
       allowUserInteraction: true,
       autoPlay: false,
-      debug:
-        this.config.debug || 'none',
+      debug: this.config.debug || 'none',
       events: this.events,
-      height:
-        playerElement.clientHeight,
+      height: playerElement.clientHeight,
       loop: this.config.loop,
       multisources,
       mute: this.config.mute,
       playback: {
         controls: false,
         playInline: true,
-        preload: Browser.isiOS
-          ? 'metadata'
-          : 'none',
+        preload: Browser.isiOS ? 'metadata' : 'none',
         mute: this.config.mute,
         crossOrigin: 'anonymous', // TODO
         hlsjsConfig: {
-          debug:
-            this.config.debug ===
-              'all' ||
-            this.config.debug === 'hls',
+          debug: this.config.debug === 'all' || this.config.debug === 'hls',
         },
       },
       parent: playerElement,
-      playbackType:
-        this.config.playbackType,
+      playbackType: this.config.playbackType,
       poster,
       width: playerElement.clientWidth,
       // source: mainSourceUrl,
@@ -494,9 +366,7 @@ export class Player {
   }
 
   private configurePlaybacks() {
-    Loader.registerPlayback(
-      DashPlayback,
-    )
+    Loader.registerPlayback(DashPlayback)
     Loader.registerPlayback(HlsPlayback)
   }
 
@@ -509,25 +379,16 @@ export class Player {
     )
   }
 
-  private buildMediaSourcesList(
-    ms: StreamMediaSource,
-  ): string[] {
+  private buildMediaSourcesList(ms: StreamMediaSource): string[] {
     const msl: string[] = []
-    const sources: Record<
-      | 'dash'
-      | 'master'
-      | 'hls'
-      | 'mpegts',
-      string | null
-    > = {
-      dash: ms.sourceDash,
-      master: ms.source,
-      hls: ms.hlsCmafUrl,
-      mpegts: ms.hlsMpegtsUrl,
-    }
-    switch (
-      this.config.priorityTransport
-    ) {
+    const sources: Record<'dash' | 'master' | 'hls' | 'mpegts', string | null> =
+      {
+        dash: ms.sourceDash,
+        master: ms.source,
+        hls: ms.hlsCmafUrl,
+        mpegts: ms.hlsMpegtsUrl,
+      }
+    switch (this.config.priorityTransport) {
       case 'dash':
         addDash()
         break
@@ -542,13 +403,11 @@ export class Player {
         addHls()
         break
     }
-    Object.values(sources).forEach(
-      (s) => {
-        if (s) {
-          msl.push(s)
-        }
-      },
-    )
+    Object.values(sources).forEach((s) => {
+      if (s) {
+        msl.push(s)
+      }
+    })
     return msl
 
     function addMpegts() {
@@ -559,20 +418,13 @@ export class Player {
     }
 
     function addHls() {
-      if (
-        sources.hls &&
-        HlsPlayback.canPlay(sources.hls)
-      ) {
+      if (sources.hls && HlsPlayback.canPlay(sources.hls)) {
         msl.push(sources.hls)
         sources.hls = null
       }
       if (
-        sources.master?.endsWith(
-          '.m3u8',
-        ) &&
-        HlsPlayback.canPlay(
-          sources.master,
-        )
+        sources.master?.endsWith('.m3u8') &&
+        HlsPlayback.canPlay(sources.master)
       ) {
         msl.push(sources.master)
         sources.master = null
@@ -580,12 +432,7 @@ export class Player {
     }
 
     function addDash() {
-      if (
-        sources.dash &&
-        DashPlayback.canPlay(
-          sources.dash,
-        )
-      ) {
+      if (sources.dash && DashPlayback.canPlay(sources.dash)) {
         msl.push(sources.dash)
         sources.dash = null
       }
