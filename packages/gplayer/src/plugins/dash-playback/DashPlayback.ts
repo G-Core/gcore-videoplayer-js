@@ -11,6 +11,7 @@ import DASHJS,  {
   MetricEvent as DashMetricEvent,
   IManifestInfo
 } from 'dashjs';
+import { trace } from '../../trace/index.js';
 
 import { Duration, TimePosition, TimeValue } from '../../playback.types.js';
 
@@ -570,6 +571,7 @@ export default class DashPlayback extends HTML5Video {
   }
 
   play() {
+    trace(`${T} play`, { dash: !!this._dash });
     if (!this._dash) {
       this._setup();
     }
@@ -787,7 +789,7 @@ DashPlayback.canPlay = function (resource, mimeType) {
   const isDash = ((resourceParts.length > 1 && resourceParts[1].toLowerCase() === 'mpd') ||
     mimeType === 'application/dash+xml' || mimeType === 'video/mp4');
   const ctor = window.MediaSource || ('WebKitMediaSource' in window ? window.WebKitMediaSource : undefined);
-  const hasBrowserSupport = typeof ctor === 'function';
-  Log.debug(T, 'canPlay', {hasBrowserSupport, isDash});
-  return !!(hasBrowserSupport && isDash);
+  const hasSupport = typeof ctor === 'function';
+  trace(`${T} canPlay`, {hasSupport, isDash, resource});
+  return !!(hasSupport && isDash);
 };

@@ -1140,7 +1140,7 @@ export class MediaControl extends UICorePlugin {
     return playIcon;
   }
 
-  handleFullScreenOnBtn() {
+  private handleFullScreenOnBtn() {
     this.trigger(Events.MEDIACONTROL_FULLSCREEN, this.name);
     this.container.fullscreen();
     // TODO: fix after it full screen will be fixed on iOS

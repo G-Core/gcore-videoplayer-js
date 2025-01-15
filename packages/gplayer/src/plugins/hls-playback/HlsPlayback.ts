@@ -18,6 +18,7 @@ import HLSJS, {
 } from 'hls.js';
 
 import { TimePosition } from '../../playback.types.js';
+import { trace } from '../../trace/index.js';
 import { PlaybackType } from '../../types';
 import { TimerId } from '../../utils/types';
 
@@ -662,6 +663,7 @@ export default class HlsPlayback extends HTML5Video {
   }
 
   play() {
+    trace(`${T} play`, { hls: !!this._hls, ...this.options.hlsPlayback });
     !this._hls && this._setup();
     assert.ok(this._hls, 'Hls.js instance is not available');
     !this._manifestParsed && !this.options.hlsPlayback.preload && this._hls.loadSource(this.options.src);
@@ -903,9 +905,9 @@ export default class HlsPlayback extends HTML5Video {
 HlsPlayback.canPlay = function (resource: string, mimeType?: string): boolean {
   const resourceParts = resource.split('?')[0].match(/.*\.(.*)$/) || [];
   const isHls = ((resourceParts.length > 1 && resourceParts[1].toLowerCase() === 'm3u8') || listContainsIgnoreCase(mimeType, ['application/vnd.apple.mpegurl', 'application/x-mpegURL']));
-  const isSupported = HLSJS.isSupported();
-  Log.debug(T, 'canPlay', {
-    isSupported, isHls,
+  const hasSupport = HLSJS.isSupported();
+  trace(`${T} canPlay`, {
+    hasSupport, isHls, resource,
   })
-  return !!(isSupported && isHls);
+  return !!(hasSupport && isHls);
 };
