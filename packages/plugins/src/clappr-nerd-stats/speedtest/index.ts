@@ -1,5 +1,3 @@
-import { trace } from '@gcorevideo/player';
-
 import { type Server, type TestStatusInfo, Speedtest } from './Speedtest.js';
 import { CustomMetrics } from './types.js';
 
@@ -8,7 +6,7 @@ const DEFAULT_DOWNLOAD_SPEED = '0.00';
 
 const DRAW_SIZE = 5;
 
-const T = 'plugins.clappr_nerd_stats.speedtest';
+// const T = 'plugins.clappr_nerd_stats.speedtest';
 
 function limitDigits(value: number): string {
   return value > DIGITS_THRESHOLD ? '> ' + DIGITS_THRESHOLD : value.toFixed(2);
@@ -21,6 +19,8 @@ function getElementById(id: string): Element | null {
 const speedTest = new Speedtest();
 
 const speedtestResults: number[] = [];
+
+const serversList: Server[] = [];
 
 const getColor = (speedValue: number): string => {
   if (speedValue < 3) {
@@ -124,19 +124,17 @@ export const initSpeedTest = (customMetrics: CustomMetrics): Promise<void> => {
     };
     // getElementById('dlText').textContent = DEFAULT_DOWNLOAD_SPEED;
 
-    // speedTest.addTestPoints(SPEEDTEST_SERVERS);
-    await new Promise<void>((resolve, reject) => {
-      speedTest.selectServer((selectedServer: Server | null) => {
-        if (!selectedServer) {
-          return reject(new Error('Failed to select a server'));
+    await fetch('https://iam.gcdn.co/info/json')
+      .then(r => r.json())
+      .then(data => {
+        const country = data['Server Country code'].toLowerCase();
+        const server = serversList.find(s => s.country === country) || serversList[0];
+        if (!server) {
+          throw new Error('Failed to select a server');
         }
-        trace(`${T} initSpeedTest`, {
-          selectedServer
-        })
-        speedTest.setSelectedServer(selectedServer);
-        resolve();
+        speedTest.addTestPoint(server);
+        speedTest.setSelectedServer(server);
       });
-    });
   })();
 
   return inited;
@@ -159,7 +157,8 @@ export const clearSpeedTestResults = () => {
 };
 
 export function configureSpeedTest(servers: Server[]) {
-  speedTest.addTestPoints(servers);
+  // speedTest.addTestPoints(servers);
+  serversList.push(...servers);
 }
 
 type ConnectionSpeed = 0 | 1 | 2 | 3 | 4 | 5;
