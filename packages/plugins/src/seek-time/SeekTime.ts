@@ -9,7 +9,7 @@ import { CLAPPR_VERSION } from '../build.js';
 
 import seekTimeHTML from '../../assets/seek-time/seek-time.html';
 import '../../assets/seek-time/seek-time.scss';
-import { ZeptoResult } from 'src/types.js';
+import { ZeptoResult } from '../types.js';
 
 const { formatTime } = Utils;
 

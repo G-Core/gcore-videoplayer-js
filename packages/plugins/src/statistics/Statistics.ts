@@ -1,10 +1,9 @@
 import { Browser, Container, ContainerPlugin, Events, Playback } from '@clappr/core';
-import { StreamMediaSource } from '@gcorevideo/player';
+import { StreamMediaSource, type TimePosition } from '@gcorevideo/player';
 import Fingerprint from '@fingerprintjs/fingerprintjs';
 import { Events as HlsEvents, FragChangedData } from 'hls.js';
 
 import { CLAPPR_VERSION } from '../build.js';
-import { TimePosition } from '../types.js';
 
 export class Statistics extends ContainerPlugin {
   get name() {

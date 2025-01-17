@@ -385,6 +385,9 @@
     font-weight: 400;
     line-height: 16px;
     height: 16px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
 
     svg {
       path {

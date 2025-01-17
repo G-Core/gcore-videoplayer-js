@@ -1,38 +1,14 @@
+import { trace } from '@gcorevideo/player';
+
 import { type Server, type TestStatusInfo, Speedtest } from './Speedtest.js';
 import { CustomMetrics } from './types.js';
 
 const DIGITS_THRESHOLD = 99999;
 const DEFAULT_DOWNLOAD_SPEED = '0.00';
 
-// const SPEEDTEST_SERVERS = [
-//   {
-//     'id': 4,
-//     'name': 'Paris (France)',
-//     'server': 'http://am3-hw-edge-gc92.fe.gc.onl/speedtest/',
-//     'country': 'fr',
-//     'dlURL': 'backend/garbage.php',
-//     'ulURL': 'backend/empty.php',
-//     'pingURL': 'backend/empty.php',
-//     'getIpURL': 'backend/getIP.php',
-//     'pingT': 269.40000000037253
-//   }
-// ];
-
-const SPEEDTEST_SERVERS: Server[] = [
-  {
-    'id': 4,
-    'name': 'Paris (France)',
-    'server': 'https://am3-speedtest.tools.gcore.com/',
-    'country': 'fr',
-    'dlURL': 'speedtest-backend/garbage.php',
-    'ulURL': 'speedtest-backend/empty.php',
-    'pingURL': 'speedtest-backend/empty.php',
-    'getIpURL': 'speedtest-backend/getIP.php',
-    'pingT': 269.40000000037253
-  }
-];
-
 const DRAW_SIZE = 5;
+
+const T = 'plugins.clappr_nerd_stats.speedtest';
 
 function limitDigits(value: number): string {
   return value > DIGITS_THRESHOLD ? '> ' + DIGITS_THRESHOLD : value.toFixed(2);
@@ -101,7 +77,7 @@ export const initSpeedTest = (customMetrics: CustomMetrics): Promise<void> => {
         if (el) {
           el.textContent = dlSpeed;
         }
-        customMetrics.connectionSpeed = 0; // TODO rank 0..5
+        customMetrics.connectionSpeed = rankConnectionSpeed(data.dlStatus);
       }
 
       const pingStatus = parseFloat(data.pingStatus);
@@ -148,7 +124,19 @@ export const initSpeedTest = (customMetrics: CustomMetrics): Promise<void> => {
     };
     // getElementById('dlText').textContent = DEFAULT_DOWNLOAD_SPEED;
 
-    speedTest.addTestPoints(SPEEDTEST_SERVERS);
+    // speedTest.addTestPoints(SPEEDTEST_SERVERS);
+    await new Promise<void>((resolve, reject) => {
+      speedTest.selectServer((selectedServer: Server | null) => {
+        if (!selectedServer) {
+          return reject(new Error('Failed to select a server'));
+        }
+        trace(`${T} initSpeedTest`, {
+          selectedServer
+        })
+        speedTest.setSelectedServer(selectedServer);
+        resolve();
+      });
+    });
   })();
 
   return inited;
@@ -162,7 +150,6 @@ export const stopSpeedtest = () => {
 
 export const startSpeedtest = () =>  {
   if (speedTest.getState() !== 3) {
-    speedTest.setSelectedServer(SPEEDTEST_SERVERS[0]);
     speedTest.start();
   }
 };
@@ -170,3 +157,28 @@ export const startSpeedtest = () =>  {
 export const clearSpeedTestResults = () => {
   speedtestResults.splice(0, speedtestResults.length);
 };
+
+export function configureSpeedTest(servers: Server[]) {
+  speedTest.addTestPoints(servers);
+}
+
+type ConnectionSpeed = 0 | 1 | 2 | 3 | 4 | 5;
+
+function rankConnectionSpeed(dlSpeed: number): ConnectionSpeed {
+  if (dlSpeed >= 100) {
+    return 5;
+  }
+  if (dlSpeed >= 25) {
+    return 4;
+  }
+  if (dlSpeed >= 10) {
+    return 3;
+  }
+  if (dlSpeed >= 2) {
+    return 2;
+  }
+  if (dlSpeed >= 0.5) {
+    return 1;
+  }
+  return 0;
+}

@@ -20,7 +20,7 @@ type EndHandler = (success: boolean) => void;
 
 export type TestStatusInfo = {
   testState: -1 | 0 | 1 | 2 | 3 | 4 | 5;
-  dlStatus: number | 'Fail';
+  dlStatus: number | 'Fail'; // Mbps/Mibps
   ulStatus: number;
   pingStatus: string;
   clientIp: string;
@@ -35,6 +35,8 @@ export type TestStatusInfo = {
 type UpdateHandler = (data: TestStatusInfo) => void;
 
 type SelectCallback = (server: Server | null) => void;
+
+// const T = 'plugins.clappr_nerd_stats.speedtest.Speedtest';
 
 export class Speedtest {
   private worker: Worker | null = null;
@@ -400,7 +402,6 @@ export class Speedtest {
   }
 
   private initWorker(): Worker {
-    // new SpeedtestWorkerModule();
     if (this.workerUrl) {
       // TODO in destructor as well
       URL.revokeObjectURL(this.workerUrl);

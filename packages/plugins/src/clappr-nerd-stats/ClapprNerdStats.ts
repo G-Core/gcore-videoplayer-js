@@ -1,24 +1,25 @@
 import { UICorePlugin, Events, template, Core, Container } from '@clappr/core';
-import cloneDeep from 'lodash.clonedeep';
-import get from 'lodash.get';
 import Mousetrap from 'mousetrap';
 
+import { CLAPPR_VERSION } from '../build.js';
+import { ClapprStatsEvents, Metrics as BaseMetrics } from '../clappr-stats/types.js';
+import { newMetrics as newBaseMetrics } from '../clappr-stats/utils.js';
 import Formatter from './formatter.js';
 import {
   clearSpeedTestResults,
+  configureSpeedTest,
   drawSpeedTestResults,
   initSpeedTest,
   startSpeedtest,
   stopSpeedtest,
 } from './speedtest/index.js';
-import { CLAPPR_VERSION } from '../build.js';
+import { CustomMetrics } from './speedtest/types.js';
+import { ZeptoResult } from '../types.js';
 
 import '../../assets/clappr-nerd-stats/clappr-nerd-stats.scss';
 import pluginHtml from '../../assets/clappr-nerd-stats/clappr-nerd-stats.ejs';
 import buttonHtml from '../../assets/clappr-nerd-stats/button.ejs';
 import statsIcon from '../../assets/icons/new/stats.svg';
-import { CustomMetrics } from './speedtest/types.js';
-import { ZeptoResult } from '../types.js';
 
 const qualityClasses = [
   'speedtest-quality-value-1',
@@ -89,7 +90,7 @@ const drawSummary = (customMetrics: CustomMetrics, vodContainer: ZeptoResult, li
 
 type IconPosition = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
 
-type Metrics = {
+type Metrics = BaseMetrics & {
   general: {
     displayResolution?: string;
     volume?: number;
@@ -100,6 +101,8 @@ type Metrics = {
   };
 }
 
+// const T = 'plugins.clappr_nerd_stats';
+
 export class ClapprNerdStats extends UICorePlugin {
   private container: Container | null = null;
 
@@ -109,20 +112,13 @@ export class ClapprNerdStats extends UICorePlugin {
     jitter: 0,
   }
 
-  private metrics: Metrics = {
-    general: {},
-    custom: {
-      connectionSpeed: 0,
-      ping: 0,
-      jitter: 0,
-    },
-  };
+  private metrics: Metrics = newMetrics();
 
   private showing = false;
 
-  private _shortcut: string[];
+  private shortcut: string[];
 
-  private _iconPosition: IconPosition;
+  private iconPosition: IconPosition;
 
   get name() {
     return 'clappr_nerd_stats';
@@ -169,13 +165,14 @@ export class ClapprNerdStats extends UICorePlugin {
 
   constructor(core: Core) {
     super(core);
-    this._shortcut = get(core, 'options.clapprNerdStats.shortcut', ['command+shift+s', 'ctrl+shift+s']);
-    this._iconPosition = get(core, 'options.clapprNerdStats.iconPosition', 'bottom-right');
+    this.shortcut = core.options.clapprNerdStats?.shortcut ?? ['command+shift+s', 'ctrl+shift+s'];
+    this.iconPosition = core.options.clapprNerdStats?.iconPosition ?? 'bottom-right';
     this.customMetrics = {
       connectionSpeed: 0,
       ping: 0,
       jitter: 0,
     };
+    configureSpeedTest(core.options.clapprNerdStats?.speedTestServers ?? []);
   }
 
   bindEvents() {
@@ -183,21 +180,24 @@ export class ClapprNerdStats extends UICorePlugin {
     this.listenTo(this.core, 'gear:rendered', this.addToBottomGear);
   }
 
-  init() {
+  private init() {
     this.container = this.core.activeContainer;
     const clapprStats = this.container?.getPlugin('clappr_stats');
 
     if (!clapprStats) {
+      reportError({
+        message: 'clappr_stats plugin is not available',
+      });
       console.error('clappr-stats not available. Please, include it as a plugin of your Clappr instance.\n' +
         'For more info, visit: https://github.com/clappr/clappr-stats.');
       this.disable();
     } else {
-      Mousetrap.bind(this._shortcut, () => this.showOrHide());
+      Mousetrap.bind(this.shortcut, () => this.showOrHide());
       this.listenTo(this.core, Events.CORE_RESIZE, this.onPlayerResize);
       // TODO: fix
-      // this.listenTo(clapprStats, ClapprStats.REPORT_EVENT, this.updateMetrics);
+      this.listenTo(clapprStats, ClapprStatsEvents.REPORT_EVENT, this.updateMetrics);
       clapprStats.setUpdateMetrics(this.updateMetrics.bind(this));
-      this.updateMetrics(clapprStats._metrics);
+      this.updateMetrics(clapprStats.exportMetrics());
       this.render();
       // this.$el.find('.speed-test-button').on('click', this.onSpeedTestClick.bind(this));
       // this.$el.find('.close-speed-test').on('click', this.closeSpeedTest.bind(this));
@@ -223,7 +223,10 @@ export class ClapprNerdStats extends UICorePlugin {
     this.refreshSpeedTest();
     initSpeedTest(this.customMetrics).then(() => {
       startSpeedtest();
-    });
+    }).catch(e => {
+      reportError(e);
+      this.disable();
+    })
   }
 
   private hide(event?: MouseEvent) {
@@ -270,9 +273,8 @@ export class ClapprNerdStats extends UICorePlugin {
     this.metrics.custom.liveQuality = prefix + videoQualityNames[liveQuality - 1];
   }
 
-  // TODO type metrics
-  private updateMetrics(metrics: any) {
-    this.metrics = cloneDeep(metrics);
+  private updateMetrics(metrics: BaseMetrics) {
+    Object.assign(this.metrics, metrics);
     this.addGeneralMetrics();
     this.addCustomMetrics();
 
@@ -280,7 +282,7 @@ export class ClapprNerdStats extends UICorePlugin {
 
     this.$el.html(this.template({
       metrics: Formatter.format(this.metrics),
-      iconPosition: this._iconPosition
+      iconPosition: this.iconPosition
     }));
     this.setStatsBoxSize();
     drawSpeedTestResults();
@@ -308,7 +310,7 @@ export class ClapprNerdStats extends UICorePlugin {
   }
 
   render() {
-    this.core.$el.append(this.$el);
+    this.core.$el.append(this.$el[0]);
     this.hide();
 
     return this;
@@ -336,8 +338,7 @@ export class ClapprNerdStats extends UICorePlugin {
     this.customMetrics.jitter = 0;
 
     if (clapprStats) {
-      // TODO use API
-      this.updateMetrics(clapprStats._metrics);
+      this.updateMetrics(clapprStats.exportMetrics());
     }
   }
 
@@ -351,5 +352,17 @@ export class ClapprNerdStats extends UICorePlugin {
     setTimeout(() => {
       startSpeedtest();
     }, 800);
+  }
+}
+
+function newMetrics(): Metrics {
+  return {
+    ...newBaseMetrics(),
+    general: {},
+    custom: {
+      connectionSpeed: 0,
+      ping: 0,
+      jitter: 0,
+    },
   }
 }

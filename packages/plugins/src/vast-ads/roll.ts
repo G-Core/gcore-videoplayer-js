@@ -1,7 +1,8 @@
 // import LogManager from '../../utils/LogManager';
 import { $, Container, Core, Events, Log, Playback } from '@clappr/core';
 import assert from 'assert';
-import { TimerId, ZeptoResult } from 'src/types';
+
+import type { TimerId, ZeptoResult } from '../types.js';
 
 type RollConstructorOptions = {
   core: Core;
