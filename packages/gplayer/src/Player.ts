@@ -15,9 +15,9 @@ import type {
   CorePluginOptions,
 } from './internal.types.js'
 import type {
-  BitrateInfo,
   PlaybackType,
   PlayerPlugin,
+  QualityLevelInfo,
   StreamMediaSource,
 } from './types.js'
 import { reportError, trace } from './trace/index.js'
@@ -52,7 +52,7 @@ type PluginOptions = Record<string, unknown>
  * @beta
  */
 export class Player {
-  private bitrateInfo: BitrateInfo | null = null
+  private qLevel: QualityLevelInfo | null = null
 
   private config: PlayerConfig = DEFAULT_OPTIONS
 
@@ -61,6 +61,8 @@ export class Player {
   private player: PlayerClappr | null = null
 
   private ready = false
+
+  private rootNode: HTMLElement | null = null
 
   private tuneInTimerId: ReturnType<typeof setTimeout> | null = null
 
@@ -80,8 +82,15 @@ export class Player {
     }
   }
 
-  get bitrate(): BitrateInfo | null {
-    return this.bitrateInfo
+  get activeSource(): string | null {
+    if (!this.player?.core.activePlayback) {
+      return null
+    }
+    return this.player.core.activePlayback.options.src
+  }
+
+  get bitrate(): QualityLevelInfo | null {
+    return this.qLevel
   }
 
   get hd() {
@@ -151,7 +160,7 @@ export class Player {
       clearTimeout(this.tuneInTimerId)
       this.tuneInTimerId = null
     }
-    this.bitrateInfo = null
+    this.qLevel = null
   }
 
   pause() {
@@ -241,7 +250,19 @@ export class Player {
     player.core.on(
       ClapprEvents.CORE_SCREEN_ORIENTATION_CHANGED,
       ({ orientation }: { orientation: 'landscape' | 'portrait' }) => {
-        trace(`${T} CORE_SCREEN_ORIENTATION_CHANGED`, { orientation })
+        trace(`${T} CORE_SCREEN_ORIENTATION_CHANGED`, {
+          orientation,
+          rootNode: {
+            width: this.rootNode?.clientWidth,
+            height: this.rootNode?.clientHeight,
+          },
+        })
+        if (Browser.isiOS && this.rootNode) {
+          player.core.resize({
+            width: this.rootNode.clientWidth,
+            height: this.rootNode.clientHeight,
+          })
+        }
       },
       null,
     )
@@ -286,7 +307,7 @@ export class Player {
       setTimeout(() => this.tuneIn(), 0)
     },
     onResize: (newSize: { width: number; height: number }) => {
-      trace(`${T} CORE_RESIZE`, {
+      trace(`${T} onResize`, {
         newSize,
       })
     },
@@ -320,7 +341,7 @@ export class Player {
     },
   }
 
-  private buildCoreOptions(playerElement: HTMLElement): CoreOptions {
+  private buildCoreOptions(rootNode: HTMLElement): CoreOptions {
     const multisources = this.config.multisources
     const mainSource =
       this.config.playbackType === 'live'
@@ -332,13 +353,15 @@ export class Player {
     // const mainSourceUrl = mediaSources[0];
     const poster = mainSource?.poster ?? this.config.poster
 
+    this.rootNode = rootNode
+
     const coreOptions: CoreOptions & PluginOptions = {
       ...this.config.pluginSettings,
       allowUserInteraction: true,
       autoPlay: false,
       debug: this.config.debug || 'none',
       events: this.events,
-      height: playerElement.clientHeight,
+      height: rootNode.clientHeight,
       loop: this.config.loop,
       multisources,
       mute: this.config.mute,
@@ -352,10 +375,10 @@ export class Player {
           debug: this.config.debug === 'all' || this.config.debug === 'hls',
         },
       },
-      parent: playerElement,
+      parent: rootNode,
       playbackType: this.config.playbackType,
       poster,
-      width: playerElement.clientWidth,
+      width: rootNode.clientWidth,
       // source: mainSourceUrl,
       sources: mediaSources,
       strings: this.config.strings,
@@ -364,6 +387,7 @@ export class Player {
   }
 
   private configurePlaybacks() {
+    // TODO check if there are DASH and HLS sources and don't register the respective playbacks if not
     Loader.registerPlayback(DashPlayback)
     Loader.registerPlayback(HlsPlayback)
   }
@@ -371,8 +395,8 @@ export class Player {
   private bindBitrateChangeHandler() {
     this.player?.core.activeContainer.on(
       ClapprEvents.CONTAINER_BITRATE,
-      (bitrate: BitrateInfo) => {
-        this.bitrateInfo = bitrate
+      (bitrate: QualityLevelInfo) => {
+        this.qLevel = bitrate
       },
     )
   }

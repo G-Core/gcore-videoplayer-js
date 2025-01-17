@@ -1,107 +1,108 @@
-export type PlayerDebugTag = 'all' | 'clappr' | 'dash' | 'hls' | 'none';
-export type PlayerDebugSettings = PlayerDebugTag | boolean;
+export type PlayerDebugTag = 'all' | 'clappr' | 'dash' | 'hls' | 'none'
+export type PlayerDebugSettings = PlayerDebugTag | boolean
 
-export type PlaybackType = 'live' | 'vod';
-export type MediaTransport = 'dash' | 'hls' | 'mpegts';
-export type TransportPreference = MediaTransport | 'auto';
+export type PlaybackType = 'live' | 'vod'
+export type MediaTransport = 'dash' | 'hls' | 'mpegts'
+export type TransportPreference = MediaTransport | 'auto'
 
 export type PlayerPlugin = {
-  new(...args: any[]): unknown;
-  type: string; // 'core' | 'container' | 'playback';
+  new (...args: any[]): unknown
+  type: string // 'core' | 'container' | 'playback';
 }
 
 export type PlayerConfig = {
-  autoPlay?: boolean;
-  debug?: PlayerDebugSettings;
-  language?: string;
-  loop?: boolean;
-  multisources: StreamMediaSource[]; // TODO rename sources or better split the sources and the source description settings
-  mute?: boolean;
-  playbackType?: PlaybackType;
-  pluginSettings?: Record<string, unknown>;
-  poster?: string;
-  priorityTransport?: TransportPreference;
-  strings: TranslationSettings;
+  autoPlay?: boolean
+  debug?: PlayerDebugSettings
+  language?: string
+  loop?: boolean
+  multisources: StreamMediaSource[] // TODO rename sources or better split the sources and the source description settings
+  mute?: boolean
+  playbackType?: PlaybackType
+  pluginSettings?: Record<string, unknown>
+  poster?: string
+  priorityTransport?: TransportPreference
+  strings: TranslationSettings
 }
 
 export type PlayerOptionsThumbnails = {
-  sprite?: string | null;
-  vtt?: string | null;
-
+  sprite?: string | null
+  vtt?: string | null
 }
 
 export type ContextMenuSettings = {
-  preventShowContextMenu?: boolean;
+  preventShowContextMenu?: boolean
 }
 
-type LangTag = string;
-type TranslationKey = string;
+type LangTag = string
+type TranslationKey = string
 
 export type BroadcastSettings = {
-  status?: 'live' | 'noActiveStreams';
+  status?: 'live' | 'noActiveStreams'
 }
 
-export type ClipsPluginOptions = Record<string, unknown>; // TODO
+export type ClipsPluginOptions = Record<string, unknown> // TODO
 
 export type PlaybackSettings = {
-  hlsjsConfig?: Record<string, unknown>;
-  playInline?: boolean;
-  preload?: 'auto' | 'metadata' | 'none';
-  triggerFatalErrorOnResourceDenied?: boolean;
+  hlsjsConfig?: Record<string, unknown>
+  playInline?: boolean
+  preload?: 'auto' | 'metadata' | 'none'
+  triggerFatalErrorOnResourceDenied?: boolean
 }
 
-export type DashSettings = Record<string, unknown>; //
+export type DashSettings = Record<string, unknown> //
 
 // TODO consult with the Broadcaster team
 // TODO turn into camel case convert at user level
 export type StreamMediaSourceDto = {
-  description: string;
-  dvr: boolean;
-  hls_cmaf_url?: string;
-  hls_mpegts_url?: string;
-  id: number;
-  live: boolean;
-  priority_transport: TransportPreference;
-  poster: string | null;
-  projection: ProjectionType | null;
-  screenshot: string | null;
+  description: string
+  dvr: boolean
+  hls_cmaf_url?: string
+  hls_mpegts_url?: string
+  id: number
+  live: boolean
+  priority_transport: TransportPreference
+  poster: string | null
+  projection: ProjectionType | null
+  screenshot: string | null
   source: string
-  source_dash: string | null;
-  sprite: string | null;
-  title: string;
-  vtt: string | null;
+  source_dash: string | null
+  sprite: string | null
+  title: string
+  vtt: string | null
 }
 
 // TODO split into sources and source attributes
 export type StreamMediaSource = {
-  description: string;
-  dvr: boolean;
-  hlsCmafUrl: string | null;
-  hlsMpegtsUrl: string | null;
-  id: number;
-  live: boolean;
-  priorityTransport: TransportPreference;
-  poster: string | null;
-  projection: ProjectionType | null;
-  screenshot: string | null;
-  source: string | null;
-  sourceDash: string | null;
-  sprite: string | null;
-  title: string;
-  vtt: string | null;
+  description: string
+  dvr: boolean
+  hlsCmafUrl: string | null
+  hlsMpegtsUrl: string | null
+  id: number
+  live: boolean
+  priorityTransport: TransportPreference
+  poster: string | null
+  projection: ProjectionType | null
+  screenshot: string | null
+  source: string | null
+  sourceDash: string | null
+  sprite: string | null
+  title: string
+  vtt: string | null
 }
 
-export type SrcProjectionType = 'regular' | '360' | 'vr180' | 'vr360tb';
-export type ProjectionType = '360' | '180' | '360_TB';
+export type SrcProjectionType = 'regular' | '360' | 'vr180' | 'vr360tb'
+export type ProjectionType = '360' | '180' | '360_TB'
 
-export type TranslationSettings = Partial<Record<LangTag, Record<TranslationKey, string>>>;
+export type TranslationSettings = Partial<
+  Record<LangTag, Record<TranslationKey, string>>
+>
 
-export type BitrateInfo = {
-  height: number;
-  width: number;
-  bitrate: number;
-  level: number;
-};
+export type QualityLevelInfo = {
+  level: number
+  width: number
+  height: number
+  bitrate: number
+}
 
 export enum PlayerEvent {
   Ready = 'ready',
