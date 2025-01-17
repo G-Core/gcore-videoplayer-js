@@ -788,6 +788,7 @@ DashPlayback.canPlay = function (resource, mimeType) {
   const resourceParts = resource.split('?')[0].match(/.*\.(.*)$/) || [];
   const isDash = ((resourceParts.length > 1 && resourceParts[1].toLowerCase() === 'mpd') ||
     mimeType === 'application/dash+xml' || mimeType === 'video/mp4');
+  // TODO check
   const ctor = window.MediaSource || ('WebKitMediaSource' in window ? window.WebKitMediaSource : undefined);
   const hasSupport = typeof ctor === 'function';
   trace(`${T} canPlay`, {hasSupport, isDash, resource});

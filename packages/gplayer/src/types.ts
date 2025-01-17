@@ -1,3 +1,5 @@
+import { PlayerMediaSource } from "./internal.types"
+
 export type PlayerDebugTag = 'all' | 'clappr' | 'dash' | 'hls' | 'none'
 export type PlayerDebugSettings = PlayerDebugTag | boolean
 
@@ -21,6 +23,7 @@ export type PlayerConfig = {
   pluginSettings?: Record<string, unknown>
   poster?: string
   priorityTransport?: TransportPreference
+  sources: PlayerMediaSource[];
   strings: TranslationSettings
 }
 

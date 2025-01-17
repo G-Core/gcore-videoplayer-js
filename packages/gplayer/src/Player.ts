@@ -13,17 +13,20 @@ import type {
   CorePlayerEvents,
   CoreOptions,
   CorePluginOptions,
+  PlayerMediaSource,
 } from './internal.types.js'
 import type {
   PlaybackType,
   PlayerPlugin,
   QualityLevelInfo,
   StreamMediaSource,
+  TransportPreference,
 } from './types.js'
 import { reportError, trace } from './trace/index.js'
 import { PlayerConfig, PlayerEvent } from './types.js'
 import DashPlayback from './plugins/dash-playback/DashPlayback.js'
 import HlsPlayback from './plugins/hls-playback/HlsPlayback.js'
+import { buildSourcesPriorityList, buildSourcesSet, unwrapSource } from './utils/mediaSources.js'
 
 // TODO implement transport retry/failover and fallback logic
 
@@ -33,15 +36,16 @@ const T = 'GPlayer'
 
 const DEFAULT_OPTIONS: PlayerConfig = {
   autoPlay: false,
-  mute: false,
+  debug: 'none',
   loop: false,
+  mute: false,
   multisources: [],
   playbackType: 'vod',
-  priorityTransport: 'dash',
-  debug: 'none',
   pluginSettings: {},
-  strings: {},
   poster: '',
+  priorityTransport: 'dash',
+  sources: [],
+  strings: {},
 }
 
 export type PlaybackModule = 'dash' | 'hls' | 'native'
@@ -342,16 +346,20 @@ export class Player {
   }
 
   private buildCoreOptions(rootNode: HTMLElement): CoreOptions {
-    const multisources = this.config.multisources
-    const mainSource =
-      this.config.playbackType === 'live'
-        ? multisources.find((ms) => ms.live !== false)
-        : multisources[0]
-    const mediaSources = mainSource
-      ? this.buildMediaSourcesList(mainSource)
-      : []
+    // TODO extract
+    // const multisources = this.config.multisources
+    // const mainSource =
+    //   this.config.playbackType === 'live'
+    //     ? multisources.find((ms) => ms.live !== false)
+    //     : multisources[0]
+    // const mediaSources = mainSource
+    //   ? this.buildMediaSourcesList(mainSource)
+    //   : []
     // const mainSourceUrl = mediaSources[0];
-    const poster = mainSource?.poster ?? this.config.poster
+    // const poster = mainSource?.poster ?? this.config.poster
+    const poster = this.config.poster
+
+    const source = this.selectMediaSource(); // TODO
 
     this.rootNode = rootNode
 
@@ -363,7 +371,6 @@ export class Player {
       events: this.events,
       height: rootNode.clientHeight,
       loop: this.config.loop,
-      multisources,
       mute: this.config.mute,
       playback: {
         controls: false,
@@ -379,8 +386,8 @@ export class Player {
       playbackType: this.config.playbackType,
       poster,
       width: rootNode.clientWidth,
-      // source: mainSourceUrl,
-      sources: mediaSources,
+      source: source ? unwrapSource(source) : undefined,
+      // sources: mediaSources,
       strings: this.config.strings,
     }
     return coreOptions
@@ -401,63 +408,8 @@ export class Player {
     )
   }
 
-  private buildMediaSourcesList(ms: StreamMediaSource): string[] {
-    const msl: string[] = []
-    const sources: Record<'dash' | 'master' | 'hls' | 'mpegts', string | null> =
-      {
-        dash: ms.sourceDash,
-        master: ms.source,
-        hls: ms.hlsCmafUrl,
-        mpegts: ms.hlsMpegtsUrl,
-      }
-    switch (this.config.priorityTransport) {
-      case 'dash':
-        addDash()
-        break
-      case 'hls':
-        addHls()
-        break
-      case 'mpegts':
-        addMpegts()
-        break
-      case 'auto':
-        addDash()
-        addHls()
-        break
-    }
-    Object.values(sources).forEach((s) => {
-      if (s) {
-        msl.push(s)
-      }
-    })
-    return msl
-
-    function addMpegts() {
-      if (sources.mpegts) {
-        msl.push(sources.mpegts)
-        sources.mpegts = null
-      }
-    }
-
-    function addHls() {
-      if (sources.hls && HlsPlayback.canPlay(sources.hls)) {
-        msl.push(sources.hls)
-        sources.hls = null
-      }
-      if (
-        sources.master?.endsWith('.m3u8') &&
-        HlsPlayback.canPlay(sources.master)
-      ) {
-        msl.push(sources.master)
-        sources.master = null
-      }
-    }
-
-    function addDash() {
-      if (sources.dash && DashPlayback.canPlay(sources.dash)) {
-        msl.push(sources.dash)
-        sources.dash = null
-      }
-    }
+  // TODO select a single source to play according to the priority transport and the modules support
+  private selectMediaSource(): PlayerMediaSource | undefined {
+    return buildSourcesPriorityList(buildSourcesSet(this.config.sources), this.config.priorityTransport)[0]
   }
 }

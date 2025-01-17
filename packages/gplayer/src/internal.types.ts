@@ -18,7 +18,7 @@ type MediacontrolStyles = {
   buttons?: string;
 }
 
-type PlayerMediaSourceDesc = {
+export type PlayerMediaSourceDesc = {
   mimeType?: string;
   source: string;
 }
@@ -116,7 +116,7 @@ export type CoreOptions = {
   maxBufferLength?: number;
   mediacontrol?: MediacontrolStyles;
   mimeType?: string;
-  multisources: StreamMediaSource[];
+  // multisources: StreamMediaSource[];
   mute?: boolean;
   persistConfig?: boolean;
   preload?: "auto" | "metadata" | "none";
