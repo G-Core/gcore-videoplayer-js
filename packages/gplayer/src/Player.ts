@@ -408,7 +408,7 @@ export class Player {
     )
   }
 
-  // TODO select a single source to play according to the priority transport and the modules support
+  // Select a single source to play according to the priority transport and the modules support
   private selectMediaSource(): PlayerMediaSource | undefined {
     return buildSourcesPriorityList(buildSourcesSet(this.config.sources), this.config.priorityTransport)[0]
   }
