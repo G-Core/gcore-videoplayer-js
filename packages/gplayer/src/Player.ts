@@ -25,8 +25,6 @@ import { PlayerConfig, PlayerEvent } from './types.js'
 import DashPlayback from './plugins/dash-playback/DashPlayback.js'
 import HlsPlayback from './plugins/hls-playback/HlsPlayback.js'
 
-import '../assets/style/main.scss' // TODO check if needed
-
 // TODO implement transport retry/failover and fallback logic
 
 type PlayerEventHandler<T extends PlayerEvent> = () => void

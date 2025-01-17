@@ -1,3 +1,5 @@
+import '../assets/style/main.scss';
+
 export * from "./audio-selector/AudioSelector.js";
 export * from "./big-mute-button/BigMuteButton.js";
 export * from "./bottom-gear/BottomGear.js";
