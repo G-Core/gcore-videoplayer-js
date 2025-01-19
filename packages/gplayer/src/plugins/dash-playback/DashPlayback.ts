@@ -2,14 +2,8 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-import {
-  Events,
-  HTML5Video,
-  Log,
-  Playback,
-  /* PlayerError, */ Utils,
-} from '@clappr/core'
-import assert from 'assert' // uses Node.js's assert types
+import { Events, HTML5Video, Log, Playback, Utils } from '@clappr/core'
+import assert from 'assert'
 import DASHJS, {
   ErrorEvent as DashErrorEvent,
   PlaybackErrorEvent as DashPlaybackErrorEvent,
@@ -19,7 +13,7 @@ import DASHJS, {
 } from 'dashjs'
 import { trace } from '../../trace/index.js'
 
-import { Duration, TimePosition, TimeValue } from '../../playback.types.js'
+import { TimePosition, TimeValue } from '../../playback.types.js'
 
 const AUTO = -1
 
@@ -50,16 +44,29 @@ export default class DashPlayback extends HTML5Video {
 
   _currentLevel: number | null = null
 
+  // true when the actual duration is longer than hlsjs's live sync point
+  // when this is false playableRegionDuration will be the actual duration
+  // when this is true playableRegionDuration will exclude the time after the sync point
   _durationExcludesAfterLiveSyncPoint: boolean = false
 
   _isReadyState: boolean = false
 
+  // if content is removed from the beginning then this empty area should
+  // be ignored. "playableRegionDuration" excludes the empty area
   _playableRegionDuration: number = 0
 
+  // for hls streams which have dvr with a sliding window,
+  // the content at the start of the playlist is removed as new
+  // content is appended at the end.
+  // this means the actual playable start time will increase as the
+  // start content is deleted
+  // For streams with dvr where the entire recording is kept from the
+  // beginning this should stay as 0
   _playableRegionStartTime: number = 0
 
   _playbackType: PlaybackType = Playback.VOD
 
+  // #EXT-X-PLAYLIST-TYPE
   _playlistType: PlaylistType | null = null
 
   // #EXT-X-PROGRAM-DATE-TIME
@@ -69,28 +76,24 @@ export default class DashPlayback extends HTML5Video {
 
   _extrapolatedWindowDuration: number = 0
 
-  _extrapolatedWindowNumSegments: number = 0
-
-  _lastDuration: Duration | null = null
+  _lastDuration: TimeValue | null = null
 
   _lastTimeUpdate: TimePosition = { current: 0, total: 0 }
 
+  // {local, remote} remote is the time in the video element that should represent 0
+  //                 local is the system time when the 'remote' measurment took place
   _localStartTimeCorrelation: LocalTimeCorrelation | null = null
 
+  // {local, remote} remote is the time in the video element that should represents the end
+  //                 local is the system time when the 'remote' measurment took place
   _localEndTimeCorrelation: LocalTimeCorrelation | null = null
-
-  _recoverAttemptsRemaining: number = 0
-
-  _recoveredAudioCodecError = false
-
-  _recoveredDecodingError = false
 
   startChangeQuality = false
 
   manifestInfo: IManifestInfo | null = null
 
   // #EXT-X-TARGETDURATION
-  _segmentTargetDuration: Duration | null = null
+  _segmentTargetDuration: TimeValue | null = null
 
   _timeUpdateTimer: ReturnType<typeof setInterval> | null = null
 
@@ -114,27 +117,25 @@ export default class DashPlayback extends HTML5Video {
     return this._isReadyState
   }
 
-  set currentLevel(id) {
+  set currentLevel(id: number) {
     this._currentLevel = id
 
     this.trigger(Events.PLAYBACK_LEVEL_SWITCH_START)
-    const cfg = {
-      streaming: {
-        abr: {
-          autoSwitchBitrate: {
-            video: id === -1,
-          },
-          ABRStrategy: 'abrL2A',
-        },
-      },
-    }
+
+    // TODO use $.extend
+    const settings = this.options.dash ? structuredClone(this.options.dash) : {}
+    settings.streaming = settings.streaming || {}
+    settings.streaming.abr = settings.streaming.abr || {}
+    settings.streaming.abr.autoSwitchBitrate =
+      settings.streaming.abr.autoSwitchBitrate || {}
+    settings.streaming.abr.autoSwitchBitrate.video = id === -1
 
     assert.ok(
       this._dash,
       'An instance of dashjs MediaPlayer is required to switch levels',
     )
     const dash = this._dash
-    this.options.dash && dash.updateSettings({ ...this.options.dash, ...cfg })
+    dash.updateSettings(settings)
     if (id !== -1) {
       this._dash.setQualityFor('video', id)
     }
@@ -213,51 +214,8 @@ export default class DashPlayback extends HTML5Video {
 
   constructor(options: any, i18n: string, playerError?: any) {
     super(options, i18n, playerError)
-    // backwards compatibility (TODO: remove on 0.3.0)
-    // this.options.playback || (this.options.playback = this.options);
-    // The size of the start time extrapolation window measured as a multiple of segments.
-    // Should be 2 or higher, or 0 to disable. Should only need to be increased above 2 if more than one segment is
-    // removed from the start of the playlist at a time. E.g if the playlist is cached for 10 seconds and new chunks are
-    // added/removed every 5.
-    this._extrapolatedWindowNumSegments =
-      this.options.playback?.extrapolatedWindowNumSegments ?? 2
-
     if (this.options.playbackType) {
       this._playbackType = this.options.playbackType
-    }
-    // this._lastTimeUpdate = { current: 0, total: 0 };
-    // this._lastDuration = null;
-    // for hls streams which have dvr with a sliding window,
-    // the content at the start of the playlist is removed as new
-    // content is appended at the end.
-    // this means the actual playable start time will increase as the
-    // start content is deleted
-    // For streams with dvr where the entire recording is kept from the
-    // beginning this should stay as 0
-    // this._playableRegionStartTime = 0;
-    // {local, remote} remote is the time in the video element that should represent 0
-    //                 local is the system time when the 'remote' measurment took place
-    // this._localStartTimeCorrelation = null;
-    // {local, remote} remote is the time in the video element that should represents the end
-    //                 local is the system time when the 'remote' measurment took place
-    // this._localEndTimeCorrelation = null;
-    // if content is removed from the beginning then this empty area should
-    // be ignored. "playableRegionDuration" excludes the empty area
-    // this._playableRegionDuration = 0;
-    // #EXT-X-PROGRAM-DATE-TIME
-    // this._programDateTime = 0;
-
-    // this.manifestInfo = null;
-    // true when the actual duration is longer than hlsjs's live sync point
-    // when this is false playableRegionDuration will be the actual duration
-    // when this is true playableRegionDuration will exclude the time after the sync point
-    // this._durationExcludesAfterLiveSyncPoint = false;
-    // // #EXT-X-TARGETDURATION
-    // this._segmentTargetDuration = null;
-    // #EXT-X-PLAYLIST-TYPE
-    // this._playlistType = null;
-    if (this.options.hlsRecoverAttempts) {
-      this._recoverAttemptsRemaining = this.options.hlsRecoverAttempts
     }
   }
 
@@ -266,12 +224,18 @@ export default class DashPlayback extends HTML5Video {
     this._dash = dash
     this._dash.initialize()
 
-    const cfg = this.options.dash ?? {}
-
-    cfg.streaming = cfg.streaming || {}
-    cfg.streaming.text = cfg.streaming.text || { defaultEnabled: false }
-
-    this.options.dash && this._dash.updateSettings(cfg)
+    if (this.options.dash) {
+      const settings = structuredClone(this.options.dash)
+      if (!settings.streaming) {
+        settings.streaming = {}
+      }
+      if (!settings.streaming.text) {
+        settings.streaming.text = {
+          defaultEnabled: false,
+        }
+      }
+      this._dash.updateSettings(this.options.dash)
+    }
 
     this._dash.attachView(this.el)
 
@@ -338,30 +302,6 @@ export default class DashPlayback extends HTML5Video {
     this.trigger(Events.PLAYBACK_READY, this.name)
   }
 
-  // TODO
-  // _recover(evt, data, error) {
-  //   console.warn('recover', evt, data, error);
-  //   assert.ok(this._dash, 'An instance of dashjs MediaPlayer is required to recover');
-  //   // TODO figure out what's going on here
-  //   const dash = this._dash;
-  //   if (!this._recoveredDecodingError) {
-  //     this._recoveredDecodingError = true;
-  //     // dash.recoverMediaError();
-  //   } else if (!this._recoveredAudioCodecError) {
-  //     this._recoveredAudioCodecError = true;
-  //     // dash.swapAudioCodec();
-  //     // dash.recoverMediaError();
-  //   } else {
-  //     // TODO what does it have to do with hlsjs?
-  //     Log.error('hlsjs: failed to recover', { evt, data });
-  //     error.level = PlayerError.Levels.FATAL;
-  //     const formattedError = this.createError(error);
-
-  //     this.trigger(Events.PLAYBACK_ERROR, formattedError);
-  //     this.stop();
-  //   }
-  // }
-
   // override
   _setupSrc() {
     // this playback manages the src on the video element itself
@@ -388,7 +328,7 @@ export default class DashPlayback extends HTML5Video {
   // the duration on the video element itself should not be used
   // as this does not necesarily represent the duration of the stream
   // https://github.com/clappr/clappr/issues/668#issuecomment-157036678
-  getDuration(): Duration {
+  getDuration(): TimeValue {
     assert.ok(
       this._duration !== null,
       'A valid duration is required to get the duration',
@@ -453,7 +393,6 @@ export default class DashPlayback extends HTML5Video {
   _updateSettings() {
     if (this._playbackType === Playback.VOD) {
       this.settings.left = ['playpause', 'position', 'duration']
-      // this.settings.left.push('playstop');
     } else if (this.dvrEnabled) {
       this.settings.left = ['playpause']
     } else {
@@ -700,147 +639,6 @@ export default class DashPlayback extends HTML5Video {
     this.trigger(Events.PLAYBACK_LEVELS_AVAILABLE, this._levels)
   }
 
-  // _onLevelUpdated(_: any, data) {
-  //   this._segmentTargetDuration = data.details.targetduration;
-  //   this._playlistType = data.details.type || null;
-
-  //   let startTimeChanged = false;
-  //   let durationChanged = false;
-  //   const fragments = data.details.fragments;
-  //   const previousPlayableRegionStartTime = this._playableRegionStartTime;
-  //   const previousPlayableRegionDuration = this._playableRegionDuration;
-
-  //   if (fragments.length === 0) {
-  //     return;
-  //   }
-
-  //   // #EXT-X-PROGRAM-DATE-TIME
-  //   if (fragments[0].rawProgramDateTime) {
-  //     this._programDateTime = fragments[0].rawProgramDateTime;
-  //   }
-
-  //   if (this._playableRegionStartTime !== fragments[0].start) {
-  //     startTimeChanged = true;
-  //     this._playableRegionStartTime = fragments[0].start;
-  //   }
-
-  //   if (startTimeChanged) {
-  //     if (!this._localStartTimeCorrelation) {
-  //       // set the correlation to map to middle of the extrapolation window
-  //       this._localStartTimeCorrelation = {
-  //         local: this._now,
-  //         remote: (fragments[0].start + (this._extrapolatedWindowDuration / 2)) * 1000
-  //       };
-  //     } else {
-  //       // check if the correlation still works
-  //       const corr = this._localStartTimeCorrelation;
-  //       const timePassed = this._now - corr.local;
-  //       // this should point to a time within the extrapolation window
-  //       const startTime = (corr.remote + timePassed) / 1000;
-
-  //       if (startTime < fragments[0].start) {
-  //         // our start time is now earlier than the first chunk
-  //         // (maybe the chunk was removed early)
-  //         // reset correlation so that it sits at the beginning of the first available chunk
-  //         this._localStartTimeCorrelation = {
-  //           local: this._now,
-  //           remote: fragments[0].start * 1000
-  //         };
-  //       } else if (startTime > previousPlayableRegionStartTime + this._extrapolatedWindowDuration) {
-  //         // start time was past the end of the old extrapolation window (so would have been capped)
-  //         // see if now that time would be inside the window, and if it would be set the correlation
-  //         // so that it resumes from the time it was at at the end of the old window
-  //         // update the correlation so that the time starts counting again from the value it's on now
-  //         this._localStartTimeCorrelation = {
-  //           local: this._now,
-  //           remote: Math.max(
-  //             fragments[0].start,
-  //             previousPlayableRegionStartTime + this._extrapolatedWindowDuration
-  //           ) * 1000
-  //         };
-  //       }
-  //     }
-  //   }
-
-  //   let newDuration = data.details.totalduration;
-
-  //   // if it's a live stream then shorten the duration to remove access
-  //   // to the area after hlsjs's live sync point
-  //   // seeks to areas after this point sometimes have issues
-  //   if (this._playbackType === Playback.LIVE) {
-  //     const fragmentTargetDuration = data.details.targetduration;
-  //     const hlsjsConfig = this.options.playback.hlsjsConfig || {};
-  //     // eslint-disable-next-line no-undef
-  //     const liveSyncDurationCount = hlsjsConfig.liveSyncDurationCount || HLSJS.DefaultConfig.liveSyncDurationCount;
-  //     const hiddenAreaDuration = fragmentTargetDuration * liveSyncDurationCount;
-
-  //     if (hiddenAreaDuration <= newDuration) {
-  //       newDuration -= hiddenAreaDuration;
-  //       this._durationExcludesAfterLiveSyncPoint = true;
-  //     } else {
-  //       this._durationExcludesAfterLiveSyncPoint = false;
-  //     }
-  //   }
-
-  //   if (newDuration !== this._playableRegionDuration) {
-  //     durationChanged = true;
-  //     this._playableRegionDuration = newDuration;
-  //   }
-
-  //   // Note the end time is not the playableRegionDuration
-  //   // The end time will always increase even if content is removed from the beginning
-  //   const endTime = fragments[0].start + newDuration;
-  //   const previousEndTime = previousPlayableRegionStartTime + previousPlayableRegionDuration;
-  //   const endTimeChanged = endTime !== previousEndTime;
-
-  //   if (endTimeChanged) {
-  //     if (!this._localEndTimeCorrelation) {
-  //       // set the correlation to map to the end
-  //       this._localEndTimeCorrelation = {
-  //         local: this._now,
-  //         remote: endTime * 1000
-  //       };
-  //     } else {
-  //       // check if the correlation still works
-  //       const corr = this._localEndTimeCorrelation;
-  //       const timePassed = this._now - corr.local;
-  //       // this should point to a time within the extrapolation window from the end
-  //       const extrapolatedEndTime = (corr.remote + timePassed) / 1000;
-
-  //       if (extrapolatedEndTime > endTime) {
-  //         this._localEndTimeCorrelation = {
-  //           local: this._now,
-  //           remote: endTime * 1000
-  //         };
-  //       } else if (extrapolatedEndTime < endTime - this._extrapolatedWindowDuration) {
-  //         // our extrapolated end time is now earlier than the extrapolation window from the actual end time
-  //         // (maybe a chunk became available early)
-  //         // reset correlation so that it sits at the beginning of the extrapolation window from the end time
-  //         this._localEndTimeCorrelation = {
-  //           local: this._now,
-  //           remote: (endTime - this._extrapolatedWindowDuration) * 1000
-  //         };
-  //       } else if (extrapolatedEndTime > previousEndTime) {
-  //         // end time was past the old end time (so would have been capped)
-  //         // set the correlation so that it resumes from the time it was at at the end of the old window
-  //         this._localEndTimeCorrelation = {
-  //           local: this._now,
-  //           remote: previousEndTime * 1000
-  //         };
-  //       }
-  //     }
-  //   }
-
-  //   // now that the values have been updated call any methods that use on them so they get the updated values
-  //   // immediately
-  //   durationChanged && this._onDurationChange();
-  //   startTimeChanged && this._onProgress();
-  // }
-
-  // _onFragmentLoaded(evt, data) {
-  //   this.trigger(Events.PLAYBACK_FRAGMENT_LOADED, data);
-  // }
-
   private onLevelSwitch(currentLevel: BitrateInfo) {
     this.trigger(Events.PLAYBACK_BITRATE, {
       height: currentLevel.height,
@@ -865,7 +663,6 @@ DashPlayback.canPlay = function (resource, mimeType) {
     (resourceParts.length > 1 && resourceParts[1].toLowerCase() === 'mpd') ||
     mimeType === 'application/dash+xml' ||
     mimeType === 'video/mp4'
-  // TODO check
   const ms = window.MediaSource
   const mms =
     'ManagedMediaSource' in window ? window.ManagedMediaSource : undefined

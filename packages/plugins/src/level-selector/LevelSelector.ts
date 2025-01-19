@@ -226,12 +226,11 @@ export class LevelSelector extends UICorePlugin {
 
   private onLevelSelect(event: MouseEvent) {
     const selectedLevel = (event.currentTarget as HTMLElement)?.dataset?.id;
-    trace('${T} onLevelSelect', { selectedLevel });
+    trace(`${T} onLevelSelect`, { selectedLevel });
     this.setIndexLevel(parseInt((event.currentTarget as HTMLElement)?.dataset?.id ?? "-1", 10));
     // this.toggleContextMenu();
-    // event.stopPropagation();
-
-    // return false;
+    event.stopPropagation();
+    return false;
   }
 
   goBack() {
@@ -240,10 +239,10 @@ export class LevelSelector extends UICorePlugin {
 
   setIndexLevel(index: number) {
     this.selectedLevelId = index;
-    if (this.core.activePlayback) {
-      this.core.activePlayback.trigger('playback:level:select:start');
+    if (!this.core.activePlayback) {
+      return;
     }
-    if (this.core.activePlayback.currentLevel.id === this.selectedLevelId) {
+    if (this.core.activePlayback.currentLevel === this.selectedLevelId) {
       return false;
     }
     this.core.activePlayback.currentLevel = this.selectedLevelId;
@@ -252,7 +251,6 @@ export class LevelSelector extends UICorePlugin {
       this.updateText(this.selectedLevelId);
       this.highlightCurrentLevel();
     } catch (error) {
-      // LogManager.exception(error);
       reportError(error);
     }
   }
@@ -285,6 +283,7 @@ export class LevelSelector extends UICorePlugin {
 
   startLevelSwitch() {
     // Player.player.trigger('startLevelSwitch');
+    this.core.activePlayback.trigger('playback:level:select:start');
     this.levelElement(this.selectedLevelId).addClass('changing');
   }
 

@@ -19,14 +19,16 @@ import type {
   PlaybackType,
   PlayerPlugin,
   QualityLevelInfo,
-  StreamMediaSource,
-  TransportPreference,
 } from './types.js'
 import { reportError, trace } from './trace/index.js'
 import { PlayerConfig, PlayerEvent } from './types.js'
 import DashPlayback from './plugins/dash-playback/DashPlayback.js'
 import HlsPlayback from './plugins/hls-playback/HlsPlayback.js'
-import { buildSourcesPriorityList, buildSourcesSet, unwrapSource } from './utils/mediaSources.js'
+import {
+  buildSourcesPriorityList,
+  buildSourcesSet,
+  unwrapSource,
+} from './utils/mediaSources.js'
 
 // TODO implement transport retry/failover and fallback logic
 
@@ -39,7 +41,6 @@ const DEFAULT_OPTIONS: PlayerConfig = {
   debug: 'none',
   loop: false,
   mute: false,
-  multisources: [],
   playbackType: 'vod',
   pluginSettings: {},
   poster: '',
@@ -177,6 +178,14 @@ export class Player {
     this.player.play()
   }
 
+  resize(newSize: { width: number; height: number }) {
+    assert.ok(this.player, 'Player not initialized')
+    trace(`${T} resize`, {
+      newSize,
+    })
+    this.player.resize(newSize)
+  }
+
   seekTo(time: number) {
     assert.ok(this.player, 'Player not initialized')
     this.player.seek(time)
@@ -280,6 +289,15 @@ export class Player {
       },
       null,
     )
+    player.core.on(
+      ClapprEvents.CORE_FULLSCREEN,
+      (isFullscreen: boolean) => {
+        trace(`${T} CORE_FULLSCREEN`, {
+          isFullscreen,
+        })
+      },
+      null,
+    )
     if (this.config.autoPlay) {
       setTimeout(() => {
         trace(`${T} autoPlay`, {
@@ -359,7 +377,7 @@ export class Player {
     // const poster = mainSource?.poster ?? this.config.poster
     const poster = this.config.poster
 
-    const source = this.selectMediaSource(); // TODO
+    const source = this.selectMediaSource() // TODO
 
     this.rootNode = rootNode
 
@@ -367,6 +385,7 @@ export class Player {
       ...this.config.pluginSettings,
       allowUserInteraction: true,
       autoPlay: false,
+      dash: this.config.dash,
       debug: this.config.debug || 'none',
       events: this.events,
       height: rootNode.clientHeight,
@@ -410,6 +429,9 @@ export class Player {
 
   // Select a single source to play according to the priority transport and the modules support
   private selectMediaSource(): PlayerMediaSource | undefined {
-    return buildSourcesPriorityList(buildSourcesSet(this.config.sources), this.config.priorityTransport)[0]
+    return buildSourcesPriorityList(
+      buildSourcesSet(this.config.sources),
+      this.config.priorityTransport,
+    )[0]
   }
 }

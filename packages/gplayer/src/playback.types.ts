@@ -1,10 +1,8 @@
-export type Duration = number;
-
 export type TimeValue = number;
 
 export type TimePosition = {
-  current: number;
-  total: number;
+  current: TimeValue;
+  total: TimeValue;
 }
 
 export type TimeProgress = TimePosition & { start: number; };

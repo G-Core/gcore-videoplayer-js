@@ -14,10 +14,10 @@ export type PlayerPlugin = {
 
 export type PlayerConfig = {
   autoPlay?: boolean
+  dash?: DashSettings
   debug?: PlayerDebugSettings
   language?: string
   loop?: boolean
-  multisources: StreamMediaSource[] // TODO rename sources or better split the sources and the source description settings
   mute?: boolean
   playbackType?: PlaybackType
   pluginSettings?: Record<string, unknown>
