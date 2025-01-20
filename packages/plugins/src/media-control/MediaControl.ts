@@ -18,8 +18,9 @@ import {
   $,
 } from '@clappr/core';
 import {
+  type TimeProgress,
   reportError,
-  TimeProgress,
+  trace,
 } from '@gcorevideo/player';
 import { Kibo } from '../kibo/index.js';
 
@@ -358,7 +359,7 @@ export class MediaControl extends UICorePlugin {
     // see https://github.com/clappr/clappr/issues/1127
     if (!Fullscreen.fullscreenEnabled() && video.webkitSupportsFullscreen) {
       this.fullScreenOnVideoTagSupported = true;
-      this.settingsUpdate(null);
+      this.settingsUpdate();
     }
   }
 
@@ -608,7 +609,7 @@ export class MediaControl extends UICorePlugin {
     this.setInitialVolume();
     this.changeTogglePlay();
     this.bindContainerEvents();
-    this.settingsUpdate(null);
+    this.settingsUpdate();
     this.container && this.container.trigger(Events.CONTAINER_PLAYBACKDVRSTATECHANGED, this.container.isDvrInUse());
     this.container && this.container.mediaControlDisabled && this.disable();
     this.trigger(Events.MEDIACONTROL_CONTAINERCHANGED);
@@ -812,8 +813,12 @@ export class MediaControl extends UICorePlugin {
     }
   }
 
-  settingsUpdate(event: any) {
+  private settingsUpdate() {
     const newSettings = this.getSettings();
+    trace(`${T} settingsUpdate`, {
+      newSettings,
+      currentSettings: this.settings,
+    });
 
     $.extend(true, newSettings, {
       left: [],

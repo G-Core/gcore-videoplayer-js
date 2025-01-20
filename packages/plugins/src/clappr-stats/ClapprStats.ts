@@ -1,9 +1,9 @@
 import { Container, ContainerPlugin, Events as CoreEvents, Log } from '@clappr/core';
-import type { TimePosition, TimeProgress } from '@gcorevideo/player';
+import type { QualityLevel, TimePosition, TimeProgress } from '@gcorevideo/player';
 import assert from 'assert';
 
 import { CLAPPR_VERSION } from '../build.js';
-import { QualityLevelInfo, TimerId } from '../types.js';
+import { TimerId } from '../types.js';
 import type { Metrics, MetricsUpdateFn } from './types.js';
 import { ClapprStatsEvents } from './types.js';
 import { newMetrics } from './utils.js';
@@ -147,7 +147,7 @@ export class ClapprStats extends ContainerPlugin {
     return structuredClone(this.metrics);
   }
 
-  onBitrate(newBitrate: QualityLevelInfo) {
+  onBitrate(newBitrate: QualityLevel) {
     const bitrate = newBitrate.bitrate;
     const now = this._now();
 

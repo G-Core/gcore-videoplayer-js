@@ -1,5 +1,4 @@
 import { $ } from "@clappr/core";
-export type { QualityLevelInfo } from "@gcorevideo/player";
 
 export type ZeptoResult = ReturnType<typeof $>;
 

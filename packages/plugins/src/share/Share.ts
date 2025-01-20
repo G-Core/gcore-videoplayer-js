@@ -56,21 +56,13 @@ export class Share extends UICorePlugin {
     // @ts-ignore
     this.stopListening(this.core, Events.CORE_READY);
     // @ts-ignore
-    this.stopListening(this.core.mediaControl, Events.MEDIACONTROL_CONTAINERCHANGED);
+    // this.stopListening(this.core.mediaControl, Events.MEDIACONTROL_CONTAINERCHANGED);
     // @ts-ignore
     this.stopListening(this.core.mediaControl, Events.MEDIACONTROL_RENDERED);
     // @ts-ignore
     this.stopListening(this.core.mediaControl, Events.MEDIACONTROL_HIDE);
     // @ts-ignore
     this.stopListening(this.core.mediaControl, Events.MEDIACONTROL_SHOW);
-    // @ts-ignore
-    this.stopListening(this.core.activePlayback, Events.PLAYBACK_LEVELS_AVAILABLE);
-    // @ts-ignore
-    this.stopListening(this.core.activePlayback, Events.PLAYBACK_LEVEL_SWITCH_START);
-    // @ts-ignore
-    this.stopListening(this.core.activePlayback, Events.PLAYBACK_LEVEL_SWITCH_END);
-    // @ts-ignore
-    this.stopListening(this.core.activePlayback, Events.PLAYBACK_BITRATE);
   }
 
   canShowShare() {

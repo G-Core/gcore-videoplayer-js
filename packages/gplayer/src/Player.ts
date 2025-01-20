@@ -18,7 +18,6 @@ import type {
 import type {
   PlaybackType,
   PlayerPlugin,
-  QualityLevelInfo,
 } from './types.js'
 import { reportError, trace } from './trace/index.js'
 import { PlayerConfig, PlayerEvent } from './types.js'
@@ -29,6 +28,7 @@ import {
   buildSourcesSet,
   unwrapSource,
 } from './utils/mediaSources.js'
+import { QualityLevel } from './playback.types.js'
 
 // TODO implement transport retry/failover and fallback logic
 
@@ -57,7 +57,7 @@ type PluginOptions = Record<string, unknown>
  * @beta
  */
 export class Player {
-  private qLevel: QualityLevelInfo | null = null
+  private qLevel: QualityLevel | null = null
 
   private config: PlayerConfig = DEFAULT_OPTIONS
 
@@ -94,7 +94,7 @@ export class Player {
     return this.player.core.activePlayback.options.src
   }
 
-  get bitrate(): QualityLevelInfo | null {
+  get bitrate(): QualityLevel | null {
     return this.qLevel
   }
 
@@ -214,6 +214,18 @@ export class Player {
     const player = new PlayerClappr(coreOptions)
     this.player = player
 
+    if (player.core.activeContainer) {
+      trace(`${T} tuneIn bindBitrateChangeHandler`)
+      this.bindBitrateChangeHandler()
+    }
+    player.core.on(
+      ClapprEvents.CORE_ACTIVE_CONTAINER_CHANGED,
+      () => {
+        this.bindBitrateChangeHandler()
+      },
+      null,
+    )
+
     // TODO checks if the whole thing is necessary
     this.tuneInTimerId = globalThis.setTimeout(() => {
       trace(`${T} tuneInTimer`, {
@@ -236,21 +248,6 @@ export class Player {
     }
     this.tunedIn = true
     const player = this.player
-    try {
-      this.emitter.emit(PlayerEvent.Ready)
-    } catch (e) {
-      reportError(e)
-    }
-    if (player.core.activeContainer) {
-      this.bindBitrateChangeHandler()
-    }
-    player.core.on(
-      ClapprEvents.CORE_ACTIVE_CONTAINER_CHANGED,
-      () => {
-        this.bindBitrateChangeHandler()
-      },
-      null,
-    )
     if (Browser.isiOS && player.core.activePlayback) {
       player.core.activePlayback.$el.on('webkitendfullscreen', () => {
         try {
@@ -310,6 +307,11 @@ export class Player {
           autoPlay: true,
         })
       }, 0)
+    }
+    try {
+      this.emitter.emit(PlayerEvent.Ready)
+    } catch (e) {
+      reportError(e)
     }
   }
 
@@ -419,9 +421,19 @@ export class Player {
   }
 
   private bindBitrateChangeHandler() {
+    // TODO implement a plugin for the whole thing
+    trace(`${T} bindBitrateChangeHandler`, { activeContainer: this.player?.core?.activeContainer?.name })
+    const currentPlayback = this.player?.core.activePlayback;
+    currentPlayback.on(ClapprEvents.PLAYBACK_LEVELS_AVAILABLE, (levels: QualityLevel[]) => {
+      // TODO test
+      if (!this.qLevel) {
+        this.qLevel = levels[0]
+      }
+    });
     this.player?.core.activeContainer.on(
       ClapprEvents.CONTAINER_BITRATE,
-      (bitrate: QualityLevelInfo) => {
+      (bitrate: QualityLevel) => {
+        trace(`${T} bitrate has changed`, { bitrate })
         this.qLevel = bitrate
       },
     )

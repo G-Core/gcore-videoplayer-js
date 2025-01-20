@@ -100,13 +100,6 @@ export type TranslationSettings = Partial<
   Record<LangTag, Record<TranslationKey, string>>
 >
 
-export type QualityLevelInfo = {
-  level: number
-  width: number
-  height: number
-  bitrate: number
-}
-
 export enum PlayerEvent {
   Ready = 'ready',
   Play = 'play',

@@ -7,13 +7,13 @@ import assert from 'assert'
 import DASHJS, {
   ErrorEvent as DashErrorEvent,
   PlaybackErrorEvent as DashPlaybackErrorEvent,
-  type BitrateInfo,
+  type BitrateInfo as DashBitrateInfo,
   MetricEvent as DashMetricEvent,
   IManifestInfo,
 } from 'dashjs'
 import { trace } from '../../trace/index.js'
 
-import { TimePosition, TimeValue } from '../../playback.types.js'
+import { BitrateInfo, QualityLevel, TimePosition, TimeValue } from '../../playback.types.js'
 
 const AUTO = -1
 
@@ -26,11 +26,6 @@ type PlaybackType =
   | typeof Playback.NO_OP
 
 type PlaylistType = string // TODO union
-
-type QualityLevel = {
-  id: number
-  level: BitrateInfo
-}
 
 type LocalTimeCorrelation = {
   local: number
@@ -260,10 +255,10 @@ export default class DashPlayback extends HTML5Video {
           'An array of levels is required to change quality',
         )
         const newLevel = this._levels.find(
-          (level) => level.id === evt.newQuality,
+          (level) => level.level === evt.newQuality,
         ) // TODO or simply this._levels[evt.newQuality]?
         assert.ok(newLevel, 'A valid level is required to change quality')
-        this.onLevelSwitch(newLevel.level)
+        this.onLevelSwitch(newLevel)
       })
     })
 
@@ -631,21 +626,21 @@ export default class DashPlayback extends HTML5Video {
     this._playbackType = this._dash.isDynamic() ? Playback.LIVE : Playback.VOD
   }
 
-  _fillLevels(levels: BitrateInfo[]) {
+  _fillLevels(levels: DashBitrateInfo[]) {
     // TOOD check that levels[i].qualityIndex === i
     this._levels = levels.map((level) => {
-      return { id: level.qualityIndex, level: level }
+      return {
+        level: level.qualityIndex,
+        bitrate: level.bitrate,
+        width: level.width,
+        height: level.height,
+      }
     })
     this.trigger(Events.PLAYBACK_LEVELS_AVAILABLE, this._levels)
   }
 
-  private onLevelSwitch(currentLevel: BitrateInfo) {
-    this.trigger(Events.PLAYBACK_BITRATE, {
-      height: currentLevel.height,
-      width: currentLevel.width,
-      bitrate: currentLevel.bitrate,
-      level: currentLevel.qualityIndex,
-    })
+  private onLevelSwitch(currentLevel: QualityLevel) {
+    this.trigger(Events.PLAYBACK_BITRATE, currentLevel)
   }
 
   getPlaybackType() {

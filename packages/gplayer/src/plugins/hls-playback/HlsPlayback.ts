@@ -17,14 +17,14 @@ import HLSJS, {
   type LevelSwitchingData,
 } from 'hls.js';
 
-import { TimePosition } from '../../playback.types.js';
+import { QualityLevel, TimePosition } from '../../playback.types.js';
 import { trace } from '../../trace/index.js';
 import { PlaybackType } from '../../types';
 import { TimerId } from '../../utils/types';
 
-const { now, listContainsIgnoreCase } = Utils;
-
 import { CLAPPR_VERSION } from "../../build.js";
+
+const { now, listContainsIgnoreCase } = Utils;
 
 const AUTO = -1;
 const DEFAULT_RECOVER_ATTEMPTS = 16;
@@ -84,7 +84,7 @@ export default class HlsPlayback extends HTML5Video {
 
   private _lastTimeUpdate: TimePosition | null = null;
 
-  private _levels: any[] | null = null;
+  private _levels: QualityLevel[] | null = null;
 
   private _localStartTimeCorrelation: TimeCorrelation | null = null;
 
@@ -707,7 +707,12 @@ export default class HlsPlayback extends HTML5Video {
   private _fillLevels() {
     assert.ok(this._hls, 'Hls.js instance is not available');
     this._levels = this._hls.levels.map((level, index) => {
-      return { id: index, level: level, label: `${level.bitrate / 1000}Kbps` };
+      return {
+        level: index, // or level.id?
+        width: level.width,
+        height: level.height,
+        bitrate: level.bitrate,
+      };
     });
     this.trigger(Events.PLAYBACK_LEVELS_AVAILABLE, this._levels);
   }
@@ -878,7 +883,6 @@ export default class HlsPlayback extends HTML5Video {
       this.trigger(Events.PLAYBACK_BITRATE, {
         height: currentLevel.height,
         width: currentLevel.width,
-        bandwidth: currentLevel.bitrate,
         bitrate: currentLevel.bitrate,
         level: data.level
       });

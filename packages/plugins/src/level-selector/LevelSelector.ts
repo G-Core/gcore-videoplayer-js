@@ -1,8 +1,8 @@
 import { Events, template, UICorePlugin, $ } from '@clappr/core';
-import { trace } from '@gcorevideo/player';
+import { type QualityLevel, trace } from '@gcorevideo/player';
 
 import { CLAPPR_VERSION } from '../build.js';
-import { QualityLevelInfo, ZeptoResult } from '../types.js';
+import { ZeptoResult } from '../types.js';
 
 import buttonHtml from '../../assets/level-selector/button.ejs';
 import listHtml from '../../assets/level-selector/list.ejs';
@@ -17,30 +17,19 @@ const VERSION = '0.0.1';
 
 const T = 'plugins.level_selector';
 
-type PlaybackLevelInfo = {
-  level: {
-    bitrate: number;
-    width: number;
-    height: number;
-  };
-  id: number;
-}
-
 const AUTO = -1;
 
-const NO_LEVEL: PlaybackLevelInfo = {
-  level: {
-    bitrate: 0,
-    width: 0,
-    height: 0,
-  },
-  id: -1,
+const NO_LEVEL: QualityLevel = {
+  bitrate: 0,
+  width: 0,
+  height: 0,
+  level: -1,
 };
 
 export class LevelSelector extends UICorePlugin {
-  private currentLevel: PlaybackLevelInfo | null = null;
+  private currentLevel: QualityLevel | null = null;
 
-  private levels: PlaybackLevelInfo[] = [];
+  private levels: QualityLevel[] = [];
 
   private levelLabels: string[] = [];
 
@@ -68,10 +57,6 @@ export class LevelSelector extends UICorePlugin {
   private currentText = 'Auto';
 
   private selectedLevelId = -1;
-
-  //   constructor(core) {
-  //     super(core);
-  //   }
 
   get events() {
     return {
@@ -119,9 +104,6 @@ export class LevelSelector extends UICorePlugin {
     const currentPlayback = this.core.activePlayback;
 
     this.listenToOnce(currentPlayback, Events.PLAYBACK_PLAY, () => {
-      trace(`${T} PLAYBACK_PLAY`, {
-        playbackType: currentPlayback.getPlaybackType(),
-      });
       if (currentPlayback.getPlaybackType() === 'live') {
         if (this.selectedLevelId !== -1) {
           currentPlayback.currentLevel = this.findLevelBy(this.selectedLevelId) || NO_LEVEL;
@@ -183,8 +165,8 @@ export class LevelSelector extends UICorePlugin {
     return this;
   }
 
-  private fillLevels(levels: PlaybackLevelInfo[], initialLevel = AUTO) {
-    trace('${T} fillLevels', { levels, initialLevel });
+  private fillLevels(levels: QualityLevel[], initialLevel = AUTO) {
+    trace(`${T} fillLevels`, { levels, initialLevel });
     // Player.player.trigger('levels', levels);
     // this.core.trigger('levels', levels);
     // TODO fire directly on the plugin object
@@ -202,32 +184,27 @@ export class LevelSelector extends UICorePlugin {
   }
 
   configureLevelsLabels() {
-    trace('${T} configureLevelsLabels', { options: this.core.options, levels: this.levels });
-
     const labels = this.core.options.levelSelector?.labels;
     this.levelLabels = [];
 
     if (labels) {
       for (let i = 0; i < this.levels.length; i++) {
         const level = this.levels[i];
-        const ll = level.level.width > level.level.height ? level.level.height : level.level.width;
+        const ll = level.width > level.height ? level.height : level.width;
         const label = labels[ll] || `${ll}p`;
         this.levelLabels.push(label);
       }
     }
-
-    trace('${T} configureLevelsLabels leave', { levelLabels: this.levelLabels });
-
   }
 
-  private findLevelBy(id: number): PlaybackLevelInfo | undefined {
-    return this.levels.find((level) => level.id === id);
+  private findLevelBy(id: number): QualityLevel | undefined {
+    return this.levels.find((level) => level.level === id);
   }
 
   private onLevelSelect(event: MouseEvent) {
-    const selectedLevel = (event.currentTarget as HTMLElement)?.dataset?.id;
+    const selectedLevel = parseInt((event.currentTarget as HTMLElement)?.dataset?.id ?? "-1", 10);
     trace(`${T} onLevelSelect`, { selectedLevel });
-    this.setIndexLevel(parseInt((event.currentTarget as HTMLElement)?.dataset?.id ?? "-1", 10));
+    this.setIndexLevel(selectedLevel);
     // this.toggleContextMenu();
     event.stopPropagation();
     return false;
@@ -309,15 +286,15 @@ export class LevelSelector extends UICorePlugin {
     if (id === -1) {
       return 'Auto';
     }
-    const index = this.levels.findIndex((l) => l.id === id);
+    const index = this.levels.findIndex((l) => l.level === id);
     if (index < 0) {
       return 'Auto';
     }
     return this.levelLabels[index] || formatLevelLabel(this.levels[index]);
   }
 
-  private updateCurrentLevel(info: QualityLevelInfo) {
-    trace('${T} updateCurrentLevel', { info, levels: this.levels });
+  private updateCurrentLevel(info: QualityLevel) {
+    trace(`${T} updateCurrentLevel`, { info, levels: this.levels });
     const level = this.findLevelBy(info.level);
 
     this.currentLevel = level ? level : null;
@@ -326,7 +303,7 @@ export class LevelSelector extends UICorePlugin {
   }
 
   private highlightCurrentLevel() {
-    trace('${T} highlightCurrentLevel', { currentLevel: this.currentLevel, selectedLevelId: this.selectedLevelId });
+    trace(`${T} highlightCurrentLevel`, { currentLevel: this.currentLevel, selectedLevelId: this.selectedLevelId });
     this.allLevelElements().removeClass('current');
     this.allLevelElements().find('a').removeClass('gcore-skin-active');
 
@@ -341,7 +318,7 @@ export class LevelSelector extends UICorePlugin {
   }
 }
 
-function formatLevelLabel(level: PlaybackLevelInfo): string {
-  const h = level.level.width > level.level.height ? level.level.height : level.level.width;
+function formatLevelLabel(level: QualityLevel): string {
+  const h = level.width > level.height ? level.height : level.width;
   return `${h}p`;
 }
