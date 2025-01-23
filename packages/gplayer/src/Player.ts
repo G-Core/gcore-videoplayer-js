@@ -16,7 +16,6 @@ import type {
   PlayerMediaSource,
 } from './internal.types.js'
 import type {
-  PlaybackType,
   PlayerPlugin,
 } from './types.js'
 import { reportError, trace } from './trace/index.js'
@@ -28,7 +27,6 @@ import {
   buildSourcesSet,
   unwrapSource,
 } from './utils/mediaSources.js'
-import { QualityLevel } from './playback.types.js'
 
 // TODO implement transport retry/failover and fallback logic
 
@@ -57,8 +55,6 @@ type PluginOptions = Record<string, unknown>
  * @beta
  */
 export class Player {
-  private qLevel: QualityLevel | null = null
-
   private config: PlayerConfig = DEFAULT_OPTIONS
 
   private emitter = new EventLite()
@@ -72,39 +68,6 @@ export class Player {
   private tuneInTimerId: ReturnType<typeof setTimeout> | null = null
 
   private tunedIn = false
-
-  get activePlayback(): PlaybackModule | null {
-    if (!this.player?.core.activePlayback) {
-      return null
-    }
-    switch (this.player.core.activePlayback.name) {
-      case 'dash':
-        return 'dash'
-      case 'hls':
-        return 'hls'
-      default:
-        return 'native'
-    }
-  }
-
-  get activeSource(): string | null {
-    if (!this.player?.core.activePlayback) {
-      return null
-    }
-    return this.player.core.activePlayback.options.src
-  }
-
-  get bitrate(): QualityLevel | null {
-    return this.qLevel
-  }
-
-  get hd() {
-    return this.player?.core.activePlayback?.isHighDefinitionInUse || false
-  }
-
-  get playbackType(): PlaybackType | undefined {
-    return this.player?.core.activePlayback?.getPlaybackType()
-  }
 
   constructor(config: PlayerConfig) {
     this.setConfig(config)
@@ -134,7 +97,7 @@ export class Player {
     }
 
     trace(`${T} init`, {
-      config: this.config,
+      // TODO selected options
     })
 
     this.configurePlaybacks()
@@ -165,7 +128,6 @@ export class Player {
       clearTimeout(this.tuneInTimerId)
       this.tuneInTimerId = null
     }
-    this.qLevel = null
   }
 
   pause() {
@@ -179,7 +141,10 @@ export class Player {
   }
 
   resize(newSize: { width: number; height: number }) {
-    assert.ok(this.player, 'Player not initialized')
+    if (!this.player) {
+      trace(`${T} resize not initialized`, { newSize })
+      return
+    }
     trace(`${T} resize`, {
       newSize,
     })
@@ -206,25 +171,13 @@ export class Player {
 
   private initPlayer(coreOptions: CoreOptions) {
     trace(`${T} initPlayer`, {
-      coreOptions,
+      // TODO selected options
     })
 
     assert.ok(!this.player, 'Player already initialized')
 
     const player = new PlayerClappr(coreOptions)
     this.player = player
-
-    if (player.core.activeContainer) {
-      trace(`${T} tuneIn bindBitrateChangeHandler`)
-      this.bindBitrateChangeHandler()
-    }
-    player.core.on(
-      ClapprEvents.CORE_ACTIVE_CONTAINER_CHANGED,
-      () => {
-        this.bindBitrateChangeHandler()
-      },
-      null,
-    )
 
     // TODO checks if the whole thing is necessary
     this.tuneInTimerId = globalThis.setTimeout(() => {
@@ -298,12 +251,9 @@ export class Player {
     if (this.config.autoPlay) {
       setTimeout(() => {
         trace(`${T} autoPlay`, {
-          player: !!this.player,
-          container: !!this.player?.core.activeContainer,
           playback: this.player?.core.activePlayback.name,
         })
-        assert(this.player)
-        this.player.play({
+        player.play({
           autoPlay: true,
         })
       }, 0)
@@ -366,20 +316,7 @@ export class Player {
   }
 
   private buildCoreOptions(rootNode: HTMLElement): CoreOptions {
-    // TODO extract
-    // const multisources = this.config.multisources
-    // const mainSource =
-    //   this.config.playbackType === 'live'
-    //     ? multisources.find((ms) => ms.live !== false)
-    //     : multisources[0]
-    // const mediaSources = mainSource
-    //   ? this.buildMediaSourcesList(mainSource)
-    //   : []
-    // const mainSourceUrl = mediaSources[0];
-    // const poster = mainSource?.poster ?? this.config.poster
-    const poster = this.config.poster
-
-    const source = this.selectMediaSource() // TODO
+    const source = this.selectMediaSource()
 
     this.rootNode = rootNode
 
@@ -405,10 +342,8 @@ export class Player {
       },
       parent: rootNode,
       playbackType: this.config.playbackType,
-      poster,
       width: rootNode.clientWidth,
       source: source ? unwrapSource(source) : undefined,
-      // sources: mediaSources,
       strings: this.config.strings,
     }
     return coreOptions
@@ -418,25 +353,6 @@ export class Player {
     // TODO check if there are DASH and HLS sources and don't register the respective playbacks if not
     Loader.registerPlayback(DashPlayback)
     Loader.registerPlayback(HlsPlayback)
-  }
-
-  private bindBitrateChangeHandler() {
-    // TODO implement a plugin for the whole thing
-    trace(`${T} bindBitrateChangeHandler`, { activeContainer: this.player?.core?.activeContainer?.name })
-    const currentPlayback = this.player?.core.activePlayback;
-    currentPlayback.on(ClapprEvents.PLAYBACK_LEVELS_AVAILABLE, (levels: QualityLevel[]) => {
-      // TODO test
-      if (!this.qLevel) {
-        this.qLevel = levels[0]
-      }
-    });
-    this.player?.core.activeContainer.on(
-      ClapprEvents.CONTAINER_BITRATE,
-      (bitrate: QualityLevel) => {
-        trace(`${T} bitrate has changed`, { bitrate })
-        this.qLevel = bitrate
-      },
-    )
   }
 
   // Select a single source to play according to the priority transport and the modules support

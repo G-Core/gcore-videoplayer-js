@@ -57,7 +57,7 @@ export class Statistics extends ContainerPlugin {
     this.connect();
   }
 
-  bindEvents() {
+  override bindEvents() {
     this.listenToOnce(this.container.playback, Events.PLAYBACK_PLAY, this.onPlay);
     this.listenToOnce(this.container, 'container:start', this.onStart);
 

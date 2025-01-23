@@ -696,11 +696,15 @@ export default class HlsPlayback extends HTML5Video {
   }
 
   private _updatePlaybackType(evt: HlsEvents.LEVEL_LOADED, data: LevelLoadedData) {
+    const prevPlaybackType = this._playbackType;
     this._playbackType = (data.details.live ? Playback.LIVE : Playback.VOD) as PlaybackType;
     this._onLevelUpdated(evt, data);
     // Live stream subtitle tracks detection hack (may not immediately available)
     if (this._ccTracksUpdated && this._playbackType === Playback.LIVE && this.hasClosedCaptionsTracks) {
       this._onSubtitleLoaded();
+    }
+    if (prevPlaybackType !== this._playbackType) {
+      this._updateSettings();
     }
   }
 

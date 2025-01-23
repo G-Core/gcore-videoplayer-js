@@ -19,7 +19,7 @@ export class VolumeFade extends UICorePlugin {
     return 'volume_fade';
   }
 
-  bindEvents() {
+  override bindEvents() {
     this.listenTo(this.core, Events.CORE_READY, this.onCoreReady);
     if (this.core.mediaControl) {
       this.listenTo(this.core.mediaControl, 'mediacontrol:volume:user', this._onUserChangeVolume);

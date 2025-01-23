@@ -1,4 +1,4 @@
-import { Events, template, UICorePlugin, $ } from '@clappr/core';
+import { Events, template, UICorePlugin } from '@clappr/core';
 import { type QualityLevel, trace } from '@gcorevideo/player';
 
 import { CLAPPR_VERSION } from '../build.js';
@@ -47,7 +47,7 @@ export class LevelSelector extends UICorePlugin {
     return VERSION;
   }
 
-  get attributes() {
+  override get attributes() {
     return {
       'class': this.name,
       'data-level-selector': ''
@@ -58,7 +58,7 @@ export class LevelSelector extends UICorePlugin {
 
   private selectedLevelId = -1;
 
-  get events() {
+  override get events() {
     return {
       'click .gear-sub-menu_btn': 'onLevelSelect',
       'click .gear-option': 'onShowLevelSelectMenu',
@@ -66,7 +66,7 @@ export class LevelSelector extends UICorePlugin {
     };
   }
 
-  bindEvents() {
+  override bindEvents() {
     this.listenTo(this.core, Events.CORE_READY, this.bindPlaybackEvents);
     this.listenTo(this.core.mediaControl, Events.MEDIACONTROL_CONTAINERCHANGED, this.reload);
     // this.listenTo(this.core.mediaControl, Events.MEDIACONTROL_RENDERED, this.render);
@@ -83,7 +83,6 @@ export class LevelSelector extends UICorePlugin {
   }
 
   private bindPlaybackEvents() {
-    // this.currentLevel = {};
     this.currentLevel = NO_LEVEL;
     this.removeAuto = false;
     const currentPlayback = this.core.activePlayback;
@@ -137,7 +136,7 @@ export class LevelSelector extends UICorePlugin {
     return respondsToCurrentLevel && hasLevels;
   }
 
-  render() {
+  override render() {
     if (this.shouldRender()) {
       // this.$el.html(this.template({ 'levels': this.levels, 'title': this.getTitle() }));
       const t = template(buttonHtml);
@@ -203,7 +202,6 @@ export class LevelSelector extends UICorePlugin {
 
   private onLevelSelect(event: MouseEvent) {
     const selectedLevel = parseInt((event.currentTarget as HTMLElement)?.dataset?.id ?? "-1", 10);
-    trace(`${T} onLevelSelect`, { selectedLevel });
     this.setIndexLevel(selectedLevel);
     // this.toggleContextMenu();
     event.stopPropagation();

@@ -66,7 +66,7 @@ export class Thumbnails extends UICorePlugin {
     return { min: CLAPPR_VERSION };
   }
 
-  get attributes() {
+  override get attributes() {
     return {
       'class': this.name
     };
@@ -123,7 +123,7 @@ export class Thumbnails extends UICorePlugin {
 
   // TODO check if seek enabled
 
-  bindEvents() {
+  override bindEvents() {
     this.listenToOnce(this.core, Events.CORE_READY, this._onCoreReady);
     this.listenTo(this.core.mediaControl, Events.MEDIACONTROL_MOUSEMOVE_SEEKBAR, this._onMouseMove);
     this.listenTo(this.core.mediaControl, Events.MEDIACONTROL_MOUSELEAVE_SEEKBAR, this._onMouseLeave);

@@ -18,13 +18,13 @@ export class DvrControls extends UICorePlugin {
     return { min: CLAPPR_VERSION };
   }
 
-  get events() {
+  override get events() {
     return {
       'click .live-button': 'click'
     };
   }
 
-  get attributes() {
+  override get attributes() {
     return {
       'class': 'dvr-controls',
       'data-dvr-controls': ''
@@ -36,7 +36,7 @@ export class DvrControls extends UICorePlugin {
     this.settingsUpdate();
   }
 
-  bindEvents() {
+  override bindEvents() {
     this.bindCoreEvents();
     this.bindContainerEvents();
 
@@ -116,7 +116,7 @@ export class DvrControls extends UICorePlugin {
     return useDvrControls && this.core.getPlaybackType() === Playback.LIVE;
   }
 
-  render() {
+  override render() {
     this.$el.html(this.template({
       live: this.core.i18n.t('live'),
       backToLive: this.core.i18n.t('back_to_live')

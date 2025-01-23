@@ -66,14 +66,14 @@ export class Subtitles extends UICorePlugin {
     return template(stringHTML);
   }
 
-  get attributes() {
+  override get attributes() {
     return {
       'class': this.name,
       'data-subtitles': ''
     };
   }
 
-  get events() {
+  override get events() {
     return {
       'click [data-subtitles-select]': 'onLevelSelect',
       'click [data-subtitles-button]': 'onShowLevelSelectMenu'
@@ -88,7 +88,7 @@ export class Subtitles extends UICorePlugin {
     return this.core.options.subtitles?.language ?? 'off';
   }
 
-  bindEvents() {
+  override bindEvents() {
     this.listenTo(this.core, Events.CORE_RESIZE, this.playerResize);
     this.listenToOnce(this.core, Events.CORE_READY, this.bindPlaybackEvents);
     this.listenTo(this.core.mediaControl, Events.MEDIACONTROL_CONTAINERCHANGED, this.reload);
@@ -246,7 +246,7 @@ export class Subtitles extends UICorePlugin {
     this.$string.find('p').css('font-size', skinWidth * 0.03);
   }
 
-  render() {
+  override render() {
     if (this.shouldRender()) {
       this.$el.html(this.template({ 'tracks': this.tracks }));
       this.currentContainer?.$el.find('.subtitle-string').remove();

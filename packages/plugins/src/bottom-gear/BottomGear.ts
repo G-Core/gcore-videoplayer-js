@@ -30,14 +30,14 @@ export class BottomGear extends UICorePlugin {
     return template(pluginHtml);
   }
 
-  get attributes() {
+  override get attributes() {
     return {
       'class': this.name,
       'data-track-selector': ''
     };
   }
 
-  get events() {
+  override get events() {
     return {
       'click .button-gear': 'toggleGearMenu',
     };
@@ -52,7 +52,7 @@ export class BottomGear extends UICorePlugin {
   //   this.isHd = false;
   // }
 
-  bindEvents() {
+  override bindEvents() {
     this.listenTo(this.core, Events.CORE_ACTIVE_CONTAINER_CHANGED, this.onActiveContainerChanged);
     this.listenTo(this.core, 'gear:refresh', this.refresh);
     this.listenTo(this.core.mediaControl, Events.MEDIACONTROL_CONTAINERCHANGED, this.reload);
@@ -94,7 +94,7 @@ export class BottomGear extends UICorePlugin {
     }
   }
 
-  render() {
+  override render() {
     const items = [
       'quality',
       'rate',

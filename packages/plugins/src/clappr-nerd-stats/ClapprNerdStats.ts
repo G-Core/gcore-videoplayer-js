@@ -132,14 +132,14 @@ export class ClapprNerdStats extends UICorePlugin {
     return template(pluginHtml);
   }
 
-  get attributes() {
+  override get attributes() {
     return {
       'data-clappr-nerd-stats': '',
       'class': 'clappr-nerd-stats'
     };
   }
 
-  get events() {
+  override get events() {
     return {
       'click [data-show-stats-button]': 'showOrHide',
       'click [data-close-button]': 'hide',
@@ -175,7 +175,7 @@ export class ClapprNerdStats extends UICorePlugin {
     configureSpeedTest(core.options.clapprNerdStats?.speedTestServers ?? []);
   }
 
-  bindEvents() {
+  override bindEvents() {
     this.listenToOnce(this.core, Events.CORE_READY, this.init);
     this.listenTo(this.core, 'gear:rendered', this.addToBottomGear);
   }
@@ -309,7 +309,7 @@ export class ClapprNerdStats extends UICorePlugin {
     }
   }
 
-  render() {
+  override render() {
     this.core.$el.append(this.$el[0]);
     this.hide();
 

@@ -177,14 +177,14 @@ export class MediaControl extends UICorePlugin {
     return this.core && this.core.activePlayback;
   }
 
-  get attributes() {
+  override get attributes() {
     return {
       'class': 'media-control-skin-1',
       'data-media-control-skin-1': ''
     };
   }
 
-  get events() {
+  override get events() {
     return {
       'click [data-play]': 'play',
       'click [data-pause]': 'pause',
@@ -246,14 +246,14 @@ export class MediaControl extends UICorePlugin {
     $(document).bind('touchmove', this.updateDrag);
   }
 
-  getExternalInterface() {
+  override getExternalInterface() {
     return {
       setVolume: this.setVolume,
       getVolume: () => this.volume,
     };
   }
 
-  bindEvents() {
+  override bindEvents() {
     // @ts-ignore
     this.stopListening();
     this.listenTo(this.core, Events.CORE_ACTIVE_CONTAINER_CHANGED, this.onActiveContainerChanged);
@@ -313,14 +313,14 @@ export class MediaControl extends UICorePlugin {
     }
   }
 
-  disable() {
+  override disable() {
     this.userDisabled = true;
     this.hide();
     this.unbindKeyEvents();
     this.$el.hide();
   }
 
-  enable() {
+  override enable() {
     if (this.options.chromeless) {
       return;
     }
@@ -1065,7 +1065,7 @@ export class MediaControl extends UICorePlugin {
       && $(element).find('svg path').css({ 'fill': this.buttonsColor });
   }
 
-  destroy() {
+  override destroy() {
     $(document).unbind('mouseup', this.stopDrag);
     $(document).unbind('mousemove', this.updateDrag);
     this.unbindKeyEvents();
@@ -1079,7 +1079,7 @@ export class MediaControl extends UICorePlugin {
     this.trigger(Events.MEDIACONTROL_OPTIONS_CHANGE);
   }
 
-  render() {
+  override render() {
     const timeout = this.options.hideMediaControlDelay || 2000;
 
     const html = this.template({ settings: this.settings ?? {} });

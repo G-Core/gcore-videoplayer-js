@@ -37,7 +37,7 @@ export class Logo extends UIContainerPlugin {
     return t(logoHTML);
   }
 
-  get attributes() {
+  override get attributes() {
     return {
       'class': 'player-logo',
       'data-logo': ''
@@ -48,7 +48,7 @@ export class Logo extends UIContainerPlugin {
     return !!this.options.logo && !!this.options.logo.path;
   }
 
-  bindEvents() {
+  override bindEvents() {
     window.addEventListener('resize', this.setPosition);
     this.listenTo(this.container, Events.CONTAINER_RESIZE, this.setPosition);
     this.listenTo(this.container, Events.CONTAINER_STOP, this.onStop);
@@ -56,7 +56,7 @@ export class Logo extends UIContainerPlugin {
     this.listenTo(this.container, Events.CONTAINER_LOADEDMETADATA, this.setPosition);
   }
 
-  stopListening() {
+  override stopListening() {
     window.removeEventListener('resize', this.setPosition);
     // @ts-ignore
     return super.stopListening();
@@ -96,7 +96,7 @@ export class Logo extends UIContainerPlugin {
     this.render();
   }
 
-  render() {
+  override render() {
     if (!this.shouldRender) {
       return this;
     }

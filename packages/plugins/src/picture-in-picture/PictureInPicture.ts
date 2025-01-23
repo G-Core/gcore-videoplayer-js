@@ -25,7 +25,7 @@ export class PictureInPicture extends UICorePlugin {
     return VERSION;
   }
 
-  get events() {
+  override get events() {
     return {
       'click button': 'togglePictureInPicture',
     };
@@ -35,7 +35,7 @@ export class PictureInPicture extends UICorePlugin {
     return this.core.activePlayback.el;
   }
 
-  bindEvents() {
+  override bindEvents() {
     this.listenTo(this.core.mediaControl, Events.MEDIACONTROL_RENDERED, this.render);
   }
 
@@ -48,7 +48,7 @@ export class PictureInPicture extends UICorePlugin {
     return document.pictureInPictureEnabled && !!HTMLVideoElement.prototype.requestPictureInPicture;
   }
 
-  render() {
+  override render() {
     if (!this.isPiPSupported()) {
       return this;
     }

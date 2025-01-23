@@ -44,14 +44,14 @@ export class MultiCamera extends UICorePlugin {
     return template(pluginHtml);
   }
 
-  get attributes() {
+  override get attributes() {
     return {
       'class': this.name,
       'data-multicamera': ''
     };
   }
 
-  get events() {
+  override get events() {
     return {
       'click [data-multicamera-selector-select]': 'onCameraSelect',
       'click [data-multicamera-button]': 'onShowLevelSelectMenu'
@@ -70,7 +70,7 @@ export class MultiCamera extends UICorePlugin {
     this.noActiveStreams = this.multicamera.every((item) => !item.live);
   }
 
-  bindEvents() {
+  override bindEvents() {
     this.listenTo(this.core, Events.CORE_READY, this.bindPlaybackEvents);
     this.listenTo(this.core.mediaControl, Events.MEDIACONTROL_CONTAINERCHANGED, this.reload);
     this.listenTo(this.core.mediaControl, Events.MEDIACONTROL_RENDERED, this.render);
@@ -118,7 +118,7 @@ export class MultiCamera extends UICorePlugin {
     return this.multicamera.length >= 2;
   }
 
-  render() {
+  override render() {
     if (this.shouldRender()) {
       let numActiveSources = 0;
 

@@ -220,6 +220,7 @@ export default class DashPlayback extends HTML5Video {
     this._dash.initialize()
 
     if (this.options.dash) {
+      // TODO use $.extend
       const settings = structuredClone(this.options.dash)
       if (!settings.streaming) {
         settings.streaming = {}
@@ -623,7 +624,11 @@ export default class DashPlayback extends HTML5Video {
       this._dash,
       'An instance of dashjs MediaPlayer is required to update the playback type',
     )
+    const prevPlaybackType = this._playbackType
     this._playbackType = this._dash.isDynamic() ? Playback.LIVE : Playback.VOD
+    if (prevPlaybackType !== this._playbackType) {
+      this._updateSettings()
+    }
   }
 
   _fillLevels(levels: DashBitrateInfo[]) {
@@ -640,6 +645,8 @@ export default class DashPlayback extends HTML5Video {
   }
 
   private onLevelSwitch(currentLevel: QualityLevel) {
+    const isHD = (currentLevel.height >= 720 || (currentLevel.bitrate / 1000) >= 2000);
+    this.trigger(Events.PLAYBACK_HIGHDEFINITIONUPDATE, isHD);
     this.trigger(Events.PLAYBACK_BITRATE, currentLevel)
   }
 

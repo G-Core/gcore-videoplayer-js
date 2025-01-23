@@ -1,7 +1,7 @@
 import { Events, UICorePlugin, Playback, template } from '@clappr/core';
 
 import { CLAPPR_VERSION } from '../build.js';
-import { ZeptoResult } from '../types';
+import type { ZeptoResult } from '../types';
 
 import pluginHtml from '../../assets/playback-rate/playback-rate-selector.ejs';
 import buttonHtml from '../../assets/playback-rate/button.ejs';
@@ -51,14 +51,14 @@ export class PlaybackRate extends UICorePlugin {
     return template(pluginHtml);
   }
 
-  get attributes() {
+  override get attributes() {
     return {
       'class': this.name,
       'data-playback-rate-select': ''
     };
   }
 
-  get events() {
+  override get events() {
     return {
       'click .gear-sub-menu_btn': 'onRateSelect',
       'click .gear-option': 'onShowMenu',
@@ -66,7 +66,7 @@ export class PlaybackRate extends UICorePlugin {
     };
   }
 
-  bindEvents() {
+  override bindEvents() {
     this.listenTo(this.core, 'gear:rendered', this.render);
     this.listenTo(this.core.mediaControl, Events.MEDIACONTROL_CONTAINERCHANGED, this.reload);
     this.listenTo(this.core.mediaControl, MEDIACONTROL_PLAYBACKRATE, this.updatePlaybackRate);
@@ -135,7 +135,7 @@ export class PlaybackRate extends UICorePlugin {
     return !(this.currentPlayback?.tagName !== 'video' && this.currentPlayback?.tagName !== 'audio');
   }
 
-  render() {
+  override render() {
     const container = this.core.activeContainer;
 
     if (this.core.getPlaybackType() === Playback.LIVE && !container.isDvrEnabled()) {

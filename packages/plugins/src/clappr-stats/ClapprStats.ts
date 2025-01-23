@@ -119,7 +119,7 @@ export class ClapprStats extends ContainerPlugin {
     };
   }
 
-  bindEvents() {
+  override bindEvents() {
     this.listenTo(this.container, CoreEvents.CONTAINER_BITRATE, this.onBitrate);
     this.listenTo(this.container, CoreEvents.CONTAINER_STOP, this.stopReporting);
     this.listenTo(this.container, CoreEvents.CONTAINER_ENDED, this.stopReporting);
@@ -138,7 +138,7 @@ export class ClapprStats extends ContainerPlugin {
     this.listenTo(this.container.playback, CoreEvents.PLAYBACK_TIMEUPDATE, this.onTimeUpdate);
   }
 
-  destroy() {
+  override destroy() {
     this.stopReporting();
     super.destroy();
   }

@@ -32,14 +32,14 @@ export class BigMuteButton extends UICorePlugin {
     return template(pluginHtml);
   }
 
-  get events() {
+  override get events() {
     return {
       'click .big-mute-icon': 'handleBigMuteBtnClick',
       'click .big-mute-icon-wrapper': 'destroyBigMuteBtn',
     };
   }
 
-  bindEvents() {
+  override bindEvents() {
     super.bindEvents();
     this.listenTo(this.core, Events.CORE_READY, this.onCoreReady);
     this.listenTo(this.core, 'core:advertisement:start', this.onStartAd);
@@ -134,7 +134,7 @@ export class BigMuteButton extends UICorePlugin {
     return autoPlay && !wasMuted && volume === 0;
   }
 
-  render() {
+  override render() {
     if (this.shouldRender()) {
       trace(`${T} render`, {
         el: !!this.$el,

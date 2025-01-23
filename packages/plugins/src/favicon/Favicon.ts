@@ -58,7 +58,7 @@ export class Favicon extends CorePlugin {
     }
   }
 
-  bindEvents() {
+  override bindEvents() {
     this.listenTo(this.core, Events.CORE_OPTIONS_CHANGE, this.configure);
     this.listenTo(this.core, Events.CORE_ACTIVE_CONTAINER_CHANGED, this.containerChanged);
     this.core.activeContainer && this.containerChanged();
@@ -76,12 +76,12 @@ export class Favicon extends CorePlugin {
     this.resetIcon();
   }
 
-  disable() {
+  override disable() {
     super.disable();
     this.resetIcon();
   }
 
-  destroy() {
+  override destroy() {
     super.destroy();
     this.resetIcon();
   }

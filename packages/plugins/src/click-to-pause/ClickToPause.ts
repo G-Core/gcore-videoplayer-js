@@ -30,7 +30,7 @@ export class ClickToPause extends ContainerPlugin {
     return this.container.options.clickToPauseConfig || {};
   }
 
-  bindEvents() {
+  override bindEvents() {
     this.listenTo(this.container, Events.CONTAINER_CLICK, this.click);
     this.listenTo(this.container, Events.CONTAINER_SETTINGSUPDATE, this.settingsUpdate);
   }

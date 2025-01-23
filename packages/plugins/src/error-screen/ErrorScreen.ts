@@ -1,7 +1,7 @@
 import { UICorePlugin, Events, template, PlayerError } from '@clappr/core';
 
 import { CLAPPR_VERSION } from '../build.js';
-import { TimerId, ZeptoResult } from '../types';
+import type { TimerId, ZeptoResult } from '../types';
 
 import reloadIcon from '../../assets/icons/old/reload.svg';
 import templateHtml from '../../assets/error-screen/error_screen.ejs';
@@ -53,14 +53,14 @@ export class ErrorScreen extends UICorePlugin {
     return this.core.activeContainer;
   }
 
-  get attributes() {
+  override get attributes() {
     return {
       'class': 'player-error-screen',
       'data-error-screen': '',
     };
   }
 
-  bindEvents() {
+  override bindEvents() {
     this.listenTo(this.core, Events.ERROR, this.onError);
     this.listenTo(this.core, Events.CORE_READY, this.onCoreReady);
     this.listenTo(this.core, 'core:advertisement:start', this.onStartAd);
@@ -78,7 +78,7 @@ export class ErrorScreen extends UICorePlugin {
     this.destroyError();
   }
 
-  destroyError() {
+  private destroyError() {
     this._retry = 0;
     this.err = null;
     if (this.timeout !== null) {
@@ -102,7 +102,7 @@ export class ErrorScreen extends UICorePlugin {
     this.reloadButton && this.reloadButton.on('click', this.reload.bind(this));
   }
 
-  reload() {
+  private reload() {
     this._retry++;
     this.core.configure({
       ...this.options, ...{
@@ -113,11 +113,11 @@ export class ErrorScreen extends UICorePlugin {
     this.unbindReload();
   }
 
-  unbindReload() {
+  private unbindReload() {
     this.reloadButton && this.reloadButton.off('click');
   }
 
-  onContainerChanged() {
+  private onContainerChanged() {
     this.err = null;
     if (this.core.getPlugin('error_screen')) {
       this.core.getPlugin('error_screen').disable();
@@ -126,14 +126,14 @@ export class ErrorScreen extends UICorePlugin {
     this.hide();
   }
 
-  onStartAd() {
+  private onStartAd() {
     this.hideValue = true;
     if (this.err) {
       this.hide();
     }
   }
 
-  onFinishAd() {
+  private onFinishAd() {
     this.hideValue = false;
     if (this.err) {
       this.container.disableMediaControl();
@@ -142,7 +142,7 @@ export class ErrorScreen extends UICorePlugin {
     }
   }
 
-  public onError(err: ErrorObject) {
+  private onError(err: ErrorObject) {
     if (
       err.level === PlayerError.Levels.FATAL ||
       err.details === 'bufferStalledError' ||
@@ -169,7 +169,7 @@ export class ErrorScreen extends UICorePlugin {
 
       const ctp = this.container.getPlugin('click_to_pause_custom');
 
-      const toggleCTP = ctp?.enabled;
+      const toggleCTP = !!ctp?.enabled;
       if (toggleCTP) {
         // clickToPausePlugin.afterEnabled = true;
         ctp.disable();
@@ -216,7 +216,7 @@ export class ErrorScreen extends UICorePlugin {
     this.$el.hide();
   }
 
-  render() {
+  override render() {
     if (!this.err) {
       return this;
     }

@@ -91,7 +91,7 @@ export class VastAds extends UICorePlugin {
     return this.core.mediaControl;
   }
 
-  get attributes() {
+  override get attributes() {
     return {
       'class': this.name,
       'data-vast-ads': ''
@@ -161,7 +161,7 @@ export class VastAds extends UICorePlugin {
     }
   }
 
-  bindEvents() {
+  override bindEvents() {
     const no_lib = 'google' in window && (window.google as any).ima;
 
     if (!no_lib) {
@@ -794,7 +794,7 @@ export class VastAds extends UICorePlugin {
     }, 0);
   }
 
-  render() {
+  override render() {
     this.$skipAd = $('<div class=\'skip-ad-button control-need-disable\'></div>');
     this.$muteIcon = $('<div class=\'mute-ad-icon control-need-disable\'></div>');
     this.$areaClick = $('<div class=\'area-ad-click enable\'></div>');

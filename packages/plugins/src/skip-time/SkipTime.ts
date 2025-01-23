@@ -24,7 +24,7 @@ export class SkipTime extends UICorePluginOriginal {
     return template(pluginHtml);
   }
 
-  get attributes() {
+  override get attributes() {
     return {
       'class': this.name + '_plugin',
       'data-skip-time': ''
@@ -33,7 +33,7 @@ export class SkipTime extends UICorePluginOriginal {
 
   private position: Position = 'mid';
 
-  get events() {
+  override get events() {
     return {
       'click [data-skip-left]': 'setBack',
       'click [data-skip-mid]': 'setMidClick',
@@ -41,7 +41,7 @@ export class SkipTime extends UICorePluginOriginal {
     };
   }
 
-  bindEvents() {
+  override bindEvents() {
     this.listenTo(this.core, Events.CORE_READY, this.render);
     if (!this.container) {
       return;
@@ -95,7 +95,7 @@ export class SkipTime extends UICorePluginOriginal {
     this.core.toggleFullscreen();
   }
 
-  render() {
+  override render() {
     this.$el.html(template(pluginHtml));
 
     if (this.core.activeContainer) {

@@ -26,14 +26,14 @@ export class Share extends UICorePlugin {
     return template(pluginHtml);
   }
 
-  get attributes() {
+  override get attributes() {
     return {
       'class': this.name + '_plugin',
       'data-share': ''
     };
   }
 
-  get events() {
+  override get events() {
     return {
       'click [data-share-button]': 'onShareShow',
       'click [data-share-close]': 'onShareHide',
@@ -44,7 +44,7 @@ export class Share extends UICorePlugin {
     };
   }
 
-  bindEvents() {
+  override bindEvents() {
     this.listenTo(this.core, Events.CORE_READY, this.onReady);
     // this.listenTo(this.core.mediaControl, Events.MEDIACONTROL_CONTAINERCHANGED, this.reload);
     this.listenTo(this.core.mediaControl, Events.MEDIACONTROL_RENDERED, this.render);
@@ -78,7 +78,7 @@ export class Share extends UICorePlugin {
     this.hideShare();
   }
 
-  render() {
+  override render() {
     this.$el.html(this.template({
       'url':this.options.shareURL,
       'embed': this.options.embed,

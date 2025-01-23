@@ -1,5 +1,7 @@
-.container {
+[data-player] {
   --bottom-panel: 40px;
+}
+.container {
   .media-control-notransition {
     transition: none !important;
   }

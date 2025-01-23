@@ -29,13 +29,13 @@ export class ClipsPlugin extends UICorePlugin {
     return 'clips';
   }
 
-  get attributes() {
+  override get attributes() {
     return {
       'class': this.name
     };
   }
 
-  bindEvents() {
+  override bindEvents() {
     this.listenToOnce(this.core, Events.CORE_READY, this._onCoreReady);
     this.listenTo(this.core.mediaControl, Events.MEDIACONTROL_CONTAINERCHANGED, this._onMediaControlContainerChanged);
     this.listenTo(this.core, Events.CORE_RESIZE, this.playerResize);

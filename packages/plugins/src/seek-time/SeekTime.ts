@@ -26,7 +26,7 @@ export class SeekTime extends UICorePlugin {
     return template(seekTimeHTML);
   }
 
-  get attributes() {
+  override get attributes() {
     return {
       'class': 'seek-time',
       'data-seek-time': ''
@@ -68,7 +68,7 @@ export class SeekTime extends UICorePlugin {
 
   private $seekTimeEl: ZeptoResult | null = null;
 
-  bindEvents() {
+  override bindEvents() {
     this.listenTo(this.mediaControl, Events.MEDIACONTROL_RENDERED, this.render);
     this.listenTo(this.mediaControl, Events.MEDIACONTROL_MOUSEMOVE_SEEKBAR, this.showTime);
     this.listenTo(this.mediaControl, Events.MEDIACONTROL_MOUSELEAVE_SEEKBAR, this.hideTime);
@@ -175,7 +175,7 @@ export class SeekTime extends UICorePlugin {
       this.duration !== null;
   }
 
-  render() {
+  override render() {
     this.rendered = true;
     this.displayedDuration = null;
     this.displayedSeekTime = null;

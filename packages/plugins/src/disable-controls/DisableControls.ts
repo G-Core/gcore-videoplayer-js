@@ -15,7 +15,7 @@ export class DisableControls extends UICorePlugin {
     return { min: CLAPPR_VERSION };
   }
 
-  bindEvents() {
+  override bindEvents() {
     if (this.container) {
       this.listenTo(this.container, Events.CONTAINER_MEDIACONTROL_ENABLE, this.enableControls);
       this.listenTo(this.container, Events.CONTAINER_PLAY, this.enableControls);

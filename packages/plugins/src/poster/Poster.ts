@@ -3,6 +3,7 @@
 // license that can be found in the LICENSE file.
 
 import { Events, Playback, PlayerError, UIContainerPlugin, template, $, Container } from '@clappr/core';
+import { trace } from '@gcorevideo/player';
 
 import { CLAPPR_VERSION } from '../build.js';
 import type { ZeptoResult } from '../types.js';
@@ -10,6 +11,8 @@ import type { ZeptoResult } from '../types.js';
 import '../../assets/poster/poster.scss';
 import posterHTML from '../../assets/poster/poster.ejs';
 import playIcon from '../../assets/icons/new/play.svg';
+
+const T = 'plugins.poster_custom';
 
 export class Poster extends UIContainerPlugin {
   private hasFatalError = false;
@@ -36,18 +39,17 @@ export class Poster extends UIContainerPlugin {
 
   get shouldRender() {
     const showForNoOp = !!(this.options.poster && this.options.poster.showForNoOp);
-
     return this.container.playback.name !== 'html_img' && (this.container.playback.getPlaybackType() !== Playback.NO_OP || showForNoOp);
   }
 
-  get attributes() {
+  override get attributes() {
     return {
       'class': 'player-poster',
       'data-poster': ''
     };
   }
 
-  get events() {
+  override get events() {
     return {
       'click': 'clicked'
     };
@@ -64,7 +66,7 @@ export class Poster extends UIContainerPlugin {
     setTimeout(() => this.update(), 0);
   }
 
-  bindEvents() {
+  override bindEvents() {
     this.listenTo(this.container, Events.CONTAINER_STOP, this.onStop);
     this.listenTo(this.container, Events.CONTAINER_PLAY, this.onPlay);
     this.listenTo(this.container, Events.CONTAINER_STATE_BUFFERING, this.update);
@@ -86,18 +88,18 @@ export class Poster extends UIContainerPlugin {
     }
   }
 
-  onPlay() {
+  private onPlay() {
     this.hasStartedPlaying = true;
     this.update();
   }
 
-  onStop() {
+  private onStop() {
     this.hasStartedPlaying = false;
     this.playRequested = false;
     this.update();
   }
 
-  updatePlayButton(show: boolean) {
+  private updatePlayButton(show: boolean) {
     if (show && (!this.options.chromeless || this.options.allowUserInteraction)) {
       this.showPlayButton();
     } else {
@@ -105,7 +107,7 @@ export class Poster extends UIContainerPlugin {
     }
   }
 
-  showPlayButton() {
+  private showPlayButton() {
     if (this.options.disableMediaControl) {
       return;
     }
@@ -118,12 +120,12 @@ export class Poster extends UIContainerPlugin {
     this.container.$el.addClass('container-with-poster-clickable');
   }
 
-  hidePlayButton() {
+  private hidePlayButton() {
     this.$playButton.hide();
     this.$el.removeClass('clickable');
   }
 
-  clicked() {
+  private clicked() {
     // Let "click_to_pause" plugin handle click event if media has started playing
     if (!this.hasStartedPlaying) {
       if (!this.options.chromeless || this.options.allowUserInteraction) {
@@ -140,7 +142,7 @@ export class Poster extends UIContainerPlugin {
     return false;
   }
 
-  shouldHideOnPlay() {
+  private shouldHideOnPlay() {
     // Audio broadcasts should keep the poster up; video should hide poster while playing.
     return !this.container.playback.isAudioOnly;
   }
@@ -156,7 +158,7 @@ export class Poster extends UIContainerPlugin {
     this.updatePoster();
   }
 
-  updatePoster() {
+  private updatePoster() {
     if (!this.hasStartedPlaying) {
       this.showPoster();
     } else {
@@ -164,12 +166,12 @@ export class Poster extends UIContainerPlugin {
     }
   }
 
-  showPoster() {
+  private showPoster() {
     this.container.disableMediaControl();
     this.$el.show();
   }
 
-  hidePoster() {
+  private hidePoster() {
     if (!this.options.disableMediaControl) {
       this.container.enableMediaControl();
     }
@@ -178,7 +180,7 @@ export class Poster extends UIContainerPlugin {
     }
   }
 
-  render() {
+  override render() {
     if (!this.shouldRender) {
       return this;
     }
@@ -214,7 +216,7 @@ export class Poster extends UIContainerPlugin {
     return this;
   }
 
-  removeVideoElementPoster() {
+  private removeVideoElementPoster() {
     this.container.playback &&
     this.container.playback.$el &&
     this.container.playback.$el[0] &&
@@ -222,7 +224,7 @@ export class Poster extends UIContainerPlugin {
     this.container.playback.$el[0].removeAttribute('poster');
   }
 
-  destroy() {
+  override destroy() {
     this.container.$el.removeClass('container-with-poster-clickable');
     return this;
   }

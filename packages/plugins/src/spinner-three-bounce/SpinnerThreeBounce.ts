@@ -18,7 +18,7 @@ export class SpinnerThreeBounce extends UIContainerPlugin {
     return { min: CLAPPR_VERSION };
   }
 
-  get attributes() {
+  override get attributes() {
     return {
       'data-spinner':'',
       'class': 'spinner-three-bounce'
@@ -37,7 +37,6 @@ export class SpinnerThreeBounce extends UIContainerPlugin {
     this.listenTo(this.container, Events.CONTAINER_ENDED, this.onStop);
     this.listenTo(this.container, Events.CONTAINER_ERROR, this.onStop);
     this.listenTo(this.container, Events.CONTAINER_READY, this.render);
-    this.render();
   }
 
   private onBuffering() {
@@ -66,9 +65,9 @@ export class SpinnerThreeBounce extends UIContainerPlugin {
     this.$el.hide();
   }
 
-  render() {
+  override render() {
     this.$el.html(this.template());
-    this.container.$el.append(this.$el);
+    this.container.$el.append(this.$el[0]);
     this.$el.hide();
     if (this.container.buffering) {
       this.onBuffering();

@@ -27,7 +27,7 @@ export class ContextMenu extends UICorePlugin {
     return { min: CLAPPR_VERSION };
   }
 
-  get attributes() {
+  override get attributes() {
     return { 'class': 'context-menu' };
   }
 
@@ -54,7 +54,7 @@ export class ContextMenu extends UICorePlugin {
     };
   }
 
-  get events() {
+  override get events() {
     return {
       'click [data-version]': 'onOpenMainPage'
     };
@@ -72,7 +72,7 @@ export class ContextMenu extends UICorePlugin {
     this.bindEvents();
   }
 
-  bindEvents() {
+  override bindEvents() {
     if (this.mediaControl) {
       this.listenTo(this.mediaControl, Events.MEDIACONTROL_CONTAINERCHANGED, this.containerChanged);
 
@@ -84,7 +84,7 @@ export class ContextMenu extends UICorePlugin {
     $('body').on('click', this.hide.bind(this));
   }
 
-  destroy() {
+  override destroy() {
     $('body').off('click', this.hide.bind(this));
     // @ts-ignore
     this.stopListening();
@@ -122,7 +122,7 @@ export class ContextMenu extends UICorePlugin {
     window.open(this.url, '_blank');
   }
 
-  render() {
+  override render() {
     this.menuOptions = [this.exposeVersion];
     this.$el.html(this.template({ options: this.menuOptions }));
     this.core.$el.append(this.$el);
