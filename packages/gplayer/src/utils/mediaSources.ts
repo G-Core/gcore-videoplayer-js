@@ -65,13 +65,13 @@ export function buildSourcesPriorityList(
   }
 
   function addHls() {
-    if (sources.hls && HlsPlayback.canPlay(sources.hls)) {
+    if (sources.hls && HlsPlayback.canPlay(sources.hls, undefined)) {
       msl.push(sources.hls)
       sources.hls = null
     }
     if (
       sources.master?.endsWith('.m3u8') &&
-      HlsPlayback.canPlay(sources.master)
+      HlsPlayback.canPlay(sources.master, undefined)
     ) {
       msl.push(sources.master)
       sources.master = null
@@ -79,7 +79,7 @@ export function buildSourcesPriorityList(
   }
 
   function addDash() {
-    if (sources.dash && DashPlayback.canPlay(sources.dash)) {
+    if (sources.dash && DashPlayback.canPlay(sources.dash, undefined)) {
       msl.push(sources.dash)
       sources.dash = null
     }

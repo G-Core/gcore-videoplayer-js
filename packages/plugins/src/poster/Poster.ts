@@ -77,14 +77,19 @@ export class Poster extends UIContainerPlugin {
     this.listenTo(this.container, Events.CONTAINER_READY, this.render);
   }
 
-  private onError(error: object) {
+  private onError(error: object) { // TODO add type
+    trace(`${T} onError`, {
+      error,
+    })
     // @ts-ignore
     this.hasFatalError = error.level === PlayerError.Levels.FATAL;
 
     if (this.hasFatalError) {
       this.hasStartedPlaying = false;
-      this.playRequested = false;
-      this.showPlayButton();
+      this.playRequested = !!this.options.autoPlay;
+      if (!this.playRequested) {
+        this.showPlayButton();
+      }
     }
   }
 
@@ -134,10 +139,9 @@ export class Poster extends UIContainerPlugin {
         this.container.playback && (this.container.playback._consented = true);
         this.container.play();
       }
-
-      return false;
+    } else {
+      this.container.trigger('container:start');
     }
-    this.container.trigger('container:start');
 
     return false;
   }
@@ -147,7 +151,7 @@ export class Poster extends UIContainerPlugin {
     return !this.container.playback.isAudioOnly;
   }
 
-  update() {
+  private update() {
     if (!this.shouldRender) {
       return;
     }
@@ -216,13 +220,13 @@ export class Poster extends UIContainerPlugin {
     return this;
   }
 
-  private removeVideoElementPoster() {
-    this.container.playback &&
-    this.container.playback.$el &&
-    this.container.playback.$el[0] &&
-    this.container.playback.$el[0].removeAttribute &&
-    this.container.playback.$el[0].removeAttribute('poster');
-  }
+  // private removeVideoElementPoster() {
+  //   this.container.playback &&
+  //   this.container.playback.$el &&
+  //   this.container.playback.$el[0] &&
+  //   this.container.playback.$el[0].removeAttribute &&
+  //   this.container.playback.$el[0].removeAttribute('poster');
+  // }
 
   override destroy() {
     this.container.$el.removeClass('container-with-poster-clickable');

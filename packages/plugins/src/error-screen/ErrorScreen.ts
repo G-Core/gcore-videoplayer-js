@@ -105,9 +105,8 @@ export class ErrorScreen extends UICorePlugin {
   private reload() {
     this._retry++;
     this.core.configure({
-      ...this.options, ...{
-        autoPlay: true,
-      }
+      ...this.options, 
+        autoPlay: true
     });
     this.core.activeContainer.mediaControlDisabled = false;
     this.unbindReload();

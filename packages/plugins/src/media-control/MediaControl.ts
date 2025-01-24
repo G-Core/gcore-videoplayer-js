@@ -341,18 +341,18 @@ export class MediaControl extends UICorePlugin {
     this.container && this.container.stop();
   }
 
-  setInitialVolume() {
+  private setInitialVolume() {
     const initialVolume = (this.persistConfig) ? Config.restore('volume') : 100;
     const options = this.container && this.container.options || this.options;
 
     this.setVolume(options.mute ? 0 : initialVolume, true);
   }
 
-  onVolumeChanged() {
+  private onVolumeChanged() {
     this.updateVolumeUI();
   }
 
-  onLoadedMetadataOnVideoTag(event: any) {
+  private onLoadedMetadataOnVideoTag(event: any) {
     const video = this.playback && this.playback.el;
 
     // video.webkitSupportsFullscreen is deprecated but iOS appears to only use this
@@ -363,7 +363,7 @@ export class MediaControl extends UICorePlugin {
     }
   }
 
-  updateVolumeUI() {
+  private updateVolumeUI() {
     // this will be called after a render
     if (!this.rendered) {
       return;
@@ -415,7 +415,7 @@ export class MediaControl extends UICorePlugin {
     this.applyButtonStyle(this.$volumeIcon);
   }
 
-  changeTogglePlay() {
+  private changeTogglePlay() {
     // assert.ok(this.$playPauseToggle, 'play/pause toggle must be present');
     this.$playPauseToggle?.html('');
 
@@ -437,7 +437,7 @@ export class MediaControl extends UICorePlugin {
     this.applyButtonStyle(this.$playStopToggle);
   }
 
-  mousemoveOnSeekBar(event: MouseEvent) {
+  private mousemoveOnSeekBar(event: MouseEvent) {
     if (this.settings.seekEnabled) {
       // assert.ok(this.$seekBarHover && this.$seekBarContainer, 'seek bar elements must be present');
       if (this.$seekBarHover && this.$seekBarContainer) {
@@ -449,19 +449,19 @@ export class MediaControl extends UICorePlugin {
     this.trigger(Events.MEDIACONTROL_MOUSEMOVE_SEEKBAR, event);
   }
 
-  mouseleaveOnSeekBar(event: MouseEvent) {
+  private mouseleaveOnSeekBar(event: MouseEvent) {
     this.trigger(Events.MEDIACONTROL_MOUSELEAVE_SEEKBAR, event);
   }
 
-  onVolumeClick(event: MouseEvent) {
+  private onVolumeClick(event: MouseEvent) {
     this.setVolume(this.getVolumeFromUIEvent(event));
   }
 
-  mousemoveOnVolumeBar(event: MouseEvent) {
+  private mousemoveOnVolumeBar(event: MouseEvent) {
     this.draggingVolumeBar && this.setVolume(this.getVolumeFromUIEvent(event));
   }
 
-  playerResize(size: { width: number; height: number }) {
+  private playerResize(size: { width: number; height: number }) {
     if (this.container.el) {
       if (isFullscreen(this.container.el)) {
         this.$fullscreenToggle?.html(fullscreenOnIcon);

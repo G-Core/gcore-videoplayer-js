@@ -13,7 +13,7 @@ import DASHJS, {
 } from 'dashjs'
 import { trace } from '../../trace/index.js'
 
-import { BitrateInfo, QualityLevel, TimePosition, TimeValue } from '../../playback.types.js'
+import { QualityLevel, TimePosition, TimeValue } from '../../playback.types.js'
 
 const AUTO = -1
 
@@ -34,6 +34,7 @@ type LocalTimeCorrelation = {
 
 const T = 'DashPlayback'
 
+// @ts-expect-error
 export default class DashPlayback extends HTML5Video {
   _levels: QualityLevel[] | null = null
 
@@ -299,7 +300,7 @@ export default class DashPlayback extends HTML5Video {
   }
 
   // override
-  _setupSrc() {
+  private override _setupSrc() {
     // this playback manages the src on the video element itself
   }
 
@@ -386,27 +387,31 @@ export default class DashPlayback extends HTML5Video {
     this.trigger(Events.PLAYBACK_STATS_ADD, { dvr: status })
   }
 
-  _updateSettings() {
+  override _updateSettings() {
     if (this._playbackType === Playback.VOD) {
+      // @ts-expect-error
       this.settings.left = ['playpause', 'position', 'duration']
     } else if (this.dvrEnabled) {
+      // @ts-expect-error
       this.settings.left = ['playpause']
     } else {
+      // @ts-expect-error
       this.settings.left = ['playstop']
     }
-
+    // @ts-expect-error
     this.settings.seekEnabled = this.isSeekEnabled()
     this.trigger(Events.PLAYBACK_SETTINGSUPDATE)
   }
 
-  _onPlaybackError = (event: DashPlaybackErrorEvent) => {
+  private _onPlaybackError = (event: DashPlaybackErrorEvent) => {
     // TODO
+    trace(`${T} _onPlaybackError`, { event })
   }
 
-  _onDASHJSSError = (event: DashErrorEvent) => {
+  private _onDASHJSSError = (event: DashErrorEvent) => {
+    trace(`${T} _onDASHJSSError`, { event })
     // TODO
     // only report/handle errors if they are fatal
-    // hlsjs should automatically handle non fatal errors
     this._stopTimeUpdateTimer()
     if (event.error === 'capability' && event.event === 'mediasource') {
       // No support for MSE
@@ -542,10 +547,10 @@ export default class DashPlayback extends HTML5Video {
   }
 
   get dvrEnabled() {
-    assert.ok(
-      this._dash,
-      'An instance of dashjs MediaPlayer is required to get the DVR status',
-    )
+    if (!this._dash) {
+      trace(`${T} dvrEnable no dash player instance`)
+      return false
+    }
     return (
       this._dash?.getDVRWindowSize() >= this._minDvrSize &&
       this.getPlaybackType() === Playback.LIVE

@@ -46,7 +46,7 @@
   "dependencies": {
     "@clappr/core": "^0.11.3",
     "@fingerprintjs/fingerprintjs": "^4.5.1",
-    "@gcorevideo/player": "^2.1.0",
+    "@gcorevideo/player": "^2.8.1",
     "hls.js": "^1.5.17",
     "human-format": "^1.2.1",
     "mousetrap": "^1.6.5",

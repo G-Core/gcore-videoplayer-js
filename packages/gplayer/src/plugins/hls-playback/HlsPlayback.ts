@@ -61,6 +61,7 @@ type CustomListener = {
 // TODO level, code, description, etc
 type ErrorInfo = Record<string, unknown>;
 
+// @ts-expect-error
 export default class HlsPlayback extends HTML5Video {
   private _ccIsSetup = false;
 
@@ -436,7 +437,7 @@ export default class HlsPlayback extends HTML5Video {
 
   // override
   // this playback manages the src on the video element itself
-  _setupSrc(srcUrl: string) { } // eslint-disable-line no-unused-vars
+  private override _setupSrc(srcUrl: string) { } // eslint-disable-line no-unused-vars
 
   _startTimeUpdateTimer() {
     if (this._timeUpdateTimer) {
@@ -511,13 +512,17 @@ export default class HlsPlayback extends HTML5Video {
 
   _updateSettings() {
     if (this._playbackType === Playback.VOD) {
+      // @ts-expect-error
       this.settings.left = ['playpause', 'position', 'duration'];
     } else if (this.dvrEnabled) {
+      // @ts-expect-error
       this.settings.left = ['playpause'];
     } else {
+      // @ts-expect-error
       this.settings.left = ['playstop'];
     }
 
+      // @ts-expect-error
     this.settings.seekEnabled = this.isSeekEnabled();
     this.trigger(Events.PLAYBACK_SETTINGSUPDATE);
   }
