@@ -3,7 +3,7 @@
 // license that can be found in the LICENSE file.
 
 import { Events, Playback, PlayerError, UIContainerPlugin, template, $, Container } from '@clappr/core';
-import { trace } from '@gcorevideo/player';
+import { trace } from '@gcorevideo/utils';
 
 import { CLAPPR_VERSION } from '../build.js';
 import type { ZeptoResult } from '../types.js';

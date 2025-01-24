@@ -1,5 +1,4 @@
-// import LogManager from '../../utils/LogManager';
-
+import { reportError } from '@gcorevideo/utils';
 import assert from "assert";
 
 export default class XHRURLHandler {

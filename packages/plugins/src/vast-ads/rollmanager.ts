@@ -1,12 +1,11 @@
 import { $, Browser, Container, ContainerPlugin, Core, Events, HTML5Video, Log, Playback, UIContainerPlugin, Utils } from '@clappr/core';
+import { reportError } from '@gcorevideo/utils';
+import assert from 'assert';
 
 import LoaderXML from './loaderxml.js';
 import Roll from './roll.js';
 import { ZeptoResult } from '../types.js';
 import { AdRollDesc, AdRollItem, AdRollType, VastAdsOptions } from './types.js';
-import assert from 'assert';
-// import Player from '../../Player';
-// import LogManager from '../../utils/LogManager';
 
 type CoreOptions = Record<string, unknown>;
 

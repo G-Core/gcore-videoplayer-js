@@ -1,4 +1,4 @@
-import type { Tracer } from "./types.js";
+import type { Tracer } from "./Tracer.js";
 
 const tracer: Tracer = {
   trace: () => {},

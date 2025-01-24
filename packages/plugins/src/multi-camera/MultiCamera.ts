@@ -1,5 +1,6 @@
 import { Browser, Core, Events, Playback, template, UICorePlugin } from '@clappr/core';
-import { StreamMediaSource, trace } from '@gcorevideo/player';
+import { StreamMediaSource } from '@gcorevideo/player';
+import { reportError, trace } from '@gcorevideo/utils';
 
 import { CLAPPR_VERSION } from '../build.js';
 

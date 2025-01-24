@@ -18,7 +18,7 @@ import HLSJS, {
 } from 'hls.js';
 
 import { QualityLevel, TimePosition } from '../../playback.types.js';
-import { trace } from '../../trace/index.js';
+import { trace } from '@gcorevideo/utils';
 import { PlaybackType } from '../../types';
 import { TimerId } from '../../utils/types';
 

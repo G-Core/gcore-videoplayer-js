@@ -1,5 +1,6 @@
 import { UICorePlugin, Events, template, $, Container } from '@clappr/core';
-import { reportError, TimeValue, trace } from '@gcorevideo/player';
+import { TimeValue } from '@gcorevideo/player';
+import { reportError, trace } from '@gcorevideo/utils';
 import parseSRT, { type ParsedSRT } from 'parse-srt';
 
 import { CLAPPR_VERSION } from '../build.js';

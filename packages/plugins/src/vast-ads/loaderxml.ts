@@ -1,8 +1,8 @@
+import { reportError } from '@gcorevideo/utils';
+import assert from 'assert';
 import URLHandler from './urlhandler.js';
 import MergeVast from './xmlmerge.js';
 import { strtimeToMiliseconds } from '../utils.js';
-import assert from 'assert';
-// import LogManager from '../../utils/LogManager';
 
 export default class LoaderXML {
   private config: string = '';

@@ -1,1 +1,1 @@
-export { setTracer } from "@gcorevideo/player";
+export { setTracer } from "@gcorevideo/utils";

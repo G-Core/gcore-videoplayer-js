@@ -18,7 +18,7 @@ import type {
 import type {
   PlayerPlugin,
 } from './types.js'
-import { reportError, trace } from './trace/index.js'
+import { reportError, trace } from '@gcorevideo/utils'
 import { PlayerConfig, PlayerEvent } from './types.js'
 import DashPlayback from './plugins/dash-playback/DashPlayback.js'
 import HlsPlayback from './plugins/hls-playback/HlsPlayback.js'

@@ -1,6 +1,7 @@
 import { Browser, Container, ContainerPlugin, Events, Playback } from '@clappr/core';
 import { StreamMediaSource, type TimePosition } from '@gcorevideo/player';
-import Fingerprint from '@fingerprintjs/fingerprintjs';
+import { reportError } from '@gcorevideo/utils';
+import Fingerprint from '@fingerprintjs/fingerprintjs'; // TODO drop
 import { Events as HlsEvents, FragChangedData } from 'hls.js';
 
 import { CLAPPR_VERSION } from '../build.js';

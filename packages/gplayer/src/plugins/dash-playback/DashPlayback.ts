@@ -11,7 +11,7 @@ import DASHJS, {
   MetricEvent as DashMetricEvent,
   IManifestInfo,
 } from 'dashjs'
-import { trace } from '../../trace/index.js'
+import { trace } from '@gcorevideo/utils'
 
 import { QualityLevel, TimePosition, TimeValue } from '../../playback.types.js'
 

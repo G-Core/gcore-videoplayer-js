@@ -1,3 +1,5 @@
+import { reportError } from '@gcorevideo/utils';
+
 import SpeedtestWorkerModule from '../../../assets/clappr-nerd-stats/speedtest/speedtest.worker.js';
 
 import { TimerId } from '../../types.js';

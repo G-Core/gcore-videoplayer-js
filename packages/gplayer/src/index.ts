@@ -1,9 +1,5 @@
 export * from "./Player.js"
 export * from "./playback.types.js";
-export * from "./trace/LogTracer.js";
-export * from "./trace/SentryTracer.js";
-export * from "./trace/index.js";
-export * from "./trace/types.js";
+export * from "@gcorevideo/utils"; // TODO remove everything but setTracer in the next minor version
 export * from "./types.js";
-export * from "./utils/Logger.js";
 export * from "./version.js";
