@@ -1,6 +1,6 @@
 {
   "name": "@gcorevideo/utils",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Miscellaneous utilities for the Gcore streaming platform projects",
   "repository": {
     "type": "git",
