@@ -1,6 +1,10 @@
 import * as pkg from '../package.json' with { "type": "json" };
 import * as lock from '../package-lock.json' with { "type": "json" };
 
+/**
+ * @alpha
+ * @returns Version information for the gplayer and its dependencies
+ */
 export function version() {
   return {
     gplayer: pkg.version,

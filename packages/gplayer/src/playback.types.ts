@@ -1,22 +1,32 @@
+
+/**
+ * @alpha
+ */
 export type TimeValue = number;
 
+/**
+ * @alpha
+ */
 export type TimePosition = {
   current: TimeValue;
   total: TimeValue;
 }
 
+/**
+ * @alpha
+ */
 export type TimeProgress = TimePosition & { start: number; };
 
+/**
+ * @alpha
+ */
 export type TimeUpdate = TimePosition & {
   firstFragDateTime: number;
 };
 
-export type BitrateInfo = {
-  bitrate: number;
-  width: number;
-  height: number;
-}
-
+/**
+ * @alpha
+ */
 export type QualityLevel = {
   level: number // index
   width: number

@@ -1,7 +1,6 @@
-import { PlayerMediaSource } from '../internal.types'
 import DashPlayback from '../plugins/dash-playback/DashPlayback'
 import HlsPlayback from '../plugins/hls-playback/HlsPlayback'
-import { StreamMediaSource, TransportPreference } from '../types'
+import { PlayerMediaSource, StreamMediaSource, TransportPreference } from '../types'
 
 export type SourceVariants = {
   dash: string | null

@@ -1,80 +1,117 @@
-import { PlayerMediaSource } from "./internal.types"
+// import { PlayerMediaSource } from "./internal.types"
+/**
+ * @alpha
+ */
+export type PlayerMediaSourceDesc = {
+  mimeType?: string;
+  source: string;
+}
 
+/**
+ * @alpha
+ */
+export type PlayerMediaSource = string | PlayerMediaSourceDesc;
+
+/**
+ * @alpha
+ */
 export type PlayerDebugTag = 'all' | 'clappr' | 'dash' | 'hls' | 'none'
+/**
+ * @alpha
+ */
 export type PlayerDebugSettings = PlayerDebugTag | boolean
 
+/**
+ * @alpha
+ */
 export type PlaybackType = 'live' | 'vod'
+/**
+ * @alpha
+ */
 export type MediaTransport = 'dash' | 'hls' | 'mpegts'
+/**
+ * @alpha
+ */
 export type TransportPreference = MediaTransport | 'auto'
 
+/**
+ * @alpha
+ */
 export type PlayerPlugin = {
   new (...args: any[]): unknown
   type: string // 'core' | 'container' | 'playback';
 }
 
+/**
+ * @alpha
+ */
 export type PlayerConfig = {
+  /**
+   * @defaultValue false  Start playback automatically when the player is ready.
+   * Should be used together with the `mute` to avoid issues with autoplay policies.
+   */
   autoPlay?: boolean
+  /**
+   * @defaultValue \{\}  Configuration for the DASH playback engine
+   */
   dash?: DashSettings
+  /**
+   * @defaultValue 'none'  Debugging level
+   */
   debug?: PlayerDebugSettings
+  /**
+   * @defaultValue 'en'  Default language for the player UI
+   */
   language?: string
+  /**
+   * @defaultValue false  Repeat playback when the end of the media is reached
+   */
   loop?: boolean
+  /**
+   * @defaultValue false  Mute the audio
+   */
   mute?: boolean
+  /**
+   * @defaultValue 'vod'  Playback type
+   */
   playbackType?: PlaybackType
+  /**
+   * @defaultValue \{\}  Configuration options for various plugins
+   */
   pluginSettings?: Record<string, unknown>
-  poster?: string
+  /**
+   * @defaultValue 'auto'  Priority transport to use when multiple sources are available.
+   * Affects the order of source selection from the `sources` list
+   */
   priorityTransport?: TransportPreference
+  /**
+   * List of media sources. The first supported source will be used.
+   */
   sources: PlayerMediaSource[];
+  /**
+   * List of localizations for the player UI
+   */
   strings: TranslationSettings
 }
 
-export type PlayerOptionsThumbnails = {
-  sprite?: string | null
-  vtt?: string | null
-}
+/**
+ * @alpha
+ */
+export type LangTag = string
 
-export type ContextMenuSettings = {
-  preventShowContextMenu?: boolean
-}
+/**
+ * @alpha
+ */
+export type TranslationKey = string
 
-type LangTag = string
-type TranslationKey = string
-
-export type BroadcastSettings = {
-  status?: 'live' | 'noActiveStreams'
-}
-
-export type ClipsPluginOptions = Record<string, unknown> // TODO
-
-export type PlaybackSettings = {
-  hlsjsConfig?: Record<string, unknown>
-  playInline?: boolean
-  preload?: 'auto' | 'metadata' | 'none'
-  triggerFatalErrorOnResourceDenied?: boolean
-}
-
+/**
+ * @alpha
+ */
 export type DashSettings = Record<string, unknown> //
 
-// TODO consult with the Broadcaster team
-// TODO turn into camel case convert at user level
-export type StreamMediaSourceDto = {
-  description: string
-  dvr: boolean
-  hls_cmaf_url?: string
-  hls_mpegts_url?: string
-  id: number
-  live: boolean
-  priority_transport: TransportPreference
-  poster: string | null
-  projection: ProjectionType | null
-  screenshot: string | null
-  source: string
-  source_dash: string | null
-  sprite: string | null
-  title: string
-  vtt: string | null
-}
-
-// TODO split into sources and source attributes
+/**
+ * @alpha
+ */
 export type StreamMediaSource = {
   description: string
   dvr: boolean
@@ -93,13 +130,25 @@ export type StreamMediaSource = {
   vtt: string | null
 }
 
+/**
+ * @alpha
+ */
 export type SrcProjectionType = 'regular' | '360' | 'vr180' | 'vr360tb'
+/**
+ * @alpha
+ */
 export type ProjectionType = '360' | '180' | '360_TB'
 
+/**
+ * @alpha
+ */
 export type TranslationSettings = Partial<
   Record<LangTag, Record<TranslationKey, string>>
 >
 
+/**
+ * @alpha
+ */
 export enum PlayerEvent {
   Ready = 'ready',
   Play = 'play',

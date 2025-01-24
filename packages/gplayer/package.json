@@ -30,6 +30,8 @@
   },
   "homepage": "https://github.com/G-Core/gcore-videoplayer-js#readme",
   "devDependencies": {
+    "@microsoft/api-documenter": "^7.26.5",
+    "@microsoft/api-extractor": "^7.49.1",
     "@rollup/plugin-commonjs": "^28.0.1",
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^15.3.0",

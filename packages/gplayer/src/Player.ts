@@ -6,6 +6,7 @@ import {
   $,
   Loader,
 } from '@clappr/core'
+import { reportError, trace } from '@gcorevideo/utils'
 import assert from 'assert'
 import EventLite from 'event-lite'
 
@@ -13,12 +14,11 @@ import type {
   CorePlayerEvents,
   CoreOptions,
   CorePluginOptions,
-  PlayerMediaSource,
 } from './internal.types.js'
 import type {
+  PlayerMediaSource,
   PlayerPlugin,
 } from './types.js'
-import { reportError, trace } from '@gcorevideo/utils'
 import { PlayerConfig, PlayerEvent } from './types.js'
 import DashPlayback from './plugins/dash-playback/DashPlayback.js'
 import HlsPlayback from './plugins/hls-playback/HlsPlayback.js'
@@ -30,7 +30,10 @@ import {
 
 // TODO implement transport retry/failover and fallback logic
 
-type PlayerEventHandler<T extends PlayerEvent> = () => void
+/**
+ * @alpha
+ */
+export type PlayerEventHandler<T extends PlayerEvent> = () => void
 
 const T = 'GPlayer'
 
@@ -41,18 +44,20 @@ const DEFAULT_OPTIONS: PlayerConfig = {
   mute: false,
   playbackType: 'vod',
   pluginSettings: {},
-  poster: '',
   priorityTransport: 'dash',
   sources: [],
   strings: {},
 }
 
+/**
+ * @alpha
+ */
 export type PlaybackModule = 'dash' | 'hls' | 'native'
 
 type PluginOptions = Record<string, unknown>
 
 /**
- * @beta
+ * @alpha
  */
 export class Player {
   private config: PlayerConfig = DEFAULT_OPTIONS
@@ -73,14 +78,31 @@ export class Player {
     this.setConfig(config)
   }
 
+  /**
+   * Add listener to a player event
+   * @param event - @see {@link PlayerEvent}
+   * @param handler - @see {@link PlayerEventHandler}
+   */
   on<T extends PlayerEvent>(event: T, handler: PlayerEventHandler<T>) {
     this.emitter.on(event, handler)
   }
 
+  /**
+   * Remove listener from a player event
+   * @param event - @see {@link PlayerEvent}
+   * @param handler - @see {@link PlayerEventHandler}
+   */
   off<T extends PlayerEvent>(event: T, handler: PlayerEventHandler<T>) {
     this.emitter.off(event, handler)
   }
 
+  /**
+   * Configure the player.
+   *
+   * Can be called multiple times. Each consequent call extends the previous configuration.
+   *
+   * @param config - complete or partial configuration
+   */
   configure(config: Partial<PlayerConfig>) {
     this.setConfig(config)
   }
@@ -89,7 +111,11 @@ export class Player {
     this.config = $.extend(true, this.config, config)
   }
 
-  async init(playerElement: HTMLElement) {
+  /**
+   * Initialize the player with the given container element.
+   * @param playerElement - DOM element to host the player
+   */
+  init(playerElement: HTMLElement): void {
     assert.ok(!this.player, 'Player already initialized')
     assert.ok(playerElement, 'Player container element is required')
     if (this.config.debug === 'all' || this.config.debug === 'clappr') {
@@ -130,35 +156,46 @@ export class Player {
     }
   }
 
+  getCurrentTime(): number {
+    if (!this.player) {
+      return 0;
+    }
+    return this.player.getCurrentTime()
+  }
+
+  getDuration(): number {
+    if (!this.player) {
+      return 0;
+    }
+    return this.player.getDuration()
+  }
+
+  mute() {
+    this.player?.mute()
+  }
+
+  unmute() {
+    this.player?.unmute()
+  }
+
   pause() {
-    assert.ok(this.player, 'Player not initialized')
-    this.player.pause()
+    this.player?.pause()
   }
 
   play() {
-    assert.ok(this.player, 'Player not initialized')
-    this.player.play()
+    this.player?.play()
   }
 
   resize(newSize: { width: number; height: number }) {
-    if (!this.player) {
-      trace(`${T} resize not initialized`, { newSize })
-      return
-    }
-    trace(`${T} resize`, {
-      newSize,
-    })
-    this.player.resize(newSize)
+    this.player?.resize(newSize)
   }
 
-  seekTo(time: number) {
-    assert.ok(this.player, 'Player not initialized')
-    this.player.seek(time)
+  seek(time: number) {
+    this.player?.seek(time)
   }
 
   stop() {
-    assert.ok(this.player, 'Player not initialized')
-    this.player.stop()
+    this.player?.stop()
   }
 
   static registerPlugin(plugin: PlayerPlugin) {
@@ -169,7 +206,7 @@ export class Player {
     Loader.unregisterPlugin(plugin)
   }
 
-  private initPlayer(coreOptions: CoreOptions) {
+  private initPlayer(coreOptions: CoreOptions): void {
     trace(`${T} initPlayer`, {
       // TODO selected options
     })

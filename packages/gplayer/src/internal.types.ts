@@ -3,7 +3,8 @@ import type {
   ContainerPlugin,
   Playback as ClapprPlayback,
 } from "@clappr/core";
-import { PlaybackType, PlayerDebugTag, StreamMediaSource } from "./types";
+
+import { PlaybackType, PlayerDebugTag, PlayerMediaSource } from "./types";
 
 type ExternalTrack = {
   kind?: "subtitles" | "captions";
@@ -17,13 +18,6 @@ type MediacontrolStyles = {
   seekbar?: string;
   buttons?: string;
 }
-
-export type PlayerMediaSourceDesc = {
-  mimeType?: string;
-  source: string;
-}
-
-export type PlayerMediaSource = string | PlayerMediaSourceDesc;
 
 type HlsjsConfig = {
   debug?: boolean;
