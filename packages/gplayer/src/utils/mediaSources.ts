@@ -1,6 +1,6 @@
 import DashPlayback from '../plugins/dash-playback/DashPlayback'
 import HlsPlayback from '../plugins/hls-playback/HlsPlayback'
-import { PlayerMediaSource, StreamMediaSource, TransportPreference } from '../types'
+import type { PlayerMediaSource, TransportPreference } from '../types'
 
 export type SourceVariants = {
   dash: string | null
@@ -87,17 +87,4 @@ export function buildSourcesPriorityList(
 
 export function unwrapSource(s: PlayerMediaSource): string {
   return typeof s === 'string' ? s : s.source
-}
-
-export function buildGcoreStreamSourcesList(
-  ms: StreamMediaSource,
-  priorityTransport: TransportPreference,
-): PlayerMediaSource[] {
-  const sources: Record<'dash' | 'master' | 'hls' | 'mpegts', string | null> = {
-    dash: ms.sourceDash,
-    master: ms.source,
-    hls: ms.hlsCmafUrl,
-    mpegts: ms.hlsMpegtsUrl,
-  }
-  return buildSourcesPriorityList(sources, priorityTransport)
 }

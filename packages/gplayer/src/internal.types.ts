@@ -19,6 +19,10 @@ type MediacontrolStyles = {
   buttons?: string;
 }
 
+/**
+ * HLS.js configuration options to use with the HlsPlayback plugin.
+ * @beta
+ */
 type HlsjsConfig = {
   debug?: boolean;
   startLevel?: number;
@@ -26,7 +30,11 @@ type HlsjsConfig = {
 
 type ShakaConfig = Record<string, unknown>;
 
-type CorePlaybackConfig = {
+/**
+ * @see {@link https://github.com/clappr/clappr-core?tab=readme-ov-file#playback-configuration | the Clappr playback settings}
+ * @beta
+ */
+export interface CorePlaybackConfig {
   // audioOnly: boolean;
   disableContextMenu?: boolean;
   controls?: boolean;
@@ -50,6 +58,9 @@ type CorePlaybackConfig = {
 
 type ErrorLevel = "FATAL" | "WARN" | "INFO";
 
+/**
+ * @internal
+ */
 export type PlaybackError = {
   code?: number | string;
   description: string;
@@ -57,6 +68,9 @@ export type PlaybackError = {
   level?: ErrorLevel;
 }
 
+/**
+ * @internal
+ */
 export type CorePlayerEvents = {
   // TODO event arguments types
   onReady?: () => void;
@@ -72,13 +86,15 @@ export type CorePlayerEvents = {
   onSubtitleAvailable?: () => void;
 }
 
-export type ClapprVersionSpec = {
-  min: string;
-  // TODO
-}
-
+/**
+ * @internal
+ */
 export type PlaybackPluginFactory = typeof ClapprPlayback;
 
+/**
+ * For the plugin development
+ * @internal
+ */
 export type CorePluginOptions = {
   core?: CorePlugin[];
   container?: ContainerPlugin[];
@@ -87,6 +103,10 @@ export type CorePluginOptions = {
   loadExternalPlaybacksFirst?: boolean;
 }
 
+/**
+ * For the plugin development
+ * @internal
+ */
 export type CoreOptions = {
   actualLiveTime?: boolean;
   actualLiveServerTime?: string;
@@ -110,7 +130,6 @@ export type CoreOptions = {
   maxBufferLength?: number;
   mediacontrol?: MediacontrolStyles;
   mimeType?: string;
-  // multisources: StreamMediaSource[];
   mute?: boolean;
   persistConfig?: boolean;
   preload?: "auto" | "metadata" | "none";

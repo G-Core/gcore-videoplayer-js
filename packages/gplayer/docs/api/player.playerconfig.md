@@ -2,28 +2,265 @@
 
 [Home](./index.md) &gt; [@gcorevideo/player](./player.md) &gt; [PlayerConfig](./player.playerconfig.md)
 
-## PlayerConfig type
+## PlayerConfig interface
 
-> This API is provided as an alpha preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
+> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
 > 
 
+Configuration options for the player
 
 **Signature:**
 
 ```typescript
-export type PlayerConfig = {
-    autoPlay?: boolean;
-    dash?: DashSettings;
-    debug?: PlayerDebugSettings;
-    language?: string;
-    loop?: boolean;
-    mute?: boolean;
-    playbackType?: PlaybackType;
-    pluginSettings?: Record<string, unknown>;
-    priorityTransport?: TransportPreference;
-    sources: PlayerMediaSource[];
-    strings: TranslationSettings;
-};
+export interface PlayerConfig extends Record<string, unknown> 
 ```
-**References:** [DashSettings](./player.dashsettings.md)<!-- -->, [PlayerDebugSettings](./player.playerdebugsettings.md)<!-- -->, [PlaybackType](./player.playbacktype.md)<!-- -->, [TransportPreference](./player.transportpreference.md)<!-- -->, [PlayerMediaSource](./player.playermediasource.md)<!-- -->, [TranslationSettings](./player.translationsettings.md)
+**Extends:** Record&lt;string, unknown&gt;
 
+## Remarks
+
+You can specify multiple sources, each in two forms: just a plain URL or a full object with `source` and `mimeType` fields [PlayerMediaSource](./player.playermediasource.md)<!-- -->. The player will pick the first viable media source according to the source availability, and either the transport preference or standard transport selection order.
+
+`priorityTransport` is used to specify the preferred transport protocol when multiple sources are available. It will first try to use the transport specified if it's supported (by a playback engine) and the source is available. Otherwise it will try the other transports in the regular order (dash, hls, mpegts).
+
+The `autoPlay` option should be used together with the [mute](./player.playerconfig.mute.md) to avoid issues with the browsers' autoplay policies.
+
+Note that the `playbackType` is specified explicitly in the examle below, but a playback engine might be able to detect the type of the stream automatically.
+
+A plugin options can be specified in the configuration object under a unique key, typically corresponding to the plugin name. The plugin object will have access to the internal normalized configuration object that contains all the custom options. in the examle below, the `poster` field is the `Poster` plugin configuration options.
+
+## Example
+
+
+```ts
+{
+  autoPlay: true,
+  mute: true,
+  playbackType: 'live',
+  priorityTransport: 'dash',
+  sources: [{
+    source: 'https://example.com/myownair66.mpd',
+    mimeType: 'application/dash+xml',
+  }, {
+    source: 'https://example.com/myownair66.m3u8',
+    mimeType: 'application/x-mpegURL',
+  }],
+  poster: {
+    url: settings.poster,
+  },
+}
+```
+
+## Properties
+
+<table><thead><tr><th>
+
+Property
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[autoPlay?](./player.playerconfig.autoplay.md)
+
+
+</td><td>
+
+
+</td><td>
+
+boolean
+
+
+</td><td>
+
+**_(BETA)_** _(Optional)_ Start playback automatically when the player is ready
+
+
+</td></tr>
+<tr><td>
+
+[dash?](./player.playerconfig.dash.md)
+
+
+</td><td>
+
+
+</td><td>
+
+[DashSettings](./player.dashsettings.md)
+
+
+</td><td>
+
+**_(BETA)_** _(Optional)_ Configuration settings for the DASH playback engine
+
+
+</td></tr>
+<tr><td>
+
+[debug?](./player.playerconfig.debug.md)
+
+
+</td><td>
+
+
+</td><td>
+
+[PlayerDebugSettings](./player.playerdebugsettings.md)
+
+
+</td><td>
+
+**_(BETA)_** _(Optional)_ Controls the debug output level
+
+
+</td></tr>
+<tr><td>
+
+[language?](./player.playerconfig.language.md)
+
+
+</td><td>
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+**_(BETA)_** _(Optional)_ A language code for the player UI, for example, `es`<!-- -->. Must reference a key in the [strings](./player.playerconfig.strings.md) record.
+
+
+</td></tr>
+<tr><td>
+
+[loop?](./player.playerconfig.loop.md)
+
+
+</td><td>
+
+
+</td><td>
+
+boolean
+
+
+</td><td>
+
+**_(BETA)_** _(Optional)_ Repeat playback when the media ends. Is used with the `vod` [playbackType](./player.playerconfig.playbacktype.md)
+
+
+</td></tr>
+<tr><td>
+
+[mute?](./player.playerconfig.mute.md)
+
+
+</td><td>
+
+
+</td><td>
+
+boolean
+
+
+</td><td>
+
+**_(BETA)_** _(Optional)_ Mute the audio output in order to comply with browsers' autoplay policy.
+
+
+</td></tr>
+<tr><td>
+
+[playbackType?](./player.playerconfig.playbacktype.md)
+
+
+</td><td>
+
+
+</td><td>
+
+[PlaybackType](./player.playbacktype.md)
+
+
+</td><td>
+
+**_(BETA)_** _(Optional)_ The type of playback (live stream or video on demand).
+
+
+</td></tr>
+<tr><td>
+
+[priorityTransport?](./player.playerconfig.prioritytransport.md)
+
+
+</td><td>
+
+
+</td><td>
+
+[TransportPreference](./player.transportpreference.md)
+
+
+</td><td>
+
+**_(BETA)_** _(Optional)_ Preferred transport protocol when multiple sources are available.
+
+
+</td></tr>
+<tr><td>
+
+[sources](./player.playerconfig.sources.md)
+
+
+</td><td>
+
+
+</td><td>
+
+[PlayerMediaSource](./player.playermediasource.md)<!-- -->\[\]
+
+
+</td><td>
+
+**_(BETA)_** List of media sources, at least one is required.
+
+
+</td></tr>
+<tr><td>
+
+[strings](./player.playerconfig.strings.md)
+
+
+</td><td>
+
+
+</td><td>
+
+[TranslationSettings](./player.translationsettings.md)
+
+
+</td><td>
+
+**_(BETA)_** Localization strings for the player UI.
+
+
+</td></tr>
+</tbody></table>

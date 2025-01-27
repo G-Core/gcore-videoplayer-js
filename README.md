@@ -1,1 +1,1 @@
-# gcore-videoplayer-js
+# Gcore video player project

@@ -4,15 +4,20 @@
 
 ## Player class
 
-> This API is provided as an alpha preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
+> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
 > 
 
+The main component to use in the application code.
 
 **Signature:**
 
 ```typescript
 export declare class Player 
 ```
+
+## Remarks
+
+The Player object provides very basic API to control playback. To build a sophisticated UI, use the plugins framework to tap into the Clappr core. [https://github.com/clappr/clappr/wiki/Architecture](https://github.com/clappr/clappr/wiki/Architecture)
 
 ## Constructors
 
@@ -42,7 +47,257 @@ Description
 
 </td><td>
 
-**_(ALPHA)_** Constructs a new instance of the `Player` class
+**_(BETA)_** Constructs a new instance of the `Player` class
+
+
+</td></tr>
+</tbody></table>
+
+## Methods
+
+<table><thead><tr><th>
+
+Method
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[attachTo(playerElement)](./player.player.attachto.md)
+
+
+</td><td>
+
+
+</td><td>
+
+**_(BETA)_** Initializes the player at the given container element.
+
+
+</td></tr>
+<tr><td>
+
+[configure(config)](./player.player.configure.md)
+
+
+</td><td>
+
+
+</td><td>
+
+**_(BETA)_** Configures the player.
+
+Can be called multiple times. Each consequent call extends the previous configuration. After a reconfiguration, if something significant has changed, the must be reinitialized (i.e, a `.destroy()` followed by an `.init()` call).
+
+
+</td></tr>
+<tr><td>
+
+[destroy()](./player.player.destroy.md)
+
+
+</td><td>
+
+
+</td><td>
+
+**_(BETA)_** Destroys the player, releasing all resources and removing any DOM elements added.
+
+
+</td></tr>
+<tr><td>
+
+[getCurrentTime()](./player.player.getcurrenttime.md)
+
+
+</td><td>
+
+
+</td><td>
+
+**_(BETA)_** Current playback time in seconds, if appropriate.
+
+
+</td></tr>
+<tr><td>
+
+[getDuration()](./player.player.getduration.md)
+
+
+</td><td>
+
+
+</td><td>
+
+**_(BETA)_** Duration of the current media in seconds, if appropriate.
+
+
+</td></tr>
+<tr><td>
+
+[mute()](./player.player.mute.md)
+
+
+</td><td>
+
+
+</td><td>
+
+**_(BETA)_** Mutes the player.
+
+
+</td></tr>
+<tr><td>
+
+[off(event, handler)](./player.player.off.md)
+
+
+</td><td>
+
+
+</td><td>
+
+**_(BETA)_** Removes a listener from a player event
+
+
+</td></tr>
+<tr><td>
+
+[on(event, handler)](./player.player.on.md)
+
+
+</td><td>
+
+
+</td><td>
+
+**_(BETA)_** Adds a listener to a player event
+
+
+</td></tr>
+<tr><td>
+
+[pause()](./player.player.pause.md)
+
+
+</td><td>
+
+
+</td><td>
+
+**_(BETA)_** Pauses playback.
+
+
+</td></tr>
+<tr><td>
+
+[play()](./player.player.play.md)
+
+
+</td><td>
+
+
+</td><td>
+
+**_(BETA)_** Starts playback.
+
+
+</td></tr>
+<tr><td>
+
+[registerPlugin(plugin)](./player.player.registerplugin.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+**_(BETA)_** Registers a plugin.
+
+
+</td></tr>
+<tr><td>
+
+[resize(newSize)](./player.player.resize.md)
+
+
+</td><td>
+
+
+</td><td>
+
+**_(BETA)_** Resizes the player container element and everything within it.
+
+
+</td></tr>
+<tr><td>
+
+[seek(time)](./player.player.seek.md)
+
+
+</td><td>
+
+
+</td><td>
+
+**_(BETA)_** Seeks to the given time.
+
+
+</td></tr>
+<tr><td>
+
+[stop()](./player.player.stop.md)
+
+
+</td><td>
+
+
+</td><td>
+
+**_(BETA)_** Stops playback.
+
+
+</td></tr>
+<tr><td>
+
+[unmute()](./player.player.unmute.md)
+
+
+</td><td>
+
+
+</td><td>
+
+**_(BETA)_** Unmutes the player.
+
+
+</td></tr>
+<tr><td>
+
+[unregisterPlugin(plugin)](./player.player.unregisterplugin.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+**_(BETA)_** Unregisters a plugin.
 
 
 </td></tr>

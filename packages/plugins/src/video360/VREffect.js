@@ -1,6 +1,6 @@
 import { Matrix4, PerspectiveCamera, Quaternion, Vector3 } from 'three';
 import LogManager from '../../utils/LogManager';
-import { SentryLogLevel } from '../../constants';
+// import { SentryLogLevel } from '../../constants';
 
 export class VREffect {
   constructor(renderer, onError) {

@@ -1,11 +1,13 @@
 
 /**
- * @alpha
+ * For the plugin development
+ * @internal
  */
 export type TimeValue = number;
 
 /**
- * @alpha
+ * For the plugin development
+ * @internal
  */
 export type TimePosition = {
   current: TimeValue;
@@ -13,19 +15,21 @@ export type TimePosition = {
 }
 
 /**
- * @alpha
+ * For the plugin development
+ * @internal
  */
 export type TimeProgress = TimePosition & { start: number; };
 
 /**
- * @alpha
+ * For the plugin development
+ * @internal
  */
 export type TimeUpdate = TimePosition & {
   firstFragDateTime: number;
 };
 
 /**
- * @alpha
+ * @beta
  */
 export type QualityLevel = {
   level: number // index

@@ -41,7 +41,6 @@ function twarn(s) {
     log += Date.now() + ' WARN: ' + s + '\n';
   }
 
-  // LogManager.message(s, SentryLogLevel.WARNING);
   console.warn(s);
 }
 

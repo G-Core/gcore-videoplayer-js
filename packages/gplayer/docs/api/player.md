@@ -4,6 +4,12 @@
 
 ## player package
 
+Video player for the GCore streaming platform
+
+## Remarks
+
+This package provides a video player for the GCore streaming platform. It is built on top of the Clappr library and provides a framework for building custom integrations.
+
 ## Classes
 
 <table><thead><tr><th>
@@ -24,7 +30,7 @@ Description
 
 </td><td>
 
-**_(ALPHA)_**
+**_(BETA)_** The main component to use in the application code.
 
 
 </td></tr>
@@ -50,7 +56,7 @@ Description
 
 </td><td>
 
-**_(ALPHA)_**
+**_(BETA)_** A top-level event on the player object
 
 
 </td></tr>
@@ -76,7 +82,44 @@ Description
 
 </td><td>
 
-**_(ALPHA)_**
+**_(BETA)_** Version information about the gplayer and its main dependencies
+
+
+</td></tr>
+</tbody></table>
+
+## Interfaces
+
+<table><thead><tr><th>
+
+Interface
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[PlayerConfig](./player.playerconfig.md)
+
+
+</td><td>
+
+**_(BETA)_** Configuration options for the player
+
+
+</td></tr>
+<tr><td>
+
+[PlayerMediaSourceDesc](./player.playermediasourcedesc.md)
+
+
+</td><td>
+
+**_(BETA)_** Describes a media source with its MIME type and URL.
 
 
 </td></tr>
@@ -102,7 +145,7 @@ Description
 
 </td><td>
 
-**_(ALPHA)_**
+**_(BETA)_** [DASH.js settings](https://cdn.dashjs.org/latest/jsdoc/module-Settings.html)
 
 
 </td></tr>
@@ -113,7 +156,7 @@ Description
 
 </td><td>
 
-**_(ALPHA)_**
+**_(BETA)_**
 
 
 </td></tr>
@@ -124,7 +167,7 @@ Description
 
 </td><td>
 
-**_(ALPHA)_**
+**_(BETA)_**
 
 
 </td></tr>
@@ -135,7 +178,7 @@ Description
 
 </td><td>
 
-**_(ALPHA)_**
+**_(BETA)_**
 
 
 </td></tr>
@@ -146,18 +189,7 @@ Description
 
 </td><td>
 
-**_(ALPHA)_**
-
-
-</td></tr>
-<tr><td>
-
-[PlayerConfig](./player.playerconfig.md)
-
-
-</td><td>
-
-**_(ALPHA)_**
+**_(BETA)_** Type of a stream playback
 
 
 </td></tr>
@@ -168,7 +200,7 @@ Description
 
 </td><td>
 
-**_(ALPHA)_**
+**_(BETA)_**
 
 
 </td></tr>
@@ -179,7 +211,7 @@ Description
 
 </td><td>
 
-**_(ALPHA)_**
+**_(BETA)_**
 
 
 </td></tr>
@@ -190,7 +222,7 @@ Description
 
 </td><td>
 
-**_(ALPHA)_**
+**_(BETA)_**
 
 
 </td></tr>
@@ -201,18 +233,7 @@ Description
 
 </td><td>
 
-**_(ALPHA)_**
-
-
-</td></tr>
-<tr><td>
-
-[PlayerMediaSourceDesc](./player.playermediasourcedesc.md)
-
-
-</td><td>
-
-**_(ALPHA)_**
+**_(BETA)_** A media source to fetch the media data from
 
 
 </td></tr>
@@ -223,18 +244,7 @@ Description
 
 </td><td>
 
-**_(ALPHA)_**
-
-
-</td></tr>
-<tr><td>
-
-[ProjectionType](./player.projectiontype.md)
-
-
-</td><td>
-
-**_(ALPHA)_**
+**_(BETA)_**
 
 
 </td></tr>
@@ -245,73 +255,7 @@ Description
 
 </td><td>
 
-**_(ALPHA)_**
-
-
-</td></tr>
-<tr><td>
-
-[SrcProjectionType](./player.srcprojectiontype.md)
-
-
-</td><td>
-
-**_(ALPHA)_**
-
-
-</td></tr>
-<tr><td>
-
-[StreamMediaSource](./player.streammediasource.md)
-
-
-</td><td>
-
-**_(ALPHA)_**
-
-
-</td></tr>
-<tr><td>
-
-[TimePosition](./player.timeposition.md)
-
-
-</td><td>
-
-**_(ALPHA)_**
-
-
-</td></tr>
-<tr><td>
-
-[TimeProgress](./player.timeprogress.md)
-
-
-</td><td>
-
-**_(ALPHA)_**
-
-
-</td></tr>
-<tr><td>
-
-[TimeUpdate](./player.timeupdate.md)
-
-
-</td><td>
-
-**_(ALPHA)_**
-
-
-</td></tr>
-<tr><td>
-
-[TimeValue](./player.timevalue.md)
-
-
-</td><td>
-
-**_(ALPHA)_**
+**_(BETA)_**
 
 
 </td></tr>
@@ -322,7 +266,7 @@ Description
 
 </td><td>
 
-**_(ALPHA)_**
+**_(BETA)_**
 
 
 </td></tr>
@@ -333,7 +277,7 @@ Description
 
 </td><td>
 
-**_(ALPHA)_**
+**_(BETA)_** \[language\]\[key\] =<!-- -->&gt; string
 
 
 </td></tr>
@@ -344,7 +288,7 @@ Description
 
 </td><td>
 
-**_(ALPHA)_**
+**_(BETA)_**
 
 
 </td></tr>

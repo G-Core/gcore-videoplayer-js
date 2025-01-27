@@ -1,6 +1,6 @@
 {
   "name": "@gcorevideo/player",
-  "version": "2.9.0",
+  "version": "2.10.0",
   "description": "Gcore JavaScript video player",
   "main": "dist/index.js",
   "type": "module",
@@ -10,6 +10,7 @@
     "build:1": "npm run build:ts && npm run build:bundle && date",
     "build:ts": "tsc",
     "build:bundle": "rollup -c",
+    "dev": "nodemon --watch src -e ts --exec \"npm run build:ts && npm run docs\"",
     "docs": "npm run docs:extract && npm run docs:build",
     "docs:extract": "api-extractor run --local --verbose",
     "docs:build": "api-documenter markdown --input-folder=temp --output-folder=docs/api",
@@ -37,6 +38,7 @@
     "@rollup/plugin-node-resolve": "^15.3.0",
     "@types/node": "^22.10.1",
     "assert": "^2.1.0",
+    "nodemon": "^3.1.9",
     "rollup": "^4.27.4",
     "rollup-plugin-polyfill-node": "^0.13.0",
     "typescript": "^5.7.2"

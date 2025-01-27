@@ -15,10 +15,7 @@ import type {
   CoreOptions,
   CorePluginOptions,
 } from './internal.types.js'
-import type {
-  PlayerMediaSource,
-  PlayerPlugin,
-} from './types.js'
+import type { PlayerMediaSource, PlayerPlugin } from './types.js'
 import { PlayerConfig, PlayerEvent } from './types.js'
 import DashPlayback from './plugins/dash-playback/DashPlayback.js'
 import HlsPlayback from './plugins/hls-playback/HlsPlayback.js'
@@ -31,7 +28,7 @@ import {
 // TODO implement transport retry/failover and fallback logic
 
 /**
- * @alpha
+ * @beta
  */
 export type PlayerEventHandler<T extends PlayerEvent> = () => void
 
@@ -43,21 +40,25 @@ const DEFAULT_OPTIONS: PlayerConfig = {
   loop: false,
   mute: false,
   playbackType: 'vod',
-  pluginSettings: {},
   priorityTransport: 'dash',
   sources: [],
   strings: {},
 }
 
 /**
- * @alpha
+ * @beta
  */
 export type PlaybackModule = 'dash' | 'hls' | 'native'
 
 type PluginOptions = Record<string, unknown>
 
 /**
- * @alpha
+ * The main component to use in the application code.
+ * @remarks
+ * The Player object provides very basic API to control playback.
+ * To build a sophisticated UI, use the plugins framework to tap into the Clappr core.
+ * {@link https://github.com/clappr/clappr/wiki/Architecture}
+ * @beta
  */
 export class Player {
   private config: PlayerConfig = DEFAULT_OPTIONS
@@ -79,27 +80,28 @@ export class Player {
   }
 
   /**
-   * Add listener to a player event
-   * @param event - @see {@link PlayerEvent}
-   * @param handler - @see {@link PlayerEventHandler}
+   * Adds a listener to a player event
+   * @param event - See {@link PlayerEvent}
+   * @param handler - See {@link PlayerEventHandler}
    */
   on<T extends PlayerEvent>(event: T, handler: PlayerEventHandler<T>) {
     this.emitter.on(event, handler)
   }
 
   /**
-   * Remove listener from a player event
-   * @param event - @see {@link PlayerEvent}
-   * @param handler - @see {@link PlayerEventHandler}
+   * Removes a listener from a player event
+   * @param event - See {@link PlayerEvent}
+   * @param handler - See {@link PlayerEventHandler}
    */
   off<T extends PlayerEvent>(event: T, handler: PlayerEventHandler<T>) {
     this.emitter.off(event, handler)
   }
 
   /**
-   * Configure the player.
+   * Configures the player.
    *
    * Can be called multiple times. Each consequent call extends the previous configuration.
+   * After a reconfiguration, if something significant has changed, the must be reinitialized (i.e, a `.destroy()` followed by an `.init()` call).
    *
    * @param config - complete or partial configuration
    */
@@ -107,15 +109,11 @@ export class Player {
     this.setConfig(config)
   }
 
-  private setConfig(config: Partial<PlayerConfig>) {
-    this.config = $.extend(true, this.config, config)
-  }
-
   /**
-   * Initialize the player with the given container element.
+   * Initializes the player at the given container element.
    * @param playerElement - DOM element to host the player
    */
-  init(playerElement: HTMLElement): void {
+  attachTo(playerElement: HTMLElement): void {
     assert.ok(!this.player, 'Player already initialized')
     assert.ok(playerElement, 'Player container element is required')
     if (this.config.debug === 'all' || this.config.debug === 'clappr') {
@@ -140,6 +138,9 @@ export class Player {
     return this.initPlayer(coreOpts)
   }
 
+  /**
+   * Destroys the player, releasing all resources and removing any DOM elements added.
+   */
   destroy() {
     trace(`${T} destroy`, {
       player: !!this.player,
@@ -156,54 +157,97 @@ export class Player {
     }
   }
 
+  /**
+   * Current playback time in seconds, if appropriate.
+   * @returns For live streams, it returns the current time of the current segment.
+   */
   getCurrentTime(): number {
     if (!this.player) {
-      return 0;
+      return 0
     }
     return this.player.getCurrentTime()
   }
 
+  /**
+   * Duration of the current media in seconds, if appropriate.
+   * @returns For live streams, it returns the duration of the current segment.
+   */
   getDuration(): number {
     if (!this.player) {
-      return 0;
+      return 0
     }
     return this.player.getDuration()
   }
 
+  /**
+   * Mutes the player.
+   */
   mute() {
     this.player?.mute()
   }
 
+  /**
+   * Unmutes the player.
+   */
   unmute() {
     this.player?.unmute()
   }
 
+  /**
+   * Pauses playback.
+   */
   pause() {
     this.player?.pause()
   }
 
+  /**
+   * Starts playback.
+   */
   play() {
     this.player?.play()
   }
 
+  /**
+   * Resizes the player container element and everything within it.
+   * @param newSize - new size of the player
+   */
   resize(newSize: { width: number; height: number }) {
     this.player?.resize(newSize)
   }
 
+  /**
+   * Seeks to the given time.
+   * @param time - time to seek to in seconds
+   */
   seek(time: number) {
     this.player?.seek(time)
   }
 
+  /**
+   * Stops playback.
+   */
   stop() {
     this.player?.stop()
   }
 
+  /**
+   * Registers a plugin.
+   * @param plugin - plugin to register
+   */
   static registerPlugin(plugin: PlayerPlugin) {
     Loader.registerPlugin(plugin)
   }
 
+  /**
+   * Unregisters a plugin.
+   * @param plugin - plugin to unregister
+   */
   static unregisterPlugin(plugin: PlayerPlugin) {
     Loader.unregisterPlugin(plugin)
+  }
+
+  private setConfig(config: Partial<PlayerConfig>) {
+    this.config = $.extend(true, this.config, config)
   }
 
   private initPlayer(coreOptions: CoreOptions): void {
@@ -358,7 +402,7 @@ export class Player {
     this.rootNode = rootNode
 
     const coreOptions: CoreOptions & PluginOptions = {
-      ...this.config.pluginSettings,
+      ...this.config, // plugin settings
       allowUserInteraction: true,
       autoPlay: false,
       dash: this.config.dash,

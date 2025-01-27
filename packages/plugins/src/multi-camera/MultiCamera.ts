@@ -1,5 +1,5 @@
 import { Browser, Core, Events, Playback, template, UICorePlugin } from '@clappr/core';
-import { StreamMediaSource } from '@gcorevideo/player';
+// import type { GcoreStreamMediaSource } from '@gcorevideo/player';
 import { reportError, trace } from '@gcorevideo/utils';
 
 import { CLAPPR_VERSION } from '../build.js';
@@ -14,18 +14,26 @@ import { ZeptoResult } from '../types.js';
 
 type MultisourcesMode = 'one_first' | 'only_live' | 'show_all';
 
+type MediaSourceInfo = {
+  live: boolean;
+  source: string;
+  id: number;
+  dvr: boolean;
+  projection: string | null;
+}
+
 const VERSION = '0.0.1';
 
 const T = 'plugins.multicamera';
 
 export class MultiCamera extends UICorePlugin {
-  private currentCamera: StreamMediaSource | null = null;
+  private currentCamera: MediaSourceInfo | null = null;
 
   private currentTime: number = 0;
 
   private playing = false;
 
-  private multicamera: StreamMediaSource[] = [];
+  private multicamera: MediaSourceInfo[] = [];
 
   private noActiveStreams = false;
 
@@ -67,7 +75,7 @@ export class MultiCamera extends UICorePlugin {
     }
     this.playing = this.options.multicameraPlay;
     // Don't mutate the options, TODO check if some plugin observes the options.multicamera
-    this.multicamera = this.options.multisources.map((item: StreamMediaSource) => ({ ...item }));
+    this.multicamera = this.options.multisources.map((item: MediaSourceInfo) => ({ ...item }));
     this.noActiveStreams = this.multicamera.every((item) => !item.live);
   }
 
@@ -374,7 +382,7 @@ export class MultiCamera extends UICorePlugin {
     return this.currentCamera;
   }
 
-  private findElementById(id: number): StreamMediaSource | undefined {
+  private findElementById(id: number): MediaSourceInfo | undefined {
     return this.multicamera.find((element) => element.id === id);
   }
 

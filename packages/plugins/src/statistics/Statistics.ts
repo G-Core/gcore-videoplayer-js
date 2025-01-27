@@ -1,10 +1,16 @@
 import { Browser, Container, ContainerPlugin, Events, Playback } from '@clappr/core';
-import { StreamMediaSource, type TimePosition } from '@gcorevideo/player';
+// import type { GcoreStreamMediaSource, TimePosition } from '@gcorevideo/player';
+import type { TimePosition } from '@gcorevideo/player';
 import { reportError } from '@gcorevideo/utils';
 import Fingerprint from '@fingerprintjs/fingerprintjs'; // TODO drop
 import { Events as HlsEvents, FragChangedData } from 'hls.js';
 
 import { CLAPPR_VERSION } from '../build.js';
+
+type MediaSourceInfo = {
+  id: number;
+  source: string;
+}
 
 export class Statistics extends ContainerPlugin {
   get name() {
@@ -160,8 +166,8 @@ export class Statistics extends ContainerPlugin {
     }
   }
 
-  private findElementBySource(source: string): StreamMediaSource | undefined {
-    return this.options.multisources.find((s: StreamMediaSource) => s.source === source);
+  private findElementBySource(source: string): MediaSourceInfo | undefined {
+    return this.options.multisources.find((s: MediaSourceInfo) => s.source === source);
   }
 
   private initEvent() {

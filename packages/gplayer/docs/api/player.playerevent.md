@@ -4,9 +4,10 @@
 
 ## PlayerEvent enum
 
-> This API is provided as an alpha preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
+> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
 > 
 
+A top-level event on the player object
 
 **Signature:**
 
@@ -44,7 +45,7 @@ Ended
 
 </td><td>
 
-**_(ALPHA)_**
+**_(BETA)_** Playback has reached the end of the media.
 
 
 </td></tr>
@@ -60,7 +61,7 @@ Pause
 
 </td><td>
 
-**_(ALPHA)_**
+**_(BETA)_** Playback has been paused.
 
 
 </td></tr>
@@ -76,7 +77,7 @@ Play
 
 </td><td>
 
-**_(ALPHA)_**
+**_(BETA)_** Playback has started.
 
 
 </td></tr>
@@ -92,7 +93,7 @@ Ready
 
 </td><td>
 
-**_(ALPHA)_**
+**_(BETA)_** The player is ready to use.
 
 
 </td></tr>
@@ -108,7 +109,7 @@ Stop
 
 </td><td>
 
-**_(ALPHA)_**
+**_(BETA)_** Playback has been stopped.
 
 
 </td></tr>

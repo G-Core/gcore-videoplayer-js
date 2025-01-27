@@ -4,8 +4,10 @@
 
 ## version() function
 
-> This API is provided as an alpha preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
+> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
 > 
+
+Version information about the gplayer and its main dependencies
 
 **Signature:**
 
@@ -21,5 +23,5 @@ export declare function version(): {
 
 { gplayer: string; clappr: string; dashjs: string; hlsjs: string; }
 
-Version information for the gplayer and its dependencies
+Version information about the gplayer and its main dependencies
 

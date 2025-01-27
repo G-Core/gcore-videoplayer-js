@@ -4,9 +4,10 @@
 
 ## DashSettings type
 
-> This API is provided as an alpha preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
+> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
 > 
 
+[DASH.js settings](https://cdn.dashjs.org/latest/jsdoc/module-Settings.html)
 
 **Signature:**
 

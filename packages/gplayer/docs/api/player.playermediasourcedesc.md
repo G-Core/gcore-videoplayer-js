@@ -2,17 +2,82 @@
 
 [Home](./index.md) &gt; [@gcorevideo/player](./player.md) &gt; [PlayerMediaSourceDesc](./player.playermediasourcedesc.md)
 
-## PlayerMediaSourceDesc type
+## PlayerMediaSourceDesc interface
 
-> This API is provided as an alpha preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
+> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
 > 
 
+Describes a media source with its MIME type and URL.
 
 **Signature:**
 
 ```typescript
-export type PlayerMediaSourceDesc = {
-    mimeType?: string;
-    source: string;
-};
+export interface PlayerMediaSourceDesc 
 ```
+
+## Remarks
+
+When the MIME type is provided, it helps the player determine the appropriate playback engine. If omitted, the player will attempt to detect the type from the source URL extension.
+
+## Properties
+
+<table><thead><tr><th>
+
+Property
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[mimeType?](./player.playermediasourcedesc.mimetype.md)
+
+
+</td><td>
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+**_(BETA)_** _(Optional)_ The MIME type of the media source (e.g. "video/mp4", "application/x-mpegURL")
+
+
+</td></tr>
+<tr><td>
+
+[source](./player.playermediasourcedesc.source.md)
+
+
+</td><td>
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+**_(BETA)_** URL of the media source
+
+
+</td></tr>
+</tbody></table>

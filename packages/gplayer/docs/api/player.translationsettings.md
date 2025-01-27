@@ -4,9 +4,10 @@
 
 ## TranslationSettings type
 
-> This API is provided as an alpha preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
+> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
 > 
 
+\[language\]\[key\] =<!-- -->&gt; string
 
 **Signature:**
 
@@ -14,4 +15,21 @@
 export type TranslationSettings = Partial<Record<LangTag, Record<TranslationKey, string>>>;
 ```
 **References:** [LangTag](./player.langtag.md)<!-- -->, [TranslationKey](./player.translationkey.md)
+
+## Example
+
+
+```
+{
+  en: {
+    play: 'Play',
+    ...
+  },
+  es: {
+    play: 'Reproducir',
+    ...
+  },
+  ...
+}
+```
 
