@@ -24,17 +24,17 @@ jobs:
       - name: Install dependencies
         run: npm ci
   check-licenses-player:
-    depends-on: setup
+    needs: setup
     uses: ./.github/workflows/license-check.yaml
     with:
       package: gplayer
   check-licenses-plugins:
-    depends-on: setup
+    needs: setup
     uses: ./.github/workflows/license-check.yaml
     with:
       package: plugins
   check-licenses-utils:
-    depends-on: setup
+    needs: setup
     uses: ./.github/workflows/license-check.yaml
     with:
       package: utils
