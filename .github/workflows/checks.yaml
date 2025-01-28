@@ -9,14 +9,10 @@ on:
       - .github/workflows/license-check.yaml
 
 jobs:
-  # setup:
-  #   runs-on: ubuntu-latest
-  #   steps:
-      # - uses: actions/checkout@v4
-      # - name: check files
-      #   run: |
-      #     ls | grep package-lock.json
-      #     ls packages/* | grep package-lock.json
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
       # -
       #   uses: actions/setup-node@v4
       #   with:
@@ -30,17 +26,17 @@ jobs:
       # - name: Install dependencies
       #   run: npm ci
   check-licenses-player:
-    # needs: setup
+    needs: setup
     uses: ./.github/workflows/license-check.yaml
     with:
       package: gplayer
   check-licenses-plugins:
-    # needs: setup
+    needs: setup
     uses: ./.github/workflows/license-check.yaml
     with:
       package: plugins
   check-licenses-utils:
-    # needs: setup
+    needs: setup
     uses: ./.github/workflows/license-check.yaml
     with:
       package: utils
