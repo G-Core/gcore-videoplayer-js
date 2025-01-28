@@ -5,6 +5,8 @@ on:
       - packages/*/LICENSE
       - packages/*/LICENSES
       - packages/*/LICENSES.md
+      - .github/workflows/checks.yaml
+      - .github/workflows/license-check.yaml
 
 jobs:
   check-licenses:

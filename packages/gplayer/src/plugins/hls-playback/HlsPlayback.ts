@@ -12,9 +12,9 @@ import {
 } from '@clappr/core'
 import assert from 'assert'
 import HLSJS, {
-  HlsEvents,
+  Events as HlsEvents,
   HlsListeners,
-  type HlsErrorData,
+  type ErrorData as HlsErrorData,
   type Fragment,
   type FragChangedData,
   type FragLoadedData,
