@@ -20,7 +20,9 @@ jobs:
           cache: "npm"
           cache-dependency-path: |
             package-lock.json
-            packages/**/package-lock.json
+            packages/gplayer/package-lock.json
+            packages/plugins/package-lock.json
+            packages/utils/package-lock.json
       - name: Install dependencies
         run: npm ci
   check-licenses-player:
