@@ -2,9 +2,6 @@ on:
   push:
     paths:
       - packages/*/package-lock.json
-      - packages/*/LICENSE
-      - packages/*/LICENSES
-      - packages/*/LICENSES.md
       - .github/workflows/checks.yaml
       - .github/workflows/license-check.yaml
 
@@ -13,18 +10,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      # -
-      #   uses: actions/setup-node@v4
-      #   with:
-      #     node-version: 22
-      #     cache: "npm"
-      #     cache-dependency-path: |
-      #       package-lock.json
-      #       packages/gplayer/package-lock.json
-      #       packages/plugins/package-lock.json
-      #       packages/utils/package-lock.json
-      # - name: Install dependencies
-      #   run: npm ci
   check-licenses-player:
     needs: setup
     uses: ./.github/workflows/license-check.yaml
