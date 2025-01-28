@@ -136,8 +136,11 @@ export class Poster extends UIContainerPlugin {
       if (!this.options.chromeless || this.options.allowUserInteraction) {
         this.playRequested = true;
         this.update();
-        this.container.playback && (this.container.playback._consented = true);
-        this.container.play();
+        // this.container.playback && (this.container.playback._consented = true);
+        // TODO test this
+        this.container.playback.consent(() => {
+          this.container.play();
+        });
       }
     } else {
       this.container.trigger('container:start');

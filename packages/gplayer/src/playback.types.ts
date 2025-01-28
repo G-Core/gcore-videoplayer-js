@@ -1,5 +1,6 @@
 
 /**
+ * Playback time in seconds since the beginning of the stream (or a segment for the live streams)
  * For the plugin development
  * @internal
  */

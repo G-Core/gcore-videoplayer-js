@@ -1,296 +1,205 @@
-import { Browser, Container, ContainerPlugin, Events, Playback } from '@clappr/core';
-// import type { GcoreStreamMediaSource, TimePosition } from '@gcorevideo/player';
-import type { TimePosition } from '@gcorevideo/player';
-import { reportError } from '@gcorevideo/utils';
-import Fingerprint from '@fingerprintjs/fingerprintjs'; // TODO drop
-import { Events as HlsEvents, FragChangedData } from 'hls.js';
+// An example implementation of client side performancestatistics
+import { Container, ContainerPlugin, Events, Playback } from '@clappr/core'
+import type { PlaybackType, TimePosition, TimeValue } from '@gcorevideo/player'
+import { reportError } from '@gcorevideo/utils'
+import assert from 'assert'
 
-import { CLAPPR_VERSION } from '../build.js';
+import { CLAPPR_VERSION } from '../build.js'
 
-type MediaSourceInfo = {
-  id: number;
-  source: string;
+const CUSTOM_EVENTS_CONTAINER_START = 'container:start'
+
+const WATCH_CUTOFF = 5
+
+const HEATMAP_INTERVAL = 10
+
+type StatisticsEventData = Record<string, string | number | boolean>
+
+type StatisticsRecord = {
+  event: StatisticsEvent
+  type: PlaybackType
+} & StatisticsEventData
+
+export type PluginSettings = {
+  /**
+   * Sends the statistics record to the storage.
+   * The actual delivery is presumably async and batched.
+   * @param data - The statistics record to send.
+   */
+  send: (data: StatisticsRecord) => void
 }
+
+type StatisticsEvent = 'init' | 'start' | 'watch' | 'heatmap'
 
 export class Statistics extends ContainerPlugin {
   get name() {
-    return 'statistics_gplayer';
+    return 'statistics_gplayer'
   }
 
   get supportedVersion() {
-    return { min: CLAPPR_VERSION };
+    return { min: CLAPPR_VERSION }
   }
 
-  private socketOpen = false;
+  private started = false
 
-  private init = false;
+  private timeStart = 0
 
-  private started = false;
+  private heatmapSent = false
 
-  private played = false;
+  private heatmapLastTime = 0
 
-  private playerReady = false;
+  private watchSent = false
 
-  private prevTimeCurrent = 0;
+  private bufTracking = false
 
-  private firstHeatmapSent = false;
+  private lags = 0
 
-  private isLiveWatchSent = false;
+  /**
+   * The time when buffering last started.
+   */
+  private bufLastStarted = 0
 
-  private countBufferAvailable = false;
-
-  private startTimeRepeatableRoll = 0;
-
-  private heatmapCounter = 1;
-
-  private lags = 0;
-
-  private bufferStartTime = 0;
-
-  private bufferComputeTime = 0;
-
-  private url = '';
-
-  private uuid = '';
-
-  private socket: WebSocket | null = null;
-
-  private startTime = 0;
-
-  private streamID = 0;
+  /**
+   * The accumulated buffering duration.
+   */
+  private bufAccDuration = 0
 
   constructor(container: Container) {
-    super(container);
-    this.connect();
+    super(container)
+    assert(
+      this.options.statistics &&
+        typeof this.options.statistics.send === 'function',
+      'Statistics plugin requires statistics options',
+    )
   }
 
   override bindEvents() {
-    this.listenToOnce(this.container.playback, Events.PLAYBACK_PLAY, this.onPlay);
-    this.listenToOnce(this.container, 'container:start', this.onStart);
+    // TODO remove this
+    this.listenToOnce(
+      this.container,
+      CUSTOM_EVENTS_CONTAINER_START,
+      this.onStart,
+    )
 
-    this.listenToOnce(this.container, Events.CONTAINER_READY, this.onReady);
-    this.listenTo(this.container, Events.CONTAINER_STATE_BUFFERING, this.onBuffering);
-    this.listenTo(this.container, Events.CONTAINER_STATE_BUFFERFULL, this.onBufferFull);
-    this.listenTo(this.container.playback, Events.PLAYBACK_TIMEUPDATE, this.onTimeUpdate);
-    this.listenTo(this.container.playback, Events.PLAYBACK_TIMEUPDATE, this.onTimeUpdateLive);
-    this.listenTo(this.container.playback, Events.PLAYBACK_LEVEL_SWITCH_START, this.startLevelSwitch);
-    this.listenTo(this.container.playback, Events.PLAYBACK_LEVEL_SWITCH_END, this.stopLevelSwitch);
+    this.listenToOnce(this.container, Events.CONTAINER_READY, this.onReady)
+    this.listenTo(
+      this.container,
+      Events.CONTAINER_STATE_BUFFERING,
+      this.onBuffering,
+    )
+    this.listenTo(
+      this.container,
+      Events.CONTAINER_STATE_BUFFERFULL,
+      this.onBufferFull,
+    )
+    this.listenTo(
+      this.container.playback,
+      Events.PLAYBACK_TIMEUPDATE,
+      this.onTimeUpdateLive,
+    )
+    this.listenTo(
+      this.container.playback,
+      Events.PLAYBACK_LEVEL_SWITCH_START,
+      this.startLevelSwitch,
+    )
+    this.listenTo(
+      this.container.playback,
+      Events.PLAYBACK_LEVEL_SWITCH_END,
+      this.stopLevelSwitch,
+    )
   }
 
   private startLevelSwitch() {
-    this.countBufferAvailable = false;
+    this.bufTracking = false
   }
 
   private stopLevelSwitch() {
-    this.countBufferAvailable = true;
+    this.bufTracking = true
   }
 
   private onBuffering() {
-    if (this.countBufferAvailable) {
-      this.bufferStartTime = performance.now();
+    if (this.bufTracking) {
+      this.bufLastStarted = performance.now()
     }
   }
 
   private onBufferFull() {
-    if (this.countBufferAvailable && this.bufferStartTime) {
-      this.bufferComputeTime += Math.round(performance.now() - this.bufferStartTime);
-      this.lags++;
+    if (this.bufTracking && this.bufLastStarted) {
+      this.bufAccDuration += performance.now() - this.bufLastStarted
+      this.lags++
     }
-    this.countBufferAvailable = true;
-  }
-
-  private connect() {
-    try {
-      if (!this.options.statistics.url) {
-        return;
-      }
-    } catch (error) {
-      reportError(error);
-
-      return;
-    }
-    this.removeSocket();
-    this.url = this.options.statistics.url;
-
-    try {
-      this.socket = new WebSocket(this.url);
-      this.socket.onopen = this.openHandler;
-      this.socket.onclose = this.closeHandler;
-      this.socket.onerror = this.errorHandler;
-    } catch (error) {
-      reportError(error);
-    }
-  }
-
-  private openHandler = () => {
-    this.socketOpen = true;
-    if (this.playerReady && !this.init) {
-      this.initEvent();
-    }
-  }
-
-  private closeHandler = () => {}
-
-  private errorHandler = () => {}
-
-  private removeSocket() {
-    if (this.socket) {
-      this.socket.onopen = null;
-      this.socket.onclose = null;
-      this.socket.onmessage = null;
-      this.socket.onerror = null;
-      this.socket.close();
-      this.socket = null;
-    }
+    this.bufTracking = true
   }
 
   private onReady() {
-    this.playerReady = true;
-    const element = this.findElementBySource(this.options.source);
-
-    if (!element) {
-      this.destroy();
-
-      return;
+    this.initEvent()
+    if (this.options.autoPlay) {
+      this.onStart()
     }
-    Fingerprint.load()
-      .then(agent => agent.get())
-      .then((res) => {
-        this.uuid = res.visitorId;
-      });
-
-    this.streamID = element.id;
-
-    if (this.socketOpen && !this.init) {
-      this.initEvent();
-    }
-  }
-
-  private findElementBySource(source: string): MediaSourceInfo | undefined {
-    return this.options.multisources.find((s: MediaSourceInfo) => s.source === source);
   }
 
   private initEvent() {
-    this.init = true;
-    this.sendMessage('init');
-    if (this.options.autoPlay) {
-      this.container.trigger('container:start');
-    }
+    this.sendMessage('init')
   }
 
-  private sendMessage(state: 'init' | 'start' | 'watch') {
-    this.send(JSON.stringify({
-      event: state,
+  private sendMessage(state: StatisticsEvent) {
+    this.send(state, {
+      // embed_url: this.options.referer,
+      // user_agent: Browser.userAgent
+    })
+  }
+
+  private send(event: StatisticsEvent, data: StatisticsEventData = {}) {
+    ;(this.options.statistics as PluginSettings).send({
+      event,
       type: this.container.getPlaybackType(),
-      embed_url: this.options.referer,
-      user_agent: Browser.userAgent
-    }));
+      ...data,
+    })
   }
 
-  private send(str: string) {
-    if (this.socket) {
-      this.socket.send(str);
+  private sendHeatmap(time: TimeValue) {
+    const res: StatisticsEventData = {
+      buffering: Math.round(this.bufAccDuration),
+      lags: this.lags,
     }
+
+    this.bufAccDuration = 0
+    this.lags = 0
+    if (this.container.getPlaybackType() === Playback.VOD) {
+      res.timestamp = time
+    }
+    this.send('heatmap', res)
+    this.heatmapSent = true
+    this.heatmapLastTime = time
   }
 
-  private onTimeUpdateLive() {
-    if (!this.streamID) {
-      return;
+  private onTimeUpdateLive({ current }: TimePosition) {
+    // TODO check the `current` values for the live streams
+    if (!this.timeStart) {
+      this.timeStart = current
     }
-
-    let currentTime = 0;
-
     try {
-      let startTime = this.startTimeRepeatableRoll;
+      const elapsed = current - this.timeStart
+      const heatmapElapsed = current - this.heatmapLastTime
 
-      if (!this.startTimeRepeatableRoll) {
-        if (!startTime) {
-          this.startTimeRepeatableRoll = startTime = this.container.playback.el.currentTime;
-        }
+      // TODO check if the heatmap is only needed for the live streams
+      if (!this.heatmapSent || heatmapElapsed >= HEATMAP_INTERVAL) {
+        this.sendHeatmap(current)
       }
 
-      currentTime = this.container.playback.el.currentTime - startTime;
-      this.played = true;
-
-      if (this.started && this.played && !this.firstHeatmapSent && Math.floor(currentTime) === 0) {
-        this.firstHeatmapSent = true;
-        this.sendHeatmap();
-      }
-
-      if (currentTime > 0 && Math.floor(currentTime / 10) === 1 && this.uuid) {
-        this.sendHeatmap();
-      }
-
-      if (this.container.getPlaybackType() === Playback.LIVE && !this.isLiveWatchSent && currentTime >= 5) {
-        this.isLiveWatchSent = true;
-        this.sendMessage('watch');
+      if (!this.watchSent && elapsed >= WATCH_CUTOFF) {
+        this.watchSent = true
+        this.sendMessage('watch')
       }
     } catch (error) {
-      reportError(error);
-    }
-  }
-
-  private sendHeatmap() {
-    this.startTimeRepeatableRoll = this.container.playback.el.currentTime;
-    const res: Record<string, unknown> = {
-      'event': 'heatmap',
-      'uniq_id': this.uuid,
-      'type': this.container.getPlaybackType(),
-      'stream_id': this.streamID,
-      lags: this.lags,
-      buffering: this.bufferComputeTime,
-    };
-
-    this.bufferComputeTime = 0;
-    this.lags = 0;
-    if (this.container.getPlaybackType() === Playback.VOD) {
-      res.timestamp = this.container.playback.el.currentTime;
-    }
-    this.send(JSON.stringify(res));
-  }
-
-  private onTimeUpdate({ current }: TimePosition) {
-    if (this.container.getPlaybackType() === Playback.LIVE) {
-      this.stopListening(this.container.playback, Events.PLAYBACK_TIMEUPDATE, this.onTimeUpdate);
-
-      return;
-    }
-
-    if (!this.prevTimeCurrent) {
-      this.prevTimeCurrent = current;
-    }
-
-    if (Math.abs(this.prevTimeCurrent - current) > 5 && this.socketOpen) {
-      this.stopListening(this.container.playback, Events.PLAYBACK_TIMEUPDATE, this.onTimeUpdate);
-      this.sendMessage('watch');
+      reportError(error)
     }
   }
 
   private onStart() {
-    this.sendMessage('start');
-    this.started = true;
-    if (this.started && this.played && !this.firstHeatmapSent) {
-      this.firstHeatmapSent = true;
-      this.sendHeatmap();
+    if (this.started) {
+      return
     }
-  }
-
-  private onPlay() {
-    try {
-      if (this.container.playback._hls) {
-        this.container.playback._hls.on(HlsEvents.FRAG_CHANGED, (_: HlsEvents.FRAG_CHANGED, b: FragChangedData) => {
-          if (this.options.debug === 'hls') {
-            console.warn(b.frag);
-          }
-        });
-      }
-    } catch (error) {
-      reportError(error);
-    }
-    if (this.startTime) {
-      return;
-    }
-
-    this.startTime = new Date().getTime();
+    this.started = true
+    this.sendMessage('start')
   }
 }

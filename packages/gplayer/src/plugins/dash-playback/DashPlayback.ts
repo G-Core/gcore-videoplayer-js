@@ -13,7 +13,7 @@ import DASHJS, {
 } from 'dashjs'
 import { trace } from '@gcorevideo/utils'
 
-import { QualityLevel, TimePosition, TimeValue } from '../../playback.types.js'
+import { QualityLevel, TimePosition, TimeUpdate, TimeValue } from '../../playback.types.js'
 
 const AUTO = -1
 
@@ -118,6 +118,12 @@ export default class DashPlayback extends HTML5Video {
 
     this.trigger(Events.PLAYBACK_LEVEL_SWITCH_START)
 
+    assert.ok(
+      this._dash,
+      'An instance of dashjs MediaPlayer is required to switch levels',
+    )
+    const dash = this._dash
+
     // TODO use $.extend
     const settings = this.options.dash ? structuredClone(this.options.dash) : {}
     settings.streaming = settings.streaming || {}
@@ -126,11 +132,6 @@ export default class DashPlayback extends HTML5Video {
       settings.streaming.abr.autoSwitchBitrate || {}
     settings.streaming.abr.autoSwitchBitrate.video = id === -1
 
-    assert.ok(
-      this._dash,
-      'An instance of dashjs MediaPlayer is required to switch levels',
-    )
-    const dash = this._dash
     dash.updateSettings(settings)
     if (id !== -1) {
       this._dash.setQualityFor('video', id)
@@ -334,9 +335,6 @@ export default class DashPlayback extends HTML5Video {
   }
 
   getCurrentTime(): TimeValue {
-    // e.g. can be < 0 if user pauses near the start
-    // eventually they will then be kicked to the end by hlsjs if they run out of buffer
-    // before the official start time
     return this._dash ? this._dash.time() : 0
   }
 
@@ -518,7 +516,7 @@ export default class DashPlayback extends HTML5Video {
     if (this.startChangeQuality) {
       return
     }
-    const update = {
+    const update: TimeUpdate = {
       current: this.getCurrentTime(),
       total: this.getDuration(),
       firstFragDateTime: this.getProgramDateTime(),
@@ -650,6 +648,9 @@ export default class DashPlayback extends HTML5Video {
   }
 
   private onLevelSwitch(currentLevel: QualityLevel) {
+    // TODO check the two below
+    this.trigger(Events.PLAYBACK_LEVEL_SWITCH, currentLevel)
+    this.trigger(Events.PLAYBACK_LEVEL_SWITCH_END)
     const isHD = (currentLevel.height >= 720 || (currentLevel.bitrate / 1000) >= 2000);
     this.trigger(Events.PLAYBACK_HIGHDEFINITIONUPDATE, isHD);
     this.trigger(Events.PLAYBACK_BITRATE, currentLevel)
