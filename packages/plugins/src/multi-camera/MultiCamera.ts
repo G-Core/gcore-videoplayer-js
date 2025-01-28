@@ -1,5 +1,4 @@
 import { Browser, Core, Events, Playback, template, UICorePlugin } from '@clappr/core';
-// import type { GcoreStreamMediaSource } from '@gcorevideo/player';
 import { reportError, trace } from '@gcorevideo/utils';
 
 import { CLAPPR_VERSION } from '../build.js';
@@ -130,19 +129,23 @@ export class MultiCamera extends UICorePlugin {
   override render() {
     if (this.shouldRender()) {
       let numActiveSources = 0;
+      // const currentSource = this.core.options.source
+      const currentSource = this.core.activePlayback?.sourceMedia
 
-      for (let i = 0; i < this.multicamera.length; i++) {
-        if (this.multicamera[i].live) {
+      for (const item of this.multicamera) {
+        if (item.live) {
           numActiveSources++;
         }
-        if (this.multicamera[i].source === this.core.options.source && !this.currentCamera) {
-          this.currentCamera = this.multicamera[i];
+        if (!this.currentCamera && item.source === currentSource) {
+          this.currentCamera = item;
         }
       }
 
+      // const mediaControl = this.core.getPlugin('media_control')
       if (
         this.currentTime &&
-        !this.core.mediaControl.$el.hasClass('live') &&
+        // TODO check the last active playback type instead
+        // !mediaControl.$el.hasClass('live') &&
         this.core.getPlaybackType() !== Playback.LIVE
       ) {
         if (this.currentTime < this.core.activePlayback.getDuration()) {
@@ -151,9 +154,9 @@ export class MultiCamera extends UICorePlugin {
 
         this.currentTime = 0;
 
-        if (this.core.mediaControl.$el.hasClass('dvr')) {
-          this.core.activeContainer.dvrInUse = true;
-        }
+        // if (mediaControl.$el.hasClass('dvr')) {
+        //   this.core.activeContainer.dvrInUse = true;
+        // }
       }
 
       // TODO current source
@@ -197,7 +200,7 @@ export class MultiCamera extends UICorePlugin {
 
   private onCameraSelect(event: MouseEvent) {
     const value = (event.currentTarget as HTMLElement).dataset.multicameraSelectorSelect;
-    trace(`${T} onCameraSelect ${value}`);
+    trace(`${T} onCameraSelect`, { value });
     if (value !== undefined) {
       this.changeById(parseInt(value, 10));
     }
@@ -235,7 +238,7 @@ export class MultiCamera extends UICorePlugin {
     this.render();
   }
 
-  setLiveStatus(id: number, active: boolean) {
+  private setLiveStatus(id: number, active: boolean) {
     try {
       const index = this.findIndexById(id);
       if (index < 0) {
@@ -313,6 +316,7 @@ export class MultiCamera extends UICorePlugin {
     } catch (error) {
       reportError(error);
     }
+    // TODO figure out
     this.core.getPlugin('error_gplayer')?.show({
       title: this.core.i18n.t('source_offline'),
       message: '',
