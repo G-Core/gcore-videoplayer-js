@@ -16,7 +16,7 @@ jobs:
         with:
           node-version: 22
           cache: "npm"
-          cache-dependency-path:
+          cache-dependency-path: |
             package-lock.json
             packages/${{ inputs.package }}/package-lock.json
       - name: check files
