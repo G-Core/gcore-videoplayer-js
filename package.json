@@ -4,6 +4,7 @@
   "description": "Gcore JavaScript video player",
   "main": "index.js",
   "scripts": {
+    "check:license": "./node_modules/.bin/license-checker --onlyAllow \"Apache-2.0;0BSD;BSD-2-Clause;BSD-3-Clause;ISC;MIT\" --summary --start",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -17,6 +18,7 @@
   },
   "homepage": "https://github.com/G-Core/gcore-videoplayer-js#readme",
   "devDependencies": {
+    "license-checker": "^25.0.1",
     "oxlint": "^0.13.2"
   }
 }

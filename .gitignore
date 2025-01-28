@@ -1,6 +1,6 @@
-packages/*/node_modules
-packages/*/lib
-packages/*/dist
-packages/*/*.tsbuildinfo
+node_modules
 
-.vscode
+packages/*/dist
+packages/*/lib
+packages/*/temp
+packages/*/*.tsbuildinfo

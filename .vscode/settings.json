@@ -1,4 +1,11 @@
 {
-    "eslint.format.enable": true,
-    "editor.defaultFormatter": "oxc.oxc-vscode"
+    "eslint.format.enable": false,
+    "editor.defaultFormatter": "oxc.oxc-vscode",
+    "eslint.codeActionsOnSave.rules": null,
+    "[css]": {
+        "editor.defaultFormatter": "vscode.css-language-features"
+    },
+    "[json]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    }
 }

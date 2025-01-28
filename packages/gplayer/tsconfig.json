@@ -26,15 +26,6 @@
       "DOM.Iterable"
     ],
     "module": "ESNext",
-    // "paths": {
-    //   // "@assets/*": ["src/assets/*"],
-    //   // "@vendor/*": ["src/vendor/*"],
-    // },
-    "types": [
-      "node",
-      // "@clappr/core",
-      // "@clappr/plugins",
-    ],
     "typeRoots": [
       "node_modules/@types",
       "src/typings"
