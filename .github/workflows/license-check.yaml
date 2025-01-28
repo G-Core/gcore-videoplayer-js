@@ -10,12 +10,12 @@ jobs:
   license-check:
     runs-on: ubuntu-latest
     steps:
-      -
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: "npm"
-          cache-dependency-path: packages/${{ inputs.package }}/package-lock.json
+      # -
+      #   uses: actions/setup-node@v4
+      #   with:
+      #     node-version: 22
+      #     cache: "npm"
+      #     cache-dependency-path: packages/${{ inputs.package }}/package-lock.json
       - name: Install dependencies
         # Note that the root dependencies must be installed first
         run: npm ci -C packages/${{ inputs.package }}
