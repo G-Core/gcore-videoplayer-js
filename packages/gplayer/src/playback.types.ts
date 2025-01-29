@@ -33,8 +33,14 @@ export type TimeUpdate = TimePosition & {
  * @beta
  */
 export type QualityLevel = {
-  level: number // index
+  level: number // 0-based index
   width: number
   height: number
   bitrate: number
+}
+
+export enum PlaybackErrorCode {
+  Generic = 0,
+  MediaSourceUnavailable = 1,
+  QualityLevelUnavailable = 2,
 }

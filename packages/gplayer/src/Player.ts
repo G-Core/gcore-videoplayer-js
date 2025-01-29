@@ -14,18 +14,21 @@ import type {
   CorePlayerEvents,
   CoreOptions,
   CorePluginOptions,
+  PlaybackError,
 } from './internal.types.js'
-import type { PlayerMediaSource, PlayerPlugin } from './types.js'
+import type {
+  PlayerMediaSource,
+  PlayerMediaSourceDesc,
+  PlayerPlugin,
+} from './types.js'
 import { PlayerConfig, PlayerEvent } from './types.js'
-import DashPlayback from './plugins/dash-playback/DashPlayback.js'
-import HlsPlayback from './plugins/hls-playback/HlsPlayback.js'
 import {
   buildSourcesPriorityList,
   buildSourcesSet,
   unwrapSource,
 } from './utils/mediaSources.js'
-
-// TODO implement transport retry/failover and fallback logic
+import { PlaybackErrorCode } from './playback.types.js'
+import { registerPlaybacks } from './playback/index.js'
 
 /**
  * @beta
@@ -33,6 +36,9 @@ import {
 export type PlayerEventHandler<T extends PlayerEvent> = () => void
 
 const T = 'GPlayer'
+
+const INITIAL_RETRY_DELAY = 250
+const MAX_RETRY_DELAY = 5000
 
 const DEFAULT_OPTIONS: PlayerConfig = {
   autoPlay: false,
@@ -48,7 +54,7 @@ const DEFAULT_OPTIONS: PlayerConfig = {
 /**
  * @beta
  */
-export type PlaybackModule = 'dash' | 'hls' | 'native'
+export type PlaybackModule = 'dash' | 'hls' | 'html5_video'
 
 type PluginOptions = Record<string, unknown>
 
@@ -74,6 +80,12 @@ export class Player {
   private tuneInTimerId: ReturnType<typeof setTimeout> | null = null
 
   private tunedIn = false
+
+  private sourcesList: PlayerMediaSourceDesc[] = []
+
+  private currentSourceIndex = 0
+
+  private sourcesDelay: Record<string, number> = {}
 
   constructor(config: PlayerConfig) {
     this.setConfig(config)
@@ -282,15 +294,12 @@ export class Player {
     }
     this.tunedIn = true
     const player = this.player
-    if (Browser.isiOS && player.core.activePlayback) {
-      player.core.activePlayback.$el.on('webkitendfullscreen', () => {
-        try {
-          player.core.handleFullscreenChange()
-        } catch (e) {
-          reportError(e)
-        }
-      })
-    }
+    this.bindContainerEventListeners(player)
+    player.core.on(
+      ClapprEvents.CORE_ACTIVE_CONTAINER_CHANGED,
+      () => this.bindContainerEventListeners(player),
+      null,
+    )
     player.core.on(
       ClapprEvents.CORE_SCREEN_ORIENTATION_CHANGED,
       ({ orientation }: { orientation: 'landscape' | 'portrait' }) => {
@@ -359,6 +368,7 @@ export class Player {
         clearTimeout(this.tuneInTimerId)
         this.tuneInTimerId = null
       }
+      // TODO ensure that CORE_ACTIVE_CONTAINER_CHANGED does not get caught before onReady
       setTimeout(() => this.tuneIn(), 0)
     },
     onResize: (newSize: { width: number; height: number }) => {
@@ -397,6 +407,7 @@ export class Player {
   }
 
   private buildCoreOptions(rootNode: HTMLElement): CoreOptions {
+    this.buildMediaSourcesList()
     const source = this.selectMediaSource()
 
     this.rootNode = rootNode
@@ -425,22 +436,84 @@ export class Player {
       playbackType: this.config.playbackType,
       width: rootNode.clientWidth,
       source: source ? unwrapSource(source) : undefined,
+      sources: undefined,
       strings: this.config.strings,
     }
     return coreOptions
   }
 
   private configurePlaybacks() {
-    // TODO check if there are DASH and HLS sources and don't register the respective playbacks if not
-    Loader.registerPlayback(DashPlayback)
-    Loader.registerPlayback(HlsPlayback)
+    registerPlaybacks()
   }
 
   // Select a single source to play according to the priority transport and the modules support
-  private selectMediaSource(): PlayerMediaSource | undefined {
-    return buildSourcesPriorityList(
+  private buildMediaSourcesList() {
+    this.sourcesList = buildSourcesPriorityList(
       buildSourcesSet(this.config.sources),
       this.config.priorityTransport,
-    )[0]
+    )
+    this.currentSourceIndex = 0
+  }
+
+  private selectMediaSource(): PlayerMediaSourceDesc {
+    return this.sourcesList[this.currentSourceIndex]
+  }
+
+  private retryPlayback() {
+    trace(`${T} retryPlayback enter`, {
+      currentSourceIndex: this.currentSourceIndex,
+    })
+    this.getNextMediaSource().then((nextSource: PlayerMediaSourceDesc) => {
+      trace(`${T} retryPlayback loading`, {
+        nextSource,
+      })
+      assert.ok(this.player)
+      this.player.core.load(nextSource.source, nextSource.mimeType)
+      trace(`${T} retryPlayback loaded`, {
+        nextSource,
+      })
+    })
+    trace(`${T} retryPlayback leave`, {})
+  }
+
+  private getNextMediaSource(): Promise<PlayerMediaSourceDesc> {
+    return new Promise((resolve) => {
+      this.sourcesDelay[this.currentSourceIndex] =
+        (this.sourcesDelay[this.currentSourceIndex] || INITIAL_RETRY_DELAY) * 2
+      this.currentSourceIndex =
+        (this.currentSourceIndex + 1) % this.sourcesList.length
+      const delay =
+        this.sourcesDelay[this.currentSourceIndex] + 150 * Math.random()
+      const s = this.sourcesList[this.currentSourceIndex]
+      setTimeout(() => resolve(s), delay)
+    })
+  }
+
+  private bindContainerEventListeners(player: PlayerClappr) {
+    trace(`${T} bindContainerEventListeners`, {
+      activePlayback: player.core.activePlayback?.name,
+    })
+    if (Browser.isiOS && player.core.activePlayback) {
+      player.core.activePlayback.$el.on('webkitendfullscreen', () => {
+        try {
+          player.core.handleFullscreenChange()
+        } catch (e) {
+          reportError(e)
+        }
+      })
+    }
+    player.core.activePlayback.on(
+      ClapprEvents.PLAYBACK_ERROR,
+      (error: PlaybackError) => {
+        switch (error.code) {
+          case PlaybackErrorCode.MediaSourceUnavailable:
+            this.retryPlayback()
+            break
+          // TODO handle other errors
+          default:
+            break
+        }
+      },
+    )
   }
 }

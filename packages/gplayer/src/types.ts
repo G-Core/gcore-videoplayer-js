@@ -161,7 +161,7 @@ export interface PlayerConfig extends Record<string, unknown> {
   /**
    * Localization strings for the player UI.
    */
-  strings: TranslationSettings
+  strings?: TranslationSettings
 }
 
 /**

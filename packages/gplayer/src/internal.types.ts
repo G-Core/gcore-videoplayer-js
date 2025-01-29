@@ -66,6 +66,8 @@ export type PlaybackError = {
   description: string;
   raw?: MediaError;
   level?: ErrorLevel;
+  message: string;
+  scope?: string;
 }
 
 /**

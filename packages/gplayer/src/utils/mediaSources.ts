@@ -1,29 +1,26 @@
-import DashPlayback from '../plugins/dash-playback/DashPlayback'
-import HlsPlayback from '../plugins/hls-playback/HlsPlayback'
-import type { PlayerMediaSource, TransportPreference } from '../types'
+import type { PlayerMediaSource, PlayerMediaSourceDesc, TransportPreference } from '../types'
+import { canPlayDash, canPlayHls } from '../playback/index.js'
 
 export type SourceVariants = {
-  dash: string | null
-  master: string | null
-  hls: string | null
-  mpegts: string | null
+  dash: PlayerMediaSourceDesc | null
+  hls: PlayerMediaSourceDesc | null
+  mpegts: PlayerMediaSourceDesc | null
 }
 
 export function buildSourcesSet(sources: PlayerMediaSource[]): SourceVariants {
   const sv: SourceVariants = {
     dash: null,
-    master: null,
     hls: null,
     mpegts: null,
   }
   sources.forEach((ps) => {
-    const [s, t] = typeof ps === 'string' ? [ps, ''] : [ps.source, ps.mimeType]
-    if (DashPlayback.canPlay(s, t)) {
-      sv.dash = s
-    } else if (HlsPlayback.canPlay(s, t)) {
-      sv.hls = s
+    const ws = wrapSource(ps)
+    if (canPlayDash(ws.source, ws.mimeType)) {
+      sv.dash = ws
+    } else if (canPlayHls(ws.source, ws.mimeType)) {
+      sv.hls = ws
     } else {
-      sv.master = s
+      sv.mpegts = ws
     }
   })
   return sv
@@ -32,8 +29,8 @@ export function buildSourcesSet(sources: PlayerMediaSource[]): SourceVariants {
 export function buildSourcesPriorityList(
   sources: SourceVariants,
   priorityTransport: TransportPreference = 'auto',
-): PlayerMediaSource[] {
-  const msl: string[] = []
+): PlayerMediaSourceDesc[] {
+  const msl: PlayerMediaSourceDesc[] = []
   switch (priorityTransport) {
     case 'dash':
       addDash()
@@ -47,6 +44,7 @@ export function buildSourcesPriorityList(
     case 'auto':
       addDash()
       addHls()
+      addMpegts()
       break
   }
   Object.values(sources).forEach((s) => {
@@ -64,21 +62,14 @@ export function buildSourcesPriorityList(
   }
 
   function addHls() {
-    if (sources.hls && HlsPlayback.canPlay(sources.hls, undefined)) {
+    if (sources.hls && canPlayHls(sources.hls.source, sources.hls.mimeType)) {
       msl.push(sources.hls)
       sources.hls = null
-    }
-    if (
-      sources.master?.endsWith('.m3u8') &&
-      HlsPlayback.canPlay(sources.master, undefined)
-    ) {
-      msl.push(sources.master)
-      sources.master = null
     }
   }
 
   function addDash() {
-    if (sources.dash && DashPlayback.canPlay(sources.dash, undefined)) {
+    if (sources.dash && canPlayDash(sources.dash.source, sources.dash.mimeType)) {
       msl.push(sources.dash)
       sources.dash = null
     }
@@ -87,4 +78,8 @@ export function buildSourcesPriorityList(
 
 export function unwrapSource(s: PlayerMediaSource): string {
   return typeof s === 'string' ? s : s.source
+}
+
+export function wrapSource(s: PlayerMediaSource): PlayerMediaSourceDesc {
+  return typeof s === 'string' ? { source: s } : s
 }

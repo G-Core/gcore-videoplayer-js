@@ -3,17 +3,18 @@
 // license that can be found in the LICENSE file.
 
 import { Events, HTML5Video, Log, Playback, Utils } from '@clappr/core'
+import { trace } from '@gcorevideo/utils'
 import assert from 'assert'
 import DASHJS, {
   ErrorEvent as DashErrorEvent,
+  MediaPlayerErrorEvent,
   PlaybackErrorEvent as DashPlaybackErrorEvent,
   type BitrateInfo as DashBitrateInfo,
   MetricEvent as DashMetricEvent,
   IManifestInfo,
 } from 'dashjs'
-import { trace } from '@gcorevideo/utils'
 
-import { QualityLevel, TimePosition, TimeUpdate, TimeValue } from '../../playback.types.js'
+import { PlaybackErrorCode, QualityLevel, TimePosition, TimeUpdate, TimeValue } from '../../playback.types.js'
 
 const AUTO = -1
 
@@ -87,9 +88,6 @@ export default class DashPlayback extends HTML5Video {
   startChangeQuality = false
 
   manifestInfo: IManifestInfo | null = null
-
-  // #EXT-X-TARGETDURATION
-  _segmentTargetDuration: TimeValue | null = null
 
   _timeUpdateTimer: ReturnType<typeof setInterval> | null = null
 
@@ -408,97 +406,25 @@ export default class DashPlayback extends HTML5Video {
 
   private _onDASHJSSError = (event: DashErrorEvent) => {
     trace(`${T} _onDASHJSSError`, { event })
-    // TODO
-    // only report/handle errors if they are fatal
+    // TODO figure out what's for
     this._stopTimeUpdateTimer()
-    if (event.error === 'capability' && event.event === 'mediasource') {
-      // No support for MSE
-      const formattedError = this.createError(event.error)
 
-      this.trigger(Events.PLAYBACK_ERROR, formattedError)
-      Log.error(
-        'The media cannot be played because it requires a feature ' +
-          'that your browser does not support.',
-      )
-    } else if (
-      event.error === 'manifestError' &&
-      // Manifest type not supported
-      (event.event.id === 'createParser' ||
-        // Codec(s) not supported
-        event.event.id === 'codec' ||
-        // No streams available to stream
-        event.event.id === 'nostreams' ||
-        // Error creating Stream object
-        event.event.id === 'nostreamscomposed' ||
-        // syntax error parsing the manifest
-        event.event.id === 'parse' ||
-        // a stream has multiplexed audio+video
-        event.event.id === 'multiplexedrep')
-    ) {
-      // These errors have useful error messages, so we forward it on
-      const formattedError = this.createError(event.error)
-
-      this.trigger(Events.PLAYBACK_ERROR, formattedError)
-      if (event.error) {
-        Log.error(event.event.message)
-      }
-    } else if (event.error === 'mediasource') {
-      // This error happens when dash.js fails to allocate a SourceBuffer
-      // OR the underlying video element throws a `MediaError`.
-      // If it's a buffer allocation fail, the message states which buffer
-      // (audio/video/text) failed allocation.
-      // If it's a `MediaError`, dash.js inspects the error object for
-      // additional information to append to the error type.
-      const formattedError = this.createError(event.error)
-
-      this.trigger(Events.PLAYBACK_ERROR, formattedError)
-      Log.error(event.event)
-    } else if (
-      event.error === 'capability' &&
-      event.event === 'encryptedmedia'
-    ) {
-      // Browser doesn't support EME
-
-      const formattedError = this.createError(event.error)
-
-      this.trigger(Events.PLAYBACK_ERROR, formattedError)
-      Log.error(
-        'The media cannot be played because it requires encryption ' +
-          'that your browser does not support.',
-      )
-    } else if (event.error === 'key_session') {
-      // This block handles pretty much all errors thrown by the
-      // encryption subsystem
-      const formattedError = this.createError(event.error)
-
-      this.trigger(Events.PLAYBACK_ERROR, formattedError)
-      Log.error(event.event)
-    } else if (event.error === 'download') {
-      const formattedError = this.createError(event.error)
-
-      this.trigger(Events.PLAYBACK_ERROR, formattedError)
-      Log.error(
-        'The media playback was aborted because too many consecutive ' +
-          'download errors occurred.',
-      )
-      // } else if (event.error === 'mssError') {
-      //   const formattedError = this.createError(event.error);
-
-      //   this.trigger(Events.PLAYBACK_ERROR, formattedError);
-      //   if (event.error) {
-      //     Log.error(event.error.message);
-      //   }
-    } else {
-      // ignore the error
-      if (typeof event.error === 'object') {
-        const formattedError = this.createError(event.error)
-
-        this.trigger(Events.PLAYBACK_ERROR, formattedError)
-        Log.error(event.error.message)
-      } else {
-        Log.error(event.error)
-      }
-      return
+    const e = (event as MediaPlayerErrorEvent).error
+    switch (e.code) {
+      case DASHJS.MediaPlayer.errors.MANIFEST_LOADER_PARSING_FAILURE_ERROR_CODE:
+      case DASHJS.MediaPlayer.errors.MANIFEST_LOADER_LOADING_FAILURE_ERROR_CODE:
+      case DASHJS.MediaPlayer.errors.DOWNLOAD_ERROR_ID_MANIFEST_CODE:
+        this.trigger(Events.PLAYBACK_ERROR, this.createError({
+          code: PlaybackErrorCode.MediaSourceUnavailable,
+          message: e.message,
+        }))
+        break;
+      // TODO more cases
+      default:
+        this.trigger(Events.PLAYBACK_ERROR, this.createError({
+          code: PlaybackErrorCode.Generic,
+          message: e.message,
+        }))
     }
 
     // only reset the dash player in 10ms async, so that the rest of the
@@ -671,21 +597,14 @@ DashPlayback.canPlay = function (resource, mimeType) {
     (resourceParts.length > 1 && resourceParts[1].toLowerCase() === 'mpd') ||
     mimeType === 'application/dash+xml' ||
     mimeType === 'video/mp4'
+  if (!isDash) {
+    return false
+  }
   const ms = window.MediaSource
   const mms =
     'ManagedMediaSource' in window ? window.ManagedMediaSource : undefined
   const wms =
     'WebKitMediaSource' in window ? window.WebKitMediaSource : undefined
   const ctor = ms || mms || wms
-
-  const hasSupport = typeof ctor === 'function'
-  trace(`${T} canPlay`, {
-    hasSupport,
-    isDash,
-    resource,
-    ms: typeof ms === 'function',
-    mms: typeof mms === 'function',
-    wms: typeof wms === 'function',
-  })
-  return !!(hasSupport && isDash)
+  return typeof ctor === 'function'
 }

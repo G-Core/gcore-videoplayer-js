@@ -10,6 +10,7 @@ import {
   PlayerError,
   Utils,
 } from '@clappr/core'
+import { trace } from '@gcorevideo/utils'
 import assert from 'assert'
 import HLSJS, {
   Events as HlsEvents,
@@ -24,8 +25,7 @@ import HLSJS, {
   type LevelSwitchingData,
 } from 'hls.js'
 
-import { QualityLevel, TimePosition, TimeUpdate } from '../../playback.types.js'
-import { trace } from '@gcorevideo/utils'
+import { PlaybackErrorCode, QualityLevel, TimePosition, TimeUpdate } from '../../playback.types.js'
 import { PlaybackType } from '../../types'
 import { TimerId } from '../../utils/types'
 
@@ -512,9 +512,8 @@ export default class HlsPlayback extends HTML5Video {
     }
   }
 
-  // override
   // this playback manages the src on the video element itself
-  private override _setupSrc(srcUrl: string) {} // eslint-disable-line no-unused-vars
+  protected override _setupSrc(srcUrl: string) {} // eslint-disable-line no-unused-vars
 
   _startTimeUpdateTimer() {
     if (this._timeUpdateTimer) {
@@ -610,7 +609,8 @@ export default class HlsPlayback extends HTML5Video {
 
   _onHLSJSError(evt: HlsEvents.ERROR, data: HlsErrorData) {
     const error: Record<string, unknown> = {
-      code: `${data.type}_${data.details}`,
+      // code: `${data.type}_${data.details}`,
+      code: PlaybackErrorCode.Generic,
       description: `${this.name} error: type: ${data.type}, details: ${data.details}`,
       raw: data,
     }
@@ -639,7 +639,16 @@ export default class HlsPlayback extends HTML5Video {
                   evt,
                   data,
                 })
-                formattedError = this.createError(error)
+                error.code = [
+                  HLSJS.ErrorDetails.MANIFEST_LOAD_ERROR,
+                  HLSJS.ErrorDetails.MANIFEST_LOAD_TIMEOUT,
+                  HLSJS.ErrorDetails.MANIFEST_PARSING_ERROR
+                ].includes(data.details)
+                  ? PlaybackErrorCode.MediaSourceUnavailable
+                  : PlaybackErrorCode.QualityLevelUnavailable
+                formattedError = this.createError(error, {
+                  useCodePrefix: false,
+                })
                 this.trigger(Events.PLAYBACK_ERROR, formattedError)
                 this.stop()
                 break
@@ -664,7 +673,9 @@ export default class HlsPlayback extends HTML5Video {
             break
           default:
             Log.error('hlsjs: could not recover from error.', { evt, data })
-            formattedError = this.createError(error)
+            formattedError = this.createError(error, {
+              useCodePrefix: false,
+            })
             this.trigger(Events.PLAYBACK_ERROR, formattedError)
             this.stop()
             break
@@ -674,7 +685,10 @@ export default class HlsPlayback extends HTML5Video {
           'hlsjs: could not recover from error after maximum number of attempts.',
           { evt, data },
         )
-        formattedError = this.createError(error)
+        // TODO
+        formattedError = this.createError(error, {
+          useCodePrefix: false,
+        })
         this.trigger(Events.PLAYBACK_ERROR, formattedError)
         this.stop()
       }
@@ -688,7 +702,9 @@ export default class HlsPlayback extends HTML5Video {
         this._keyIsDenied(data)
       ) {
         Log.error('hlsjs: could not load decrypt key.', { evt, data })
-        formattedError = this.createError(error)
+        formattedError = this.createError(error, {
+          useCodePrefix: false,
+        })
         this.trigger(Events.PLAYBACK_ERROR, formattedError)
         this.stop()
 

@@ -1,6 +1,6 @@
 {
   "name": "@gcorevideo/player",
-  "version": "2.11.0",
+  "version": "2.12.0",
   "description": "Gcore JavaScript video player",
   "main": "dist/index.js",
   "type": "module",
@@ -17,8 +17,7 @@
     "format": "prettier --write src/",
     "lint": "oxlint -c ../../.oxlintrc.json --tsconfig=./tsconfig.json --fix --ignore-path=../../.gitignore src",
     "ship": "npm run build && npm run build:bundle && npm publish --access public",
-    "test": "vitest --environment=jsdom run",
-    "test:watch": "vitest --environment=jsdom watch"
+    "test": "NODE_OPTIONS='--trace-deprecation' vitest"
   },
   "repository": {
     "type": "git",
@@ -36,12 +35,15 @@
     "@rollup/plugin-commonjs": "^28.0.1",
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^15.3.0",
+    "@sinonjs/fake-timers": "^14.0.0",
     "@types/node": "^22.10.1",
+    "@types/sinonjs__fake-timers": "^8.1.5",
     "assert": "^2.1.0",
     "nodemon": "^3.1.9",
     "rollup": "^4.27.4",
     "rollup-plugin-polyfill-node": "^0.13.0",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "vitest": "^3.0.4"
   },
   "dependencies": {
     "@clappr/core": "^0.11.3",
