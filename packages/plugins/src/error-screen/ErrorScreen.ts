@@ -1,4 +1,5 @@
 import { UICorePlugin, Events, template, PlayerError } from '@clappr/core';
+import { trace } from '@gcorevideo/utils';
 
 import { CLAPPR_VERSION } from '../build.js';
 import type { TimerId, ZeptoResult } from '../types';
@@ -25,6 +26,8 @@ type PresentationalError = {
   icon: string;
   reloadIcon: string;
 }
+
+const T = 'plugins.error_screen'
 
 export class ErrorScreen extends UICorePlugin {
   private _retry = 0;
@@ -69,16 +72,19 @@ export class ErrorScreen extends UICorePlugin {
   }
 
   private onCoreReady() {
+    trace(`${T} onCoreReady`)
     if (this.core.activePlayback) {
       this.listenTo(this.core.activePlayback, Events.PLAYBACK_PLAY, this.onPlay);
     }
   }
 
   private onPlay() {
+    trace(`${T} onPlay`)
     this.destroyError();
   }
 
   private destroyError() {
+    trace(`${T} destroyError`)
     this._retry = 0;
     this.err = null;
     if (this.timeout !== null) {
@@ -142,6 +148,7 @@ export class ErrorScreen extends UICorePlugin {
   }
 
   private onError(err: ErrorObject) {
+    trace(`${T} onError`, { err })
     if (
       err.level === PlayerError.Levels.FATAL ||
       err.details === 'bufferStalledError' ||
@@ -155,6 +162,10 @@ export class ErrorScreen extends UICorePlugin {
         icon: '',
         reloadIcon,
       };
+
+      if (this.options.errorScreen?.reloadOnError === false) {
+        return;
+      }
 
       if (this.options.errorScreen?.neverStopToRetry) {
         this._retry = 0;

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-import { Events, HTML5Video, Log, Playback, Utils } from '@clappr/core'
+import { Events, HTML5Video, Log, Playback, PlayerError, Utils } from '@clappr/core'
 import { trace } from '@gcorevideo/utils'
 import assert from 'assert'
 import DASHJS, {
@@ -14,7 +14,7 @@ import DASHJS, {
   IManifestInfo,
 } from 'dashjs'
 
-import { PlaybackErrorCode, QualityLevel, TimePosition, TimeUpdate, TimeValue } from '../../playback.types.js'
+import { PlaybackError, PlaybackErrorCode, QualityLevel, TimePosition, TimeUpdate, TimeValue } from '../../playback.types.js'
 
 const AUTO = -1
 
@@ -406,7 +406,6 @@ export default class DashPlayback extends HTML5Video {
 
   private _onDASHJSSError = (event: DashErrorEvent) => {
     trace(`${T} _onDASHJSSError`, { event })
-    // TODO figure out what's for
     this._stopTimeUpdateTimer()
 
     const e = (event as MediaPlayerErrorEvent).error
@@ -414,27 +413,32 @@ export default class DashPlayback extends HTML5Video {
       case DASHJS.MediaPlayer.errors.MANIFEST_LOADER_PARSING_FAILURE_ERROR_CODE:
       case DASHJS.MediaPlayer.errors.MANIFEST_LOADER_LOADING_FAILURE_ERROR_CODE:
       case DASHJS.MediaPlayer.errors.DOWNLOAD_ERROR_ID_MANIFEST_CODE:
-        this.trigger(Events.PLAYBACK_ERROR, this.createError({
+      case DASHJS.MediaPlayer.errors.DOWNLOAD_ERROR_ID_CONTENT_CODE:
+        this.triggerError({
           code: PlaybackErrorCode.MediaSourceUnavailable,
           message: e.message,
-        }))
+          description: e.message,
+          level: PlayerError.Levels.FATAL,
+        })
         break;
       // TODO more cases
       default:
-        this.trigger(Events.PLAYBACK_ERROR, this.createError({
+        this.triggerError({
           code: PlaybackErrorCode.Generic,
           message: e.message,
-        }))
+          description: e.message,
+          level: PlayerError.Levels.FATAL,
+        })
     }
+  }
 
+  private triggerError(error: PlaybackError) {
+    trace(`${T} triggerError`, { error })
+    this.trigger(Events.PLAYBACK_ERROR, error)
     // only reset the dash player in 10ms async, so that the rest of the
     // calling function finishes
     setTimeout(() => {
-      assert.ok(
-        this._dash,
-        'An instance of dashjs MediaPlayer is required to reset',
-      )
-      this._dash.reset()
+      this.stop()
     }, 10)
   }
 

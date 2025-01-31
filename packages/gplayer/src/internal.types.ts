@@ -5,6 +5,7 @@ import type {
 } from "@clappr/core";
 
 import { PlaybackType, PlayerDebugTag, PlayerMediaSource } from "./types";
+import { PlaybackError } from "./playback.types";
 
 type ExternalTrack = {
   kind?: "subtitles" | "captions";
@@ -54,20 +55,6 @@ export interface CorePlaybackConfig {
   preload?: 'metadata' | 'auto' | 'none';
   // preferredAudioLanguage?: string;
   shakaConfiguration?: ShakaConfig;
-}
-
-type ErrorLevel = "FATAL" | "WARN" | "INFO";
-
-/**
- * @internal
- */
-export type PlaybackError = {
-  code?: number | string;
-  description: string;
-  raw?: MediaError;
-  level?: ErrorLevel;
-  message: string;
-  scope?: string;
 }
 
 /**

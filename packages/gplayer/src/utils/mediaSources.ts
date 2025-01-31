@@ -1,4 +1,8 @@
-import type { PlayerMediaSource, PlayerMediaSourceDesc, TransportPreference } from '../types'
+import type {
+  PlayerMediaSource,
+  PlayerMediaSourceDesc,
+  TransportPreference,
+} from '../types'
 import { canPlayDash, canPlayHls } from '../playback/index.js'
 
 export type SourceVariants = {
@@ -7,6 +11,12 @@ export type SourceVariants = {
   mpegts: PlayerMediaSourceDesc | null
 }
 
+/**
+ *
+ * @param sources
+ * @deprecated
+ * @returns
+ */
 export function buildSourcesSet(sources: PlayerMediaSource[]): SourceVariants {
   const sv: SourceVariants = {
     dash: null,
@@ -26,54 +36,37 @@ export function buildSourcesSet(sources: PlayerMediaSource[]): SourceVariants {
   return sv
 }
 
-export function buildSourcesPriorityList(
-  sources: SourceVariants,
+export function buildMediaSourcesList(
+  sources: PlayerMediaSourceDesc[],
   priorityTransport: TransportPreference = 'auto',
 ): PlayerMediaSourceDesc[] {
-  const msl: PlayerMediaSourceDesc[] = []
-  switch (priorityTransport) {
-    case 'dash':
-      addDash()
-      break
-    case 'hls':
-      addHls()
-      break
-    case 'mpegts':
-      addMpegts()
-      break
-    case 'auto':
-      addDash()
-      addHls()
-      addMpegts()
-      break
-  }
-  Object.values(sources).forEach((s) => {
-    if (s) {
-      msl.push(s)
-    }
-  })
-  return msl
-
-  function addMpegts() {
-    if (sources.mpegts) {
-      msl.push(sources.mpegts)
-      sources.mpegts = null
-    }
-  }
-
-  function addHls() {
-    if (sources.hls && canPlayHls(sources.hls.source, sources.hls.mimeType)) {
-      msl.push(sources.hls)
-      sources.hls = null
-    }
-  }
-
-  function addDash() {
-    if (sources.dash && canPlayDash(sources.dash.source, sources.dash.mimeType)) {
-      msl.push(sources.dash)
-      sources.dash = null
-    }
-  }
+  const [preferred, rest] = sources.reduce(
+    priorityTransport === 'dash' || priorityTransport === 'auto'
+      ? (
+          acc: [PlayerMediaSourceDesc[], PlayerMediaSourceDesc[]],
+          item: PlayerMediaSourceDesc,
+        ) => {
+          if (canPlayDash(item.source, item.mimeType)) {
+            acc[0].push(item)
+          } else if (canPlayHls(item.source, item.mimeType)) {
+            acc[1].push(item)
+          }
+          return acc
+        }
+      : (
+          acc: [PlayerMediaSourceDesc[], PlayerMediaSourceDesc[]],
+          item: PlayerMediaSourceDesc,
+        ) => {
+          if (canPlayHls(item.source, item.mimeType)) {
+            acc[0].push(item)
+          } else if (canPlayDash(item.source, item.mimeType)) {
+            acc[1].push(item)
+          }
+          return acc
+        },
+    [[], []],
+  )
+  return preferred.concat(rest)
 }
 
 export function unwrapSource(s: PlayerMediaSource): string {
@@ -81,5 +74,31 @@ export function unwrapSource(s: PlayerMediaSource): string {
 }
 
 export function wrapSource(s: PlayerMediaSource): PlayerMediaSourceDesc {
-  return typeof s === 'string' ? { source: s } : s
+  return typeof s === 'string' ? { source: s, mimeType: guessMimeType(s) } : s
+}
+
+function guessMimeType(s: string): string {
+  if (s.endsWith('.mpd')) {
+    return 'application/dash+xml'
+  }
+  if (s.endsWith('.m3u8')) {
+    return 'application/vnd.apple.mpegurl'
+  }
+  throw new Error('Unrecognized media source type')
+}
+
+export function isDashSource(source: string, mimeType?: string) {
+  if (mimeType) {
+    return mimeType === 'application/dash+xml'
+  }
+  return source.endsWith('.mpd')
+}
+
+export function isHlsSource(source: string, mimeType?: string) {
+  if (mimeType) {
+    return ['application/vnd.apple.mpegurl', 'application/x-mpegURL'].includes(
+      mimeType,
+    )
+  }
+  return source.endsWith('.m3u8')
 }

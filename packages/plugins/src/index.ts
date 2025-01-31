@@ -30,6 +30,7 @@ export * from "./statistics/Statistics.js";
 export * from "./subtitles/Subtitles.js";
 export * from "./thumbnails/Thumbnails.js";
 export * from "./tracer/index.js";
+export * from "./source-controller/SourceController.js";
 // _ vast-ads
 // _ video360
 export * from "./volume-fade/VolumeFade.js";

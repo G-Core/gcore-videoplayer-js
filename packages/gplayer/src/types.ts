@@ -1,3 +1,5 @@
+import { ContainerPlugin, CorePlugin } from "@clappr/core"
+
 /**
  * Describes a media source with its MIME type and URL.
  *
@@ -44,7 +46,7 @@ export type PlaybackType = 'live' | 'vod'
 /**
  * @beta
  */
-export type MediaTransport = 'dash' | 'hls' | 'mpegts'
+export type MediaTransport = 'dash' | 'hls'
 
 /**
  * @beta
@@ -57,7 +59,7 @@ export type TransportPreference = MediaTransport | 'auto'
  */
 export type PlayerPlugin = {
   new (...args: any[]): unknown
-  type: 'core' | 'container'
+  name: string
 }
 
 /**

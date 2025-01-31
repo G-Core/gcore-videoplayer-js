@@ -14,20 +14,14 @@ import type {
   CorePlayerEvents,
   CoreOptions,
   CorePluginOptions,
-  PlaybackError,
 } from './internal.types.js'
-import type {
-  PlayerMediaSource,
-  PlayerMediaSourceDesc,
-  PlayerPlugin,
-} from './types.js'
+import type { PlayerMediaSourceDesc, PlayerPlugin } from './types.js'
 import { PlayerConfig, PlayerEvent } from './types.js'
 import {
-  buildSourcesPriorityList,
-  buildSourcesSet,
+  buildMediaSourcesList,
   unwrapSource,
+  wrapSource,
 } from './utils/mediaSources.js'
-import { PlaybackErrorCode } from './playback.types.js'
 import { registerPlaybacks } from './playback/index.js'
 
 /**
@@ -36,9 +30,6 @@ import { registerPlaybacks } from './playback/index.js'
 export type PlayerEventHandler<T extends PlayerEvent> = () => void
 
 const T = 'GPlayer'
-
-const INITIAL_RETRY_DELAY = 250
-const MAX_RETRY_DELAY = 5000
 
 const DEFAULT_OPTIONS: PlayerConfig = {
   autoPlay: false,
@@ -80,12 +71,6 @@ export class Player {
   private tuneInTimerId: ReturnType<typeof setTimeout> | null = null
 
   private tunedIn = false
-
-  private sourcesList: PlayerMediaSourceDesc[] = []
-
-  private currentSourceIndex = 0
-
-  private sourcesDelay: Record<string, number> = {}
 
   constructor(config: PlayerConfig) {
     this.setConfig(config)
@@ -131,10 +116,6 @@ export class Player {
     if (this.config.debug === 'all' || this.config.debug === 'clappr') {
       Log.setLevel(0)
     }
-
-    trace(`${T} init`, {
-      // TODO selected options
-    })
 
     this.configurePlaybacks()
     const coreOpts = this.buildCoreOptions(playerElement)
@@ -407,8 +388,11 @@ export class Player {
   }
 
   private buildCoreOptions(rootNode: HTMLElement): CoreOptions {
-    this.buildMediaSourcesList()
-    const source = this.selectMediaSource()
+    const sources = this.buildMediaSourcesList()
+    const source = sources[0]
+    trace(`${T} buildCoreOptions`, {
+      source
+    })
 
     this.rootNode = rootNode
 
@@ -416,7 +400,7 @@ export class Player {
       ...this.config, // plugin settings
       allowUserInteraction: true,
       autoPlay: false,
-      dash: this.config.dash,
+      dash: this.config.dash, // TODO move this to the playback section
       debug: this.config.debug || 'none',
       events: this.events,
       height: rootNode.clientHeight,
@@ -436,7 +420,7 @@ export class Player {
       playbackType: this.config.playbackType,
       width: rootNode.clientWidth,
       source: source ? unwrapSource(source) : undefined,
-      sources: undefined,
+      sources, // prevent Clappr from loading all sources simultaneously
       strings: this.config.strings,
     }
     return coreOptions
@@ -446,47 +430,12 @@ export class Player {
     registerPlaybacks()
   }
 
-  // Select a single source to play according to the priority transport and the modules support
-  private buildMediaSourcesList() {
-    this.sourcesList = buildSourcesPriorityList(
-      buildSourcesSet(this.config.sources),
+  private buildMediaSourcesList(): PlayerMediaSourceDesc[] {
+    return buildMediaSourcesList(
+      // TODO ensure unsupported sources are filtered out
+      this.config.sources.map((s) => wrapSource(s)),
       this.config.priorityTransport,
     )
-    this.currentSourceIndex = 0
-  }
-
-  private selectMediaSource(): PlayerMediaSourceDesc {
-    return this.sourcesList[this.currentSourceIndex]
-  }
-
-  private retryPlayback() {
-    trace(`${T} retryPlayback enter`, {
-      currentSourceIndex: this.currentSourceIndex,
-    })
-    this.getNextMediaSource().then((nextSource: PlayerMediaSourceDesc) => {
-      trace(`${T} retryPlayback loading`, {
-        nextSource,
-      })
-      assert.ok(this.player)
-      this.player.core.load(nextSource.source, nextSource.mimeType)
-      trace(`${T} retryPlayback loaded`, {
-        nextSource,
-      })
-    })
-    trace(`${T} retryPlayback leave`, {})
-  }
-
-  private getNextMediaSource(): Promise<PlayerMediaSourceDesc> {
-    return new Promise((resolve) => {
-      this.sourcesDelay[this.currentSourceIndex] =
-        (this.sourcesDelay[this.currentSourceIndex] || INITIAL_RETRY_DELAY) * 2
-      this.currentSourceIndex =
-        (this.currentSourceIndex + 1) % this.sourcesList.length
-      const delay =
-        this.sourcesDelay[this.currentSourceIndex] + 150 * Math.random()
-      const s = this.sourcesList[this.currentSourceIndex]
-      setTimeout(() => resolve(s), delay)
-    })
   }
 
   private bindContainerEventListeners(player: PlayerClappr) {
@@ -502,18 +451,5 @@ export class Player {
         }
       })
     }
-    player.core.activePlayback.on(
-      ClapprEvents.PLAYBACK_ERROR,
-      (error: PlaybackError) => {
-        switch (error.code) {
-          case PlaybackErrorCode.MediaSourceUnavailable:
-            this.retryPlayback()
-            break
-          // TODO handle other errors
-          default:
-            break
-        }
-      },
-    )
   }
 }

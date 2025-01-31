@@ -90,18 +90,17 @@ describe('Player', () => {
       [undefined, true, true, 'http://0eab.cdn.globo.com/1932-1447.mpd'],
       ['dash', true, true, 'http://0eab.cdn.globo.com/1932-1447.mpd'],
       ['dash', false, true, 'http://0eab.cdn.globo.com/1932-1447.m3u8'],
-      ['dash', false, false, 'http://0eab.cdn.globo.com/1932-1447_mpegts.m3u8'],
+      ['dash', false, false, undefined],
       ['hls', true, true, 'http://0eab.cdn.globo.com/1932-1447.m3u8'],
       ['hls', true, false, 'http://0eab.cdn.globo.com/1932-1447.mpd'],
-      ['hls', false, false, 'http://0eab.cdn.globo.com/1932-1447_mpegts.m3u8'],
-      ['mpegts', true, true, 'http://0eab.cdn.globo.com/1932-1447_mpegts.m3u8'],
+      ['hls', false, false, undefined],
       ['auto', true, true, 'http://0eab.cdn.globo.com/1932-1447.mpd'],
       ['auto', true, false, 'http://0eab.cdn.globo.com/1932-1447.mpd'],
       ['auto', false, true, 'http://0eab.cdn.globo.com/1932-1447.m3u8'],
-      ['auto', false, false, 'http://0eab.cdn.globo.com/1932-1447_mpegts.m3u8'],
+      ['auto', false, false, undefined],
     ])(
       ' according to the preference (%s) and capabilities (dash=%s, hls=%s)',
-      (priority, dash, hls, source: string) => {
+      (priority, dash, hls, source: string | undefined) => {
         beforeEach(() => {
           if (dash === false) {
             vi.mocked(canPlayDash).mockReturnValue(false)
@@ -143,133 +142,6 @@ describe('Player', () => {
         })
       },
     )
-  })
-  describe('on media source failure', () => {
-    let player: Player
-    let clappr: any
-    let clock: ReturnType<typeof FakeTimers.install>
-    beforeEach(async () => {
-      Logger.enable('*')
-      clock = FakeTimers.install()
-      vi.mocked(Loader).registeredPlaybacks = [
-        MockDashPlayback,
-        MockHlsPlayback,
-        MockHTML5VideoPlayback,
-      ]
-      clappr = createMockClapprPlayer() as any
-      const playback = new MockDashPlayback({} as any, {} as any)
-      clappr.core.activePlayback = playback
-      vi.mocked(PlayerClappr).mockReturnValue(clappr as any)
-      player = new Player({
-        sources: [
-          {
-            source: 'http://0eab.cdn.globo.com/1932-1447.mpd',
-            mimeType: 'application/dash+xml',
-          },
-          {
-            source: 'http://0eab.cdn.globo.com/1932-1447.m3u8',
-            mimeType: 'application/vnd.apple.mpegurl',
-          },
-          {
-            source: 'http://0eab.cdn.globo.com/1932-1447_mpegts.m3u8',
-            mimeType: 'application/mpegts',
-          },
-        ],
-      })
-      const node = document.createElement('div')
-      player.attachTo(node)
-      await clock.tickAsync(4000)
-      playback.trigger('playback:error', {
-        code: PlaybackErrorCode.MediaSourceUnavailable, // TODO rename to MediaSourceUnavailable
-        message: 'Failed to download http://0eab.cdn.globo.com/1932-1447.mpd',
-      })
-    })
-    afterEach(() => {
-      clock.uninstall()
-      Logger.enable('')
-    })
-    it('should try the next sources with a short delay', async () => {
-      await clock.tickAsync(400) // 250 initial + random jitter up to 150
-      expect(clappr.core.load).toHaveBeenCalledWith(
-        'http://0eab.cdn.globo.com/1932-1447.m3u8',
-        'application/vnd.apple.mpegurl',
-      )
-
-      const playback = new MockHlsPlayback({} as any, {} as any)
-      clappr.core.activePlayback = playback
-      clappr.core.trigger('core:active:container:changed', {})
-      await clock.tickAsync(300)
-      clappr.core.load.mockClear()
-      playback.trigger('playback:error', {
-        code: PlaybackErrorCode.MediaSourceUnavailable,
-        message: 'Failed to download http://0eab.cdn.globo.com/1932-1447.m3u8',
-      })
-      await clock.tickAsync(400)
-      expect(clappr.core.load).toHaveBeenCalledWith(
-        'http://0eab.cdn.globo.com/1932-1447_mpegts.m3u8',
-        'application/mpegts',
-      )
-    })
-    describe('when rolled over to the first source', () => {
-      beforeEach(async () => {
-        await clock.tickAsync(400) // 250 initial + random jitter up to 150
-        const playback = new MockHlsPlayback({} as any, {} as any)
-        clappr.core.activePlayback = playback
-        clappr.core.trigger('core:active:container:changed', {})
-        await clock.tickAsync(300)
-        playback.trigger('playback:error', {
-          code: PlaybackErrorCode.MediaSourceUnavailable,
-          message:
-            'Failed to download http://0eab.cdn.globo.com/1932-1447.m3u8',
-        })
-        await clock.tickAsync(400)
-        clappr.core.load.mockClear()
-      })
-      afterEach(() => {
-        // Logger.enable('')
-      })
-      it('should start increasing the delay exponentially', async () => {
-        const playback = new MockHlsPlayback({} as any, {} as any) // mpegts
-        clappr.core.activePlayback = playback
-        clappr.core.trigger('core:active:container:changed', {})
-        await clock.tickAsync(300)
-        playback.trigger('playback:error', {
-          code: PlaybackErrorCode.MediaSourceUnavailable,
-          message:
-            'Failed to download http://0eab.cdn.globo.com/1932-1447_mpegts.m3u8',
-        })
-        await clock.tickAsync(400)
-        expect(clappr.core.load).not.toHaveBeenCalledWith(
-          'http://0eab.cdn.globo.com/1932-1447.mpd',
-          'application/dash+xml',
-        )
-        await clock.tickAsync(250)
-        expect(clappr.core.load).toHaveBeenCalledWith(
-          'http://0eab.cdn.globo.com/1932-1447.mpd',
-          'application/dash+xml',
-        )
-        // TODO
-        clappr.core.load.mockClear()
-        const p2 = new MockDashPlayback({} as any, {} as any)
-        clappr.core.activePlayback = p2
-        clappr.core.trigger('core:active:container:changed', {})
-        await clock.tickAsync(300)
-        p2.trigger('playback:error', {
-          code: PlaybackErrorCode.MediaSourceUnavailable,
-          message: 'Failed to download http://0eab.cdn.globo.com/1932-1447.mpd',
-        })
-        await clock.tickAsync(400)
-        expect(clappr.core.load).not.toHaveBeenCalledWith(
-          'http://0eab.cdn.globo.com/1932-1447.m3u8',
-          'application/vnd.apple.mpegurl',
-        )
-        await clock.tickAsync(250)
-        expect(clappr.core.load).toHaveBeenCalledWith(
-          'http://0eab.cdn.globo.com/1932-1447.m3u8',
-          'application/vnd.apple.mpegurl',
-        )
-      })
-    })
   })
 })
 
