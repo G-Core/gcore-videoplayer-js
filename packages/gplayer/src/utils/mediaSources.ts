@@ -48,7 +48,7 @@ export function buildMediaSourcesList(
         ) => {
           if (canPlayDash(item.source, item.mimeType)) {
             acc[0].push(item)
-          } else if (canPlayHls(item.source, item.mimeType)) {
+          } else {
             acc[1].push(item)
           }
           return acc
@@ -59,7 +59,7 @@ export function buildMediaSourcesList(
         ) => {
           if (canPlayHls(item.source, item.mimeType)) {
             acc[0].push(item)
-          } else if (canPlayDash(item.source, item.mimeType)) {
+          } else {
             acc[1].push(item)
           }
           return acc
