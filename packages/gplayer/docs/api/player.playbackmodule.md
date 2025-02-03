@@ -11,5 +11,5 @@
 **Signature:**
 
 ```typescript
-export type PlaybackModule = 'dash' | 'hls' | 'native';
+export type PlaybackModule = 'dash' | 'hls' | 'html5_video';
 ```

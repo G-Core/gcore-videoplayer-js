@@ -11,5 +11,6 @@
 export { setTracer } from '@gcorevideo/utils'
 export * from './Player.js'
 export * from './playback.types.js'
+export * from './testUtils.js'
 export * from './types.js'
 export * from './version.js'

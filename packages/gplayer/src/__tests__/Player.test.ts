@@ -87,17 +87,12 @@ describe('Player', () => {
   })
   describe('selecting media source', () => {
     describe.each([
-      [undefined, true, true, 'http://0eab.cdn.globo.com/1932-1447.mpd'],
       ['dash', true, true, 'http://0eab.cdn.globo.com/1932-1447.mpd'],
       ['dash', false, true, 'http://0eab.cdn.globo.com/1932-1447.m3u8'],
       ['dash', false, false, undefined],
       ['hls', true, true, 'http://0eab.cdn.globo.com/1932-1447.m3u8'],
       ['hls', true, false, 'http://0eab.cdn.globo.com/1932-1447.mpd'],
       ['hls', false, false, undefined],
-      ['auto', true, true, 'http://0eab.cdn.globo.com/1932-1447.mpd'],
-      ['auto', true, false, 'http://0eab.cdn.globo.com/1932-1447.mpd'],
-      ['auto', false, true, 'http://0eab.cdn.globo.com/1932-1447.m3u8'],
-      ['auto', false, false, undefined],
     ])(
       ' according to the preference (%s) and capabilities (dash=%s, hls=%s)',
       (priority, dash, hls, source: string | undefined) => {

@@ -11,5 +11,5 @@
 **Signature:**
 
 ```typescript
-export type MediaTransport = 'dash' | 'hls' | 'mpegts';
+export type MediaTransport = 'dash' | 'hls';
 ```

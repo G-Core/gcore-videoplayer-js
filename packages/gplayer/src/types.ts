@@ -51,7 +51,7 @@ export type MediaTransport = 'dash' | 'hls'
 /**
  * @beta
  */
-export type TransportPreference = MediaTransport | 'auto'
+export type TransportPreference = MediaTransport
 
 /**
  * @beta
@@ -151,7 +151,7 @@ export interface PlayerConfig extends Record<string, unknown> {
 
   /**
    * Preferred transport protocol when multiple sources are available.
-   * @defaultValue 'auto'
+   * @defaultValue 'dash'
    */
   priorityTransport?: TransportPreference
 

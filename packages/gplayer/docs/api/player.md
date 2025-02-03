@@ -51,6 +51,17 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
+[PlaybackErrorCode](./player.playbackerrorcode.md)
+
+
+</td><td>
+
+**_(BETA)_**
+
+
+</td></tr>
+<tr><td>
+
 [PlayerEvent](./player.playerevent.md)
 
 
@@ -103,6 +114,17 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
+[PlaybackError](./player.playbackerror.md)
+
+
+</td><td>
+
+**_(BETA)_**
+
+
+</td></tr>
+<tr><td>
+
 [PlayerConfig](./player.playerconfig.md)
 
 
@@ -146,6 +168,17 @@ Description
 </td><td>
 
 **_(BETA)_** [DASH.js settings](https://cdn.dashjs.org/latest/jsdoc/module-Settings.html)
+
+
+</td></tr>
+<tr><td>
+
+[ErrorLevel](./player.errorlevel.md)
+
+
+</td><td>
+
+**_(BETA)_**
 
 
 </td></tr>
@@ -256,6 +289,50 @@ Description
 </td><td>
 
 **_(BETA)_**
+
+
+</td></tr>
+<tr><td>
+
+[TimePosition](./player.timeposition.md)
+
+
+</td><td>
+
+**_(BETA)_** For the plugin development
+
+
+</td></tr>
+<tr><td>
+
+[TimeProgress](./player.timeprogress.md)
+
+
+</td><td>
+
+**_(BETA)_** For the plugin development
+
+
+</td></tr>
+<tr><td>
+
+[TimeUpdate](./player.timeupdate.md)
+
+
+</td><td>
+
+**_(BETA)_** For the plugin development
+
+
+</td></tr>
+<tr><td>
+
+[TimeValue](./player.timevalue.md)
+
+
+</td><td>
+
+**_(BETA)_** Playback time in seconds since the beginning of the stream (or a segment for the live streams) For the plugin development
 
 
 </td></tr>

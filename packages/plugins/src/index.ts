@@ -1,3 +1,8 @@
+/**
+ * @packageDocumentation
+ * @module @gcorevideo/player-plugins
+ */
+
 import '../assets/style/main.scss';
 
 export * from "./audio-selector/AudioSelector.js";

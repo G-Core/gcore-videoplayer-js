@@ -12,6 +12,6 @@
 ```typescript
 export type PlayerPlugin = {
     new (...args: any[]): unknown;
-    type: 'core' | 'container';
+    name: string;
 };
 ```

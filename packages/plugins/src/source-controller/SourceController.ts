@@ -1,14 +1,15 @@
 import {
   Events as ClapprEvents,
   CorePlugin,
-  Core as ClapprCore,
+  type Core as ClapprCore,
 } from '@clappr/core'
 import {
-  PlaybackError,
+  type PlaybackError,
   PlaybackErrorCode,
-  PlayerMediaSourceDesc,
+  type PlayerMediaSourceDesc,
 } from '@gcorevideo/player'
 import { trace } from '@gcorevideo/utils'
+
 import { CLAPPR_VERSION } from '../build'
 
 const T = 'plugins.source_controller'
@@ -52,6 +53,8 @@ export class SourceController extends CorePlugin {
     if (this.core.options.source !== undefined) {
       // prevent Clappr from loading all sources simultaneously
       this.core.options.sources = [this.core.options.source]
+    } else {
+      this.core.options.sources = this.core.options.sources.slice(0, 1)
     }
   }
 

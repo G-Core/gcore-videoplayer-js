@@ -1,6 +1,6 @@
 {
   "name": "@gcorevideo/utils",
-  "version": "0.3.0",
+  "version": "0.5.0",
   "description": "Miscellaneous utilities for the Gcore streaming platform projects",
   "repository": {
     "type": "git",
@@ -23,6 +23,7 @@
     "typescript": "^5.7.3"
   },
   "dependencies": {
-    "@sentry/types": "^8.51.0"
+    "@sentry/types": "^8.51.0",
+    "event-lite": "^1.0.0"
   }
 }

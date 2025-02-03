@@ -12,5 +12,5 @@ Localization strings for the player UI.
 **Signature:**
 
 ```typescript
-strings: TranslationSettings;
+strings?: TranslationSettings;
 ```

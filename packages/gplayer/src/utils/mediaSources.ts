@@ -38,10 +38,10 @@ export function buildSourcesSet(sources: PlayerMediaSource[]): SourceVariants {
 
 export function buildMediaSourcesList(
   sources: PlayerMediaSourceDesc[],
-  priorityTransport: TransportPreference = 'auto',
+  priorityTransport: TransportPreference = 'dash',
 ): PlayerMediaSourceDesc[] {
   const [preferred, rest] = sources.reduce(
-    priorityTransport === 'dash' || priorityTransport === 'auto'
+    priorityTransport === 'dash'
       ? (
           acc: [PlayerMediaSourceDesc[], PlayerMediaSourceDesc[]],
           item: PlayerMediaSourceDesc,
@@ -77,14 +77,13 @@ export function wrapSource(s: PlayerMediaSource): PlayerMediaSourceDesc {
   return typeof s === 'string' ? { source: s, mimeType: guessMimeType(s) } : s
 }
 
-function guessMimeType(s: string): string {
+function guessMimeType(s: string): string | undefined {
   if (s.endsWith('.mpd')) {
     return 'application/dash+xml'
   }
   if (s.endsWith('.m3u8')) {
     return 'application/vnd.apple.mpegurl'
   }
-  throw new Error('Unrecognized media source type')
 }
 
 export function isDashSource(source: string, mimeType?: string) {

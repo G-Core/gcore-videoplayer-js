@@ -11,7 +11,7 @@
 **Signature:**
 
 ```typescript
-export type TransportPreference = MediaTransport | 'auto';
+export type TransportPreference = MediaTransport;
 ```
 **References:** [MediaTransport](./player.mediatransport.md)
 

@@ -1,13 +1,13 @@
 /**
  * Playback time in seconds since the beginning of the stream (or a segment for the live streams)
  * For the plugin development
- * @internal
+ * @beta
  */
 export type TimeValue = number
 
 /**
  * For the plugin development
- * @internal
+ * @beta
  */
 export type TimePosition = {
   current: TimeValue
@@ -16,13 +16,13 @@ export type TimePosition = {
 
 /**
  * For the plugin development
- * @internal
+ * @beta
  */
 export type TimeProgress = TimePosition & { start: number }
 
 /**
  * For the plugin development
- * @internal
+ * @beta
  */
 export type TimeUpdate = TimePosition & {
   firstFragDateTime: number
@@ -47,6 +47,9 @@ export enum PlaybackErrorCode {
   QualityLevelUnavailable = 2,
 }
 
+/**
+ * @beta
+ */
 export type ErrorLevel = 'FATAL' | 'WARN' | 'INFO'
 
 /**

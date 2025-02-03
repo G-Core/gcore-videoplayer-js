@@ -246,7 +246,7 @@ boolean
 </td></tr>
 <tr><td>
 
-[strings](./player.playerconfig.strings.md)
+[strings?](./player.playerconfig.strings.md)
 
 
 </td><td>
@@ -259,7 +259,7 @@ boolean
 
 </td><td>
 
-**_(BETA)_** Localization strings for the player UI.
+**_(BETA)_** _(Optional)_ Localization strings for the player UI.
 
 
 </td></tr>

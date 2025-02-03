@@ -121,7 +121,6 @@ export class SpinnerThreeBounce extends UIContainerPlugin {
     })
     this.$el.html(this.template());
     this.el.firstElementChild?.addEventListener('animationiteration', () => {
-      // trace(`${T} animationiteration`)
       this.trigger('spinner:sync')
     })
     this.container.$el.append(this.$el[0]);
