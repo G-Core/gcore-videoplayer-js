@@ -7,7 +7,6 @@ import {
   MockedObject,
   vi,
 } from 'vitest'
-import FakeTimers from '@sinonjs/fake-timers'
 import { LogTracer, Logger, setTracer } from '@gcorevideo/utils'
 import { Loader, Player as PlayerClappr } from '@clappr/core'
 import EventLite from 'event-lite'
@@ -15,7 +14,6 @@ import EventLite from 'event-lite'
 import { Player } from '../Player'
 import { TransportPreference } from '../types'
 import { canPlayDash, canPlayHls } from '../playback'
-import { PlaybackErrorCode } from '../playback.types'
 import { isDashSource, isHlsSource } from '../utils/testUtils'
 
 function createMockClapprPlayer(): MockedObject<typeof PlayerClappr> {
@@ -89,10 +87,10 @@ describe('Player', () => {
     describe.each([
       ['dash', true, true, 'http://0eab.cdn.globo.com/1932-1447.mpd'],
       ['dash', false, true, 'http://0eab.cdn.globo.com/1932-1447.m3u8'],
-      ['dash', false, false, undefined],
+      ['dash', false, false, 'http://0eab.cdn.globo.com/1932-1447.m3u8'],
       ['hls', true, true, 'http://0eab.cdn.globo.com/1932-1447.m3u8'],
       ['hls', true, false, 'http://0eab.cdn.globo.com/1932-1447.mpd'],
-      ['hls', false, false, undefined],
+      ['hls', false, false, 'http://0eab.cdn.globo.com/1932-1447.m3u8'],
     ])(
       ' according to the preference (%s) and capabilities (dash=%s, hls=%s)',
       (priority, dash, hls, source: string | undefined) => {

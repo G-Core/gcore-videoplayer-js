@@ -156,12 +156,20 @@ describe('mediaSources', () => {
         ],
         [
           {
+            source: 'http://example.com/video.m3u8',
+            mimeType: 'application/vnd.apple.mpegurl',
+          },
+          {
             source: 'http://example.com/video.mpd',
             mimeType: 'application/dash+xml',
           },
           {
             source: 'http://example.com/video2.mpd',
             mimeType: 'application/dash+xml',
+          },
+          {
+            source: 'http://example.com/video3.m3u8',
+            mimeType: 'application/vnd.apple.mpegurl',
           },
         ],
       ],
@@ -174,9 +182,6 @@ describe('mediaSources', () => {
           vi.mocked(canPlayHls).mockReturnValue(false)
         }
       })
-      // afterEach(() => {
-      //   vi.mocked(canPlayDash)
-      // })
       it('should build the ordered list of available sources', () => {
         const ordered = buildMediaSourcesList(
           sources,

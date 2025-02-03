@@ -41,6 +41,7 @@ export function buildMediaSourcesList(
   priorityTransport: TransportPreference = 'dash',
 ): PlayerMediaSourceDesc[] {
   const [preferred, rest] = sources.reduce(
+    // Always include HLS sources to enable HTML5 fallback
     priorityTransport === 'dash'
       ? (
           acc: [PlayerMediaSourceDesc[], PlayerMediaSourceDesc[]],
@@ -48,7 +49,7 @@ export function buildMediaSourcesList(
         ) => {
           if (canPlayDash(item.source, item.mimeType)) {
             acc[0].push(item)
-          } else {
+          } else if (!isDashSource(item.source, item.mimeType)) {
             acc[1].push(item)
           }
           return acc
@@ -59,7 +60,7 @@ export function buildMediaSourcesList(
         ) => {
           if (canPlayHls(item.source, item.mimeType)) {
             acc[0].push(item)
-          } else {
+          } else if (!(isDashSource(item.source, item.mimeType) && !canPlayDash(item.source, item.mimeType))) {
             acc[1].push(item)
           }
           return acc
