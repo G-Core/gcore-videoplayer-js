@@ -155,7 +155,7 @@ describe('mediaSources', () => {
           },
         ],
         [
-          {
+          { // HLS sources are always included to enable HTML5 fallback
             source: 'http://example.com/video.m3u8',
             mimeType: 'application/vnd.apple.mpegurl',
           },
