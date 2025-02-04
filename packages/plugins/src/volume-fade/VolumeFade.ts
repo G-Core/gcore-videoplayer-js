@@ -1,5 +1,5 @@
 import { UICorePlugin, Events, Browser, $, Container } from '@clappr/core';
-import { reportError } from '@gcorevideo/player';
+import { reportError } from '@gcorevideo/utils';
 
 import { TimerId } from '../types';
 

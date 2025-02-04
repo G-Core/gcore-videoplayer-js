@@ -17,9 +17,12 @@ import {
   template,
   $,
 } from '@clappr/core'
-import { type TimeProgress, reportError, trace } from '@gcorevideo/player'
+import { type TimeProgress } from '@gcorevideo/player'
+import { reportError } from '@gcorevideo/utils';
 
+import { trace } from '@gcorevideo/utils'
 import { Kibo } from '../kibo/index.js'
+
 import { CLAPPR_VERSION } from '../build.js'
 import { ZeptoResult } from '../types'
 import { getPageX, isFullscreen } from '../utils.js'

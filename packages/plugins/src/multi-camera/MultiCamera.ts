@@ -1,5 +1,5 @@
 import { Browser, Core, Events, Playback, template, UICorePlugin } from '@clappr/core';
-import { reportError, trace } from '@gcorevideo/player';
+import { reportError, trace } from '@gcorevideo/utils';
 
 import { CLAPPR_VERSION } from '../build.js';
 

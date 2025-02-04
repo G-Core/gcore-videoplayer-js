@@ -1,6 +1,6 @@
 // import LogManager from '../../utils/LogManager';
 import { $, Container, Core, Events, Log, Playback } from '@clappr/core';
-import { reportError } from '@gcorevideo/player';
+import { reportError } from '@gcorevideo/utils';
 import assert from 'assert';
 
 import type { TimerId, ZeptoResult } from '../types.js';

@@ -7,7 +7,8 @@ import {
   template,
   $,
 } from '@clappr/core'
-import { type TimeValue, reportError } from '@gcorevideo/player'
+import { type TimeValue } from '@gcorevideo/player'
+import { reportError } from '@gcorevideo/utils'
 import assert from 'assert'
 
 import { CLAPPR_VERSION } from '../build.js'

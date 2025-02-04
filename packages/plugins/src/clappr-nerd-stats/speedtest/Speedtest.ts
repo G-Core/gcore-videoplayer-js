@@ -1,4 +1,4 @@
-import { reportError } from '@gcorevideo/player';
+import { reportError } from '@gcorevideo/utils';
 
 import SpeedtestWorkerModule from '../../../assets/clappr-nerd-stats/speedtest/speedtest.worker.js';
 

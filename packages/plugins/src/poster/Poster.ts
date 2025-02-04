@@ -11,7 +11,7 @@ import {
   $,
   Container,
 } from '@clappr/core'
-import { trace } from '@gcorevideo/player'
+import { trace } from '@gcorevideo/utils'
 
 import { CLAPPR_VERSION } from '../build.js'
 import type { ZeptoResult } from '../types.js'
@@ -19,7 +19,7 @@ import type { ZeptoResult } from '../types.js'
 import '../../assets/poster/poster.scss'
 import posterHTML from '../../assets/poster/poster.ejs'
 import playIcon from '../../assets/icons/new/play.svg'
-import { PlaybackError } from '@gcorevideo/player'
+import { PlaybackError, PlaybackErrorCode } from '@gcorevideo/player'
 
 const T = 'plugins.poster_custom'
 

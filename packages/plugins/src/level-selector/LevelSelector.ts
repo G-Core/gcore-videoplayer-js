@@ -1,5 +1,6 @@
 import { Events, template, UICorePlugin } from '@clappr/core';
-import { type QualityLevel, reportError, trace } from '@gcorevideo/player';
+import { type QualityLevel } from '@gcorevideo/player';
+import { reportError, trace } from '@gcorevideo/utils'
 import { CLAPPR_VERSION } from '../build.js';
 import { ZeptoResult } from '../types.js';
 
