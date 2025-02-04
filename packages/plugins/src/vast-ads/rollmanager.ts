@@ -1,5 +1,5 @@
 import { $, Browser, Container, ContainerPlugin, Core, Events, HTML5Video, Log, Playback, UIContainerPlugin, Utils } from '@clappr/core';
-import { reportError } from '@gcorevideo/utils';
+import { reportError } from '@gcorevideo/player';
 import assert from 'assert';
 
 import LoaderXML from './loaderxml.js';

@@ -1,5 +1,5 @@
 import { Events, template, UICorePlugin, Utils } from '@clappr/core';
-import { trace } from '@gcorevideo/utils';
+import { trace } from '@gcorevideo/player';
 
 import { CLAPPR_VERSION } from '../build.js';
 import { ZeptoResult } from "../types.js";

@@ -3,8 +3,7 @@
 // license that can be found in the LICENSE file.
 
 import { Container, Events, UIContainerPlugin, template } from '@clappr/core';
-import { PlaybackError, PlaybackErrorCode } from '@gcorevideo/player';
-import { trace } from '@gcorevideo/utils';
+import { PlaybackError, PlaybackErrorCode, trace } from '@gcorevideo/player';
 
 import spinnerHTML from '../../assets/spinner-three-bounce/spinner.ejs';
 import '../../assets/spinner-three-bounce/spinner.scss';

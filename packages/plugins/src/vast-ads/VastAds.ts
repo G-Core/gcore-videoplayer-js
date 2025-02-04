@@ -1,7 +1,6 @@
 import { $, Browser, Container, Core, Events, HTML5Video, Log, Playback, UIContainerPlugin, UICorePlugin, Utils } from '@clappr/core';
 import assert from 'assert';
-import { TimePosition } from '@gcorevideo/player';
-import { reportError } from '@gcorevideo/utils';
+import { TimePosition, reportError } from '@gcorevideo/player';
 
 import { CLAPPR_VERSION } from '../build.js';
 import { TimerId, ZeptoResult } from '../types.js';

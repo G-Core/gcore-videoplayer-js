@@ -7,8 +7,8 @@ import {
   type PlaybackError,
   PlaybackErrorCode,
   type PlayerMediaSourceDesc,
+  trace,
 } from '@gcorevideo/player'
-import { trace } from '@gcorevideo/utils'
 
 import { CLAPPR_VERSION } from '../build'
 

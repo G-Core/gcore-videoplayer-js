@@ -1,5 +1,5 @@
 import { Browser } from '@clappr/core';
-import { reportError } from '@gcorevideo/utils';
+import { reportError } from '@gcorevideo/player';
 
 export function getLocation(href: string) {
   const l = document.createElement('a');

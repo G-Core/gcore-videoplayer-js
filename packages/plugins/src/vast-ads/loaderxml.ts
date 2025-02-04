@@ -1,5 +1,6 @@
-import { reportError } from '@gcorevideo/utils';
+import { reportError } from '@gcorevideo/player';
 import assert from 'assert';
+
 import URLHandler from './urlhandler.js';
 import MergeVast from './xmlmerge.js';
 import { strtimeToMiliseconds } from '../utils.js';
