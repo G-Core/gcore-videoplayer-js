@@ -4,3 +4,5 @@
 
 - [@gcorevideo/player](./packages/gplayer)
 - [@gcorevideo/plugins](./packages/plugins)
+- [@gcorevideo/utils](./packages/utils)
+
