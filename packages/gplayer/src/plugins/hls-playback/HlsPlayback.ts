@@ -39,7 +39,7 @@ const DEFAULT_RECOVER_ATTEMPTS = 16
 Events.register('PLAYBACK_FRAGMENT_CHANGED')
 Events.register('PLAYBACK_FRAGMENT_PARSING_METADATA')
 
-const T = 'plugins.hls'
+const T = 'playback.hls'
 
 type MediaSegment = {
   start: number

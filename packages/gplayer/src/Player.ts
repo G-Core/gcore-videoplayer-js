@@ -74,6 +74,9 @@ export class Player {
 
   constructor(config: PlayerConfig) {
     this.setConfig(config)
+    // TODO decide whether the order of playback modules might vary,
+    // e.g., for a case of a conflict between dash and hls over the same media source
+    this.configurePlaybacks()
   }
 
   /**
@@ -117,7 +120,6 @@ export class Player {
       Log.setLevel(0)
     }
 
-    this.configurePlaybacks()
     const coreOpts = this.buildCoreOptions(playerElement)
     const { core, container } = Loader.registeredPlugins
     trace(`${T} init`, {
@@ -391,7 +393,8 @@ export class Player {
     const sources = this.buildMediaSourcesList()
     const source = sources[0]
     trace(`${T} buildCoreOptions`, {
-      source
+      source,
+      sources,
     })
 
     this.rootNode = rootNode
@@ -419,7 +422,8 @@ export class Player {
       parent: rootNode,
       playbackType: this.config.playbackType,
       width: rootNode.clientWidth,
-      source: source ? unwrapSource(source) : undefined,
+      source: source ? source.source : undefined,
+      mimeType: source ? source.mimeType : undefined,
       sources, // prevent Clappr from loading all sources simultaneously
       strings: this.config.strings,
     }

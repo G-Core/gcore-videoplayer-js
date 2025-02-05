@@ -3,9 +3,10 @@ import { Loader } from '@clappr/core'
 import DashPlayback from '../plugins/dash-playback/DashPlayback.js'
 import HlsPlayback from '../plugins/hls-playback/HlsPlayback.js'
 
+// TODO consider allowing the variation of the order of playback modules
 export function registerPlaybacks() {
-  Loader.registerPlayback(DashPlayback)
   Loader.registerPlayback(HlsPlayback)
+  Loader.registerPlayback(DashPlayback)
 }
 
 export function canPlayDash(source: string, mimeType?: string) {
