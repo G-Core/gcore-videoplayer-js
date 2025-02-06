@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-This project is maintained by [Gcore](https://gcore.com).
+This project is maintained by [Gcore](https://github.com/g-core/).
 
 ### @gcorevideo/player
 
