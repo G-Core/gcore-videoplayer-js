@@ -33,4 +33,4 @@ Until the stable stage, only the selected versions are to be supported.
 
 ## Reporting a Vulnerability
 
-To report a security issue, please use the GitHub Security Advisory ["Report a Vulnerability"](https://github.com/G-Core/gcore-videoplayer-js/security/advisories/new) tab.
+To report a security issue, please use the GitHub Security Advisory ["Report a Vulnerability TODO"](https://github.com/G-Core/gcore-videoplayer-js/security/advisories/new) tab.
