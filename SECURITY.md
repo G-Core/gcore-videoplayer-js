@@ -33,11 +33,6 @@ Until the stable stage, only the selected versions are to be supported.
 | 0.5.x   | :white_check_mark: |
 | < 0.5.0 | :x:                |
 
-## Reporting a Vulnerability
-
-To report a security issue found in the code, please use the GitHub Security Advisory ["Report a Vulnerability TODO"](https://github.com/G-Core/gcore-videoplayer-js/security/advisories/new) tab. This relates to any security vulnerabilities exploitable via the code of the package used in a project.
-Read also the section below regarding security vulnerabilities found in Gcore-owned systems.
-
 ## Notice on security vulnerabilities found in Gcore-owned systems
 
 Gcore takes the security of our software, systems, and services seriously.
