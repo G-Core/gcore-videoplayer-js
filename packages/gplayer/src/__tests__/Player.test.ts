@@ -14,7 +14,7 @@ import EventLite from 'event-lite'
 import { Player } from '../Player'
 import { TransportPreference } from '../types'
 import { canPlayDash, canPlayHls } from '../playback'
-import { isDashSource, isHlsSource } from '../utils/testUtils'
+import { isDashSource, isHlsSource } from '../utils/mediaSources'
 
 function createMockClapprPlayer(): MockedObject<typeof PlayerClappr> {
   return {

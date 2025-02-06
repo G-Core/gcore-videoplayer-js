@@ -1,7 +1,7 @@
 import { Loader } from '@clappr/core'
 
-import DashPlayback from '../plugins/dash-playback/DashPlayback.js'
-import HlsPlayback from '../plugins/hls-playback/HlsPlayback.js'
+import DashPlayback from './dash-playback/DashPlayback.js'
+import HlsPlayback from './hls-playback/HlsPlayback.js'
 
 // TODO consider allowing the variation of the order of playback modules
 export function registerPlaybacks() {

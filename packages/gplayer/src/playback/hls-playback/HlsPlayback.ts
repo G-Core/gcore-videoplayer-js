@@ -25,9 +25,16 @@ import HLSJS, {
   type LevelSwitchingData,
 } from 'hls.js'
 
-import { PlaybackError, PlaybackErrorCode, QualityLevel, TimePosition, TimeUpdate } from '../../playback.types.js'
-import { PlaybackType } from '../../types'
-import { TimerId } from '../../utils/types'
+import {
+  PlaybackError,
+  PlaybackErrorCode,
+  QualityLevel,
+  TimePosition,
+  TimeUpdate,
+} from '../../playback.types.js'
+import { PlaybackType } from '../../types.js'
+import { isHlsSource } from '../../utils/mediaSources.js'
+import { TimerId } from '../../utils/types.js'
 
 import { CLAPPR_VERSION } from '../../build.js'
 
@@ -636,7 +643,7 @@ export default class HlsPlayback extends HTML5Video {
                   evt,
                   data,
                 })
-                error.code = PlaybackErrorCode.MediaSourceUnavailable;
+                error.code = PlaybackErrorCode.MediaSourceUnavailable
                 this.triggerError(error)
                 break
               default:
@@ -1063,18 +1070,8 @@ export default class HlsPlayback extends HTML5Video {
 }
 
 HlsPlayback.canPlay = function (resource: string, mimeType?: string): boolean {
-  const resourceParts = resource.split('?')[0].match(/.*\.(.*)$/) || []
-  const isHls =
-    (resourceParts.length > 1 && resourceParts[1].toLowerCase() === 'm3u8') ||
-    listContainsIgnoreCase(mimeType, [
-      'application/vnd.apple.mpegurl',
-      'application/x-mpegURL',
-    ])
-  const hasSupport = HLSJS.isSupported()
-  trace(`${T} canPlay`, {
-    hasSupport,
-    isHls,
-    resource,
-  })
-  return !!(hasSupport && isHls)
+  if (!isHlsSource(resource, mimeType)) {
+    return false
+  }
+  return HLSJS.isSupported()
 }

@@ -15,6 +15,7 @@ import DASHJS, {
 } from 'dashjs'
 
 import { PlaybackError, PlaybackErrorCode, QualityLevel, TimePosition, TimeUpdate, TimeValue } from '../../playback.types.js'
+import { isDashSource } from '../../utils/mediaSources.js'
 
 const AUTO = -1
 
@@ -596,20 +597,7 @@ export default class DashPlayback extends HTML5Video {
 }
 
 DashPlayback.canPlay = function (resource, mimeType) {
-  const resourceParts = resource.split('?')[0].match(/.*\.(.*)$/) || []
-  // There is an ambiguity in the mimeType, as 'video/mp4' is playable by dash.js as well as hls.js
-  // and even native html video
-  // Needs investigation and probably a fallback mechanism
-  const isDash =
-    (resourceParts.length > 1 && resourceParts[1].toLowerCase() === 'mpd') ||
-    mimeType === 'application/dash+xml'/*  ||
-    mimeType === 'video/mp4' */
-  trace(`${T} canPlay`, {
-    isDash,
-    resource,
-    mimeType,
-  })
-  if (!isDash) {
+  if (!isDashSource(resource, mimeType)) {
     return false
   }
   const ms = window.MediaSource

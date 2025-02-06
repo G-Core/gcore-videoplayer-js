@@ -39,6 +39,7 @@
     "@types/node": "^22.10.1",
     "@types/sinonjs__fake-timers": "^8.1.5",
     "assert": "^2.1.0",
+    "jsdom": "^26.0.0",
     "nodemon": "^3.1.9",
     "rollup": "^4.27.4",
     "rollup-plugin-polyfill-node": "^0.13.0",

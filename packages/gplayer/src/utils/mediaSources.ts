@@ -89,7 +89,7 @@ function guessMimeType(s: string): string | undefined {
 
 export function isDashSource(source: string, mimeType?: string) {
   if (mimeType) {
-    return mimeType === 'application/dash+xml'
+    return mimeType === 'application/dash+xml' // TODO consider video/mp4
   }
   return source.endsWith('.mpd')
 }
