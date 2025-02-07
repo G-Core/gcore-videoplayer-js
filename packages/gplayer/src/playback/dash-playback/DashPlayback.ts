@@ -411,10 +411,12 @@ export default class DashPlayback extends HTML5Video {
 
     const e = (event as MediaPlayerErrorEvent).error
     switch (e.code) {
+      // TODO test handling of these errors
       case DASHJS.MediaPlayer.errors.MANIFEST_LOADER_PARSING_FAILURE_ERROR_CODE:
       case DASHJS.MediaPlayer.errors.MANIFEST_LOADER_LOADING_FAILURE_ERROR_CODE:
       case DASHJS.MediaPlayer.errors.DOWNLOAD_ERROR_ID_MANIFEST_CODE:
       case DASHJS.MediaPlayer.errors.DOWNLOAD_ERROR_ID_CONTENT_CODE:
+      case DASHJS.MediaPlayer.errors.DOWNLOAD_ERROR_ID_INITIALIZATION_CODE:
         this.triggerError({
           code: PlaybackErrorCode.MediaSourceUnavailable,
           message: e.message,

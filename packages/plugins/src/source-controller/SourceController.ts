@@ -80,7 +80,7 @@ export class SourceController extends CorePlugin {
     this.bindContainerEventListeners()
     if (this.retrying) {
       this.core.activeContainer?.getPlugin('poster_custom')?.disable()
-      this.core.activeContainer?.getPlugin('spinner')?.show()
+      spinner?.show()
     }
   }
 
@@ -92,12 +92,17 @@ export class SourceController extends CorePlugin {
       ClapprEvents.PLAYBACK_ERROR,
       (error: PlaybackError) => {
         trace(`${T} on PLAYBACK_ERROR`, {
-          error: String(error),
+          error: {
+            code: error?.code,
+            description: error?.description,
+            level: error?.level,
+          },
           retrying: this.retrying,
           currentSource: this.sourcesList[this.currentSourceIndex],
         })
         switch (error.code) {
           case PlaybackErrorCode.MediaSourceUnavailable:
+            this.core.activeContainer?.getPlugin('poster_custom')?.disable()
             this.retryPlayback()
             break
           // TODO handle other errors
@@ -117,12 +122,6 @@ export class SourceController extends CorePlugin {
         this.core.activeContainer?.getPlugin('poster_custom')?.enable()
         this.core.activeContainer?.getPlugin('spinner')?.hide()
       }
-    })
-    this.core.activePlayback.on(ClapprEvents.PLAYBACK_STOP, () => {
-      trace(`${T} on PLAYBACK_STOP`, {
-        currentSource: this.sourcesList[this.currentSourceIndex],
-        retrying: this.retrying,
-      })
     })
   }
 

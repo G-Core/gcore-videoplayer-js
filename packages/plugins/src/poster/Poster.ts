@@ -80,20 +80,9 @@ export class Poster extends UIContainerPlugin {
     return this.options.poster?.showOnVideoEnd !== false
   }
 
-  constructor(container: Container) {
-    super(container)
-
-    trace(`${T} constructor`, {
-      container: this.container.name,
-    })
-  }
-
   override bindEvents() {
     this.listenTo(this.container, Events.CONTAINER_STOP, this.onStop)
-    this.listenTo(this.container, Events.CONTAINER_PLAY, () => {
-      trace(`${T} on CONTAINER_PLAY`)
-      this.onPlay()
-    })
+    this.listenTo(this.container, Events.CONTAINER_PLAY, this.onPlay)
     this.listenTo(this.container, Events.CONTAINER_STATE_BUFFERING, this.update)
     this.listenTo(
       this.container,
@@ -105,28 +94,31 @@ export class Poster extends UIContainerPlugin {
     this.showOnVideoEnd &&
       this.listenTo(this.container, Events.CONTAINER_ENDED, this.onStop)
     this.listenTo(this.container, Events.CONTAINER_READY, this.render)
+    this.listenTo(this.container, Events.PLAYBACK_PLAY_INTENT, this.onPlayIntent)
   }
 
   override enable() {
     super.enable()
+    this.hasStartedPlaying = this.container.playback.isPlaying()
     this.update()
+  }
+
+  override disable() {
+    trace(`${T} disable`)
+    this.hasStartedPlaying = false
+    this.playRequested = false
+    super.disable()
   }
 
   private onError(error: PlaybackError) {
     trace(`${T} onError`, {
       error,
-      // id: this.id,
       enabled: this.enabled,
     })
     this.hasFatalError = error.level === PlayerError.Levels.FATAL
 
-    // if (this.options.poster?.showOnError === false) {
-    //   return
-    // }
-
     if (this.hasFatalError) {
       this.hasStartedPlaying = false
-      this.playRequested = !!this.options.autoPlay
       if (!this.playRequested) {
         this.showPlayButton()
       }
@@ -134,11 +126,22 @@ export class Poster extends UIContainerPlugin {
   }
 
   private onPlay() {
+    trace(`${T} onPlay`)
     this.hasStartedPlaying = true
+    this.playRequested = false
+    this.update()
+  }
+
+  private onPlayIntent() {
+    trace(`${T} onPlayIntent`)
+    this.playRequested = true
     this.update()
   }
 
   private onStop() {
+    trace(`${T} onStop`, {
+      enabled: this.enabled,
+    })
     this.hasStartedPlaying = false
     this.playRequested = false
     this.update()

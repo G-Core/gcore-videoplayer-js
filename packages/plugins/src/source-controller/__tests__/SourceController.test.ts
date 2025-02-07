@@ -21,7 +21,6 @@ const MOCK_SOURCES = [
   },
 ]
 
-// TODO
 describe('SourceController', () => {
   let clock: ReturnType<typeof FakeTimers.install>
   beforeEach(() => {
@@ -147,6 +146,59 @@ describe('SourceController', () => {
         expect(core.load).toHaveBeenCalled()
       })
     })
+    describe('after recovery', () => {
+      // TODO
+      let poster: any
+      let spinner: any
+      beforeEach(async () => {
+        core = createMockCore({
+          sources: MOCK_SOURCES,
+        })
+        const _ = new SourceController(core)
+        core.emit('core:ready')
+        core.activePlayback.emit('playback:error', { code: PlaybackErrorCode.MediaSourceUnavailable })
+        await clock.tickAsync(1000)
+        nextPlayback =  new _MockPlayback({} as any, {} as any)
+        core.activePlayback = nextPlayback
+        poster = createMockPlugin()
+        spinner = createSpinnerPlugin()
+        core.activeContainer.getPlugin.mockImplementation((name: string) => {
+          if (name === 'poster_custom') {
+            return poster
+          }
+          if (name === 'spinner') {
+            return spinner
+          }
+        })
+        core.emit('core:ready')
+        nextPlayback.emit('playback:play')
+      })
+      it('should enable the poster', async () => {
+        expect(poster.enable).toHaveBeenCalled()
+      })
+      it('should hide the spinner', async () => {
+        expect(spinner.hide).toHaveBeenCalled()
+      })
+      describe.each([
+        [
+          'buffering',
+          'playback:buffering',
+        ],
+        [
+          'pause',
+          'playback:pause',
+        ],
+      ])('on a following playback:play event due to %s', (_, event) => {
+        it('should do nothing', async () => {
+          nextPlayback.emit(event)
+          await clock.tickAsync(1000)
+          nextPlayback.emit('playback:play')
+          await clock.tickAsync(1000)
+          expect(poster.enable).toHaveBeenCalledTimes(1)
+          expect(spinner.hide).toHaveBeenCalledTimes(1)
+        })
+      })
+    })
   })
 })
 
@@ -165,13 +217,13 @@ function createMockCore(options: Record<string, unknown> = {}) {
 
 function createMockPlugin() {
   return Object.assign(new EventLite(), {
-    enabled: vi.fn(),
+    enable: vi.fn(),
     disable: vi.fn(),
   })
 }
 
 function createSpinnerPlugin() {
-  return Object.assign(new EventLite(), {
+  return Object.assign(createMockPlugin(), {
     show: vi.fn(),
     hide: vi.fn(),
   })

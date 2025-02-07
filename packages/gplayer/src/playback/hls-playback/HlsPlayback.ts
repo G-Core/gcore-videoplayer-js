@@ -636,6 +636,7 @@ export default class HlsPlayback extends HTML5Video {
               // The following network errors cannot be recovered with HLS.startLoad()
               // For more details, see https://github.com/video-dev/hls.js/blob/master/doc/design.md#error-detection-and-handling
               // For "level load" fatal errors, see https://github.com/video-dev/hls.js/issues/1138
+              // TODO test handling of these errors
               case HLSJS.ErrorDetails.MANIFEST_LOAD_ERROR:
               case HLSJS.ErrorDetails.MANIFEST_LOAD_TIMEOUT:
               case HLSJS.ErrorDetails.MANIFEST_PARSING_ERROR:
