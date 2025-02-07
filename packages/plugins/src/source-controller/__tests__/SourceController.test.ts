@@ -88,11 +88,13 @@ describe('SourceController', () => {
       })
       it('should try to play after loading the source in a random delay', async () => {
         await clock.tickAsync(1000)
-        expect(nextPlayback.consent).not.toHaveBeenCalled()
         expect(nextPlayback.play).not.toHaveBeenCalled()
         await clock.tickAsync(500) // TODO check randomness
-        expect(nextPlayback.consent).toHaveBeenCalled()
         expect(nextPlayback.play).toHaveBeenCalled()
+      })
+      it('should not call consent', async () => {
+        await clock.tickAsync(1500)
+        expect(nextPlayback.consent).not.toHaveBeenCalled()
       })
       describe('after reinitializing the core', () => {
         let poster: any

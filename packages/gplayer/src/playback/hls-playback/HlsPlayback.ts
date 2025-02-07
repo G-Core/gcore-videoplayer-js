@@ -511,6 +511,7 @@ export default class HlsPlayback extends HTML5Video {
       this._hls.recoverMediaError()
     } else {
       Log.error('hlsjs: failed to recover', { evt, data })
+      trace(`${T} _recover failed to recover`, { type: data.type, details: data.details })
       error.level = PlayerError.Levels.FATAL
 
       this.triggerError(error)
@@ -526,7 +527,7 @@ export default class HlsPlayback extends HTML5Video {
     }
     this._timeUpdateTimer = setInterval(() => {
       this._onDurationChange()
-      this._onTimeUpdate()
+      // this._onTimeUpdate()
     }, 100)
   }
 
@@ -613,6 +614,7 @@ export default class HlsPlayback extends HTML5Video {
   }
 
   _onHLSJSError(evt: HlsEvents.ERROR, data: HlsErrorData) {
+    trace(`${T} _onHLSJSError`, { fatal: data.fatal, type: data.type, details: data.details })
     const error: PlaybackError = {
       code: PlaybackErrorCode.Generic,
       description: `${this.name} error: type: ${data.type}, details: ${data.details} fatal: ${data.fatal}`,
@@ -639,6 +641,7 @@ export default class HlsPlayback extends HTML5Video {
               case HLSJS.ErrorDetails.MANIFEST_PARSING_ERROR:
               case HLSJS.ErrorDetails.LEVEL_LOAD_ERROR:
               case HLSJS.ErrorDetails.LEVEL_LOAD_TIMEOUT:
+              case HLSJS.ErrorDetails.FRAG_LOAD_ERROR:
                 Log.error('hlsjs: unrecoverable network fatal error.', {
                   evt,
                   data,
@@ -651,6 +654,9 @@ export default class HlsPlayback extends HTML5Video {
                   evt,
                   data,
                 })
+                trace(`${T} _onHLSJSError trying to recover from network error`, {
+                  details: data.details,
+                })
                 error.level = PlayerError.Levels.WARN
                 this._hls?.startLoad()
                 break
@@ -660,6 +666,9 @@ export default class HlsPlayback extends HTML5Video {
             Log.warn('hlsjs: trying to recover from media error.', {
               evt,
               data,
+            })
+            trace(`${T} _onHLSJSError trying to recover from media error`, {
+              details: data.details,
             })
             error.level = PlayerError.Levels.WARN
             this._recover(evt, data, error)
@@ -674,7 +683,6 @@ export default class HlsPlayback extends HTML5Video {
           'hlsjs: could not recover from error after maximum number of attempts.',
           { evt, data },
         )
-        // TODO
         this.triggerError(error)
       }
     } else {
@@ -687,12 +695,14 @@ export default class HlsPlayback extends HTML5Video {
         this._keyIsDenied(data)
       ) {
         Log.error('hlsjs: could not load decrypt key.', { evt, data })
+        error.code = PlaybackErrorCode.MediaSourceAccessDenied
         this.triggerError(error)
 
         return
       }
 
       Log.warn('hlsjs: non-fatal error occurred', { evt, data })
+      trace(`${T} _onHLSJSError non-fatal error occurred`, { type: data.type, details: data.details })
     }
   }
 
@@ -731,7 +741,7 @@ export default class HlsPlayback extends HTML5Video {
       return
     }
     this._lastDuration = duration
-    super._onDurationChange()
+    super._onDurationChange() // will call _onTimeUpdate
   }
 
   _onProgress() {
@@ -781,7 +791,6 @@ export default class HlsPlayback extends HTML5Video {
   }
 
   play() {
-    trace(`${T} play`, { hls: !!this._hls, ...this.options.hlsPlayback })
     !this._hls && this._setup()
     assert.ok(this._hls, 'Hls.js instance is not available')
     !this._manifestParsed &&
@@ -1063,7 +1072,6 @@ export default class HlsPlayback extends HTML5Video {
   }
 
   private triggerError(error: PlaybackError) {
-    trace(`${T} triggerError`, { error })
     this.trigger(Events.PLAYBACK_ERROR, error)
     this.stop()
   }

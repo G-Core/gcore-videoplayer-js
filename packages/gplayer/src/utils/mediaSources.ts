@@ -47,11 +47,13 @@ export function buildMediaSourcesList(
           acc: [PlayerMediaSourceDesc[], PlayerMediaSourceDesc[]],
           item: PlayerMediaSourceDesc,
         ) => {
-          if (canPlayDash(item.source, item.mimeType)) {
-            acc[0].push(item)
-          } else if (!isDashSource(item.source, item.mimeType)) {
-            acc[1].push(item)
+          if (isDashSource(item.source, item.mimeType)) {
+            if (canPlayDash(item.source, item.mimeType)) {
+              acc[0].push(item)
+            }
+            return acc
           }
+          acc[1].push(item)
           return acc
         }
       : (
@@ -60,7 +62,10 @@ export function buildMediaSourcesList(
         ) => {
           if (canPlayHls(item.source, item.mimeType)) {
             acc[0].push(item)
-          } else if (!(isDashSource(item.source, item.mimeType) && !canPlayDash(item.source, item.mimeType))) {
+          } else if (
+            !isDashSource(item.source, item.mimeType) ||
+            canPlayDash(item.source, item.mimeType)
+          ) {
             acc[1].push(item)
           }
           return acc

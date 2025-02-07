@@ -103,8 +103,6 @@ export class BottomGear extends UICorePlugin {
 
     const icon = this.isHd ? gearHdIcon : gearIcon;
 
-    trace(`plugins.BottomGear render`, { items, isHd: this.isHd, mediaControl: !!this.core.mediaControl });
-
     this.$el.html(this.template({ icon, items }));
 
     this.core.mediaControl.$bottomGear?.html(this.el);

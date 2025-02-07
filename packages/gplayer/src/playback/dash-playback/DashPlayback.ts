@@ -308,7 +308,7 @@ export default class DashPlayback extends HTML5Video {
     this._stopTimeUpdateTimer()
     this._timeUpdateTimer = setInterval(() => {
       this._onDurationChange()
-      this._onTimeUpdate()
+      // this._onTimeUpdate()
     }, 100)
   }
 
@@ -472,7 +472,7 @@ export default class DashPlayback extends HTML5Video {
     }
 
     this._lastDuration = duration
-    super._onDurationChange()
+    super._onDurationChange() // will call _onTimeUpdate
   }
 
   get dvrEnabled() {

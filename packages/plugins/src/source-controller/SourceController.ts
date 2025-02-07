@@ -26,7 +26,7 @@ const VERSION = '0.0.1'
 type SyncFn = (cb: () => void) => void
 
 function noSync(cb: () => void) {
-  cb()
+  queueMicrotask(cb)
 }
 
 export class SourceController extends CorePlugin {
@@ -92,8 +92,9 @@ export class SourceController extends CorePlugin {
       ClapprEvents.PLAYBACK_ERROR,
       (error: PlaybackError) => {
         trace(`${T} on PLAYBACK_ERROR`, {
-          error,
+          error: String(error),
           retrying: this.retrying,
+          currentSource: this.sourcesList[this.currentSourceIndex],
         })
         switch (error.code) {
           case PlaybackErrorCode.MediaSourceUnavailable:
@@ -106,11 +107,22 @@ export class SourceController extends CorePlugin {
       },
     )
     this.core.activePlayback.on(ClapprEvents.PLAYBACK_PLAY, () => {
-      trace(`${T} on PLAYBACK_PLAY`)
-      this.reset()
-      // TODO make poster reset its state on enable
-      this.core.activeContainer?.getPlugin('poster_custom')?.enable()
-      this.core.activeContainer?.getPlugin('spinner')?.hide()
+      trace(`${T} on PLAYBACK_PLAY`, {
+        currentSource: this.sourcesList[this.currentSourceIndex],
+        retrying: this.retrying,
+      })
+      if (this.retrying) {
+        this.reset()
+        // TODO make poster reset its state on enable
+        this.core.activeContainer?.getPlugin('poster_custom')?.enable()
+        this.core.activeContainer?.getPlugin('spinner')?.hide()
+      }
+    })
+    this.core.activePlayback.on(ClapprEvents.PLAYBACK_STOP, () => {
+      trace(`${T} on PLAYBACK_STOP`, {
+        currentSource: this.sourcesList[this.currentSourceIndex],
+        retrying: this.retrying,
+      })
     })
   }
 
@@ -122,21 +134,27 @@ export class SourceController extends CorePlugin {
   private retryPlayback() {
     trace(`${T} retryPlayback enter`, {
       currentSourceIndex: this.currentSourceIndex,
+      currentSource: this.sourcesList[this.currentSourceIndex],
+      sourcesList: this.sourcesList,
     })
     this.retrying = true
     this.getNextMediaSource().then((nextSource: PlayerMediaSourceDesc) => {
-      trace(`${T} retryPlayback loading`, {
+      trace(`${T} retryPlayback syncing...`, {
         nextSource,
       })
       const rnd = RETRY_DELAY_BLUR * Math.random()
       this.sync(() => {
+        trace(`${T} retryPlayback loading...`, {
+          nextSource,
+        })
         this.core.load(nextSource.source, nextSource.mimeType)
         trace(`${T} retryPlayback loaded`, {
           nextSource,
         })
         setTimeout(() => {
-          this.core.activePlayback.consent()
+          // this.core.activePlayback.consent()
           this.core.activePlayback.play()
+          trace(`${T} retryPlayback playing`)
         }, rnd)
       })
     })

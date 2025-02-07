@@ -44,7 +44,7 @@ export type QualityLevel = {
 export enum PlaybackErrorCode {
   Generic = 0,
   MediaSourceUnavailable = 1,
-  QualityLevelUnavailable = 2,
+  MediaSourceAccessDenied = 3,
 }
 
 /**

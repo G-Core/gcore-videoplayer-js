@@ -24,7 +24,7 @@ import { trace } from '@gcorevideo/utils'
 import { Kibo } from '../kibo/index.js'
 
 import { CLAPPR_VERSION } from '../build.js'
-import { ZeptoResult } from '../types'
+import { TimerId, ZeptoResult } from '../types'
 import { getPageX, isFullscreen } from '../utils.js'
 
 import '../../assets/media-control/media-control.scss'
@@ -907,11 +907,6 @@ export class MediaControl extends UICorePlugin {
 
   private settingsUpdate() {
     const newSettings = this.getSettings()
-    trace(`${T} settingsUpdate`, {
-      newSettings,
-      currentSettings: this.settings,
-    })
-
     $.extend(true, newSettings, {
       left: [],
       default: [],
