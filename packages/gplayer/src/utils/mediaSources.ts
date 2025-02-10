@@ -44,7 +44,8 @@ function guessMimeType(s: string): string | undefined {
     return 'application/dash+xml'
   }
   if (s.endsWith('.m3u8')) {
-    return 'application/vnd.apple.mpegurl'
+    // return 'application/vnd.apple.mpegurl'
+    return 'application/x-mpegurl'
   }
 }
 

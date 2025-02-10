@@ -195,7 +195,7 @@ describe('mediaSources', () => {
         ],
         ],
       ],
-    ])('prefer %s, dash=%s,hls=%s', (preference, dash, hls, sources, expected) => {
+    )('prefer %s, dash=%s,hls=%s', (preference, dash, hls, sources, expected) => {
       beforeEach(() => {
         if (!dash) {
           Loader.registeredPlaybacks[0]._supported = false
