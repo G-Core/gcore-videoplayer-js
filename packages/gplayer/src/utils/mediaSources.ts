@@ -1,75 +1,31 @@
+import { Loader } from '@clappr/core'
+
 import type {
   PlayerMediaSource,
   PlayerMediaSourceDesc,
   TransportPreference,
 } from '../types'
-import { canPlayDash, canPlayHls } from '../playback/index.js'
 
-export type SourceVariants = {
-  dash: PlayerMediaSourceDesc | null
-  hls: PlayerMediaSourceDesc | null
-  mpegts: PlayerMediaSourceDesc | null
-}
-
-/**
- *
- * @param sources
- * @deprecated
- * @returns
- */
-export function buildSourcesSet(sources: PlayerMediaSource[]): SourceVariants {
-  const sv: SourceVariants = {
-    dash: null,
-    hls: null,
-    mpegts: null,
-  }
-  sources.forEach((ps) => {
-    const ws = wrapSource(ps)
-    if (canPlayDash(ws.source, ws.mimeType)) {
-      sv.dash = ws
-    } else if (canPlayHls(ws.source, ws.mimeType)) {
-      sv.hls = ws
-    } else {
-      sv.mpegts = ws
-    }
-  })
-  return sv
-}
-
+// TODO rewrite using the Playback classes and canPlay static methods
 export function buildMediaSourcesList(
   sources: PlayerMediaSourceDesc[],
   priorityTransport: TransportPreference = 'dash',
 ): PlayerMediaSourceDesc[] {
+  const playbacks = Loader.registeredPlaybacks
   const [preferred, rest] = sources.reduce(
-    // Always include HLS sources to enable HTML5 fallback
-    priorityTransport === 'dash'
-      ? (
-          acc: [PlayerMediaSourceDesc[], PlayerMediaSourceDesc[]],
-          item: PlayerMediaSourceDesc,
-        ) => {
-          if (isDashSource(item.source, item.mimeType)) {
-            if (canPlayDash(item.source, item.mimeType)) {
-              acc[0].push(item)
-            }
-            return acc
+    ([preferred, rest]: [PlayerMediaSourceDesc[], PlayerMediaSourceDesc[]], item: PlayerMediaSourceDesc): [PlayerMediaSourceDesc[], PlayerMediaSourceDesc[]] => {
+      for (const p of playbacks) {
+        if (p.canPlay(item.source, item.mimeType)) {
+          if (p.name === priorityTransport) {
+            preferred.push(item)
+          } else {
+            rest.push(item)
           }
-          acc[1].push(item)
-          return acc
+          break
         }
-      : (
-          acc: [PlayerMediaSourceDesc[], PlayerMediaSourceDesc[]],
-          item: PlayerMediaSourceDesc,
-        ) => {
-          if (canPlayHls(item.source, item.mimeType)) {
-            acc[0].push(item)
-          } else if (
-            !isDashSource(item.source, item.mimeType) ||
-            canPlayDash(item.source, item.mimeType)
-          ) {
-            acc[1].push(item)
-          }
-          return acc
-        },
+      }
+      return [preferred, rest]
+    },
     [[], []],
   )
   return preferred.concat(rest)

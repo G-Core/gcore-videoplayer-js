@@ -7,7 +7,7 @@ import {
   MockedObject,
   vi,
 } from 'vitest'
-import { LogTracer, Logger, setTracer } from '@gcorevideo/utils'
+import { LogTracer, setTracer } from '@gcorevideo/utils'
 import { Loader, Player as PlayerClappr } from '@clappr/core'
 import EventLite from 'event-lite'
 
@@ -32,6 +32,27 @@ function createMockClapprPlayer(): MockedObject<typeof PlayerClappr> {
 }
 vi.mock('@clappr/core', async () => {
   const imported = await import('@clappr/core')
+  const MockDashPlayback = {
+    _supported: true,
+    name: 'dash',
+    canPlay(source, mimeType) {
+      return this._supported && (mimeType === 'application/dash+xml' || source.endsWith('.mpd'))
+    },
+  }
+  const MockHlsPlayback = {
+    _supported: true,
+    name: 'hls',
+    canPlay(source, mimeType) {
+      return this._supported && (['application/vnd.apple.mpegurl', 'application/x-mpegurl'].includes(mimeType) || source.endsWith('.m3u8'))
+    },
+  }
+  const MockHTML5VideoPlayback = {
+    _supported: true,
+    name: 'html5_video',
+    canPlay(source, mimeType) {
+      return this._supported && ['video/mp4', 'application/vnd.apple.mpegurl'].includes(mimeType)
+    },
+  }
   return {
     $: {
       extend: vi.fn().mockImplementation((v, ...objs) => {
@@ -47,7 +68,7 @@ vi.mock('@clappr/core', async () => {
     Events: imported.Events,
     Loader: {
       registerPlugin: vi.fn(),
-      registeredPlaybacks: [],
+      registeredPlaybacks: [MockDashPlayback, MockHlsPlayback, MockHTML5VideoPlayback],
       registeredPlugins: { core: [], container: [] },
       unregisterPlugin: vi.fn(),
     },
@@ -76,13 +97,6 @@ beforeEach(() => {
 })
 
 describe('Player', () => {
-  beforeEach(() => {
-    vi.mocked(Loader).registeredPlaybacks = [
-      new MockDashPlayback({} as any, {} as any),
-      new MockHlsPlayback({} as any, {} as any),
-      new MockHTML5VideoPlayback({} as any, {} as any),
-    ]
-  })
   describe('selecting media source', () => {
     describe.each([
       ['dash', true, true, 'http://0eab.cdn.globo.com/1932-1447.mpd'],
@@ -96,10 +110,10 @@ describe('Player', () => {
       (priority, dash, hls, source: string | undefined) => {
         beforeEach(() => {
           if (dash === false) {
-            vi.mocked(canPlayDash).mockReturnValue(false)
+            Loader.registeredPlaybacks[0]._supported = false
           }
           if (hls === false) {
-            vi.mocked(canPlayHls).mockReturnValue(false)
+            Loader.registeredPlaybacks[1]._supported = false
           }
           const player = new Player({
             priorityTransport: priority as TransportPreference | undefined,
@@ -111,7 +125,7 @@ describe('Player', () => {
               },
               {
                 source: 'http://0eab.cdn.globo.com/1932-1447_mpegts.m3u8',
-                mimeType: 'application/mpegts',
+                mimeType: 'application/vnd.apple.mpegurl',
               },
             ],
           })
@@ -119,12 +133,8 @@ describe('Player', () => {
           player.attachTo(node)
         })
         afterEach(() => {
-          vi.mocked(canPlayDash).mockImplementation((source, mimeType) =>
-            isDashSource(source, mimeType),
-          )
-          vi.mocked(canPlayHls).mockImplementation((source, mimeType) =>
-            isHlsSource(source, mimeType),
-          )
+          Loader.registeredPlaybacks[0]._supported = true
+          Loader.registeredPlaybacks[1]._supported = true
         })
         it('should select the first supported available source', () => {
           expect(PlayerClappr).toHaveBeenCalledWith(
@@ -211,23 +221,5 @@ class MockPlayback extends EventLite {
 
   trigger(event: string, ...args: any[]) {
     this.emit(event, ...args)
-  }
-}
-
-class MockDashPlayback extends MockPlayback {
-  get name() {
-    return 'dash'
-  }
-}
-
-class MockHlsPlayback extends MockPlayback {
-  get name() {
-    return 'hls'
-  }
-}
-
-class MockHTML5VideoPlayback extends MockPlayback {
-  get name() {
-    return 'html5_video'
   }
 }

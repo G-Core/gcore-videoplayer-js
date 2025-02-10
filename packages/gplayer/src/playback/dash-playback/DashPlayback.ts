@@ -409,6 +409,8 @@ export default class DashPlayback extends HTML5Video {
     trace(`${T} _onDASHJSSError`, { event })
     this._stopTimeUpdateTimer()
 
+
+    // Note that the other error types are deprecated
     const e = (event as MediaPlayerErrorEvent).error
     switch (e.code) {
       // TODO test handling of these errors
@@ -417,6 +419,12 @@ export default class DashPlayback extends HTML5Video {
       case DASHJS.MediaPlayer.errors.DOWNLOAD_ERROR_ID_MANIFEST_CODE:
       case DASHJS.MediaPlayer.errors.DOWNLOAD_ERROR_ID_CONTENT_CODE:
       case DASHJS.MediaPlayer.errors.DOWNLOAD_ERROR_ID_INITIALIZATION_CODE:
+        // TODO these probably indicate a broken manifest and should be treated by removing the source
+      case DASHJS.MediaPlayer.errors.MANIFEST_ERROR_ID_NOSTREAMS_CODE:
+      case DASHJS.MediaPlayer.errors.MANIFEST_ERROR_ID_PARSE_CODE:
+      case DASHJS.MediaPlayer.errors.MANIFEST_ERROR_ID_MULTIPLEXED_CODE:
+      case DASHJS.MediaPlayer.errors.MEDIASOURCE_TYPE_UNSUPPORTED_CODE:
+      case DASHJS.MediaPlayer.errors.SEGMENT_BASE_LOADER_ERROR_CODE:
         this.triggerError({
           code: PlaybackErrorCode.MediaSourceUnavailable,
           message: e.message,

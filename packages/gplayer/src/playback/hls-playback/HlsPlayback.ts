@@ -640,9 +640,11 @@ export default class HlsPlayback extends HTML5Video {
               case HLSJS.ErrorDetails.MANIFEST_LOAD_ERROR:
               case HLSJS.ErrorDetails.MANIFEST_LOAD_TIMEOUT:
               case HLSJS.ErrorDetails.MANIFEST_PARSING_ERROR:
+              // TODO sort out the errors below, perhaps some of them are recoverable
               case HLSJS.ErrorDetails.LEVEL_LOAD_ERROR:
               case HLSJS.ErrorDetails.LEVEL_LOAD_TIMEOUT:
               case HLSJS.ErrorDetails.FRAG_LOAD_ERROR:
+              case HLSJS.ErrorDetails.FRAG_LOAD_TIMEOUT:
                 Log.error('hlsjs: unrecoverable network fatal error.', {
                   evt,
                   data,

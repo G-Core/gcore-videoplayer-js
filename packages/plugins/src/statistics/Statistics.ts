@@ -30,6 +30,7 @@ export type PluginSettings = {
 
 type StatisticsEvent = 'init' | 'start' | 'watch' | 'heatmap'
 
+// TODO rewrite as core plugin
 export class Statistics extends ContainerPlugin {
   get name() {
     return 'statistics_gplayer'
