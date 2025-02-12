@@ -4,12 +4,21 @@
 
 ## SourceController class
 
+> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
+> 
+
+This plugin is responsible for managing the automatic failover between sources.
+
 **Signature:**
 
 ```typescript
 export declare class SourceController extends CorePlugin 
 ```
 **Extends:** CorePlugin
+
+## Remarks
+
+Have a look at the \[source failover diagram\](https://miro.com/app/board/uXjVLiN15tY=/?share\_link\_id=390327585787) for the details on how sources ordering and selection works. This plugin does not expose any public methods apart from required by the Clappr plugin interface. It is supposed to work autonomously.
 
 ## Constructors
 
@@ -39,7 +48,7 @@ Description
 
 </td><td>
 
-Constructs a new instance of the `SourceController` class
+**_(BETA)_** Constructs a new instance of the `SourceController` class
 
 
 </td></tr>
@@ -85,6 +94,8 @@ string
 
 </td><td>
 
+**_(BETA)_**
+
 
 </td></tr>
 <tr><td>
@@ -103,6 +114,8 @@ string
 
 
 </td><td>
+
+**_(BETA)_**
 
 
 </td></tr>
@@ -124,6 +137,8 @@ string
 
 
 </td><td>
+
+**_(BETA)_**
 
 
 </td></tr>
@@ -156,6 +171,8 @@ Description
 
 
 </td><td>
+
+**_(BETA)_**
 
 
 </td></tr>

@@ -11,40 +11,6 @@ export declare class Poster extends UIContainerPlugin
 ```
 **Extends:** UIContainerPlugin
 
-## Constructors
-
-<table><thead><tr><th>
-
-Constructor
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>
-
-[(constructor)(container)](./player-plugins.poster._constructor_.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Constructs a new instance of the `Poster` class
-
-
-</td></tr>
-</tbody></table>
-
 ## Properties
 
 <table><thead><tr><th>
@@ -236,6 +202,18 @@ Description
 <tr><td>
 
 [destroy()](./player-plugins.poster.destroy.md)
+
+
+</td><td>
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[disable()](./player-plugins.poster.disable.md)
 
 
 </td><td>

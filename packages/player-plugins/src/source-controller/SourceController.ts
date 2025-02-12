@@ -1,6 +1,5 @@
 import {
   Events as ClapprEvents,
-  Container,
   CorePlugin,
   type Core as ClapprCore,
 } from '@clappr/core'
@@ -29,7 +28,54 @@ function noSync(cb: () => void) {
   queueMicrotask(cb)
 }
 
+/**
+ * This plugin is responsible for managing the automatic failover between sources.
+ * @beta
+ * @remarks
+ * Have a look at the [source failover diagram](https://miro.com/app/board/uXjVLiN15tY=/?share_link_id=390327585787) for the details
+ * on how sources ordering and selection works.
+ * This plugin does not expose any public methods apart from required by the Clappr plugin interface.
+ * It is supposed to work autonomously.
+ */
 export class SourceController extends CorePlugin {
+  /**
+   * The Logic itself is quite simple:
+   * * Here is the short diagram:
+   *
+   * sources_list:  
+   *       - a.mpd  |    +--------------------+
+   *       - b.m3u8 |--->|         init       |
+   *       - ...    |    |--------------------|
+   *                     | current_source = 0 |
+   *                     +--------------------+
+   *                            |
+   *                            |  source = a.mpd
+   *                            |  playback = dash.js
+   *                            v
+   *                      +------------------+
+   *                  +-->|   load source    |
+   *                  |   +---------|--------+
+   *                  |             v
+   *                  |   +------------------+
+   *                  |   |       play       |
+   *                  |   +---------|--------+
+   *                  |             |
+   *                  |             v
+   *                  |   +-----------------------+
+   *                  |   |  on playback_error    |
+   *                  |   |-----------------------|
+   *                  |   | current_source =      |
+   *                  |   |  (current_source + 1) |
+   *                  |   |  % len sources_list   |
+   *                  |   |                       |
+   *                  |   | delay 1..3s           |
+   *                  |   +---------------|-------+
+   *                  |                   |
+   *                  |   source=b.m3u8   |
+   *                  |   playback=hls.js |
+   *                  +-------------------+
+   *
+   */
   private sourcesList: PlayerMediaSourceDesc[] = []
 
   private currentSourceIndex = 0
@@ -45,7 +91,7 @@ export class SourceController extends CorePlugin {
   }
 
   get supportedVersion() {
-    return { min: CLAPPR_VERSION };
+    return { min: CLAPPR_VERSION }
   }
 
   constructor(core: ClapprCore) {
@@ -167,7 +213,8 @@ export class SourceController extends CorePlugin {
       )
       this.currentSourceIndex =
         (this.currentSourceIndex + 1) % this.sourcesList.length
-      const delay = this.sourcesDelay[this.currentSourceIndex] || INITIAL_RETRY_DELAY
+      const delay =
+        this.sourcesDelay[this.currentSourceIndex] || INITIAL_RETRY_DELAY
       const s = this.sourcesList[this.currentSourceIndex]
       setTimeout(() => resolve(s), delay)
     })

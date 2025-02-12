@@ -4,7 +4,7 @@
 
 ## player-plugins package
 
- @<!-- -->gcorevideo/player-plugins
+A collection of plugins for the Gcore video player
 
 ## Classes
 
@@ -241,6 +241,8 @@ Description
 
 
 </td><td>
+
+**_(BETA)_** This plugin is responsible for managing the automatic failover between sources.
 
 
 </td></tr>

@@ -24,7 +24,7 @@ Description
 
 </td><td>
 
- @<!-- -->gcorevideo/player-plugins
+A collection of plugins for the Gcore video player
 
 
 </td></tr>

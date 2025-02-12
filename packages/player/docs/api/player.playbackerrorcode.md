@@ -50,12 +50,12 @@ Generic
 </td></tr>
 <tr><td>
 
-MediaSourceUnavailable
+MediaSourceAccessDenied
 
 
 </td><td>
 
-`1`
+`3`
 
 
 </td><td>
@@ -66,12 +66,12 @@ MediaSourceUnavailable
 </td></tr>
 <tr><td>
 
-QualityLevelUnavailable
+MediaSourceUnavailable
 
 
 </td><td>
 
-`2`
+`1`
 
 
 </td><td>
