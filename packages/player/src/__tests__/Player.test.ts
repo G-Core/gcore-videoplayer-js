@@ -34,21 +34,27 @@ vi.mock('@clappr/core', async () => {
   const imported = await import('@clappr/core')
   const MockDashPlayback = {
     _supported: true,
-    name: 'dash',
+    prototype: {
+      name: 'dash',
+    },
     canPlay(source, mimeType) {
       return this._supported && (mimeType === 'application/dash+xml' || source.endsWith('.mpd'))
     },
   }
   const MockHlsPlayback = {
     _supported: true,
-    name: 'hls',
+    prototype: {
+      name: 'hls',
+    },
     canPlay(source, mimeType) {
       return this._supported && (['application/vnd.apple.mpegurl', 'application/x-mpegurl'].includes(mimeType) || source.endsWith('.m3u8'))
     },
   }
   const MockHTML5VideoPlayback = {
     _supported: true,
-    name: 'html5_video',
+    prototype: {
+      name: 'html5_video',
+    },
     canPlay(source, mimeType) {
       return this._supported && ['video/mp4', 'application/vnd.apple.mpegurl'].includes(mimeType)
     },

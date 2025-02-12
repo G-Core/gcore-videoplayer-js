@@ -10,21 +10,27 @@ vi.mock('@clappr/core', () => ({
     registeredPlaybacks: [
       {
         _supported: true,
+        prototype: {
         name: 'dash',
+        },
         canPlay(source, mimeType) {
           return this._supported && (mimeType === 'application/dash+xml' || source.endsWith('.mpd'))
         },
       },
       {
         _supported: true,
-        name: 'hls',
+        prototype: {
+          name: 'hls',
+        },
         canPlay(source, mimeType) {
           return this._supported && (['application/vnd.apple.mpegurl', 'application/x-mpegurl'].includes(mimeType) || source.endsWith('.m3u8'))
         },
       },
       {
         _supported: true,
-        name: 'html5_video',
+        prototype: {
+          name: 'html5_video',
+        },
         canPlay: function (source, mimeType) {
           return this._supported && mimeType === 'video/mp4'
         },

@@ -9,8 +9,8 @@ import { Logger } from "../Logger.js";
 export class LogTracer implements Tracer {
   private logger: Logger;
 
-  constructor(ns = "") {
-    this.logger = new Logger(ns);
+  constructor(appName = "") {
+    this.logger = new Logger(appName);
   }
 
   reportError(e: Error) {
@@ -21,20 +21,3 @@ export class LogTracer implements Tracer {
     this.logger.debug(msg, data);
   }
 }
-
-// export class LogTracer implements Tracer {
-//   private tags: Record<string, TagValue> = {};
-
-//   reportError(e: Error) {
-//     logger.error(e, this.tags);
-//   }
-
-//   setTag(name: string, value: TagValue) {
-//     this.tags[name] = value;
-//   }
-
-//   trace(msg: string, data?: Record<string, unknown>) {
-//     const fullData = Object.assign({}, this.tags, data);
-//     logger.debug(msg, fullData);
-//   }
-// }

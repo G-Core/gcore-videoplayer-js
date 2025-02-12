@@ -3,7 +3,7 @@ on:
     inputs:
       package:
         type: string
-        description: The package to check (gplayer, plugins)
+        description: The package to check (player, player-plugins, utils)
         required: true
 
 jobs:

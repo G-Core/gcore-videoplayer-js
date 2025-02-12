@@ -1,4 +1,4 @@
-const APP_NAME = "gplayer";
+const APP_NAME = "_";
 
 /**
  * @beta
@@ -58,7 +58,7 @@ export class Logger {
 
   private static items: DebuggerWrapper[] = [];
 
-  constructor(namespace: string, appName = APP_NAME) {
+  constructor(appName = APP_NAME, namespace = "") {
     const ns = namespace ? `:${namespace}` : "";
 
     const info = new DebuggerWrapper(console.info.bind(console), `${appName}:INFO${ns}`, pass(namespace));

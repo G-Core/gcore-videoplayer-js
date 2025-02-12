@@ -19,7 +19,6 @@ import type { PlayerMediaSourceDesc, PlayerPlugin } from './types.js'
 import { PlayerConfig, PlayerEvent } from './types.js'
 import {
   buildMediaSourcesList,
-  unwrapSource,
   wrapSource,
 } from './utils/mediaSources.js'
 import { registerPlaybacks } from './playback/index.js'

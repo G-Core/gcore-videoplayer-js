@@ -36,7 +36,7 @@ export class SourceController extends CorePlugin {
 
   private sourcesDelay: Record<string, number> = {}
 
-  private retrying = false
+  private active = false
 
   private sync: SyncFn = noSync
 
@@ -67,7 +67,7 @@ export class SourceController extends CorePlugin {
 
   private onReady() {
     trace(`${T} onReady`, {
-      retrying: this.retrying,
+      retrying: this.active,
     })
     const spinner = this.core.activeContainer?.getPlugin('spinner')
     if (spinner) {
@@ -78,7 +78,7 @@ export class SourceController extends CorePlugin {
       this.sync = noSync
     }
     this.bindContainerEventListeners()
-    if (this.retrying) {
+    if (this.active) {
       this.core.activeContainer?.getPlugin('poster_custom')?.disable()
       spinner?.show()
     }
@@ -97,7 +97,7 @@ export class SourceController extends CorePlugin {
             description: error?.description,
             level: error?.level,
           },
-          retrying: this.retrying,
+          retrying: this.active,
           currentSource: this.sourcesList[this.currentSourceIndex],
         })
         switch (error.code) {
@@ -114,9 +114,9 @@ export class SourceController extends CorePlugin {
     this.core.activePlayback.on(ClapprEvents.PLAYBACK_PLAY, () => {
       trace(`${T} on PLAYBACK_PLAY`, {
         currentSource: this.sourcesList[this.currentSourceIndex],
-        retrying: this.retrying,
+        retrying: this.active,
       })
-      if (this.retrying) {
+      if (this.active) {
         this.reset()
         // TODO make poster reset its state on enable
         this.core.activeContainer?.getPlugin('poster_custom')?.enable()
@@ -126,7 +126,7 @@ export class SourceController extends CorePlugin {
   }
 
   private reset() {
-    this.retrying = false
+    this.active = false
     this.sourcesDelay = {}
   }
 
@@ -136,7 +136,7 @@ export class SourceController extends CorePlugin {
       currentSource: this.sourcesList[this.currentSourceIndex],
       sourcesList: this.sourcesList,
     })
-    this.retrying = true
+    this.active = true
     this.getNextMediaSource().then((nextSource: PlayerMediaSourceDesc) => {
       trace(`${T} retryPlayback syncing...`, {
         nextSource,

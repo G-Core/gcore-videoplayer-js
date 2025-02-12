@@ -2,7 +2,7 @@
 
 ## Packages
 
-- [@gcorevideo/player](./packages/gplayer)
-- [@gcorevideo/plugins](./packages/plugins)
+- [@gcorevideo/player](./packages/player)
+- [@gcorevideo/player-plugins](./packages/player-plugins)
 - [@gcorevideo/utils](./packages/utils)
 

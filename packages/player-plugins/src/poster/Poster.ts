@@ -19,7 +19,7 @@ import type { ZeptoResult } from '../types.js'
 import '../../assets/poster/poster.scss'
 import posterHTML from '../../assets/poster/poster.ejs'
 import playIcon from '../../assets/icons/new/play.svg'
-import { PlaybackError, PlaybackErrorCode } from '@gcorevideo/player'
+import { PlaybackError } from '@gcorevideo/player'
 
 const T = 'plugins.poster_custom'
 

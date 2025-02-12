@@ -8,7 +8,7 @@ export default [
   {
     input: 'lib/index.js',
     plugins: [
-      resolve(),
+      resolve(), // TODO check which aren't inlined in the bundle and put them here
       commonjs(),
       json(),
       polyfillNode(),
