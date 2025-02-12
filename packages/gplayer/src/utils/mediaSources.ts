@@ -5,6 +5,7 @@ import type {
   PlayerMediaSourceDesc,
   TransportPreference,
 } from '../types'
+import { trace } from '@gcorevideo/utils'
 
 // TODO rewrite using the Playback classes and canPlay static methods
 export function buildMediaSourcesList(
@@ -12,11 +13,28 @@ export function buildMediaSourcesList(
   priorityTransport: TransportPreference = 'dash',
 ): PlayerMediaSourceDesc[] {
   const playbacks = Loader.registeredPlaybacks
+  for (const p of playbacks) {
+    trace(`buildMediaSourcesList registered playback`, {
+      name: p.prototype.name,
+    })
+  }
   const [preferred, rest] = sources.reduce(
     ([preferred, rest]: [PlayerMediaSourceDesc[], PlayerMediaSourceDesc[]], item: PlayerMediaSourceDesc): [PlayerMediaSourceDesc[], PlayerMediaSourceDesc[]] => {
       for (const p of playbacks) {
-        if (p.canPlay(item.source, item.mimeType)) {
-          if (p.name === priorityTransport) {
+        if ([
+          'html5_audio', 'html_img', 'no_op'
+        ].includes(p.prototype.name)) {
+          continue
+        }
+        const canPlay = p.canPlay(item.source, item.mimeType)
+        trace(`buildMediaSourcesList`, {
+          canPlay,
+          playback: p.prototype.name,
+          source: item.source,
+          mimeType: item.mimeType,
+        })
+        if (canPlay) {
+          if (p.prototype.name === priorityTransport) {
             preferred.push(item)
           } else {
             rest.push(item)
