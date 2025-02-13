@@ -54,3 +54,29 @@ DOM element to host the player
 
 void
 
+## Remarks
+
+The player will be initialized and attached to the given element.
+
+All the core plugins will be initialized at this point.
+
+If no sources were configured, it will trigger an error.
+
+The player container will be initialized and then all the registered UI plugins.
+
+If the `autoPlay` option is set, then it will trigger playback immediately.
+
+It is an error to call this method twice. If you need to attache player to another DOM element, first call [Player.destroy()](./player.player.destroy.md) and then [Player.attachTo()](./player.player.attachto.md)<!-- -->.
+
+## Example
+
+
+```ts
+const player = new Player({
+  sources: [{ source: 'https://example.com/a.mpd', mimeType: 'application/dash+xml' }],
+})
+document.addEventListener('DOMContentLoaded', () => {
+  player.attachTo(document.getElementById('video-container'))
+})
+```
+

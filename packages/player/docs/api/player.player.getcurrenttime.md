@@ -7,7 +7,7 @@
 > This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
 > 
 
-Current playback time in seconds, if appropriate.
+Current playback (time since the beginning of the stream), if appropriate.
 
 **Signature:**
 
@@ -18,5 +18,9 @@ getCurrentTime(): number;
 
 number
 
-For live streams, it returns the current time of the current segment.
+Time in seconds
+
+## Remarks
+
+For live streams, it returns the current time within the current segment.
 

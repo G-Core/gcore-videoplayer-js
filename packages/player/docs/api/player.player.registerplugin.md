@@ -45,7 +45,7 @@ plugin
 
 </td><td>
 
-plugin to register
+a plugin class
 
 
 </td></tr>
@@ -53,4 +53,17 @@ plugin to register
 **Returns:**
 
 void
+
+## Remarks
+
+Use this method to extend the player with custom behavior. The plugin class must inherit from one of the Clappr UIPlugin, UIContainerPlugin or CorePlugin classes. A core plugin will be initialized and attached to the player when the player is initialized. A UI plugin will be initialized and attached to the player container is initialized.
+
+## Example
+
+
+```ts
+import MyPlugin from './MyPlugin.js'
+
+Player.registerPlugin(MyPlugin)
+```
 

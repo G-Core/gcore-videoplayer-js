@@ -88,7 +88,7 @@ export class Player {
   }
 
   /**
-   * Removes a listener from a player event
+   * Removes a previously added event listener
    * @param event - See {@link PlayerEvent}
    * @param handler - See {@link PlayerEventHandler}
    */
@@ -99,10 +99,12 @@ export class Player {
   /**
    * Configures the player.
    *
-   * Can be called multiple times. Each consequent call extends the previous configuration.
-   * After a reconfiguration, if something significant has changed, the must be reinitialized (i.e, a `.destroy()` followed by an `.init()` call).
-   *
    * @param config - complete or partial configuration
+   * @remarks
+   * Can be called multiple times.
+   * Each consequent call extends the previous configuration with only the new keys overridden.
+   *
+   * After a reconfiguration, if something significant has changed, it might make sense reinitialize the player (i.e, a `.destroy()` followed by an `.init()` call).
    */
   configure(config: Partial<PlayerConfig>) {
     this.setConfig(config)
@@ -111,6 +113,29 @@ export class Player {
   /**
    * Initializes the player at the given container element.
    * @param playerElement - DOM element to host the player
+   * @remarks
+   * The player will be initialized and attached to the given element.
+   *
+   * All the core plugins will be initialized at this point.
+   *
+   * If no sources were configured, it will trigger an error.
+   *
+   * The player container will be initialized and then all the registered UI plugins.
+   *
+   * If the `autoPlay` option is set, then it will trigger playback immediately.
+   *
+   * It is an error to call this method twice. If you need to attache player to another DOM element,
+   * first call {@link Player.destroy} and then {@link Player.attachTo}.
+   *
+   * @example
+   * ```ts
+   * const player = new Player({
+   *   sources: [{ source: 'https://example.com/a.mpd', mimeType: 'application/dash+xml' }],
+   * })
+   * document.addEventListener('DOMContentLoaded', () => {
+   *   player.attachTo(document.getElementById('video-container'))
+   * })
+   * ```
    */
   attachTo(playerElement: HTMLElement): void {
     assert.ok(!this.player, 'Player already initialized')
@@ -133,7 +158,7 @@ export class Player {
   }
 
   /**
-   * Destroys the player, releasing all resources and removing any DOM elements added.
+   * Destroys the player, releasing all resources and unmounting its UI from the DOM.
    */
   destroy() {
     trace(`${T} destroy`, {
@@ -152,8 +177,11 @@ export class Player {
   }
 
   /**
-   * Current playback time in seconds, if appropriate.
-   * @returns For live streams, it returns the current time of the current segment.
+   * Current playback (time since the beginning of the stream), if appropriate.
+   *
+   * @returns Time in seconds
+   * @remarks
+   * For live streams, it returns the current time within the current segment.
    */
   getCurrentTime(): number {
     if (!this.player) {
@@ -164,7 +192,10 @@ export class Player {
 
   /**
    * Duration of the current media in seconds, if appropriate.
-   * @returns For live streams, it returns the duration of the current segment.
+   *
+   * @returns Time in seconds
+   * @remarks
+   * For live streams, it returns the duration of the current segment.
    */
   getDuration(): number {
     if (!this.player) {
@@ -174,14 +205,28 @@ export class Player {
   }
 
   /**
-   * Mutes the player.
+   * Indicates whether DVR is enabled.
+   */
+  isDvrEnabled(): boolean {
+    return this.player?.isDvrEnabled() ?? false
+  }
+
+  /**
+   * Indicates the playing state of the player.
+   */
+  isPlaying(): boolean {
+    return this.player?.isPlaying() ?? false
+  }
+
+  /**
+   * Mutes the sound of the video.
    */
   mute() {
     this.player?.mute()
   }
 
   /**
-   * Unmutes the player.
+   * Unmutes the video sound.
    */
   unmute() {
     this.player?.unmute()
@@ -204,6 +249,9 @@ export class Player {
   /**
    * Resizes the player container element and everything within it.
    * @param newSize - new size of the player
+   * @remarks
+   * Use this method when the player itself does not detect the change in size of its container element.
+   * It can be a case for orientation change on some mobile devices.
    */
   resize(newSize: { width: number; height: number }) {
     this.player?.resize(newSize)
@@ -211,10 +259,30 @@ export class Player {
 
   /**
    * Seeks to the given time.
-   * @param time - time to seek to in seconds
+   * @param time - time to seek to in seconds (since the beginning of the stream)
    */
   seek(time: number) {
     this.player?.seek(time)
+  }
+
+  /**
+   * Gets the current volume of the media content being played.
+   * @returns a number between 0 and 1
+   */
+  getVolume(): number {
+    // This method is provided by the MediaControl plugin
+    // @ts-ignore
+    return this.player?.getVolume?.() || 0
+  }
+
+  /**
+   * Sets the current volume of the media content being played.
+   * @param volume - a number between 0 and 1
+   */
+  setVolume(volume: number) {
+    // This method is provided by the MediaControl plugin
+    // @ts-ignore
+    this.player?.setVolume?.(volume)
   }
 
   /**
@@ -226,15 +294,28 @@ export class Player {
 
   /**
    * Registers a plugin.
-   * @param plugin - plugin to register
+   * @param plugin - a plugin class
+   * @remarks
+   * Use this method to extend the player with custom behavior.
+   * The plugin class must inherit from one of the Clappr UIPlugin, UIContainerPlugin or CorePlugin classes.
+   * A core plugin will be initialized and attached to the player when the player is initialized.
+   * A UI plugin will be initialized and attached to the player container is initialized.
+   *
+   * @see {@link https://github.com/clappr/clappr/wiki/Architecture}
+   * @example
+   * ```ts
+   * import MyPlugin from './MyPlugin.js'
+   * 
+   * Player.registerPlugin(MyPlugin)
+   * ```
    */
   static registerPlugin(plugin: PlayerPlugin) {
     Loader.registerPlugin(plugin)
   }
 
   /**
-   * Unregisters a plugin.
-   * @param plugin - plugin to unregister
+   * Unregisters a plugin registered earlier with {@link Player.registerPlugin}.
+   * @param plugin - a plugin class
    */
   static unregisterPlugin(plugin: PlayerPlugin) {
     Loader.unregisterPlugin(plugin)

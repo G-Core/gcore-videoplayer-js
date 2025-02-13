@@ -4,11 +4,11 @@
 
 ## player package
 
-Video player for the GCore streaming platform
+Video player for the Gcore streaming platform
 
 ## Remarks
 
-This package provides a video player for the GCore streaming platform. It is built on top of the Clappr library and provides a framework for building custom integrations.
+This package provides a video player for the Gcore streaming platform. It is built on top of the Clappr library and provides a framework for building custom integrations.
 
 ## Classes
 

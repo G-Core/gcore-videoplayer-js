@@ -18,5 +18,9 @@ getDuration(): number;
 
 number
 
+Time in seconds
+
+## Remarks
+
 For live streams, it returns the duration of the current segment.
 

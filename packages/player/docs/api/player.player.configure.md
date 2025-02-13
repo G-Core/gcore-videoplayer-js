@@ -9,8 +9,6 @@
 
 Configures the player.
 
-Can be called multiple times. Each consequent call extends the previous configuration. After a reconfiguration, if something significant has changed, the must be reinitialized (i.e, a `.destroy()` followed by an `.init()` call).
-
 **Signature:**
 
 ```typescript
@@ -55,4 +53,10 @@ complete or partial configuration
 **Returns:**
 
 void
+
+## Remarks
+
+Can be called multiple times. Each consequent call extends the previous configuration with only the new keys overridden.
+
+After a reconfiguration, if something significant has changed, it might make sense reinitialize the player (i.e, a `.destroy()` followed by an `.init()` call).
 

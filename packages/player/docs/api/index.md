@@ -24,7 +24,7 @@ Description
 
 </td><td>
 
-Video player for the GCore streaming platform
+Video player for the Gcore streaming platform
 
 
 </td></tr>

@@ -57,3 +57,7 @@ new size of the player
 
 void
 
+## Remarks
+
+Use this method when the player itself does not detect the change in size of its container element. It can be a case for orientation change on some mobile devices.
+

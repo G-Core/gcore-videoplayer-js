@@ -97,8 +97,6 @@ Description
 
 **_(BETA)_** Configures the player.
 
-Can be called multiple times. Each consequent call extends the previous configuration. After a reconfiguration, if something significant has changed, the must be reinitialized (i.e, a `.destroy()` followed by an `.init()` call).
-
 
 </td></tr>
 <tr><td>
@@ -111,7 +109,7 @@ Can be called multiple times. Each consequent call extends the previous configur
 
 </td><td>
 
-**_(BETA)_** Destroys the player, releasing all resources and removing any DOM elements added.
+**_(BETA)_** Destroys the player, releasing all resources and unmounting its UI from the DOM.
 
 
 </td></tr>
@@ -125,7 +123,7 @@ Can be called multiple times. Each consequent call extends the previous configur
 
 </td><td>
 
-**_(BETA)_** Current playback time in seconds, if appropriate.
+**_(BETA)_** Current playback (time since the beginning of the stream), if appropriate.
 
 
 </td></tr>
@@ -145,6 +143,48 @@ Can be called multiple times. Each consequent call extends the previous configur
 </td></tr>
 <tr><td>
 
+[getVolume()](./player.player.getvolume.md)
+
+
+</td><td>
+
+
+</td><td>
+
+**_(BETA)_** Gets the current volume of the media content being played.
+
+
+</td></tr>
+<tr><td>
+
+[isDvrEnabled()](./player.player.isdvrenabled.md)
+
+
+</td><td>
+
+
+</td><td>
+
+**_(BETA)_** Indicates whether DVR is enabled.
+
+
+</td></tr>
+<tr><td>
+
+[isPlaying()](./player.player.isplaying.md)
+
+
+</td><td>
+
+
+</td><td>
+
+**_(BETA)_** Indicates the playing state of the player.
+
+
+</td></tr>
+<tr><td>
+
 [mute()](./player.player.mute.md)
 
 
@@ -153,7 +193,7 @@ Can be called multiple times. Each consequent call extends the previous configur
 
 </td><td>
 
-**_(BETA)_** Mutes the player.
+**_(BETA)_** Mutes the sound of the video.
 
 
 </td></tr>
@@ -167,7 +207,7 @@ Can be called multiple times. Each consequent call extends the previous configur
 
 </td><td>
 
-**_(BETA)_** Removes a listener from a player event
+**_(BETA)_** Removes a previously added event listener
 
 
 </td></tr>
@@ -259,6 +299,20 @@ Can be called multiple times. Each consequent call extends the previous configur
 </td></tr>
 <tr><td>
 
+[setVolume(volume)](./player.player.setvolume.md)
+
+
+</td><td>
+
+
+</td><td>
+
+**_(BETA)_** Sets the current volume of the media content being played.
+
+
+</td></tr>
+<tr><td>
+
 [stop()](./player.player.stop.md)
 
 
@@ -281,7 +335,7 @@ Can be called multiple times. Each consequent call extends the previous configur
 
 </td><td>
 
-**_(BETA)_** Unmutes the player.
+**_(BETA)_** Unmutes the video sound.
 
 
 </td></tr>
@@ -297,7 +351,7 @@ Can be called multiple times. Each consequent call extends the previous configur
 
 </td><td>
 
-**_(BETA)_** Unregisters a plugin.
+**_(BETA)_** Unregisters a plugin registered earlier with [Player.registerPlugin()](./player.player.registerplugin.md)<!-- -->.
 
 
 </td></tr>
