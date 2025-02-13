@@ -32,13 +32,21 @@ function noSync(cb: () => void) {
  * This plugin is responsible for managing the automatic failover between sources.
  * @beta
  * @remarks
- * Have a look at the [source failover diagram](https://miro.com/app/board/uXjVLiN15tY=/?share_link_id=390327585787) for the details
+ * Have a look at the {@link https://miro.com/app/board/uXjVLiN15tY=/?share_link_id=390327585787 | source failover diagram} for the details
  * on how sources ordering and selection works.
+ *
  * This plugin does not expose any public methods apart from required by the Clappr plugin interface.
  * It is supposed to work autonomously.
+ *
+ * @example
+ * ```ts
+ * import { SourceController } from '@gcorevideo/player-plugins'
+ * 
+ * Player.registerPlugin(SourceController)
+ * ```
  */
 export class SourceController extends CorePlugin {
-  /**
+  /*
    * The Logic itself is quite simple:
    * * Here is the short diagram:
    *
@@ -105,6 +113,9 @@ export class SourceController extends CorePlugin {
     }
   }
 
+  /**
+   * @internal
+   */
   override bindEvents() {
     super.bindEvents()
 

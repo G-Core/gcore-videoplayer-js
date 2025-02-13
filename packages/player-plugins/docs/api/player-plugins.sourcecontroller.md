@@ -18,7 +18,18 @@ export declare class SourceController extends CorePlugin
 
 ## Remarks
 
-Have a look at the \[source failover diagram\](https://miro.com/app/board/uXjVLiN15tY=/?share\_link\_id=390327585787) for the details on how sources ordering and selection works. This plugin does not expose any public methods apart from required by the Clappr plugin interface. It is supposed to work autonomously.
+Have a look at the [source failover diagram](https://miro.com/app/board/uXjVLiN15tY=/?share_link_id=390327585787) for the details on how sources ordering and selection works.
+
+This plugin does not expose any public methods apart from required by the Clappr plugin interface. It is supposed to work autonomously.
+
+## Example
+
+
+```ts
+import { SourceController } from '@gcorevideo/player-plugins'
+
+Player.registerPlugin(SourceController)
+```
 
 ## Constructors
 
@@ -134,40 +145,6 @@ string
 </td><td>
 
 string
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-</tbody></table>
-
-## Methods
-
-<table><thead><tr><th>
-
-Method
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>
-
-[bindEvents()](./player-plugins.sourcecontroller.bindevents.md)
-
-
-</td><td>
 
 
 </td><td>
