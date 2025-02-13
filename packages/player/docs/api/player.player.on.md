@@ -12,7 +12,7 @@ Adds a listener to a player event
 **Signature:**
 
 ```typescript
-on<T extends PlayerEvent>(event: T, handler: PlayerEventHandler<T>): void;
+on<E extends PlayerEvent>(event: E, handler: PlayerEventHandler<E>): void;
 ```
 
 ## Parameters
@@ -40,12 +40,12 @@ event
 
 </td><td>
 
-T
+E
 
 
 </td><td>
 
-event type
+event type, see [PlayerEvent](./player.playerevent.md)
 
 
 </td></tr>
@@ -56,7 +56,7 @@ handler
 
 </td><td>
 
-[PlayerEventHandler](./player.playereventhandler.md)<!-- -->&lt;T&gt;
+[PlayerEventHandler](./player.playereventhandler.md)<!-- -->&lt;E&gt;
 
 
 </td><td>

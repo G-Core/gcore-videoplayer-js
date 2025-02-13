@@ -12,7 +12,7 @@ Removes a previously added event listener
 **Signature:**
 
 ```typescript
-off<T extends PlayerEvent>(event: T, handler: PlayerEventHandler<T>): void;
+off<E extends PlayerEvent>(event: E, handler: PlayerEventHandler<E>): void;
 ```
 
 ## Parameters
@@ -40,7 +40,7 @@ event
 
 </td><td>
 
-T
+E
 
 
 </td><td>
@@ -56,12 +56,12 @@ handler
 
 </td><td>
 
-[PlayerEventHandler](./player.playereventhandler.md)<!-- -->&lt;T&gt;
+[PlayerEventHandler](./player.playereventhandler.md)<!-- -->&lt;E&gt;
 
 
 </td><td>
 
-See [PlayerEventHandler](./player.playereventhandler.md)
+a callback attached earlier to that event type
 
 
 </td></tr>

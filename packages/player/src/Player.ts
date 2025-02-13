@@ -96,19 +96,19 @@ export class Player {
 
   /**
    * Adds a listener to a player event
-   * @param event - event type
+   * @param event - event type, see {@link PlayerEvent}
    * @param handler - a callback function to handle the event
    */
-  on<T extends PlayerEvent>(event: T, handler: PlayerEventHandler<T>) {
+  on<E extends PlayerEvent>(event: E, handler: PlayerEventHandler<E>) {
     this.emitter.on(event, handler)
   }
 
   /**
    * Removes a previously added event listener
    * @param event - See {@link PlayerEvent}
-   * @param handler - See {@link PlayerEventHandler}
+   * @param handler - a callback attached earlier to that event type
    */
-  off<T extends PlayerEvent>(event: T, handler: PlayerEventHandler<T>) {
+  off<E extends PlayerEvent>(event: E, handler: PlayerEventHandler<E>) {
     this.emitter.off(event, handler)
   }
 
