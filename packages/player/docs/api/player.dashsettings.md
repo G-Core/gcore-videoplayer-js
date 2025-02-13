@@ -7,6 +7,8 @@
 > This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
 > 
 
+A plain JS object that must conform to the DASH.js settings schema.
+
 [DASH.js settings](https://cdn.dashjs.org/latest/jsdoc/module-Settings.html)
 
 **Signature:**

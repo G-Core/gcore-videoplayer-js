@@ -57,7 +57,7 @@ string
 
 </td><td>
 
-**_(BETA)_** _(Optional)_ The MIME type of the media source (e.g. "video/mp4", "application/x-mpegURL")
+**_(BETA)_** _(Optional)_ The MIME type of the media source (e.g. `"video/mp4"`<!-- -->, `"application/x-mpegURL"`<!-- -->). Necessary if the type cannot be detected from file extension of the source URL.
 
 
 </td></tr>

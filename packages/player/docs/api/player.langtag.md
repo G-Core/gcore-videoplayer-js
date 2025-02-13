@@ -7,9 +7,15 @@
 > This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
 > 
 
+An ISO 639-1 language code.
 
 **Signature:**
 
 ```typescript
 export type LangTag = string;
 ```
+
+## Example
+
+`pt`
+

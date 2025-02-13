@@ -1,4 +1,4 @@
-import { ContainerPlugin, CorePlugin } from "@clappr/core"
+import { ContainerPlugin, CorePlugin } from '@clappr/core'
 
 /**
  * Describes a media source with its MIME type and URL.
@@ -10,7 +10,8 @@ import { ContainerPlugin, CorePlugin } from "@clappr/core"
  */
 export interface PlayerMediaSourceDesc {
   /**
-   * The MIME type of the media source (e.g. "video/mp4", "application/x-mpegURL")
+   * The MIME type of the media source (e.g. `"video/mp4"`, `"application/x-mpegURL"`).
+   * Necessary if the type cannot be detected from file extension of the source URL.
    */
   mimeType?: string
 
@@ -27,12 +28,13 @@ export interface PlayerMediaSourceDesc {
 export type PlayerMediaSource = string | PlayerMediaSourceDesc
 
 /**
+ * Debug output category selector
  * @beta
  */
 export type PlayerDebugTag = 'all' | 'clappr' | 'dash' | 'hls' | 'none'
 
 /**
- * @remarks true is equivalent to 'all', false is equivalent to 'none'
+ * @remarks `true` is equivalent to `'all'`, `false` is equivalent to `'none'`
  * @beta
  */
 export type PlayerDebugSettings = PlayerDebugTag | boolean
@@ -44,11 +46,13 @@ export type PlayerDebugSettings = PlayerDebugTag | boolean
 export type PlaybackType = 'live' | 'vod'
 
 /**
+ * Media delivery protocol
  * @beta
  */
 export type MediaTransport = 'dash' | 'hls'
 
 /**
+ * Preferred media delivery protocol
  * @beta
  */
 export type TransportPreference = MediaTransport
@@ -167,6 +171,8 @@ export interface PlayerConfig extends Record<string, unknown> {
 }
 
 /**
+ * An ISO 639-1 language code.
+ * @example `pt`
  * @beta
  */
 export type LangTag = string
@@ -177,13 +183,19 @@ export type LangTag = string
 export type TranslationKey = string
 
 /**
+ * A plain JS object that must conform to the DASH.js settings schema.
  * @beta
  * {@link https://cdn.dashjs.org/latest/jsdoc/module-Settings.html | DASH.js settings}
  */
 export type DashSettings = Record<string, unknown>
 
 /**
- * [language][key] =\> string
+ * Localization strings for the player UI.
+ * @remarks
+ * The keys are language codes, and the values are objects with keys being the translation keys and values being the translations.
+ *
+ * This dictionary is used to localize the player UI, including the error messages and is shared across all the player components (including the plugins).
+ *
  * @example
  * ```
  * {
@@ -206,10 +218,33 @@ export type TranslationSettings = Partial<
 >
 
 /**
+ * Dimensions of the player container DOM element.
+ * @beta
+ */
+export type ContainerSize = {
+  width: number
+  height: number
+}
+
+/**
  * A top-level event on the player object
  * @beta
  */
 export enum PlayerEvent {
+  /**
+   * Playback has reached the end of the media.
+   */
+  Ended = 'ended',
+  /**
+   * An error occurred.
+   * Parameters: {@link PlaybackError}
+   */
+  Error = 'error',
+  /**
+   * The player has switched to or from the fullscreen mode.
+   * Parameters:`boolean` isFullscreen
+   */
+  Fullscreen = 'fullscreen',
   /**
    * The player is ready to use.
    */
@@ -223,11 +258,26 @@ export enum PlayerEvent {
    */
   Pause = 'pause',
   /**
+   * The player's container has been resized.
+   * Parameters: {@link ContainerSize}
+   */
+  Resize = 'resize',
+  /**
+   * The player is seeking to a new position.
+   */
+  Seek = 'seek',
+  /**
    * Playback has been stopped.
    */
   Stop = 'stop',
   /**
-   * Playback has reached the end of the media.
+   * The current playback time has changed.
+   * Parameters: {@link TimePosition}
    */
-  Ended = 'ended',
+  TimeUpdate = 'timeupdate',
+  /**
+   * The volume has changed.
+   * Parameters: `number` volume in the range 0..1
+   */
+  VolumeUpdate = 'volumeupdate',
 }

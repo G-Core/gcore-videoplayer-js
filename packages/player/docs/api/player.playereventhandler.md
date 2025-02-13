@@ -7,11 +7,12 @@
 > This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
 > 
 
+Type of a listener callback function for a player event. See the description of the event parameters in [PlayerEvent](./player.playerevent.md)<!-- -->.
 
 **Signature:**
 
 ```typescript
-export type PlayerEventHandler<T extends PlayerEvent> = () => void;
+export type PlayerEventHandler<E extends PlayerEvent> = (...args: PlayerEventParams<E>) => void;
 ```
-**References:** [PlayerEvent](./player.playerevent.md)
+**References:** [PlayerEvent](./player.playerevent.md)<!-- -->, [PlayerEventParams](./player.playereventparams.md)
 

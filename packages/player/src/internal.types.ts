@@ -4,7 +4,7 @@ import type {
   Playback as ClapprPlayback,
 } from "@clappr/core";
 
-import { PlaybackType, PlayerDebugTag, PlayerMediaSource } from "./types";
+import { ContainerSize, PlaybackType, PlayerDebugTag, PlayerMediaSource } from "./types";
 import { PlaybackError } from "./playback.types";
 
 type ExternalTrack = {
@@ -63,7 +63,7 @@ export interface CorePlaybackConfig {
 export type CorePlayerEvents = {
   // TODO event arguments types
   onReady?: () => void;
-  onResize?: (data: { width: number; height: number }) => void;
+  onResize?: (data: ContainerSize) => void;
   onPlay?: (metadata: unknown) => void;
   onPause?: (metadata: unknown) => void;
   onStop?: (metadata: unknown) => void;

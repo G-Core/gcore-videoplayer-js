@@ -45,7 +45,7 @@ T
 
 </td><td>
 
-See [PlayerEvent](./player.playerevent.md)
+event type
 
 
 </td></tr>
@@ -61,7 +61,7 @@ handler
 
 </td><td>
 
-See [PlayerEventHandler](./player.playereventhandler.md)
+a callback function to handle the event
 
 
 </td></tr>

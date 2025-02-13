@@ -12,10 +12,7 @@ Resizes the player container element and everything within it.
 **Signature:**
 
 ```typescript
-resize(newSize: {
-        width: number;
-        height: number;
-    }): void;
+resize(newSize: ContainerSize): void;
 ```
 
 ## Parameters
@@ -43,7 +40,7 @@ newSize
 
 </td><td>
 
-{ width: number; height: number; }
+[ContainerSize](./player.containersize.md)
 
 
 </td><td>
@@ -59,5 +56,5 @@ void
 
 ## Remarks
 
-Use this method when the player itself does not detect the change in size of its container element. It can be a case for orientation change on some mobile devices.
+Use this method when the player itself does not detect properly the change in size of its container element. It can be a case for orientation change on some mobile devices.
 

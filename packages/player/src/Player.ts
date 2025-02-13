@@ -15,18 +15,33 @@ import type {
   CoreOptions,
   CorePluginOptions,
 } from './internal.types.js'
-import type { PlayerMediaSourceDesc, PlayerPlugin } from './types.js'
+import type { ContainerSize, PlayerMediaSourceDesc, PlayerPlugin } from './types.js'
 import { PlayerConfig, PlayerEvent } from './types.js'
 import {
   buildMediaSourcesList,
   wrapSource,
 } from './utils/mediaSources.js'
 import { registerPlaybacks } from './playback/index.js'
+import { PlaybackError, TimePosition } from './playback.types.js'
 
 /**
  * @beta
  */
-export type PlayerEventHandler<T extends PlayerEvent> = () => void
+export type PlayerEventParams<E extends PlayerEvent> =
+  E extends PlayerEvent.Seek ? [number]
+  : E extends PlayerEvent.VolumeUpdate ? [number]
+  : E extends PlayerEvent.TimeUpdate ? [TimePosition]
+  : E extends PlayerEvent.Resize ? [{ width: number, height: number }]
+  : E extends PlayerEvent.Fullscreen ? [boolean]
+  : E extends PlayerEvent.Error ? [PlaybackError]
+  : []
+
+/**
+ * Type of a listener callback function for a player event.
+ * See the description of the event parameters in {@link PlayerEvent}.
+ * @beta
+ */
+export type PlayerEventHandler<E extends PlayerEvent> = (...args: PlayerEventParams<E>) => void
 
 const T = 'GPlayer'
 
@@ -42,6 +57,7 @@ const DEFAULT_OPTIONS: PlayerConfig = {
 }
 
 /**
+ * Module to perform the playback.
  * @beta
  */
 export type PlaybackModule = 'dash' | 'hls' | 'html5_video'
@@ -50,11 +66,11 @@ type PluginOptions = Record<string, unknown>
 
 /**
  * The main component to use in the application code.
+ * @beta
  * @remarks
  * The Player object provides very basic API to control playback.
  * To build a sophisticated UI, use the plugins framework to tap into the Clappr core.
  * {@link https://github.com/clappr/clappr/wiki/Architecture}
- * @beta
  */
 export class Player {
   private config: PlayerConfig = DEFAULT_OPTIONS
@@ -80,8 +96,8 @@ export class Player {
 
   /**
    * Adds a listener to a player event
-   * @param event - See {@link PlayerEvent}
-   * @param handler - See {@link PlayerEventHandler}
+   * @param event - event type
+   * @param handler - a callback function to handle the event
    */
   on<T extends PlayerEvent>(event: T, handler: PlayerEventHandler<T>) {
     this.emitter.on(event, handler)
@@ -212,7 +228,7 @@ export class Player {
   }
 
   /**
-   * Indicates the playing state of the player.
+   * Indicates the playing state.
    */
   isPlaying(): boolean {
     return this.player?.isPlaying() ?? false
@@ -250,10 +266,10 @@ export class Player {
    * Resizes the player container element and everything within it.
    * @param newSize - new size of the player
    * @remarks
-   * Use this method when the player itself does not detect the change in size of its container element.
+   * Use this method when the player itself does not detect properly the change in size of its container element.
    * It can be a case for orientation change on some mobile devices.
    */
-  resize(newSize: { width: number; height: number }) {
+  resize(newSize: ContainerSize) {
     this.player?.resize(newSize)
   }
 
@@ -357,50 +373,15 @@ export class Player {
     }
     this.tunedIn = true
     const player = this.player
+    
     this.bindContainerEventListeners(player)
     player.core.on(
       ClapprEvents.CORE_ACTIVE_CONTAINER_CHANGED,
       () => this.bindContainerEventListeners(player),
       null,
     )
-    player.core.on(
-      ClapprEvents.CORE_SCREEN_ORIENTATION_CHANGED,
-      ({ orientation }: { orientation: 'landscape' | 'portrait' }) => {
-        trace(`${T} CORE_SCREEN_ORIENTATION_CHANGED`, {
-          orientation,
-          rootNode: {
-            width: this.rootNode?.clientWidth,
-            height: this.rootNode?.clientHeight,
-          },
-        })
-        if (Browser.isiOS && this.rootNode) {
-          player.core.resize({
-            width: this.rootNode.clientWidth,
-            height: this.rootNode.clientHeight,
-          })
-        }
-      },
-      null,
-    )
-    player.core.on(
-      ClapprEvents.CORE_RESIZE,
-      ({ width, height }: { width: number; height: number }) => {
-        trace(`${T} CORE_RESIZE`, {
-          width,
-          height,
-        })
-      },
-      null,
-    )
-    player.core.on(
-      ClapprEvents.CORE_FULLSCREEN,
-      (isFullscreen: boolean) => {
-        trace(`${T} CORE_FULLSCREEN`, {
-          isFullscreen,
-        })
-      },
-      null,
-    )
+    this.bindSizeManagementListeners(player)
+
     if (this.config.autoPlay) {
       setTimeout(() => {
         trace(`${T} autoPlay`, {
@@ -418,6 +399,15 @@ export class Player {
     }
   }
 
+  private safeTriggerEvent<E extends PlayerEvent>(event: E, ...args: PlayerEventParams<E>) {
+    try {
+      this.emitter.emit(event, ...args)
+    } catch (e) {
+      reportError(e)
+    }
+  }
+
+  // TODO test
   private events: CorePlayerEvents = {
     onReady: () => {
       trace(`${T} onReady`, {
@@ -434,38 +424,29 @@ export class Player {
       // TODO ensure that CORE_ACTIVE_CONTAINER_CHANGED does not get caught before onReady
       setTimeout(() => this.tuneIn(), 0)
     },
-    onResize: (newSize: { width: number; height: number }) => {
-      trace(`${T} onResize`, {
-        newSize,
-      })
-    },
     onPlay: () => {
-      try {
-        this.emitter.emit(PlayerEvent.Play)
-      } catch (e) {
-        reportError(e)
-      }
+      this.safeTriggerEvent(PlayerEvent.Play)
     },
     onPause: () => {
-      try {
-        this.emitter.emit(PlayerEvent.Pause)
-      } catch (e) {
-        reportError(e)
-      }
+      this.safeTriggerEvent(PlayerEvent.Pause)
     },
     onEnded: () => {
-      try {
-        this.emitter.emit(PlayerEvent.Ended)
-      } catch (e) {
-        reportError(e)
-      }
+      this.safeTriggerEvent(PlayerEvent.Ended)
+    },
+    onSeek: (time: number) => {
+      this.safeTriggerEvent(PlayerEvent.Seek, time)
     },
     onStop: () => {
-      try {
-        this.emitter.emit(PlayerEvent.Stop)
-      } catch (e) {
-        reportError(e)
-      }
+      this.safeTriggerEvent(PlayerEvent.Stop)
+    },
+    onVolumeUpdate: (volume: number) => {
+      this.safeTriggerEvent(PlayerEvent.VolumeUpdate, volume)
+    },
+    onTimeUpdate: (time: TimePosition) => {
+      this.safeTriggerEvent(PlayerEvent.TimeUpdate, time)
+    },
+    onError: (error: PlaybackError) => {
+      this.safeTriggerEvent(PlayerEvent.Error, error)
     },
   }
 
@@ -496,6 +477,7 @@ export class Player {
         mute: this.config.mute,
         crossOrigin: 'anonymous', // TODO
         hlsjsConfig: {
+          // TODO
           debug: this.config.debug === 'all' || this.config.debug === 'hls',
         },
       },
@@ -504,7 +486,7 @@ export class Player {
       width: rootNode.clientWidth,
       source: source ? source.source : undefined,
       mimeType: source ? source.mimeType : undefined,
-      sources, // prevent Clappr from loading all sources simultaneously
+      sources,
       strings: this.config.strings,
     }
     return coreOptions
@@ -523,9 +505,6 @@ export class Player {
   }
 
   private bindContainerEventListeners(player: PlayerClappr) {
-    trace(`${T} bindContainerEventListeners`, {
-      activePlayback: player.core.activePlayback?.name,
-    })
     if (Browser.isiOS && player.core.activePlayback) {
       player.core.activePlayback.$el.on('webkitendfullscreen', () => {
         try {
@@ -535,5 +514,48 @@ export class Player {
         }
       })
     }
+  }
+
+  private bindSizeManagementListeners(player: PlayerClappr) {
+    player.core.on(
+      ClapprEvents.CORE_SCREEN_ORIENTATION_CHANGED,
+      ({ orientation }: { orientation: 'landscape' | 'portrait' }) => {
+        trace(`${T} on CORE_SCREEN_ORIENTATION_CHANGED`, {
+          orientation,
+          rootNode: {
+            width: this.rootNode?.clientWidth,
+            height: this.rootNode?.clientHeight,
+          },
+        })
+        if (Browser.isiOS && this.rootNode) {
+          player.core.resize({
+            width: this.rootNode.clientWidth,
+            height: this.rootNode.clientHeight,
+          })
+        }
+      },
+      null,
+    )
+    player.core.on(
+      ClapprEvents.CORE_RESIZE,
+      ({ width, height }: { width: number; height: number }) => {
+        trace(`${T} on CORE_RESIZE`, {
+          width,
+          height,
+        })
+        this.safeTriggerEvent(PlayerEvent.Resize, { width, height })
+      },
+      null,
+    )
+    player.core.on(
+      ClapprEvents.CORE_FULLSCREEN,
+      (isFullscreen: boolean) => {
+        trace(`${T} CORE_FULLSCREEN`, {
+          isFullscreen,
+        })
+        this.safeTriggerEvent(PlayerEvent.Fullscreen, isFullscreen)
+      },
+      null,
+    )
   }
 }

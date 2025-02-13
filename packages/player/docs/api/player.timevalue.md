@@ -7,7 +7,7 @@
 > This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
 > 
 
-Playback time in seconds since the beginning of the stream (or a segment for the live streams) For the plugin development
+Playback time in seconds since the beginning of the stream (or a segment for the live streams)
 
 **Signature:**
 

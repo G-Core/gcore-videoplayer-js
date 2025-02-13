@@ -2,19 +2,116 @@
 
 [Home](./index.md) &gt; [@gcorevideo/player](./player.md) &gt; [QualityLevel](./player.qualitylevel.md)
 
-## QualityLevel type
+## QualityLevel interface
 
 > This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
 > 
 
+A level of quality within a media source.
 
 **Signature:**
 
 ```typescript
-export type QualityLevel = {
-    level: number;
-    width: number;
-    height: number;
-    bitrate: number;
-};
+export interface QualityLevel 
 ```
+
+## Properties
+
+<table><thead><tr><th>
+
+Property
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[bitrate](./player.qualitylevel.bitrate.md)
+
+
+</td><td>
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+**_(BETA)_** Bitrate of the video, bps.
+
+
+</td></tr>
+<tr><td>
+
+[height](./player.qualitylevel.height.md)
+
+
+</td><td>
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+**_(BETA)_** Height of the video, pixels.
+
+
+</td></tr>
+<tr><td>
+
+[level](./player.qualitylevel.level.md)
+
+
+</td><td>
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+**_(BETA)_** Zero-based index of the quality level.
+
+
+</td></tr>
+<tr><td>
+
+[width](./player.qualitylevel.width.md)
+
+
+</td><td>
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+**_(BETA)_** Width of the video, pixels.
+
+
+</td></tr>
+</tbody></table>

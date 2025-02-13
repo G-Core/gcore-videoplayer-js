@@ -56,7 +56,7 @@ Description
 
 </td><td>
 
-**_(BETA)_**
+**_(BETA)_** Codes of errors occurring within the playback component.
 
 
 </td></tr>
@@ -119,7 +119,7 @@ Description
 
 </td><td>
 
-**_(BETA)_**
+**_(BETA)_** An error occurred during the playback.
 
 
 </td></tr>
@@ -145,6 +145,28 @@ Description
 
 
 </td></tr>
+<tr><td>
+
+[QualityLevel](./player.qualitylevel.md)
+
+
+</td><td>
+
+**_(BETA)_** A level of quality within a media source.
+
+
+</td></tr>
+<tr><td>
+
+[TimePosition](./player.timeposition.md)
+
+
+</td><td>
+
+**_(BETA)_** Current playback time and total duration of the media.
+
+
+</td></tr>
 </tbody></table>
 
 ## Type Aliases
@@ -162,12 +184,25 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
+[ContainerSize](./player.containersize.md)
+
+
+</td><td>
+
+**_(BETA)_** Dimensions of the player container DOM element.
+
+
+</td></tr>
+<tr><td>
+
 [DashSettings](./player.dashsettings.md)
 
 
 </td><td>
 
-**_(BETA)_** [DASH.js settings](https://cdn.dashjs.org/latest/jsdoc/module-Settings.html)
+**_(BETA)_** A plain JS object that must conform to the DASH.js settings schema.
+
+[DASH.js settings](https://cdn.dashjs.org/latest/jsdoc/module-Settings.html)
 
 
 </td></tr>
@@ -178,7 +213,7 @@ Description
 
 </td><td>
 
-**_(BETA)_**
+**_(BETA)_** Levels of severity of errors. Non-fatal errors usually can be ignored.
 
 
 </td></tr>
@@ -189,7 +224,7 @@ Description
 
 </td><td>
 
-**_(BETA)_**
+**_(BETA)_** An ISO 639-1 language code.
 
 
 </td></tr>
@@ -200,7 +235,7 @@ Description
 
 </td><td>
 
-**_(BETA)_**
+**_(BETA)_** Media delivery protocol
 
 
 </td></tr>
@@ -211,7 +246,7 @@ Description
 
 </td><td>
 
-**_(BETA)_**
+**_(BETA)_** Module to perform the playback.
 
 
 </td></tr>
@@ -223,6 +258,17 @@ Description
 </td><td>
 
 **_(BETA)_** Type of a stream playback
+
+
+</td></tr>
+<tr><td>
+
+[PlayerComponentType](./player.playercomponenttype.md)
+
+
+</td><td>
+
+**_(BETA)_** Subsystems of a player component.
 
 
 </td></tr>
@@ -244,13 +290,24 @@ Description
 
 </td><td>
 
-**_(BETA)_**
+**_(BETA)_** Debug output category selector
 
 
 </td></tr>
 <tr><td>
 
 [PlayerEventHandler](./player.playereventhandler.md)
+
+
+</td><td>
+
+**_(BETA)_** Type of a listener callback function for a player event. See the description of the event parameters in [PlayerEvent](./player.playerevent.md)<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[PlayerEventParams](./player.playereventparams.md)
 
 
 </td><td>
@@ -283,28 +340,6 @@ Description
 </td></tr>
 <tr><td>
 
-[QualityLevel](./player.qualitylevel.md)
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
-[TimePosition](./player.timeposition.md)
-
-
-</td><td>
-
-**_(BETA)_** For the plugin development
-
-
-</td></tr>
-<tr><td>
-
 [TimeProgress](./player.timeprogress.md)
 
 
@@ -332,7 +367,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Playback time in seconds since the beginning of the stream (or a segment for the live streams) For the plugin development
+**_(BETA)_** Playback time in seconds since the beginning of the stream (or a segment for the live streams)
 
 
 </td></tr>
@@ -354,7 +389,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** \[language\]\[key\] =<!-- -->&gt; string
+**_(BETA)_** Localization strings for the player UI.
 
 
 </td></tr>
@@ -365,7 +400,7 @@ Description
 
 </td><td>
 
-**_(BETA)_**
+**_(BETA)_** Preferred media delivery protocol
 
 
 </td></tr>

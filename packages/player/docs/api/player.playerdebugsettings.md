@@ -16,5 +16,5 @@ export type PlayerDebugSettings = PlayerDebugTag | boolean;
 
 ## Remarks
 
-true is equivalent to 'all', false is equivalent to 'none'
+`true` is equivalent to `'all'`<!-- -->, `false` is equivalent to `'none'`
 

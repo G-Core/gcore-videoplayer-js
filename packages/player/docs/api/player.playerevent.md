@@ -51,6 +51,38 @@ Ended
 </td></tr>
 <tr><td>
 
+Error
+
+
+</td><td>
+
+`"error"`
+
+
+</td><td>
+
+**_(BETA)_** An error occurred. Parameters: [PlaybackError](./player.playbackerror.md)
+
+
+</td></tr>
+<tr><td>
+
+Fullscreen
+
+
+</td><td>
+
+`"fullscreen"`
+
+
+</td><td>
+
+**_(BETA)_** The player has switched to or from the fullscreen mode. Parameters:`boolean` isFullscreen
+
+
+</td></tr>
+<tr><td>
+
 Pause
 
 
@@ -99,6 +131,38 @@ Ready
 </td></tr>
 <tr><td>
 
+Resize
+
+
+</td><td>
+
+`"resize"`
+
+
+</td><td>
+
+**_(BETA)_** The player's container has been resized. Parameters: [ContainerSize](./player.containersize.md)
+
+
+</td></tr>
+<tr><td>
+
+Seek
+
+
+</td><td>
+
+`"seek"`
+
+
+</td><td>
+
+**_(BETA)_** The player is seeking to a new position.
+
+
+</td></tr>
+<tr><td>
+
 Stop
 
 
@@ -110,6 +174,38 @@ Stop
 </td><td>
 
 **_(BETA)_** Playback has been stopped.
+
+
+</td></tr>
+<tr><td>
+
+TimeUpdate
+
+
+</td><td>
+
+`"timeupdate"`
+
+
+</td><td>
+
+**_(BETA)_** The current playback time has changed. Parameters: [TimePosition](./player.timeposition.md)
+
+
+</td></tr>
+<tr><td>
+
+VolumeUpdate
+
+
+</td><td>
+
+`"volumeupdate"`
+
+
+</td><td>
+
+**_(BETA)_** The volume has changed. Parameters: `number` volume in the range 0..1
 
 
 </td></tr>

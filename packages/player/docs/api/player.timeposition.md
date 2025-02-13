@@ -2,20 +2,78 @@
 
 [Home](./index.md) &gt; [@gcorevideo/player](./player.md) &gt; [TimePosition](./player.timeposition.md)
 
-## TimePosition type
+## TimePosition interface
 
 > This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
 > 
 
-For the plugin development
+Current playback time and total duration of the media.
 
 **Signature:**
 
 ```typescript
-export type TimePosition = {
-    current: TimeValue;
-    total: TimeValue;
-};
+export interface TimePosition 
 ```
-**References:** [TimeValue](./player.timevalue.md)
 
+## Properties
+
+<table><thead><tr><th>
+
+Property
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[current](./player.timeposition.current.md)
+
+
+</td><td>
+
+
+</td><td>
+
+[TimeValue](./player.timevalue.md)
+
+
+</td><td>
+
+**_(BETA)_** Current playback time, 0..duration, seconds.
+
+
+</td></tr>
+<tr><td>
+
+[total](./player.timeposition.total.md)
+
+
+</td><td>
+
+
+</td><td>
+
+[TimeValue](./player.timevalue.md)
+
+
+</td><td>
+
+**_(BETA)_** Total duration of the media, seconds.
+
+
+</td></tr>
+</tbody></table>

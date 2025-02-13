@@ -7,7 +7,7 @@
 > This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
 > 
 
-\[language\]\[key\] =<!-- -->&gt; string
+Localization strings for the player UI.
 
 **Signature:**
 
@@ -15,6 +15,12 @@
 export type TranslationSettings = Partial<Record<LangTag, Record<TranslationKey, string>>>;
 ```
 **References:** [LangTag](./player.langtag.md)<!-- -->, [TranslationKey](./player.translationkey.md)
+
+## Remarks
+
+The keys are language codes, and the values are objects with keys being the translation keys and values being the translations.
+
+This dictionary is used to localize the player UI, including the error messages and is shared across all the player components (including the plugins).
 
 ## Example
 

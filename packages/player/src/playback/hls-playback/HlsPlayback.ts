@@ -28,6 +28,7 @@ import HLSJS, {
 import {
   PlaybackError,
   PlaybackErrorCode,
+  PlayerComponentType,
   QualityLevel,
   TimePosition,
   TimeUpdate,
@@ -620,6 +621,8 @@ export default class HlsPlayback extends HTML5Video {
       description: `${this.name} error: type: ${data.type}, details: ${data.details} fatal: ${data.fatal}`,
       level: data.fatal ? PlayerError.Levels.FATAL : PlayerError.Levels.WARN,
       message: `${this.name} error: type: ${data.type}, details: ${data.details}`,
+      origin: this.name,
+      scope: HlsPlayback.type as PlayerComponentType,
     }
 
     if (data.response) {

@@ -179,7 +179,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Indicates the playing state of the player.
+**_(BETA)_** Indicates the playing state.
 
 
 </td></tr>

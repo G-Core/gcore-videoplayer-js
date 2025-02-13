@@ -2,7 +2,14 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-import { Events, HTML5Video, Log, Playback, PlayerError, Utils } from '@clappr/core'
+import {
+  Events,
+  HTML5Video,
+  Log,
+  Playback,
+  PlayerError,
+  Utils,
+} from '@clappr/core'
 import { trace } from '@gcorevideo/utils'
 import assert from 'assert'
 import DASHJS, {
@@ -14,7 +21,15 @@ import DASHJS, {
   IManifestInfo,
 } from 'dashjs'
 
-import { PlaybackError, PlaybackErrorCode, QualityLevel, TimePosition, TimeUpdate, TimeValue } from '../../playback.types.js'
+import {
+  PlaybackError,
+  PlaybackErrorCode,
+  PlayerComponentType,
+  QualityLevel,
+  TimePosition,
+  TimeUpdate,
+  TimeValue,
+} from '../../playback.types.js'
 import { isDashSource } from '../../utils/mediaSources.js'
 
 const AUTO = -1
@@ -409,7 +424,6 @@ export default class DashPlayback extends HTML5Video {
     trace(`${T} _onDASHJSSError`, { event })
     this._stopTimeUpdateTimer()
 
-
     // Note that the other error types are deprecated
     const e = (event as MediaPlayerErrorEvent).error
     switch (e.code) {
@@ -419,7 +433,7 @@ export default class DashPlayback extends HTML5Video {
       case DASHJS.MediaPlayer.errors.DOWNLOAD_ERROR_ID_MANIFEST_CODE:
       case DASHJS.MediaPlayer.errors.DOWNLOAD_ERROR_ID_CONTENT_CODE:
       case DASHJS.MediaPlayer.errors.DOWNLOAD_ERROR_ID_INITIALIZATION_CODE:
-        // TODO these probably indicate a broken manifest and should be treated by removing the source
+      // TODO these probably indicate a broken manifest and should be treated by removing the source
       case DASHJS.MediaPlayer.errors.MANIFEST_ERROR_ID_NOSTREAMS_CODE:
       case DASHJS.MediaPlayer.errors.MANIFEST_ERROR_ID_PARSE_CODE:
       case DASHJS.MediaPlayer.errors.MANIFEST_ERROR_ID_MULTIPLEXED_CODE:
@@ -431,7 +445,7 @@ export default class DashPlayback extends HTML5Video {
           description: e.message,
           level: PlayerError.Levels.FATAL,
         })
-        break;
+        break
       // TODO more cases
       default:
         this.triggerError({
@@ -443,9 +457,15 @@ export default class DashPlayback extends HTML5Video {
     }
   }
 
-  private triggerError(error: PlaybackError) {
+  private triggerError(
+    error: Pick<PlaybackError, 'code' | 'message' | 'description' | 'level'>,
+  ) {
     trace(`${T} triggerError`, { error })
-    this.trigger(Events.PLAYBACK_ERROR, error)
+    this.trigger(Events.PLAYBACK_ERROR, {
+      ...error,
+      origin: this.name,
+      scope: DashPlayback.type as PlayerComponentType,
+    })
     // only reset the dash player in 10ms async, so that the rest of the
     // calling function finishes
     setTimeout(() => {
@@ -592,8 +612,9 @@ export default class DashPlayback extends HTML5Video {
     // TODO check the two below
     this.trigger(Events.PLAYBACK_LEVEL_SWITCH, currentLevel)
     this.trigger(Events.PLAYBACK_LEVEL_SWITCH_END)
-    const isHD = (currentLevel.height >= 720 || (currentLevel.bitrate / 1000) >= 2000);
-    this.trigger(Events.PLAYBACK_HIGHDEFINITIONUPDATE, isHD);
+    const isHD =
+      currentLevel.height >= 720 || currentLevel.bitrate / 1000 >= 2000
+    this.trigger(Events.PLAYBACK_HIGHDEFINITIONUPDATE, isHD)
     this.trigger(Events.PLAYBACK_BITRATE, currentLevel)
   }
 

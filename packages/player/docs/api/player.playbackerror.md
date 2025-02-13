@@ -7,6 +7,7 @@
 > This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
 > 
 
+An error occurred during the playback.
 
 **Signature:**
 
@@ -52,7 +53,7 @@ Description
 
 </td><td>
 
-**_(BETA)_**
+**_(BETA)_** Error code.
 
 
 </td></tr>
@@ -71,7 +72,7 @@ string
 
 </td><td>
 
-**_(BETA)_**
+**_(BETA)_** Detailed description of the error.
 
 
 </td></tr>
@@ -90,7 +91,7 @@ string
 
 </td><td>
 
-**_(BETA)_**
+**_(BETA)_** Level of severity of the error.
 
 
 </td></tr>
@@ -109,7 +110,45 @@ string
 
 </td><td>
 
-**_(BETA)_**
+**_(BETA)_** Error message. Non-fatal usually can be ignored.
+
+
+</td></tr>
+<tr><td>
+
+[origin](./player.playbackerror.origin.md)
+
+
+</td><td>
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+**_(BETA)_** Exact component that originated the error.
+
+
+</td></tr>
+<tr><td>
+
+[scope](./player.playbackerror.scope.md)
+
+
+</td><td>
+
+
+</td><td>
+
+[PlayerComponentType](./player.playercomponenttype.md)
+
+
+</td><td>
+
+**_(BETA)_** Component subsystem of the error origin
 
 
 </td></tr>
