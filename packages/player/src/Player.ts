@@ -228,6 +228,15 @@ export class Player {
   }
 
   /**
+   * Indicates whether DVR is in use.
+   * @remarks
+   * DVR mode, if it is enabled, is triggered we a user seeks behind the live edge.
+   */
+  isDvrInUse(): boolean {
+    return this.player?.isDvrInUse() ?? false
+  }
+
+  /**
    * Indicates the playing state.
    */
   isPlaying(): boolean {

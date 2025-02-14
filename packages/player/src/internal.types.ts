@@ -54,6 +54,7 @@ export interface CorePlaybackConfig {
   playInline: boolean;
   preload?: 'metadata' | 'auto' | 'none';
   // preferredAudioLanguage?: string;
+  recycleVideo?: boolean;
   shakaConfiguration?: ShakaConfig;
 }
 

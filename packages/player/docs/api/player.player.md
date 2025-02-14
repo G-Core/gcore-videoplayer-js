@@ -171,6 +171,20 @@ Description
 </td></tr>
 <tr><td>
 
+[isDvrInUse()](./player.player.isdvrinuse.md)
+
+
+</td><td>
+
+
+</td><td>
+
+**_(BETA)_** Indicates whether DVR is in use.
+
+
+</td></tr>
+<tr><td>
+
 [isPlaying()](./player.player.isplaying.md)
 
 
