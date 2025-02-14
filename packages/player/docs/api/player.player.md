@@ -185,6 +185,20 @@ Description
 </td></tr>
 <tr><td>
 
+[isMuted()](./player.player.ismuted.md)
+
+
+</td><td>
+
+
+</td><td>
+
+**_(BETA)_** Indicates muted state of the video.
+
+
+</td></tr>
+<tr><td>
+
 [isPlaying()](./player.player.isplaying.md)
 
 

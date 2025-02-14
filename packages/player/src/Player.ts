@@ -237,6 +237,16 @@ export class Player {
   }
 
   /**
+   * Indicates muted state of the video.
+   * @remarks
+   * Note that muted state is independent from the volume level.
+   * See {@link https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/muted}
+   */
+  isMuted(): boolean {
+    return this.player?.core.activePlayback.isMuted() ?? false
+  }
+
+  /**
    * Indicates the playing state.
    */
   isPlaying(): boolean {
@@ -448,9 +458,6 @@ export class Player {
     onStop: () => {
       this.safeTriggerEvent(PlayerEvent.Stop)
     },
-    onVolumeUpdate: (volume: number) => {
-      this.safeTriggerEvent(PlayerEvent.VolumeUpdate, volume)
-    },
     onTimeUpdate: (time: TimePosition) => {
       this.safeTriggerEvent(PlayerEvent.TimeUpdate, time)
     },
@@ -523,6 +530,9 @@ export class Player {
         }
       })
     }
+    player.core.activeContainer.on(ClapprEvents.CONTAINER_VOLUME, (volume: number) => {
+      this.safeTriggerEvent(PlayerEvent.VolumeUpdate, volume)
+    }, null)
   }
 
   private bindSizeManagementListeners(player: PlayerClappr) {
