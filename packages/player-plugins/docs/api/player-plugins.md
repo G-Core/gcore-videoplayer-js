@@ -152,6 +152,8 @@ Description
 
 </td><td>
 
+**_(BETA)_** Allows to control the quality level of the playback.
+
 
 </td></tr>
 <tr><td>

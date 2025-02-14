@@ -47,11 +47,6 @@ export class BottomGear extends UICorePlugin {
     return this.core && this.core.activeContainer;
   }
 
-  // constructor(core) {
-  //   super(core);
-  //   this.isHd = false;
-  // }
-
   override bindEvents() {
     this.listenTo(this.core, Events.CORE_ACTIVE_CONTAINER_CHANGED, this.onActiveContainerChanged);
     this.listenTo(this.core, 'gear:refresh', this.refresh);
@@ -86,6 +81,7 @@ export class BottomGear extends UICorePlugin {
   }
 
   private highDefinitionUpdate(isHd: boolean) {
+    trace(`${this.name} highDefinitionUpdate`, { isHd });
     this.isHd = isHd;
     if (isHd) {
       this.$el.find('.gear-icon').html(gearHdIcon);

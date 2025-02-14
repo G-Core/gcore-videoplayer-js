@@ -1,322 +1,406 @@
-import { Events, template, UICorePlugin } from '@clappr/core';
-import { type QualityLevel } from '@gcorevideo/player';
+import { Events, template, UICorePlugin } from '@clappr/core'
+import { type QualityLevel } from '@gcorevideo/player'
 import { reportError, trace } from '@gcorevideo/utils'
-import { CLAPPR_VERSION } from '../build.js';
-import { ZeptoResult } from '../types.js';
+import { CLAPPR_VERSION } from '../build.js'
+import { ZeptoResult } from '../types.js'
 
-import buttonHtml from '../../assets/level-selector/button.ejs';
-import listHtml from '../../assets/level-selector/list.ejs';
-import hdIcon from '../../assets/icons/new/hd.svg';
-import arrowRightIcon from '../../assets/icons/new/arrow-right.svg';
-import arrowLeftIcon from '../../assets/icons/new/arrow-left.svg';
-import checkIcon from '../../assets/icons/new/check.svg';
-import '../../assets/level-selector/style.scss';
+import buttonHtml from '../../assets/level-selector/button.ejs'
+import listHtml from '../../assets/level-selector/list.ejs'
+import hdIcon from '../../assets/icons/new/hd.svg'
+import arrowRightIcon from '../../assets/icons/new/arrow-right.svg'
+import arrowLeftIcon from '../../assets/icons/new/arrow-left.svg'
+import checkIcon from '../../assets/icons/new/check.svg'
+import '../../assets/level-selector/style.scss'
 
+import pkg from '../../package.json' with { type: 'json' }
 
-const VERSION = '0.0.1';
+const T = 'plugins.level_selector'
+const VERSION = pkg.versions.level_selector
 
-const T = 'plugins.level_selector';
+type TemplateFunction = (data: Record<string, unknown>) => string
 
-const AUTO = -1;
-
-const NO_LEVEL: QualityLevel = {
-  bitrate: 0,
-  width: 0,
-  height: 0,
-  level: -1,
-};
-
+/**
+ * Allows to control the quality level of the playback.
+ * @beta
+ *
+ * @remarks
+ * The plugin is rendered as a button in the gear menu.
+ * When clicked, it shows a list of quality levels to choose from.
+ *
+ * Configuration options:
+ *
+ * - `labels`: The labels to show in the level selector. [vertical resolution]: string
+ * - `restrictResolution`: The maximum resolution to allow in the level selector.
+ * - `title`: The title to show in the level selector.
+ *
+ * @example
+ * ```ts
+ * {
+ *   levelSelector: {
+ *     restrictResolution: 360,
+ *     labels: { 360: '360p', 720: '720p' },
+ *   },
+ * }
+ * ```
+ */
 export class LevelSelector extends UICorePlugin {
-  private currentLevel: QualityLevel | null = null;
+  private levels: QualityLevel[] = []
 
-  private levels: QualityLevel[] = [];
+  private levelLabels: string[] = []
 
-  private levelLabels: string[] = [];
+  private removeAuto = false
 
-  private removeAuto = false;
+  private isHd = false
+
+  private isOpen = false
+
+  private buttonTemplate: TemplateFunction | null = null
+
+  private listTemplate: TemplateFunction | null = null
 
   get name() {
-    return 'level_selector';
+    return 'level_selector'
   }
 
   get supportedVersion() {
-    return { min: CLAPPR_VERSION };
+    return { min: CLAPPR_VERSION }
   }
 
   static get version() {
-    return VERSION;
+    return VERSION
   }
 
   override get attributes() {
     return {
-      'class': this.name,
-      'data-level-selector': ''
-    };
+      class: this.name,
+      'data-level-selector': '',
+    }
   }
 
-  private currentText = 'Auto';
+  private currentText = 'Auto'
 
-  private selectedLevelId = -1;
+  private selectedLevelId = -1
 
   override get events() {
     return {
       'click .gear-sub-menu_btn': 'onLevelSelect',
       'click .gear-option': 'onShowLevelSelectMenu',
       'click .go-back': 'goBack',
-    };
+    }
   }
 
   override bindEvents() {
-    this.listenTo(this.core, Events.CORE_READY, this.bindPlaybackEvents);
-    this.listenTo(this.core.mediaControl, Events.MEDIACONTROL_CONTAINERCHANGED, this.reload);
-    // this.listenTo(this.core.mediaControl, Events.MEDIACONTROL_RENDERED, this.render);
-    this.listenTo(this.core, 'gear:rendered', this.render);
-    // this.listenTo(this.core.mediaControl, Events.MEDIACONTROL_HIDE, this.hideSelectLevelMenu);
+    this.listenTo(this.core, Events.CORE_READY, () => this.bindPlaybackEvents())
+    this.listenTo(
+      this.core.mediaControl,
+      Events.MEDIACONTROL_CONTAINERCHANGED,
+      this.reload,
+    )
+    this.listenTo(this.core, 'gear:rendered', this.render)
   }
 
-  unBindEvents() {
-    this.stopListening(this.core, Events.CORE_READY, this.bindPlaybackEvents);
-    this.stopListening(this.core.mediaControl, Events.MEDIACONTROL_CONTAINERCHANGED, this.reload);
-    // this.stopListening(this.core.mediaControl, Events.MEDIACONTROL_RENDERED);
-    this.stopListening(this.core, 'gear:rendered', this.render);
-    // this.stopListening(this.core.mediaControl, Events.MEDIACONTROL_HIDE);
+  private unBindEvents() {
+    this.stopListening(this.core, Events.CORE_READY, () =>
+      this.bindPlaybackEvents(),
+    )
+    this.stopListening(
+      this.core.mediaControl,
+      Events.MEDIACONTROL_CONTAINERCHANGED,
+      this.reload,
+    )
+    this.stopListening(this.core, 'gear:rendered', this.render)
   }
 
   private bindPlaybackEvents() {
-    this.currentLevel = NO_LEVEL;
-    this.removeAuto = false;
-    const currentPlayback = this.core.activePlayback;
+    this.removeAuto = false
+    this.isHd = false
 
-    this.listenTo(currentPlayback, Events.PLAYBACK_LEVELS_AVAILABLE, this.fillLevels);
-    this.listenTo(currentPlayback, Events.PLAYBACK_LEVEL_SWITCH_START, this.startLevelSwitch);
-    this.listenTo(currentPlayback, Events.PLAYBACK_LEVEL_SWITCH_END, this.stopLevelSwitch);
-    this.listenTo(currentPlayback, Events.PLAYBACK_BITRATE, this.updateCurrentLevel);
+    const activePlayback = this.core.activePlayback
 
-    this.listenTo(currentPlayback, Events.PLAYBACK_STOP, this.onStop);
-
-    const playbackLevelsAvailableWasTriggered = currentPlayback.levels && currentPlayback.levels.length > 0;
-
-    playbackLevelsAvailableWasTriggered && this.fillLevels(currentPlayback.levels);
+    this.listenTo(activePlayback, Events.PLAYBACK_LEVELS_AVAILABLE, (levels: QualityLevel[]) =>
+      this.fillLevels(levels),
+    )
+    this.listenTo(
+      activePlayback,
+      Events.PLAYBACK_LEVEL_SWITCH_START,
+      this.onLevelSwitchStart,
+    )
+    this.listenTo(
+      activePlayback,
+      Events.PLAYBACK_LEVEL_SWITCH_END,
+      this.onLevelSwitchEnd,
+    )
+    this.listenTo(
+      activePlayback,
+      Events.PLAYBACK_BITRATE,
+      this.updateCurrentLevel,
+    )
+    this.listenTo(activePlayback, Events.PLAYBACK_STOP, this.onStop)
+    this.listenTo(
+      activePlayback,
+      Events.PLAYBACK_HIGHDEFINITIONUPDATE,
+      (isHd: boolean) => {
+        this.isHd = isHd
+        this.deferRender()
+      },
+    )
+    if (activePlayback?.levels?.length > 0) {
+      this.fillLevels(activePlayback.levels)
+    }
   }
 
-  onStop() {
-    const currentPlayback = this.core.activePlayback;
+  private onStop() {
+    trace(`${T} onStop`)
+    const currentPlayback = this.core.activePlayback
 
     this.listenToOnce(currentPlayback, Events.PLAYBACK_PLAY, () => {
+      trace(`${T} on PLAYBACK_PLAY after stop`, { selectedLevelId: this.selectedLevelId })
       if (currentPlayback.getPlaybackType() === 'live') {
         if (this.selectedLevelId !== -1) {
-          currentPlayback.currentLevel = this.findLevelBy(this.selectedLevelId) || NO_LEVEL;
+          currentPlayback.currentLevel = this.selectedLevelId
         }
       }
-    });
+    })
   }
 
-  reload() {
-    this.unBindEvents();
-    this.bindEvents();
-    this.bindPlaybackEvents();
+  private reload() {
+    this.unBindEvents()
+    this.bindEvents()
+    this.bindPlaybackEvents()
   }
 
-  shouldRender() {
+  private shouldRender() {
     if (!this.core.activeContainer) {
-      return false;
+      return false
     }
 
-    const currentPlayback = this.core.activePlayback;
+    const activePlayback = this.core.activePlayback
 
-    if (!currentPlayback) {
-      return false;
+    if (!activePlayback) {
+      return false
     }
 
-    // TODO typeof currentPlayback.currentLevel === 'number' should it be
-    const respondsToCurrentLevel = currentPlayback.currentLevel !== undefined;
+    const supportsCurrentLevel = 'currentLevel' in activePlayback
+    if (!supportsCurrentLevel) {
+      return false
+    }
     // Only care if we have at least 2 to choose from
-    const hasLevels = !!(this.levels && this.levels.length > 1);
-
-    return respondsToCurrentLevel && hasLevels;
+    return !!(this.levels && this.levels.length > 1)
   }
 
   override render() {
-    if (this.shouldRender()) {
-      // this.$el.html(this.template({ 'levels': this.levels, 'title': this.getTitle() }));
-      const t = template(buttonHtml);
+    if (!this.shouldRender()) {
+      return this
+    }
 
-      this.$el.html(t({
-        currentText: this.currentText,
-        hdIcon,
+    this.renderButton()
+    this.renderButton()
+
+    return this
+  }
+
+  private renderButton() {
+    if (!this.buttonTemplate) {
+      this.buttonTemplate = template(buttonHtml)
+    }
+
+    if (!this.isOpen) {
+      const html = this.buttonTemplate?.({
         arrowRightIcon,
-      }));
-
-      this.core.mediaControl.$el?.find('.gear-options-list [data-quality]').html(this.el);
-
-      // this.highlightCurrentLevel();
+        currentText: this.currentText,
+        isHd: this.isHd,
+        hdIcon,
+      })
+      this.$el.html(html)
+      this.core.mediaControl.$el
+        ?.find('.gear-options-list [data-quality]')
+        .html(this.el)
     }
-
-    if (this.removeAuto) {
-      this.core.mediaControl
-        .$el
-        .find('.gear-options-list [data-quality]')
-        .find('[data-level-selector-select="-1"]')
-        .parent()
-        .remove();
-    }
-
-    return this;
   }
 
-  private fillLevels(levels: QualityLevel[], initialLevel = AUTO) {
-    trace(`${T} fillLevels`, { levels, initialLevel });
-    // Player.player.trigger('levels', levels);
-    // this.core.trigger('levels', levels);
-    // TODO fire directly on the plugin object
-    // Remove quality selector if it's not HLS
-    if (initialLevel !== -1) {
-      this.removeAuto = true;
+  private renderDropdown() {
+    if (!this.listTemplate) {
+      this.listTemplate = template(listHtml)
     }
-
-    // if (this.selectedLevelId === undefined) { // TODO compare with AUTO?
-    //   this.selectedLevelId = initialLevel;
-    // }
-    this.levels = levels;
-    this.configureLevelsLabels();
-    this.render();
+    const html = this.listTemplate!({
+      levels: this.levels,
+      labels: this.levelLabels,
+      arrowLeftIcon,
+      checkIcon,
+      maxLevel: this.maxLevel,
+      removeAuto: this.removeAuto,
+    })
+    this.$el.html(html)
+    this.core.mediaControl.$el?.find('.gear-wrapper').html(this.el)
   }
 
-  configureLevelsLabels() {
-    const labels = this.core.options.levelSelector?.labels;
-    this.levelLabels = [];
+  private get maxLevel() {
+    const maxRes = this.core.options.levelSelector?.restrictResolution
+    return maxRes
+      ? this.levels.findIndex(
+          (level) =>
+            level.height === maxRes,
+        )
+      : -1
+  }
+
+  private fillLevels(levels: QualityLevel[]) {
+    const maxResolution = this.core.options.levelSelector?.restrictResolution
+    this.levels = levels
+    this.makeLevelsLabels()
+    if (maxResolution) {
+      this.removeAuto = true
+      // TODO account for vertical resolutions, i.e, normalize the resolution to the width
+      const initialLevel = levels
+        .filter((level) => level.height <= maxResolution)
+        .pop()
+      this.setLevel(initialLevel?.level ?? 0)
+    }
+    this.deferRender()
+  }
+
+  private makeLevelsLabels() {
+    const labels = this.core.options.levelSelector?.labels
+    this.levelLabels = []
 
     if (labels) {
       for (let i = 0; i < this.levels.length; i++) {
-        const level = this.levels[i];
-        const ll = level.width > level.height ? level.height : level.width;
-        const label = labels[ll] || `${ll}p`;
-        this.levelLabels.push(label);
+        const level = this.levels[i]
+        const ll = level.width > level.height ? level.height : level.width
+        const label = labels[ll] || `${ll}p`
+        this.levelLabels.push(label)
       }
     }
   }
 
   private findLevelBy(id: number): QualityLevel | undefined {
-    return this.levels.find((level) => level.level === id);
+    return this.levels.find((level) => level.level === id)
   }
 
   private onLevelSelect(event: MouseEvent) {
-    const selectedLevel = parseInt((event.currentTarget as HTMLElement)?.dataset?.id ?? "-1", 10);
-    this.setIndexLevel(selectedLevel);
-    // this.toggleContextMenu();
-    event.stopPropagation();
-    return false;
+    const selectedLevel = parseInt(
+      (event.currentTarget as HTMLElement)?.dataset?.id ?? '-1',
+      10,
+    )
+    this.setLevel(selectedLevel)
+    event.stopPropagation()
+    return false
   }
 
-  goBack() {
-    this.core.trigger('gear:refresh');
+  private goBack() {
+    trace(`${T} goBack`)
+    this.isOpen = false
+    this.core.trigger('gear:refresh')
+    this.deferRender()
   }
 
-  setIndexLevel(index: number) {
-    this.selectedLevelId = index;
+  private setLevel(index: number) {
+    trace(`${T} setIndexLevel`, { index })
+    this.selectedLevelId = index
     if (!this.core.activePlayback) {
-      return;
+      return
     }
     if (this.core.activePlayback.currentLevel === this.selectedLevelId) {
-      return false;
+      return
     }
-    this.core.activePlayback.currentLevel = this.selectedLevelId;
+    this.core.activePlayback.currentLevel = this.selectedLevelId
 
     try {
-      this.updateText(this.selectedLevelId);
-      this.highlightCurrentLevel();
+      this.highlightCurrentLevel()
     } catch (error) {
-      reportError(error);
+      reportError(error)
     }
+    this.deferRender()
   }
 
-  onShowLevelSelectMenu() {
-    const t = template(listHtml);
-
-    this.$el.html(t({
-      levels: this.levels,
-      labels: this.levelLabels,
-      arrowLeftIcon,
-      checkIcon,
-    }));
-
-    this.core.mediaControl.$el?.find('.gear-wrapper').html(this.el);
-    this.highlightCurrentLevel();
+  private onShowLevelSelectMenu() {
+    trace(`${T} onShowLevelSelectMenu`)
+    this.isOpen = true
+    this.renderDropdown()
+    this.highlightCurrentLevel()
   }
 
-  allLevelElements() {
-    return this.$('ul.gear-sub-menu li') as ZeptoResult;
+  private allLevelElements() {
+    return this.$('ul.gear-sub-menu li') as ZeptoResult
   }
 
-  levelElement(id = -1) {
-    return (this.$(`ul.gear-sub-menu a[data-id="${id}"]`) as ZeptoResult).parent();
+  private levelElement(id = -1) {
+    return (
+      this.$(`ul.gear-sub-menu a[data-id="${id}"]`) as ZeptoResult
+    ).parent()
   }
 
-  getTitle() {
-    return (this.core.options.levelSelector || {}).title;
+  private getTitle() {
+    return (this.core.options.levelSelector || {}).title
   }
 
-  startLevelSwitch() {
-    // Player.player.trigger('startLevelSwitch');
-    this.core.activePlayback.trigger('playback:level:select:start');
-    this.levelElement(this.selectedLevelId).addClass('changing');
+  private onLevelSwitchStart() {
+    this.core.activePlayback.trigger('playback:level:select:start')
+    this.levelElement(this.selectedLevelId).addClass('changing')
   }
 
-  stopLevelSwitch() {
-    if (this.core.activePlayback) {
-      this.core.activePlayback.trigger('playback:level:select:end',
-        {
-          label: this.getLevelLabel(this.selectedLevelId)
-        });
-    }
-    this.levelElement(this.selectedLevelId).removeClass('changing');
-    // Player.player.trigger('stopLevelSwitch');
+  private onLevelSwitchEnd() {
+    this.levelElement(this.selectedLevelId).removeClass('changing')
   }
 
   private updateText(level: number) {
     if (level === undefined || isNaN(level)) {
-      return;
+      return
     }
-    this.currentText = this.getLevelLabel(level);
+    this.currentText = this.getLevelLabel(level)
+    this.deferRender()
   }
 
   private getLevelLabel(id: number): string {
     if (id === -1) {
-      return 'Auto';
+      return 'Auto'
     }
-    const index = this.levels.findIndex((l) => l.level === id);
+    const index = this.levels.findIndex((l) => l.level === id)
     if (index < 0) {
-      return 'Auto';
+      return 'Auto'
     }
-    return this.levelLabels[index] || formatLevelLabel(this.levels[index]);
+    return this.levelLabels[index] ?? formatLevelLabel(this.levels[index])
   }
 
   private updateCurrentLevel(info: QualityLevel) {
-    trace(`${T} updateCurrentLevel`, { info, levels: this.levels });
-    const level = this.findLevelBy(info.level);
-
-    this.currentLevel = level ? level : null;
-    this.highlightCurrentLevel();
-    // Player.player.trigger('updateCurrentLevel', info);
+    trace(`${T} updateCurrentLevel`, { info, levels: this.levels })
+    this.highlightCurrentLevel()
   }
 
   private highlightCurrentLevel() {
-    trace(`${T} highlightCurrentLevel`, { currentLevel: this.currentLevel, selectedLevelId: this.selectedLevelId });
-    this.allLevelElements().removeClass('current');
-    this.allLevelElements().find('a').removeClass('gcore-skin-active');
+    trace(`${T} highlightCurrentLevel`, {
+      selectedLevelId: this.selectedLevelId,
+    })
+    this.allLevelElements().removeClass('current')
+    this.allLevelElements().find('a').removeClass('gcore-skin-active')
 
-    if (this.currentLevel) {
-      const currentLevelElement = this.levelElement(this.selectedLevelId);
+    if (this.selectedLevelId >= 0) {
+      const currentLevelElement = this.levelElement(this.selectedLevelId)
 
-      currentLevelElement.addClass('current');
-      currentLevelElement.find('a').addClass('gcore-skin-active');
+      currentLevelElement.addClass('current')
+      currentLevelElement.find('a').addClass('gcore-skin-active')
     }
 
-    this.updateText(this.selectedLevelId);
+    this.updateText(this.selectedLevelId)
   }
+
+  private deferRender = debounce(() => this.render(), 0)
 }
 
 function formatLevelLabel(level: QualityLevel): string {
-  const h = level.width > level.height ? level.height : level.width;
-  return `${h}p`;
+  const h = level.width > level.height ? level.height : level.width
+  return `${h}p`
+}
+
+function debounce(fn: () => void, wait: number) {
+  let timerId: ReturnType<typeof setTimeout> | null = null
+  return function () {
+    if (timerId !== null) {
+      clearTimeout(timerId)
+    }
+    timerId = setTimeout(() => {
+      timerId = null
+      fn()
+    }, wait)
+  }
 }

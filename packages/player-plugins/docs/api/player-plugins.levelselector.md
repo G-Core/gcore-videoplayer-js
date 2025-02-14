@@ -4,12 +4,37 @@
 
 ## LevelSelector class
 
+> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
+> 
+
+Allows to control the quality level of the playback.
+
 **Signature:**
 
 ```typescript
 export declare class LevelSelector extends UICorePlugin 
 ```
 **Extends:** UICorePlugin
+
+## Remarks
+
+The plugin is rendered as a button in the gear menu. When clicked, it shows a list of quality levels to choose from.
+
+Configuration options:
+
+- `labels`<!-- -->: The labels to show in the level selector. \[vertical resolution\]: string - `restrictResolution`<!-- -->: The maximum resolution to allow in the level selector. - `title`<!-- -->: The title to show in the level selector.
+
+## Example
+
+
+```ts
+{
+  levelSelector: {
+    restrictResolution: 360,
+    labels: { 360: '360p', 720: '720p' },
+  },
+}
+```
 
 ## Properties
 
@@ -51,6 +76,8 @@ Description
 
 </td><td>
 
+**_(BETA)_**
+
 
 </td></tr>
 <tr><td>
@@ -69,6 +96,8 @@ Description
 
 
 </td><td>
+
+**_(BETA)_**
 
 
 </td></tr>
@@ -89,6 +118,8 @@ string
 
 </td><td>
 
+**_(BETA)_**
+
 
 </td></tr>
 <tr><td>
@@ -107,6 +138,8 @@ string
 
 
 </td><td>
+
+**_(BETA)_**
 
 
 </td></tr>
@@ -128,6 +161,8 @@ string
 
 
 </td><td>
+
+**_(BETA)_**
 
 
 </td></tr>
@@ -153,18 +188,6 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-[allLevelElements()](./player-plugins.levelselector.alllevelelements.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
 [bindEvents()](./player-plugins.levelselector.bindevents.md)
 
 
@@ -173,89 +196,7 @@ Description
 
 </td><td>
 
-
-</td></tr>
-<tr><td>
-
-[configureLevelsLabels()](./player-plugins.levelselector.configurelevelslabels.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[getTitle()](./player-plugins.levelselector.gettitle.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[goBack()](./player-plugins.levelselector.goback.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[levelElement(id)](./player-plugins.levelselector.levelelement.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[onShowLevelSelectMenu()](./player-plugins.levelselector.onshowlevelselectmenu.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[onStop()](./player-plugins.levelselector.onstop.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[reload()](./player-plugins.levelselector.reload.md)
-
-
-</td><td>
-
-
-</td><td>
+**_(BETA)_**
 
 
 </td></tr>
@@ -269,65 +210,7 @@ Description
 
 </td><td>
 
-
-</td></tr>
-<tr><td>
-
-[setIndexLevel(index)](./player-plugins.levelselector.setindexlevel.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[shouldRender()](./player-plugins.levelselector.shouldrender.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[startLevelSwitch()](./player-plugins.levelselector.startlevelswitch.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[stopLevelSwitch()](./player-plugins.levelselector.stoplevelswitch.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[unBindEvents()](./player-plugins.levelselector.unbindevents.md)
-
-
-</td><td>
-
-
-</td><td>
+**_(BETA)_**
 
 
 </td></tr>

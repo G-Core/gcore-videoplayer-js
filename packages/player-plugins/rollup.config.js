@@ -3,6 +3,7 @@ import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
 import sass from 'rollup-plugin-sass';
 import { string } from 'rollup-plugin-string';
+import json from '@rollup/plugin-json';
 import polyfillNode from 'rollup-plugin-polyfill-node';
 
 export default [
@@ -15,6 +16,7 @@ export default [
       }),
       commonjs(),
       resolve(),
+      json(),
       string({
         include: [
           '**/*.ejs',

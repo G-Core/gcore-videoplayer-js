@@ -428,6 +428,11 @@ export default class HlsPlayback extends HTML5Video {
         this._onLevelSwitch(evt, data),
     )
     this._hls.on(
+      HLSJS.Events.LEVEL_SWITCHED,
+      (evt: HlsEvents.LEVEL_SWITCHED, data: { level: number }) =>
+        this._onLevelSwitched(evt, data),
+    )
+    this._hls.on(
       HLSJS.Events.FRAG_CHANGED,
       (evt: HlsEvents.FRAG_CHANGED, data: FragChangedData) =>
         this._onFragmentChanged(evt, data),
@@ -512,7 +517,10 @@ export default class HlsPlayback extends HTML5Video {
       this._hls.recoverMediaError()
     } else {
       Log.error('hlsjs: failed to recover', { evt, data })
-      trace(`${T} _recover failed to recover`, { type: data.type, details: data.details })
+      trace(`${T} _recover failed to recover`, {
+        type: data.type,
+        details: data.details,
+      })
       error.level = PlayerError.Levels.FATAL
 
       this.triggerError(error)
@@ -615,7 +623,11 @@ export default class HlsPlayback extends HTML5Video {
   }
 
   _onHLSJSError(evt: HlsEvents.ERROR, data: HlsErrorData) {
-    trace(`${T} _onHLSJSError`, { fatal: data.fatal, type: data.type, details: data.details })
+    trace(`${T} _onHLSJSError`, {
+      fatal: data.fatal,
+      type: data.type,
+      details: data.details,
+    })
     const error: PlaybackError = {
       code: PlaybackErrorCode.Generic,
       description: `${this.name} error: type: ${data.type}, details: ${data.details} fatal: ${data.fatal}`,
@@ -660,9 +672,12 @@ export default class HlsPlayback extends HTML5Video {
                   evt,
                   data,
                 })
-                trace(`${T} _onHLSJSError trying to recover from network error`, {
-                  details: data.details,
-                })
+                trace(
+                  `${T} _onHLSJSError trying to recover from network error`,
+                  {
+                    details: data.details,
+                  },
+                )
                 error.level = PlayerError.Levels.WARN
                 this._hls?.startLoad()
                 break
@@ -708,7 +723,10 @@ export default class HlsPlayback extends HTML5Video {
       }
 
       Log.warn('hlsjs: non-fatal error occurred', { evt, data })
-      trace(`${T} _onHLSJSError non-fatal error occurred`, { type: data.type, details: data.details })
+      trace(`${T} _onHLSJSError non-fatal error occurred`, {
+        type: data.type,
+        details: data.details,
+      })
     }
   }
 
@@ -1038,23 +1056,26 @@ export default class HlsPlayback extends HTML5Video {
     if (!this.levels.length) {
       this._fillLevels()
     }
-    this.trigger(Events.PLAYBACK_LEVEL_SWITCH_END)
     this.trigger(Events.PLAYBACK_LEVEL_SWITCH, data)
-    assert(this._hls, 'Hls.js instance is not available')
-    const currentLevel = this._hls.levels[data.level]
+  }
 
-    if (currentLevel) {
-      // TODO should highDefinition be private and maybe have a read only accessor if it's used somewhere
-      this.highDefinition =
-        currentLevel.height >= 720 || currentLevel.bitrate / 1000 >= 2000
-      this.trigger(Events.PLAYBACK_HIGHDEFINITIONUPDATE, this.highDefinition)
-      this.trigger(Events.PLAYBACK_BITRATE, {
-        height: currentLevel.height,
-        width: currentLevel.width,
-        bitrate: currentLevel.bitrate,
-        level: data.level,
-      })
-    }
+  _onLevelSwitched(evt: HlsEvents.LEVEL_SWITCHED, data: { level: number }) {
+    // @ts-ignore
+    const currentLevel = this._hls.levels[data.level] // TODO or find by .id == level?
+    assert.ok(currentLevel, 'Invalid quality level')
+    this._currentLevel = data.level
+
+    // TODO should highDefinition be private and maybe have a read only accessor if it's used somewhere
+    this.highDefinition =
+      currentLevel.height >= 720 || currentLevel.bitrate / 1000 >= 2000
+    this.trigger(Events.PLAYBACK_HIGHDEFINITIONUPDATE, this.highDefinition)
+    this.trigger(Events.PLAYBACK_BITRATE, {
+      height: currentLevel.height,
+      width: currentLevel.width,
+      bitrate: currentLevel.bitrate,
+      level: data.level,
+    })
+    this.trigger(Events.PLAYBACK_LEVEL_SWITCH_END)
   }
 
   get dvrEnabled() {

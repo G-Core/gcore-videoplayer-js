@@ -9,6 +9,7 @@ import {
   Playback,
   PlayerError,
   Utils,
+  $,
 } from '@clappr/core'
 import { trace } from '@gcorevideo/utils'
 import assert from 'assert'
@@ -139,12 +140,15 @@ export default class DashPlayback extends HTML5Video {
     const dash = this._dash
 
     // TODO use $.extend
-    const settings = this.options.dash ? structuredClone(this.options.dash) : {}
-    settings.streaming = settings.streaming || {}
-    settings.streaming.abr = settings.streaming.abr || {}
-    settings.streaming.abr.autoSwitchBitrate =
-      settings.streaming.abr.autoSwitchBitrate || {}
-    settings.streaming.abr.autoSwitchBitrate.video = id === -1
+    const settings = $.extend(true, {}, this.options.dash, {
+      streaming: {
+        abr: {
+          autoSwitchBitrate: {
+            video: id === -1,
+          },
+        },
+      },
+    })
 
     dash.updateSettings(settings)
     if (id !== -1) {
@@ -237,16 +241,14 @@ export default class DashPlayback extends HTML5Video {
 
     if (this.options.dash) {
       // TODO use $.extend
-      const settings = structuredClone(this.options.dash)
-      if (!settings.streaming) {
-        settings.streaming = {}
-      }
-      if (!settings.streaming.text) {
-        settings.streaming.text = {
-          defaultEnabled: false,
-        }
-      }
-      this._dash.updateSettings(this.options.dash)
+      const settings = $.extend({}, this.options.dash, {
+        streaming: {
+          text: {
+            defaultEnabled: false,
+          },
+        },
+      })
+      this._dash.updateSettings(settings)
     }
 
     this._dash.attachView(this.el)
@@ -265,18 +267,16 @@ export default class DashPlayback extends HTML5Video {
 
       this._updatePlaybackType()
       this._fillLevels(bitrates)
+
       dash.on(DASHJS.MediaPlayer.events.QUALITY_CHANGE_REQUESTED, (evt) => {
-        // TODO
-        assert.ok(
-          this._levels,
-          'An array of levels is required to change quality',
-        )
-        const newLevel = this._levels.find(
-          (level) => level.level === evt.newQuality,
-        ) // TODO or simply this._levels[evt.newQuality]?
-        assert.ok(newLevel, 'A valid level is required to change quality')
+        const newLevel = this.getLevel(evt.newQuality)
         this.onLevelSwitch(newLevel)
       })
+    })
+
+    this._dash.on(DASHJS.MediaPlayer.events.QUALITY_CHANGE_RENDERED, (evt: DASHJS.QualityChangeRenderedEvent) => {
+      const currentLevel = this.getLevel(evt.newQuality)
+      this.onLevelSwitchEnd(currentLevel)
     })
 
     this._dash.on(
@@ -611,6 +611,9 @@ export default class DashPlayback extends HTML5Video {
   private onLevelSwitch(currentLevel: QualityLevel) {
     // TODO check the two below
     this.trigger(Events.PLAYBACK_LEVEL_SWITCH, currentLevel)
+  }
+
+  private onLevelSwitchEnd(currentLevel: QualityLevel) {
     this.trigger(Events.PLAYBACK_LEVEL_SWITCH_END)
     const isHD =
       currentLevel.height >= 720 || currentLevel.bitrate / 1000 >= 2000
@@ -624,6 +627,12 @@ export default class DashPlayback extends HTML5Video {
 
   isSeekEnabled() {
     return this._playbackType === Playback.VOD || this.dvrEnabled
+  }
+
+  private getLevel(quality: number) {
+    const ret = this.levels.find((level) => level.level === quality)
+    assert.ok(ret, 'Invalid quality level')
+    return ret
   }
 }
 
