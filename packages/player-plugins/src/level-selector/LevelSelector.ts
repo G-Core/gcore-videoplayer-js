@@ -194,7 +194,6 @@ export class LevelSelector extends UICorePlugin {
     }
 
     this.renderButton()
-    this.renderButton()
 
     return this
   }
@@ -223,10 +222,10 @@ export class LevelSelector extends UICorePlugin {
       this.listTemplate = template(listHtml)
     }
     const html = this.listTemplate!({
-      levels: this.levels,
-      labels: this.levelLabels,
       arrowLeftIcon,
       checkIcon,
+      labels: this.levelLabels,
+      levels: this.levels,
       maxLevel: this.maxLevel,
       removeAuto: this.removeAuto,
     })
@@ -260,16 +259,14 @@ export class LevelSelector extends UICorePlugin {
   }
 
   private makeLevelsLabels() {
-    const labels = this.core.options.levelSelector?.labels
+    const labels = this.core.options.levelSelector?.labels ?? {}
     this.levelLabels = []
 
-    if (labels) {
-      for (let i = 0; i < this.levels.length; i++) {
-        const level = this.levels[i]
-        const ll = level.width > level.height ? level.height : level.width
-        const label = labels[ll] || `${ll}p`
-        this.levelLabels.push(label)
-      }
+    for (let i = 0; i < this.levels.length; i++) {
+      const level = this.levels[i]
+      const ll = level.width > level.height ? level.height : level.width
+      const label = labels[ll] || `${ll}p`
+      this.levelLabels.push(label)
     }
   }
 
@@ -363,7 +360,7 @@ export class LevelSelector extends UICorePlugin {
   }
 
   private updateCurrentLevel(info: QualityLevel) {
-    trace(`${T} updateCurrentLevel`, { info, levels: this.levels })
+    trace(`${T} updateCurrentLevel`, { info })
     this.highlightCurrentLevel()
   }
 

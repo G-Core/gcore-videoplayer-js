@@ -1,6 +1,6 @@
 {
   "name": "@gcorevideo/player-plugins",
-  "version": "0.11.0",
+  "version": "0.11.3",
   "versions": {
     "level_selector": "0.0.2"
   },

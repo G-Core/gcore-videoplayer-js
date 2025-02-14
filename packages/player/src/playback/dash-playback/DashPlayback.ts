@@ -139,7 +139,6 @@ export default class DashPlayback extends HTML5Video {
     )
     const dash = this._dash
 
-    // TODO use $.extend
     const settings = $.extend(true, {}, this.options.dash, {
       streaming: {
         abr: {
