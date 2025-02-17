@@ -36,7 +36,7 @@ jobs:
           tar xf package.tgz
       - name: Upload to the bucket
         run: |
-          LIBDIR=`pwd`/deploy
+          LIBDIR=`pwd`/cicd
           cd package/lib
           python $LIBDIR/sri.py \
             -a sha256 \
