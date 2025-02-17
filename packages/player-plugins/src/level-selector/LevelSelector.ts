@@ -371,12 +371,10 @@ export class LevelSelector extends UICorePlugin {
     this.allLevelElements().removeClass('current')
     this.allLevelElements().find('a').removeClass('gcore-skin-active')
 
-    if (this.selectedLevelId >= 0) {
-      const currentLevelElement = this.levelElement(this.selectedLevelId)
+    const currentLevelElement = this.levelElement(this.selectedLevelId)
 
-      currentLevelElement.addClass('current')
-      currentLevelElement.find('a').addClass('gcore-skin-active')
-    }
+    currentLevelElement.addClass('current')
+    currentLevelElement.find('a').addClass('gcore-skin-active')
 
     this.updateText(this.selectedLevelId)
   }

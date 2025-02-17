@@ -266,6 +266,10 @@ export default class DashPlayback extends HTML5Video {
 
       this._updatePlaybackType()
       this._fillLevels(bitrates)
+      const currentLevel = dash.getQualityFor('video')
+      if (currentLevel !== -1) {
+        this.trigger(Events.PLAYBACK_BITRATE, this.getLevel(currentLevel))
+      }
 
       dash.on(DASHJS.MediaPlayer.events.QUALITY_CHANGE_REQUESTED, (evt) => {
         const newLevel = this.getLevel(evt.newQuality)
