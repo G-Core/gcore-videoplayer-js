@@ -27,7 +27,6 @@ jobs:
           python -m pip install -r cicd/requirements.txt
       - name: Download dist archive
         run: |
-          VERSION=${{ github.ref_name }}
           VERSION=${VERSION#v}
           curl \
             -LSfs \
@@ -37,6 +36,7 @@ jobs:
       - name: Upload to the bucket
         run: |
           LIBDIR=`pwd`/cicd
+          VERSION=${VERSION#v}
           cd package/lib
           python $LIBDIR/sri.py \
             -a sha256 \
@@ -50,3 +50,5 @@ jobs:
           S3_HOSTNAME: ${{ secrets.S3_HOSTNAME }}
           S3_ACCESS_KEY: ${{ secrets.S3_ACCESS_KEY }}
           S3_SECRET_KEY: ${{ secrets.S3_SECRET_KEY }}
+    env:
+      VERSION: ${{ github.ref_name }}
