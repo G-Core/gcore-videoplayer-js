@@ -37,7 +37,7 @@ jobs:
         run: |
           LIBDIR=`pwd`/cicd
           VERSION=${VERSION#v}
-          cd package/lib
+          cd package/dist
           python $LIBDIR/sri.py \
             -a sha256 \
             ./**/*.* > ./SHA256.txt
