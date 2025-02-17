@@ -19,6 +19,6 @@
   "homepage": "https://github.com/G-Core/gcore-videoplayer-js#readme",
   "devDependencies": {
     "license-checker": "^25.0.1",
-    "oxlint": "^0.13.2"
+    "oxlint": "^0.15.11"
   }
 }
