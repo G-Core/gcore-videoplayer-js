@@ -17,7 +17,7 @@ export default [
     ],
     output: [
       {
-        file: 'dist/index.js',
+        file: 'dist/core.js',
         format: 'es',
         generatedCode: 'es2015',
       }
@@ -50,5 +50,33 @@ export default [
         generatedCode: 'es2015',
       }
     ]
-  }
+  },
+  {
+    input: 'lib/index.js',
+    plugins: [
+      resolve(), // TODO check which aren't inlined in the bundle and put them here
+      commonjs(),
+      json(),
+      polyfillNode(),
+      sass({
+        output: 'dist/index.css',
+        verbose: true,
+      }),
+      string({
+        include: [
+          '**/*.ejs',
+          '**/*.html',
+          '**/*.svg',
+          '**/*.worker.js',
+        ],
+      }),
+    ],
+    output: [
+      {
+        file: 'dist/index.js',
+        format: 'es',
+        generatedCode: 'es2015',
+      }
+    ]
+  },
 ];

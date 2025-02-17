@@ -35,7 +35,6 @@ export * from "./plugins/spinner-three-bounce/SpinnerThreeBounce.js";
 export * from "./plugins/statistics/Statistics.js";
 export * from "./plugins/subtitles/Subtitles.js";
 export * from "./plugins/thumbnails/Thumbnails.js";
-export { setTracer} from "@gcorevideo/utils";
 export * from "./plugins/source-controller/SourceController.js";
 // _ vast-ads
 // _ video360

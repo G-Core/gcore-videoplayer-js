@@ -14,7 +14,7 @@ import '../../../assets/level-selector/style.scss'
 
 
 const T = 'plugins.level_selector'
-const VERSION = '2.18.3'
+const VERSION = '2.19.4'
 
 type TemplateFunction = (data: Record<string, unknown>) => string
 
@@ -89,25 +89,8 @@ export class LevelSelector extends UICorePlugin {
   }
 
   override bindEvents() {
-    this.listenTo(this.core, Events.CORE_READY, () => this.bindPlaybackEvents())
-    this.listenTo(
-      this.core.mediaControl,
-      Events.MEDIACONTROL_CONTAINERCHANGED,
-      this.reload,
-    )
+    this.listenTo(this.core, Events.CORE_ACTIVE_CONTAINER_CHANGED, () => this.bindPlaybackEvents())
     this.listenTo(this.core, 'gear:rendered', this.render)
-  }
-
-  private unBindEvents() {
-    this.stopListening(this.core, Events.CORE_READY, () =>
-      this.bindPlaybackEvents(),
-    )
-    this.stopListening(
-      this.core.mediaControl,
-      Events.MEDIACONTROL_CONTAINERCHANGED,
-      this.reload,
-    )
-    this.stopListening(this.core, 'gear:rendered', this.render)
   }
 
   private bindPlaybackEvents() {
@@ -160,12 +143,6 @@ export class LevelSelector extends UICorePlugin {
         }
       }
     })
-  }
-
-  private reload() {
-    this.unBindEvents()
-    this.bindEvents()
-    this.bindPlaybackEvents()
   }
 
   private shouldRender() {

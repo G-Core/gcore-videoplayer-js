@@ -42,7 +42,7 @@ function noSync(cb: () => void) {
  *
  * @example
  * ```ts
- * import { SourceController } from '@gcorevideo/player-plugins'
+ * import { SourceController } from '@gcorevideo/player'
  * 
  * Player.registerPlugin(SourceController)
  * ```

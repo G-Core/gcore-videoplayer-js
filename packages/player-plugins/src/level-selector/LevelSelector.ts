@@ -91,11 +91,7 @@ export class LevelSelector extends UICorePlugin {
 
   override bindEvents() {
     this.listenTo(this.core, Events.CORE_READY, () => this.bindPlaybackEvents())
-    this.listenTo(
-      this.core.mediaControl,
-      Events.MEDIACONTROL_CONTAINERCHANGED,
-      this.reload,
-    )
+    this.listenTo(this.core, Events.CORE_ACTIVE_CONTAINER_CHANGED, () => this.bindPlaybackEvents())
     this.listenTo(this.core, 'gear:rendered', this.render)
   }
 
