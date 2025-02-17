@@ -1,0 +1,8 @@
+<ul class="context-menu-list">
+    <% if(options) { %>
+        <% for (var i = 0; i < options.length; i++) { %>
+        <li class="context-menu-list-item <%= options[i].class %>"
+            data-<%= options[i].name %>><%= options[i].label %></li>
+        <% } %>
+    <% } %>
+</ul>

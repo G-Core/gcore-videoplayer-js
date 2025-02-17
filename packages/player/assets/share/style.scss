@@ -1,0 +1,104 @@
+
+.share_plugin[data-share] {
+  pointer-events: auto;
+  z-index: 5;
+  font-family: Roboto, "Open Sans", Arial, sans-serif !important;
+
+  &.share-hide {
+    .share-button-container {
+      right: -50px;
+    }
+  }
+
+  .share-button-container {
+    cursor: pointer;
+    width: 36px;
+    height: 36px;
+    background-color: rgb(74 74 74 / 60%);
+    border-radius: 4px;
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    padding-top: 6px;
+    transition: all 0.3s ease-out;
+
+    button[data-share-button] {
+      background-color: transparent;
+      border: 0;
+      margin: 0 6px;
+      padding: 0;
+      cursor: pointer;
+      display: inline-block;
+      width: 19px;
+      height: 20px;
+    }
+  }
+
+  .share-container {
+    pointer-events: auto;
+    position: absolute;
+    width: 280px;
+    background-color: white;
+    transform: translate(0, 50%);
+    transform: translate(-50%, -50%);
+    left: 50%;
+
+    /* margin-left: -140px; */
+    top: calc(50% - 20px);
+
+    /* margin-top: -170px; */
+    .share-container-header  {
+      text-align: left;
+      border-bottom: 1px solid rgb(155 155 155 / 25%);
+
+      .share-container-header--title {
+        display: inline-block;
+        font-size: 16px;
+        margin: 5px;
+      }
+
+      .share-container-header--close {
+        display: inline-block;
+        width: 24px;
+        float: right;
+        margin: 5px;
+        cursor: pointer;
+      }
+    }
+
+    .share-container-main {
+      margin-bottom: 8px;
+
+      & > div {
+        text-align: left;
+        font-size: 14px;
+        padding: 5px;
+      }
+
+      .share-container-header--link, .share-container-header--embed {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        color: #818181;
+        border: solid 1px #d3d3d3;
+        width: calc(100% - 10px);
+        padding: 5px;
+      }
+
+      .share-container-header--embed {
+        max-height: 90px;
+        resize: none;
+      }
+
+      .share-container-header--socialicon {
+        & > div {
+          width: 32px;
+          display: inline-block;
+          margin-right: 5px;
+          cursor: pointer;
+        }
+
+      }
+    }
+  }
+
+}

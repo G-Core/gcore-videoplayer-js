@@ -1,0 +1,390 @@
+@use "sass:meta";
+@use "container";
+@use "width270";
+@use "width370";
+// @import "https://fonts.googleapis.com/css?family=Roboto";
+
+.media-control-skin-1[data-media-control-skin-1] {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+  pointer-events: none;
+  font-family: Roboto, "Open Sans", Arial, sans-serif;
+
+  &.dragging {
+    pointer-events: auto;
+    cursor: grabbing !important;
+    cursor: url("closed-hand.cur"), move;
+
+    * {
+      cursor: grabbing !important;
+      cursor: url("closed-hand.cur"), move;
+    }
+  }
+
+  .media-control-icon {
+    line-height: 0;
+    letter-spacing: 0;
+    speak: none;
+    color: #fff;
+    vertical-align: middle;
+    text-align: left;
+    transition: all 0.1s ease;
+  }
+
+  .media-control-icon:hover {
+    color: white;
+  }
+
+  &.media-control-hide {
+    .media-control-background[data-background] {
+      opacity: 0;
+    }
+
+    .media-control-layer[data-controls] {
+      bottom: -50px;
+
+      .bar-scrubber[data-seekbar] {
+        opacity: 0;
+      }
+    }
+  }
+
+  .media-control-layer[data-controls] {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: var(--bottom-panel);
+    font-size: 0;
+    vertical-align: middle;
+    pointer-events: auto;
+    transition: bottom 0.4s ease-out;
+
+    .media-control-left-panel[data-media-control-skin-1] {
+      position: absolute;
+      top: 0;
+      left: 4px;
+      height: 100%;
+    }
+
+    .media-control-center-panel[data-media-control-skin-1] {
+      height: 100%;
+      text-align: center;
+      line-height: var(--bottom-panel);
+    }
+
+    .media-control-right-panel[data-media-control-skin-1] {
+      position: absolute;
+      top: 0;
+      right: 4px;
+      height: 100%;
+    }
+
+    button.media-control-button {
+      background-color: transparent;
+      border: 0;
+      padding: 0;
+      cursor: pointer;
+      display: inline-block;
+      height: 40px;
+      width: 20px;
+
+      svg {
+        height: 20px;
+
+        path {
+          fill: white;
+        }
+      }
+
+      &:focus {
+        outline: none;
+      }
+
+      &[data-play] {
+        float: left;
+        height: 100%;
+      }
+
+      &[data-pause] {
+        float: left;
+        height: 100%;
+      }
+
+      &[data-stop] {
+        float: left;
+        height: 100%;
+      }
+
+      &[data-fullscreen] {
+        float: right;
+        background-color: transparent;
+        border: 0;
+        margin-right: 12px;
+        height: 40px;
+      }
+
+      &[data-hd-indicator] {
+        background-color: transparent;
+        border: 0;
+        cursor: default;
+        display: none !important;
+        float: right;
+        height: 100%;
+      }
+
+      &[data-playpause], &[data-playstop] {
+        float: left;
+        margin-left: 8px;
+        margin-right: 14px;
+      }
+    }
+
+    .media-control-indicator {
+      &[data-position],
+      &[data-duration] {
+        display: inline-block;
+        float: left;
+        font-size: 14px;
+        color: white;
+        cursor: default;
+        line-height: var(--bottom-panel);
+        position: relative;
+      }
+
+      &[data-position] {
+        margin: 1px 6px 0 7px;
+      }
+
+      &[data-duration] {
+        &::before {
+          content: "|";
+          margin-right: 7px;
+        }
+
+        color: rgb(255 255 255);
+        opacity: 0.5;
+        margin-top: 1px;
+        margin-right: 6px;
+      }
+    }
+
+    .media-clip-container {
+      display: none;
+
+      .media-clip-text,
+      .media-clip-point {
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
+        display: inline-block;
+        float: left;
+        font-size: 14px;
+        color: white;
+        cursor: default;
+        line-height: var(--bottom-panel);
+        position: relative;
+      }
+
+      .media-clip-point {
+        margin-right: 6px;
+      }
+
+      .media-clip-text {
+        max-width: calc(80% - 240px);
+      }
+    }
+
+    .bar-container[data-seekbar] {
+      position: absolute;
+      top: -11px;
+      left: 0;
+      display: inline-block;
+      vertical-align: middle;
+      width: 100%;
+      height: 20px;
+      cursor: pointer;
+
+      .bar-background[data-seekbar] {
+        width: 100%;
+        height: 3px;
+        position: relative;
+        top: 8px;
+        background-color: #666;
+
+        .bar-fill-1[data-seekbar] {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 0;
+          height: 100%;
+          background-color: white;
+          transition: all 0.1s ease-out;
+        }
+
+        .bar-fill-2[data-seekbar] {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 0;
+          height: 100%;
+          background-color: #ff5700;
+          transition: all 0.1s ease-out;
+        }
+      }
+
+      &.seek-disabled {
+        cursor: default;
+        display: none;
+      }
+    }
+
+    .bar-container[data-seekbar].seek-disabled + .bar-scrubber[data-seekbar] {
+      cursor: default;
+      display: none;
+    }
+
+    .bar-scrubber[data-seekbar] {
+      position: absolute;
+      transform: translateX(-50%);
+      top: -11.5px;
+      left: 0;
+      width: 20px;
+      height: 20px;
+      opacity: 1;
+      transition: all 0.1s ease-out;
+
+      .bar-scrubber-icon[data-seekbar] {
+        position: absolute;
+        left: 4.5px;
+        top: 4.5px;
+        width: 11px;
+        height: 11px;
+        border-radius: 50%;
+        background-color: white;
+      }
+    }
+
+    .drawer-container[data-volume] {
+      float: left;
+      display: inline-block;
+      height: var(--bottom-panel);
+      cursor: pointer;
+      box-sizing: border-box;
+      margin-right: 20px;
+
+      .drawer-icon-container[data-volume] {
+        float: left;
+        bottom: 0;
+
+        .drawer-icon[data-volume] {
+          background-color: transparent;
+          border: 0;
+          box-sizing: content-box;
+          height: var(--bottom-panel);
+          width: 20px;
+
+          svg {
+            height: 20px;
+            position: relative;
+            top: 3px;
+            margin-top: 7px;
+
+            path {
+              fill: white;
+            }
+          }
+
+          &.muted svg {
+            margin-left: 2px;
+          }
+        }
+      }
+
+      .bar-container[data-volume] {
+        float: left;
+        position: relative;
+        margin-left: 10px;
+        top: 8px;
+        width: 80px;
+        height: 23px;
+        padding: 3px 0;
+        transition: width 0.2s ease-out;
+
+        .bar-background[data-volume] {
+          height: 3px;
+          border-radius: 100px;
+          position: relative;
+          top: 7px;
+          background-color: #666;
+
+          .bar-fill-1[data-volume] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 100%;
+            border-radius: 100px;
+            background-color: white;
+            transition: all 0.1s ease-out;
+          }
+
+          .bar-fill-2[data-volume] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 100%;
+            background-color: #005aff;
+            transition: all 0.1s ease-out;
+          }
+        }
+
+        .bar-scrubber[data-volume] {
+          position: absolute;
+          transform: translateX(-50%);
+          top: 3px;
+          margin-left: 3px;
+          width: 16px;
+          height: 16px;
+          opacity: 1;
+          transition: all 0.1s ease-out;
+
+          .bar-scrubber-icon[data-volume] {
+            position: absolute;
+            left: 3px;
+            top: 5px;
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background-color: white;
+          }
+        }
+
+        .segmented-bar-element[data-volume] {
+          float: left;
+          width: 4px;
+          padding-left: 2px;
+          height: 12px;
+          opacity: 0.5;
+          box-shadow: inset 2px 0 0 white;
+          transition: transform 0.2s ease-out;
+
+          &.fill {
+            box-shadow: inset 2px 0 0 #fff;
+            opacity: 1;
+          }
+
+          &:nth-of-type(1) {
+            padding-left: 0;
+          }
+
+          &:hover {
+            transform: scaleY(1.5);
+          }
+        }
+      }
+    }
+  }
+}

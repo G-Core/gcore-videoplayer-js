@@ -1,0 +1,12 @@
+<button data-track-selector-button class='gcore-skin-button-color'>
+    <span class='audio-text'><%= title %></span> <span class="audio-arrow"></span>
+</button>
+<ul class='gcore-skin-bg-color'>
+    <% for (var i = 0; i < tracks.length; i++) { %>
+        <li>
+            <a href="#" class='gcore-skin-text-color' data-track-selector-select="<%= tracks[i].id %>">
+                <%= tracks[i].label || tracks[i].name %>
+            </a>
+        </li>
+    <% }; %>
+</ul>

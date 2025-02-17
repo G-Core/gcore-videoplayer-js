@@ -1,0 +1,22 @@
+<button class="gplayer-lite-btn go-back gcore-skin-text-color">
+    <span class="arrow-left-icon"><%= arrowLeftIcon %></span>
+    Quality
+</button>
+<ul class="gear-sub-menu">
+    <% if (!removeAuto) { %>
+        <li>
+            <a href="#" class='gear-sub-menu_btn gcore-skin-text-color' data-id="-1">
+                <span class="check-icon"><%= checkIcon %></span>
+            Auto
+        </a>
+    </li>
+    <% } %>
+    <% for (const level of levels.slice().reverse()) { %>
+        <li <% if (maxLevel >= 0 && level.level > maxLevel) { %>class="level-disabled"<% } %>>
+            <a href="#" class='gear-sub-menu_btn gcore-skin-text-color' data-id="<%= level.level %>">
+                <span class="check-icon"><%= checkIcon %></span>
+                <%= labels[level.level] %>
+            </a>
+        </li>
+    <% } %>
+</ul>

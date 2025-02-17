@@ -36,6 +36,8 @@
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^15.3.0",
     "@sinonjs/fake-timers": "^14.0.0",
+    "@types/human-format": "^1.0.3",
+    "@types/mousetrap": "^1.6.15",
     "@types/node": "^22.10.1",
     "@types/sinonjs__fake-timers": "^8.1.5",
     "assert": "^2.1.0",
@@ -43,6 +45,9 @@
     "nodemon": "^3.1.9",
     "rollup": "^4.27.4",
     "rollup-plugin-polyfill-node": "^0.13.0",
+    "rollup-plugin-sass": "^1.15.2",
+    "rollup-plugin-string": "^3.0.0",
+    "sass": "^1.85.0",
     "typescript": "^5.7.2",
     "vitest": "^3.0.4"
   },
@@ -52,6 +57,9 @@
     "@sentry/types": "^8.47.0",
     "dashjs": "^4.7.4",
     "event-lite": "^1.0.0",
-    "hls.js": "^1.5.17"
+    "hls.js": "^1.5.17",
+    "human-format": "^1.2.1",
+    "mousetrap": "^1.6.5",
+    "parse-srt": "^1.0.0-alpha"
   }
 }

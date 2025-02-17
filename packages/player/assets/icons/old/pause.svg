@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 49 (51002) - http://www.bohemiancoding.com/sketch -->
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="pause" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g>
+            <rect id="bounding-box" x="0" y="0" width="24" height="24"></rect>
+            <path d="M14.4,2 C13.6272,2 13,2.64 13,3.42857143 L13,20.5714286 C13,21.36 13.6272,22 14.4,22 L16.6,22 C17.3728,22 18,21.36 18,20.5714286 L18,3.42857143 C18,2.64 17.3728,2 16.6,2 L14.4,2 Z M6.4,2 C5.6272,2 5,2.64 5,3.42857143 L5,20.5714286 C5,21.36 5.6272,22 6.4,22 L8.6,22 C9.3728,22 10,21.36 10,20.5714286 L10,3.42857143 C10,2.64 9.3728,2 8.6,2 L6.4,2 Z" fill="#FFFFFE"></path>
+        </g>
+    </g>
+</svg>

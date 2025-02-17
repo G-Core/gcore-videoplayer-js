@@ -1,0 +1,16 @@
+<button data-subtitles-button class='media-control-button media-control-icon gcore-skin-button-color'>
+    <span class='subtitle-text'></span>
+</button>
+
+<ul class='gcore-skin-bg-color'>
+    <li><a href="#" class='gcore-skin-text-color' data-subtitles-select="off">off</a></li>
+    <% for (const track of tracks) { %>
+        <% if (track.kind === 'subtitles' || track.kind === 'captions') { %>
+            <li>
+                <a href="#" class='gcore-skin-text-color' data-subtitles-select="<%= track.language %>">
+                    <%= track.label %>
+                </a>
+            </li>
+        <% } %>
+    <% } %>
+</ul>

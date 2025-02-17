@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="9px" height="6px" viewBox="0 0 9 6" version="1.1" xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink">
+  <!-- Generator: Sketch 49 (51002) - http://www.bohemiancoding.com/sketch -->
+  <title>quality-arrow</title>
+  <desc>Created with Sketch.</desc>
+  <defs></defs>
+  <g id="quality-arrow" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <path
+      d="M5.07079194,5.78553848 C4.91457318,5.94277844 4.70551573,6.00941824 4.50028717,5.99893557 C4.2950586,6.00941824 4.08676693,5.94277844 3.92978239,5.78553848 L0.221118462,1.2997069 C-0.0737061539,1.00469478 -0.0737061539,0.526236029 0.221118462,0.231972666 C0.515177299,-0.0630394586 1.23500883,0.00734414472 1.64852907,0.00734414472 L7.77475484,0.00734414472 C8.21201421,0.00734414472 8.48539703,-0.0630394586 8.77945587,0.231972666 C9.07351471,0.526236029 9.07351471,1.00469478 8.77945587,1.2997069 L5.07079194,5.78553848 Z"
+      fill="#FFFFFE"></path>
+  </g>
+</svg>

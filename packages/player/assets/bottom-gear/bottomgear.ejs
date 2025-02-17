@@ -1,0 +1,12 @@
+<div class="media-control-gear" data-<%= name %>>
+    <button type="button" class="button-gear gplayer-lite-btn gcore-skin-button-color" data-gear-button="-1">
+        <span class="gear-icon"><%= icon %></span>
+    </button>
+    <div class="gear-wrapper gcore-skin-bg-color">
+        <ul class="gear-options-list">
+            <% items.forEach(function (gear) { %>
+                <li data-<%= gear %>></li>
+            <% }); %>
+        </ul>
+    </div>
+</div>
