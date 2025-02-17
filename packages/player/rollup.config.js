@@ -45,7 +45,7 @@ export default [
     ],
     output: [
       {
-        dir: 'dist/plugins/index.js',
+        file: 'dist/plugins/index.js',
         format: 'es',
         generatedCode: 'es2015',
       }
