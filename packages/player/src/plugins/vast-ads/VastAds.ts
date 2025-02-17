@@ -13,7 +13,7 @@ import {
 } from '@clappr/core'
 import { reportError } from '@gcorevideo/utils'
 import assert from 'assert'
-import { TimePosition } from '../../playback.types'
+import { TimePosition } from '../../playback.types.js'
 
 import { CLAPPR_VERSION } from '../build.js'
 import { TimerId, ZeptoResult } from '../types.js'

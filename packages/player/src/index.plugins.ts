@@ -1,9 +1,3 @@
-/**
- * @packageDocumentation
- * @beta
- * A collection of plugins for the Gcore video player
- */
-
 import '../assets/style/main.scss';
 
 export * from "./plugins/audio-selector/AudioSelector.js";

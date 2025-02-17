@@ -1,5 +1,5 @@
 import { Container, Events, UICorePlugin } from '@clappr/core';
-import { TimeProgress } from '../../playback.types';
+import { TimeProgress } from '../../playback.types.js';
 
 import { strtimeToMiliseconds } from '../utils.js';
 import '../../../assets/clips/clips.scss';

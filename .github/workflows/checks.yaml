@@ -17,11 +17,6 @@ jobs:
     uses: ./.github/workflows/license-check.yaml
     with:
       package: player
-  check-licenses-player-plugins:
-    needs: setup
-    uses: ./.github/workflows/license-check.yaml
-    with:
-      package: player-plugins
   check-licenses-utils:
     needs: setup
     uses: ./.github/workflows/license-check.yaml

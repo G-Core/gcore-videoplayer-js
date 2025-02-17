@@ -104,6 +104,9 @@ type Metrics = BaseMetrics & {
 
 // const T = 'plugins.clappr_nerd_stats';
 
+/**
+ * @beta
+ */
 export class ClapprNerdStats extends UICorePlugin {
   private container: Container | null = null;
 

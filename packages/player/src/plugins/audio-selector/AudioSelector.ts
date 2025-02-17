@@ -38,6 +38,9 @@ type AudioTrackList = {
   [Symbol.iterator](): IterableIterator<AudioTrackW3C>;
 }
 
+/**
+ * @beta
+ */
 export class AudioSelector extends UICorePlugin {
   private selectedTrackId: number | undefined;
 

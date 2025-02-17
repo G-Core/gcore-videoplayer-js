@@ -1,6 +1,6 @@
 // An example implementation of client side performancestatistics
 import { Container, ContainerPlugin, Events, Playback } from '@clappr/core'
-import type { TimePosition, TimeValue } from '../..//playback.types'
+import type { TimePosition, TimeValue } from '../../playback.types.js'
 import type { PlaybackType } from '../..//types'
 import { reportError } from '@gcorevideo/utils'
 import assert from 'assert'

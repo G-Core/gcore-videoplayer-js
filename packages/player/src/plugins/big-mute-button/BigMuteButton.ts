@@ -10,6 +10,9 @@ import '../../../assets/big-mute-button/big-mute-button.scss';
 
 const T = "plugins.big_mute_button";
 
+/**
+ * @beta
+ */
 export class BigMuteButton extends UICorePlugin {
   private isBigMuteButtonHidden = false;
 

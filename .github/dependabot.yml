@@ -10,10 +10,6 @@ updates:
     schedule:
       interval: "weekly"
   - package-ecosystem: "npm" # See documentation for possible values
-    directory: "/packages/plugins" # Location of package manifests
-    schedule:
-      interval: "weekly"
-  - package-ecosystem: "npm" # See documentation for possible values
     directory: "/packages/utils" # Location of package manifests
     schedule:
       interval: "weekly"

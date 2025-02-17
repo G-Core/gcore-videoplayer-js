@@ -6,7 +6,7 @@ import {
 import {
   type PlaybackError,
   PlaybackErrorCode,
-} from '../..//playback.types'
+} from '../../playback.types.js'
 import {
   type PlayerMediaSourceDesc,
 } from '../..//types'

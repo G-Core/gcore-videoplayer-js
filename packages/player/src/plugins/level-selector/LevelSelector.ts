@@ -1,5 +1,5 @@
 import { Events, template, UICorePlugin } from '@clappr/core'
-import { type QualityLevel } from '../..//playback.types'
+import { type QualityLevel } from '../../playback.types.js'
 import { reportError, trace } from '@gcorevideo/utils'
 import { CLAPPR_VERSION } from '../build.js'
 import { ZeptoResult } from '../types.js'
@@ -301,10 +301,6 @@ export class LevelSelector extends UICorePlugin {
     return (
       this.$(`ul.gear-sub-menu a[data-id="${id}"]`) as ZeptoResult
     ).parent()
-  }
-
-  private getTitle() {
-    return (this.core.options.levelSelector || {}).title
   }
 
   private onLevelSwitchStart() {

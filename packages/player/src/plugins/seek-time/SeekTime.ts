@@ -3,7 +3,7 @@
 // license that can be found in the LICENSE file.
 
 import { Events, Playback, UICorePlugin, Utils, template } from '@clappr/core';
-import { TimeUpdate } from '../..//playback.types';
+import { TimeUpdate } from '../../playback.types.js';
 
 import { CLAPPR_VERSION } from '../build.js';
 

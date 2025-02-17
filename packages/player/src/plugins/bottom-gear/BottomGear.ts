@@ -11,6 +11,9 @@ import gearHdIcon from '../../../assets/icons/new/gear-hd.svg';
 
 const VERSION = '0.0.1';
 
+/**
+ * @beta
+ */
 export class BottomGear extends UICorePlugin {
   private isHd = false;
 

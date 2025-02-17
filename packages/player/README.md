@@ -9,10 +9,8 @@ npm install @gcorevideo/player
 Or use a script on the CDN directly in your HTML:
 
 ```html
-<script src="https://player.gvideo.co/v2/assets/player/2.16.7/index.js"></script>
+<script src="https://player.gvideo.co/v2/assets/player/2.19.6/index.js"></script>
 ```
-
-See also the [plugins package](../player-plugins/README.md) which almost always used with the player.
 
 ## Usage
 
@@ -23,7 +21,7 @@ See the complete example app on Vercel: [https://github.com/dmitritz/gcore-video
 ```html
 <html>
 <head>
-    <link rel="stylesheet" href="https://player.gvideo.co/v2/assets/player-plugins/0.10.2/index.css" />
+    <link rel="stylesheet" href="https://player.gvideo.co/v2/assets/player/2.19.6/index.css" />
     ...
     <style>
       #container {
@@ -47,12 +45,10 @@ See the complete example app on Vercel: [https://github.com/dmitritz/gcore-video
 <script type="module">
   import {
     Player,
-  } from 'https://player.gvideo.co/v2/assets/player/2.16.7/index.js'
-  import {
     MediaControl,
     SourceController,
     Spinner,
-  } from 'https://player.gvideo.co/v2/assets/player-plugins/0.10.2/index.js'
+  } from 'https://player.gvideo.co/v2/assets/player/2.19.6/index.js'
 
   Player.registerPlugin(MediaControl)
   Player.registerPlugin(SourceController)

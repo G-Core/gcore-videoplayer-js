@@ -1,5 +1,5 @@
 import { Container, ContainerPlugin, Events as CoreEvents, Log } from '@clappr/core';
-import type { QualityLevel, TimePosition, TimeProgress } from '../../../src/playback.types';
+import type { QualityLevel, TimePosition, TimeProgress } from '../../playback.types.js';
 import assert from 'assert';
 
 import { CLAPPR_VERSION } from '../build.js';
@@ -22,6 +22,9 @@ type UriToMeasureBandwidth = {
 // TODO: fix
 const updateMetrics = () => {};
 
+/**
+ * @beta
+ */
 export class ClapprStats extends ContainerPlugin {
   private bwMeasureCount = 0;
 

@@ -19,7 +19,7 @@ import type { ZeptoResult } from '../types.js'
 import '../../../assets/poster/poster.scss'
 import posterHTML from '../../../assets/poster/poster.ejs'
 import playIcon from '../../../assets/icons/new/play.svg'
-import { PlaybackError } from '../..//playback.types'
+import { PlaybackError } from '../../playback.types.js'
 
 const T = 'plugins.poster_custom'
 
