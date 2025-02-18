@@ -31,9 +31,6 @@ jobs:
             git commit -m "Update documentation" || exit 0
             git branch update_docs-${{ github.run_id }}
             git push origin update_docs-${{ github.run_id }}
-            echo EVENT
-            echo ' ${{ toJSON(github.event) }}'
-            echo "END"
             curl -L \
             -X POST \
             -H "Accept: application/vnd.github+json" \

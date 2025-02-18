@@ -5,7 +5,7 @@ import type {
 } from "@clappr/core";
 
 import { ContainerSize, PlaybackType, PlayerDebugTag, PlayerMediaSource } from "./types";
-import { PlaybackError } from "./playback.types";
+import { PlaybackError } from "./playback.types.js";
 
 type ExternalTrack = {
   kind?: "subtitles" | "captions";

@@ -4,7 +4,8 @@ import EventLite from 'event-lite'
 import FakeTimers from '@sinonjs/fake-timers'
 
 import { SourceController } from '../SourceController'
-import { _MockPlayback, PlaybackErrorCode } from '@gcorevideo/player'
+import { PlaybackErrorCode } from '../../../playback.types.js'
+import { _MockPlayback } from '../../../testUtils.js'
 
 const MOCK_SOURCES = [
   {

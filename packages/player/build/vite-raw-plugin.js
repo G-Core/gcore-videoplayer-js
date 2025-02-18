@@ -1,7 +1,7 @@
 // https://github.com/zhangyuang/vite-raw-plugin/blob/master/index.js
 
 /**
- * @param {{ include: RegExp }} options 
+ * @param {{ include: RegExp }} options
  */
 export default function viteRawPlugin (options) {
     return {

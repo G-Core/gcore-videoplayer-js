@@ -1,6 +1,7 @@
 import { Events, template, UICorePlugin } from '@clappr/core'
-import { type QualityLevel } from '../../playback.types.js'
 import { reportError, trace } from '@gcorevideo/utils'
+
+import { type QualityLevel } from '../../playback.types.js'
 import { CLAPPR_VERSION } from '../build.js'
 import { ZeptoResult } from '../types.js'
 
@@ -30,7 +31,6 @@ type TemplateFunction = (data: Record<string, unknown>) => string
  *
  * - `labels`: The labels to show in the level selector. [vertical resolution]: string
  * - `restrictResolution`: The maximum resolution to allow in the level selector.
- * - `title`: The title to show in the level selector.
  *
  * @example
  * ```ts
@@ -178,7 +178,6 @@ export class LevelSelector extends UICorePlugin {
     if (!this.buttonTemplate) {
       this.buttonTemplate = template(buttonHtml)
     }
-
     if (!this.isOpen) {
       const html = this.buttonTemplate?.({
         arrowRightIcon,
@@ -214,7 +213,7 @@ export class LevelSelector extends UICorePlugin {
     return maxRes
       ? this.levels.findIndex(
           (level) =>
-            level.height === maxRes,
+            (level.height > level.width ? level.width : level.height) === maxRes,
         )
       : -1
   }
@@ -225,9 +224,8 @@ export class LevelSelector extends UICorePlugin {
     this.makeLevelsLabels()
     if (maxResolution) {
       this.removeAuto = true
-      // TODO account for vertical resolutions, i.e, normalize the resolution to the width
       const initialLevel = levels
-        .filter((level) => level.height <= maxResolution)
+        .filter((level) => (level.width > level.height ? level.height : level.width) <= maxResolution)
         .pop()
       this.setLevel(initialLevel?.level ?? 0)
     }
@@ -244,10 +242,6 @@ export class LevelSelector extends UICorePlugin {
       const label = labels[ll] || `${ll}p`
       this.levelLabels.push(label)
     }
-  }
-
-  private findLevelBy(id: number): QualityLevel | undefined {
-    return this.levels.find((level) => level.level === id)
   }
 
   private onLevelSelect(event: MouseEvent) {
