@@ -7,6 +7,9 @@ export enum VolumeFadeEvents {
   FADE = 'core:volume:fade',
 }
 
+/**
+ * @beta
+ */
 export class VolumeFade extends UICorePlugin {
   private _aboveBorderVolume = 0;
 

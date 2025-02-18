@@ -1,0 +1,26 @@
+name: Update documentation
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * *"
+
+jobs:
+  update-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "npm"
+          cache-dependency-path: |
+            packages/player/package-lock.json
+      - run: |
+            cd packages/player
+            npm ci
+            npm run build
+            npm run docs
+            git add docs/api
+            git commit -m "Update documentation" || exit 0
+            git push
