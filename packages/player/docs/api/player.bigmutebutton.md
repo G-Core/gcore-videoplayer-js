@@ -170,18 +170,4 @@ Description
 
 
 </td></tr>
-<tr><td>
-
-[unBindEvents()](./player.bigmutebutton.unbindevents.md)
-
-
-</td><td>
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
 </tbody></table>

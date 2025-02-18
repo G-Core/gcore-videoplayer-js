@@ -4,12 +4,15 @@
 
 ## MediaControl.(constructor)
 
+> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
+> 
+
 Constructs a new instance of the `MediaControl` class
 
 **Signature:**
 
 ```typescript
-constructor(core: PlayerClappr);
+constructor(core: Core);
 ```
 
 ## Parameters
@@ -37,7 +40,7 @@ core
 
 </td><td>
 
-PlayerClappr
+Core
 
 
 </td><td>

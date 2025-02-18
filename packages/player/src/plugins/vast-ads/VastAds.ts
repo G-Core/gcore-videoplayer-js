@@ -16,7 +16,7 @@ import assert from 'assert'
 import { TimePosition } from '../../playback.types.js'
 
 import { CLAPPR_VERSION } from '../build.js'
-import { TimerId, ZeptoResult } from '../types.js'
+import { TimerId, ZeptoResult } from '../../utils/types.js'
 import RollManager from './rollmanager.js'
 import SCTEManager from './sctemanager.js'
 import { VolumeFadeEvents } from '../volume-fade/VolumeFade.js'

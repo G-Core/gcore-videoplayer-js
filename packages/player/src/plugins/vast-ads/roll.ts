@@ -3,7 +3,7 @@ import { $, Container, Core, Events, Log, Playback } from '@clappr/core';
 import { reportError } from '@gcorevideo/utils';
 import assert from 'assert';
 
-import type { TimerId, ZeptoResult } from '../types.js';
+import type { TimerId, ZeptoResult } from '../../utils/types.js';
 
 type RollConstructorOptions = {
   core: Core;

@@ -3,7 +3,7 @@ import type { QualityLevel, TimePosition, TimeProgress } from '../../playback.ty
 import assert from 'assert';
 
 import { CLAPPR_VERSION } from '../build.js';
-import { TimerId } from '../types.js';
+import { TimerId } from '../../utils/types.js';
 import type { Metrics, MetricsUpdateFn } from './types.js';
 import { ClapprStatsEvents } from './types.js';
 import { newMetrics } from './utils.js';

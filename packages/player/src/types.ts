@@ -1,5 +1,3 @@
-import { ContainerPlugin, CorePlugin } from '@clappr/core'
-
 /**
  * Describes a media source with its MIME type and URL.
  *

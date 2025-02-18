@@ -2,7 +2,7 @@ import { UICorePlugin, Events, template, PlayerError } from '@clappr/core';
 import { trace } from '@gcorevideo/utils';
 
 import { CLAPPR_VERSION } from '../build.js';
-import type { TimerId, ZeptoResult } from '../types';
+import type { TimerId, ZeptoResult } from '../../utils/types.js';
 
 import reloadIcon from '../../../assets/icons/old/reload.svg';
 import templateHtml from '../../../assets/error-screen/error_screen.ejs';

@@ -2,7 +2,7 @@ import { Events, template, UICorePlugin, Utils } from '@clappr/core';
 import { trace } from '@gcorevideo/utils';
 
 import { CLAPPR_VERSION } from '../build.js';
-import { ZeptoResult } from "../types.js";
+import { ZeptoResult } from "../../utils/types.js";
 
 import volumeMuteIcon from '../../../assets/icons/new/volume-off.svg';
 import pluginHtml from '../../../assets/big-mute-button/big-mute-button.ejs';
@@ -52,7 +52,7 @@ export class BigMuteButton extends UICorePlugin {
     this.listenTo(this.core.mediaControl, Events.MEDIACONTROL_RENDERED, this.mediaControlRendered);
   }
 
-  unBindEvents() {
+  private unBindEvents() {
     // @ts-ignore
     this.stopListening(this.core, Events.CORE_READY);
     this.stopListening(this.core, 'core:advertisement:start', this.onStartAd);

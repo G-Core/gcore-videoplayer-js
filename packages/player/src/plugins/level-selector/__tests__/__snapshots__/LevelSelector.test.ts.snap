@@ -162,3 +162,36 @@ exports[`LevelSelector > options.restrictResolution > given vertical video forma
 </ul>
 "
 `;
+
+exports[`LevelSelector > options.restrictResolution > given vertical video format levels > should recognize vertical orientation 2`] = `
+"<button class="gplayer-lite-btn go-back gcore-skin-text-color">
+    <span class="arrow-left-icon">/assets/icons/new/arrow-left.svg</span>
+    Quality
+</button>
+<ul class="gear-sub-menu">
+    
+    
+        <li class="level-disabled">
+            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="2">
+                <span class="check-icon">/assets/icons/new/check.svg</span>
+                1080p
+            </a>
+        </li>
+    
+        <li class="level-disabled">
+            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="1">
+                <span class="check-icon">/assets/icons/new/check.svg</span>
+                720p
+            </a>
+        </li>
+    
+        <li class="current">
+            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color gcore-skin-active" data-id="0">
+                <span class="check-icon">/assets/icons/new/check.svg</span>
+                360p
+            </a>
+        </li>
+    
+</ul>
+"
+`;

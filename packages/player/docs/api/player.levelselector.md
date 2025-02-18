@@ -22,7 +22,7 @@ The plugin is rendered as a button in the gear menu. When clicked, it shows a li
 
 Configuration options:
 
-- `labels`<!-- -->: The labels to show in the level selector. \[vertical resolution\]: string - `restrictResolution`<!-- -->: The maximum resolution to allow in the level selector. - `title`<!-- -->: The title to show in the level selector.
+- `labels`<!-- -->: The labels to show in the level selector. \[vertical resolution\]: string - `restrictResolution`<!-- -->: The maximum resolution to allow in the level selector.
 
 ## Example
 

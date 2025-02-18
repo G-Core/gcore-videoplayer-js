@@ -4,12 +4,21 @@
 
 ## MediaControl class
 
+> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
+> 
+
+The MediaControl is responsible for displaying the Player controls.
+
 **Signature:**
 
 ```typescript
 export declare class MediaControl extends UICorePlugin 
 ```
 **Extends:** UICorePlugin
+
+## Remarks
+
+This plugin provides a foundation for developing a media controls UI via additional plugins. The methods exposed are to be used by the other plugins that extend the media control UI.
 
 ## Constructors
 
@@ -39,7 +48,7 @@ Description
 
 </td><td>
 
-Constructs a new instance of the `MediaControl` class
+**_(BETA)_** Constructs a new instance of the `MediaControl` class
 
 
 </td></tr>
@@ -85,24 +94,7 @@ Description
 
 </td><td>
 
-
-</td></tr>
-<tr><td>
-
-[bigPlayButton](./player.mediacontrol.bigplaybutton.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-any
-
-
-</td><td>
+**_(BETA)_**
 
 
 </td></tr>
@@ -123,6 +115,8 @@ any
 
 </td><td>
 
+**_(BETA)_**
+
 
 </td></tr>
 <tr><td>
@@ -141,6 +135,8 @@ any
 
 
 </td><td>
+
+**_(BETA)_**
 
 
 </td></tr>
@@ -161,6 +157,8 @@ any
 
 </td><td>
 
+**_(BETA)_**
+
 
 </td></tr>
 <tr><td>
@@ -179,6 +177,8 @@ boolean
 
 
 </td><td>
+
+**_(BETA)_** Muted state
 
 
 </td></tr>
@@ -199,6 +199,8 @@ string
 
 </td><td>
 
+**_(BETA)_**
+
 
 </td></tr>
 <tr><td>
@@ -218,22 +220,7 @@ any
 
 </td><td>
 
-
-</td></tr>
-<tr><td>
-
-[stopDrag](./player.mediacontrol.stopdrag.md)
-
-
-</td><td>
-
-
-</td><td>
-
-(event: MouseEvent) =&gt; void
-
-
-</td><td>
+**_(BETA)_**
 
 
 </td></tr>
@@ -254,41 +241,7 @@ any
 
 </td><td>
 
-
-</td></tr>
-<tr><td>
-
-[template](./player.mediacontrol.template.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-any
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[updateDrag](./player.mediacontrol.updatedrag.md)
-
-
-</td><td>
-
-
-</td><td>
-
-(event: MouseEvent \| TouchEvent) =&gt; void
-
-
-</td><td>
+**_(BETA)_**
 
 
 </td></tr>
@@ -308,6 +261,8 @@ any
 
 
 </td><td>
+
+**_(BETA)_** Current volume
 
 
 </td></tr>
@@ -333,18 +288,6 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-[applyButtonStyle(element)](./player.mediacontrol.applybuttonstyle.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
 [bindContainerEvents()](./player.mediacontrol.bindcontainerevents.md)
 
 
@@ -352,6 +295,8 @@ Description
 
 
 </td><td>
+
+**_(BETA)_**
 
 
 </td></tr>
@@ -365,53 +310,7 @@ Description
 
 </td><td>
 
-
-</td></tr>
-<tr><td>
-
-[bindKeyAndShow(key, callback)](./player.mediacontrol.bindkeyandshow.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[bindKeyEvents()](./player.mediacontrol.bindkeyevents.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[configure()](./player.mediacontrol.configure.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[createCachedElements()](./player.mediacontrol.createcachedelements.md)
-
-
-</td><td>
-
-
-</td><td>
+**_(BETA)_**
 
 
 </td></tr>
@@ -425,6 +324,8 @@ Description
 
 </td><td>
 
+**_(BETA)_**
+
 
 </td></tr>
 <tr><td>
@@ -436,6 +337,8 @@ Description
 
 
 </td><td>
+
+**_(BETA)_**
 
 
 </td></tr>
@@ -449,17 +352,7 @@ Description
 
 </td><td>
 
-
-</td></tr>
-<tr><td>
-
-[drawDurationAndPosition()](./player.mediacontrol.drawdurationandposition.md)
-
-
-</td><td>
-
-
-</td><td>
+**_(BETA)_** Disable the control button
 
 
 </td></tr>
@@ -473,6 +366,8 @@ Description
 
 </td><td>
 
+**_(BETA)_**
+
 
 </td></tr>
 <tr><td>
@@ -485,17 +380,7 @@ Description
 
 </td><td>
 
-
-</td></tr>
-<tr><td>
-
-[ended()](./player.mediacontrol.ended.md)
-
-
-</td><td>
-
-
-</td><td>
+**_(BETA)_** Enable the control button
 
 
 </td></tr>
@@ -509,6 +394,8 @@ Description
 
 </td><td>
 
+**_(BETA)_** Get a media control element DOM node
+
 
 </td></tr>
 <tr><td>
@@ -521,173 +408,7 @@ Description
 
 </td><td>
 
-
-</td></tr>
-<tr><td>
-
-[getSettings()](./player.mediacontrol.getsettings.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[getVolumeFromUIEvent(event)](./player.mediacontrol.getvolumefromuievent.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[hide(delay)](./player.mediacontrol.hide.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[hideControllAds()](./player.mediacontrol.hidecontrollads.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[hideVolumeBar(timeout)](./player.mediacontrol.hidevolumebar.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[highDefinitionUpdate(isHD)](./player.mediacontrol.highdefinitionupdate.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[initializeIcons()](./player.mediacontrol.initializeicons.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[isSeekEnabledForHtml5Playback()](./player.mediacontrol.isseekenabledforhtml5playback.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[isVisible()](./player.mediacontrol.isvisible.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[onActiveContainerChanged()](./player.mediacontrol.onactivecontainerchanged.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[onFinishAd()](./player.mediacontrol.onfinishad.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[onStartAd()](./player.mediacontrol.onstartad.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[onTimeUpdate(timeProgress)](./player.mediacontrol.ontimeupdate.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[parseColors()](./player.mediacontrol.parsecolors.md)
-
-
-</td><td>
-
-
-</td><td>
+**_(BETA)_**
 
 
 </td></tr>
@@ -701,6 +422,8 @@ Description
 
 </td><td>
 
+**_(BETA)_** Pause the playback
+
 
 </td></tr>
 <tr><td>
@@ -712,6 +435,8 @@ Description
 
 
 </td><td>
+
+**_(BETA)_** Start the playback
 
 
 </td></tr>
@@ -725,23 +450,13 @@ Description
 
 </td><td>
 
-
-</td></tr>
-<tr><td>
-
-[renderSeekBar()](./player.mediacontrol.renderseekbar.md)
-
-
-</td><td>
-
-
-</td><td>
+**_(BETA)_**
 
 
 </td></tr>
 <tr><td>
 
-[resetIndicators()](./player.mediacontrol.resetindicators.md)
+[setInitialVolume()](./player.mediacontrol.setinitialvolume.md)
 
 
 </td><td>
@@ -749,77 +464,7 @@ Description
 
 </td><td>
 
-
-</td></tr>
-<tr><td>
-
-[resetKeepVisible()](./player.mediacontrol.resetkeepvisible.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[resetUserKeepVisible()](./player.mediacontrol.resetuserkeepvisible.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[seek(event)](./player.mediacontrol.seek.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[seekRelative(delta)](./player.mediacontrol.seekrelative.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[setClipText(txt)](./player.mediacontrol.setcliptext.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[setKeepVisible()](./player.mediacontrol.setkeepvisible.md)
-
-
-</td><td>
-
-
-</td><td>
+**_(BETA)_** Set the initial volume, which is preserved when playback is interrupted by an advertisement
 
 
 </td></tr>
@@ -833,41 +478,7 @@ Description
 
 </td><td>
 
-
-</td></tr>
-<tr><td>
-
-[setSeekPercentage(value)](./player.mediacontrol.setseekpercentage.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[setSVGMask(svg)](./player.mediacontrol.setsvgmask.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[setUserKeepVisible()](./player.mediacontrol.setuserkeepvisible.md)
-
-
-</td><td>
-
-
-</td><td>
+**_(BETA)_**
 
 
 </td></tr>
@@ -881,53 +492,7 @@ Description
 
 </td><td>
 
-
-</td></tr>
-<tr><td>
-
-[show(event)](./player.mediacontrol.show.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[showVolumeBar()](./player.mediacontrol.showvolumebar.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[startSeekDrag(event)](./player.mediacontrol.startseekdrag.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[startVolumeDrag(event)](./player.mediacontrol.startvolumedrag.md)
-
-
-</td><td>
-
-
-</td><td>
+**_(BETA)_** Set the volume
 
 
 </td></tr>
@@ -941,89 +506,7 @@ Description
 
 </td><td>
 
-
-</td></tr>
-<tr><td>
-
-[toggleFullscreen()](./player.mediacontrol.togglefullscreen.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[toggleMute()](./player.mediacontrol.togglemute.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[togglePlayPause()](./player.mediacontrol.toggleplaypause.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[togglePlayStop()](./player.mediacontrol.toggleplaystop.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[unbindKeyEvents()](./player.mediacontrol.unbindkeyevents.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[updateCursorStyle(showing)](./player.mediacontrol.updatecursorstyle.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[updateProgressBar(progress)](./player.mediacontrol.updateprogressbar.md)
-
-
-</td><td>
-
-
-</td><td>
+**_(BETA)_** Stop the playback
 
 
 </td></tr>

@@ -1,6 +1,7 @@
-import { Container, Events, UICorePlugin } from '@clappr/core';
-import { TimeProgress } from '../../playback.types.js';
+import { Container, Events, UICorePlugin, $ } from '@clappr/core';
 
+import { TimeProgress } from '../../playback.types.js';
+import type { ZeptoResult } from '../../utils/types.js';
 import { strtimeToMiliseconds } from '../utils.js';
 import '../../../assets/clips/clips.scss';
 
@@ -24,6 +25,8 @@ export class ClipsPlugin extends UICorePlugin {
   private durationGetting = false;
 
   private _oldContainer: Container | undefined;
+
+  private svgMask: ZeptoResult | null = null;
 
   get name() {
     return 'clips';
@@ -88,7 +91,7 @@ export class ClipsPlugin extends UICorePlugin {
 
     for (const value of this.clips.values()) {
       if (event.current >= value.start && event.current < value.end) {
-        this.core.mediaControl.setClipText(value.text);
+        this.setClipText(value.text);
         break;
       }
     }
@@ -147,6 +150,29 @@ export class ClipsPlugin extends UICorePlugin {
 
     svg += `<rect x="${finishValue}" y="0" width="${widthOfSeek - finishValue}" height="30"/>\n`;
     svg += '</clipPath>' + '</defs>' + '</svg>';
+    this.setSVGMask(svg)
+  }
+
+  private setSVGMask(svg: string) {
     this.core.mediaControl.setSVGMask(svg);
+    if (this.svgMask) {
+      this.svgMask.remove()
+    }
+
+    const $seekBarContainer = this.core.mediaControl.getElement('seekBarContainer')
+    if ($seekBarContainer?.get(0)) {
+      $seekBarContainer.addClass('clips')
+    }
+
+    this.svgMask = $(svg)
+    $seekBarContainer?.append(this.svgMask)
+  }
+
+  private setClipText(text: string) {
+    const $clipText = this.core.mediaControl.getElement('clipText')
+    if ($clipText && text) {
+      $clipText.show()
+      $clipText.text(`${text}`)
+    }
   }
 }

@@ -2,7 +2,7 @@ import { reportError } from '@gcorevideo/utils';
 
 import SpeedtestWorkerModule from '../../../../assets/clappr-nerd-stats/speedtest/speedtest.worker.js';
 
-import { TimerId } from '../../types.js';
+import { TimerId } from '../../../utils/types.js';
 
 export type Server = {
   id: number;

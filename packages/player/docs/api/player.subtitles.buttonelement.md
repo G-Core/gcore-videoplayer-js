@@ -11,5 +11,5 @@ buttonElement(): ZeptoResult;
 ```
 **Returns:**
 
-ZeptoResult
+[ZeptoResult](./player.zeptoresult.md)
 

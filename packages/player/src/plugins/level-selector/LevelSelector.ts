@@ -3,7 +3,7 @@ import { reportError, trace } from '@gcorevideo/utils'
 
 import { type QualityLevel } from '../../playback.types.js'
 import { CLAPPR_VERSION } from '../build.js'
-import { ZeptoResult } from '../types.js'
+import { ZeptoResult } from '../../utils/types.js'
 
 import buttonHtml from '../../../assets/level-selector/button.ejs'
 import listHtml from '../../../assets/level-selector/list.ejs'

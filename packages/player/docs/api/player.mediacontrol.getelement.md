@@ -4,6 +4,11 @@
 
 ## MediaControl.getElement() method
 
+> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
+> 
+
+Get a media control element DOM node
+
 **Signature:**
 
 ```typescript
@@ -35,15 +40,19 @@ name
 
 </td><td>
 
-MediaControlElement
+[MediaControlElement](./player.mediacontrolelement.md)
 
 
 </td><td>
+
+The name of the media control element
 
 
 </td></tr>
 </tbody></table>
 **Returns:**
 
-ZeptoResult \| null
+[ZeptoResult](./player.zeptoresult.md) \| null
+
+The DOM node to render the media control element
 

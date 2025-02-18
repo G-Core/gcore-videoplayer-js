@@ -152,15 +152,6 @@ Description
 </td></tr>
 <tr><td>
 
-[Kibo](./player.kibo.md)
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
 [LevelSelector](./player.levelselector.md)
 
 
@@ -185,6 +176,8 @@ Description
 
 
 </td><td>
+
+**_(BETA)_** The MediaControl is responsible for displaying the Player controls.
 
 
 </td></tr>
@@ -525,6 +518,17 @@ Description
 </td></tr>
 <tr><td>
 
+[MediaControlElement](./player.mediacontrolelement.md)
+
+
+</td><td>
+
+**_(BETA)_**
+
+
+</td></tr>
+<tr><td>
+
 [MediaTransport](./player.mediatransport.md)
 
 
@@ -705,6 +709,17 @@ Description
 </td><td>
 
 **_(BETA)_** Preferred media delivery protocol
+
+
+</td></tr>
+<tr><td>
+
+[ZeptoResult](./player.zeptoresult.md)
+
+
+</td><td>
+
+**_(BETA)_**
 
 
 </td></tr>

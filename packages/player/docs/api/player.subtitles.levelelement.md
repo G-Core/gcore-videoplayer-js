@@ -47,5 +47,5 @@ _(Optional)_
 </tbody></table>
 **Returns:**
 
-ZeptoResult
+[ZeptoResult](./player.zeptoresult.md)
 

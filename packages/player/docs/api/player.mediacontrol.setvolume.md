@@ -4,6 +4,11 @@
 
 ## MediaControl.setVolume() method
 
+> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
+> 
+
+Set the volume
+
 **Signature:**
 
 ```typescript
@@ -40,6 +45,8 @@ number
 
 </td><td>
 
+The volume value
+
 
 </td></tr>
 <tr><td>
@@ -54,7 +61,7 @@ boolean
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ save as the initial volume
 
 
 </td></tr>
@@ -62,4 +69,8 @@ _(Optional)_
 **Returns:**
 
 void
+
+## Remarks
+
+Initial volume can be restored later
 

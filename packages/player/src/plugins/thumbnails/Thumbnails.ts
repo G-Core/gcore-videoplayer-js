@@ -8,7 +8,7 @@ import { CLAPPR_VERSION } from '../build.js';
 
 import pluginHtml from '../../../assets/thumbnails/scrub-thumbnails.ejs';
 import '../../../assets/thumbnails/style.scss';
-import { ZeptoResult } from '../types.js';
+import { ZeptoResult } from '../../utils/types.js';
 import { getPageX } from '../utils.js';
 
 type ThumbnailsOptions = {

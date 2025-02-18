@@ -9,7 +9,7 @@ import '../../../assets/multi-camera/style.scss';
 import streamsIcon from '../../../assets/icons/old/streams.svg';
 import streamsMomentoIcon from '../../../assets/icons/old/language.svg';
 import streamsWhiteNightsIcon from '../../../assets/icons/old/wn.svg';
-import { ZeptoResult } from '../types.js';
+import { ZeptoResult } from '../../utils/types.js';
 
 type MultisourcesMode = 'one_first' | 'only_live' | 'show_all';
 

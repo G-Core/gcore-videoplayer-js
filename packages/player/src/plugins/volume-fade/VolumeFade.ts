@@ -1,7 +1,7 @@
 import { UICorePlugin, Events, Browser, $, Container } from '@clappr/core';
 import { reportError } from '@gcorevideo/utils';
 
-import { TimerId } from '../types';
+import { TimerId } from '../../utils/types.js';
 
 export enum VolumeFadeEvents {
   FADE = 'core:volume:fade',

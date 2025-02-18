@@ -15,7 +15,7 @@ import {
   stopSpeedtest,
 } from './speedtest/index.js';
 import { CustomMetrics } from './speedtest/types.js';
-import { ZeptoResult } from '../types.js';
+import { ZeptoResult } from '../../utils/types.js';
 
 import '../../../assets/clappr-nerd-stats/clappr-nerd-stats.scss';
 import pluginHtml from '../../../assets/clappr-nerd-stats/clappr-nerd-stats.ejs';

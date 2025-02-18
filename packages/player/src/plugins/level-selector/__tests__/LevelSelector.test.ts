@@ -165,16 +165,9 @@ describe('LevelSelector', () => {
         await clock.tickAsync(1)
         levelSelector.$el.find('.gear-option').click()
         await clock.tickAsync(1)
-        // levelSelector.$el.find(`.gear-sub-menu_btn[data-id="0"]`).click()
-        // await clock.tickAsync(1)
       })
       it('should recognize vertical orientation', () => {
-        // TODO check the disabled
-        // expect(
-        //   levelSelector.el.textContent
-        //     ?.replace('/assets/icons/new/arrow-right.svg', '')
-        //     .replace(/\s+/g, ' '),
-        // ).toContain('Quality 360p')
+        expect(levelSelector.el.innerHTML).toMatchSnapshot()
         expect(levelSelector.el.innerHTML).toMatchSnapshot()
       })
       it('should properly apply the restriction', () => {

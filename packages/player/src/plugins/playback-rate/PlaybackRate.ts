@@ -1,7 +1,7 @@
 import { Events, UICorePlugin, Playback, template } from '@clappr/core';
 
 import { CLAPPR_VERSION } from '../build.js';
-import type { ZeptoResult } from '../types';
+import type { ZeptoResult } from '../../utils/types.js';
 
 import pluginHtml from '../../../assets/playback-rate/playback-rate-selector.ejs';
 import buttonHtml from '../../../assets/playback-rate/button.ejs';
