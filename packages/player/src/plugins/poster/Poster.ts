@@ -13,7 +13,7 @@ import {
 } from '@clappr/core'
 import { trace } from '@gcorevideo/utils'
 
-import { CLAPPR_VERSION } from '../build.js'
+import { CLAPPR_VERSION } from '../../build.js'
 import type { ZeptoResult } from '../../utils/types.js'
 
 import '../../../assets/poster/poster.scss'
@@ -23,6 +23,33 @@ import { PlaybackError } from '../../playback.types.js'
 
 const T = 'plugins.poster_custom'
 
+/**
+ * Displays a poster image in the background and a big play button on top when playback is stopped
+ * @beta
+ * @remarks
+ * When the playback is stopped, media control UI is disabled.
+ *
+ * Configuration options:
+ *
+ * - `poster.custom` - custom CSS background
+ *
+ * - `poster.showForNoOp` - whether to show the poster when the playback is not started
+ *
+ * - `poster.url` - the URL of the poster image
+ *
+ * - `poster.showOnVideoEnd` - whether to show the poster when the playback is ended
+ *
+ * @example
+ * ```ts
+ * new Player({
+ *  ...
+ *  poster: {
+ *    showForNoOp: true,
+ *    url: 'https://via.placeholder.com/150.png',
+ *  }
+ * })
+ * ```
+ */
 export class Poster extends UIContainerPlugin {
   private hasFatalError = false
 
@@ -34,27 +61,26 @@ export class Poster extends UIContainerPlugin {
 
   private $playWrapper: ZeptoResult | null = null
 
+  /**
+   * @internal
+   */
   get name() {
     return 'poster_custom'
   }
 
+  /**
+   * @internal
+   */
   get supportedVersion() {
     return { min: CLAPPR_VERSION }
   }
 
-  get template() {
-    return template(posterHTML)
-  }
+  private static readonly template = template(posterHTML)
 
-  get shouldRender() {
+  private get shouldRender() {
     if (!this.enabled) {
       return false
     }
-    // const showOnError = this.options.poster?.showOnError !== false
-    trace(`${T} shouldRender`, {
-      hasFatalError: this.hasFatalError,
-    })
-
     const showForNoOp = !!this.options.poster?.showForNoOp
     return (
       this.container.playback.name !== 'html_img' &&
@@ -63,6 +89,9 @@ export class Poster extends UIContainerPlugin {
     )
   }
 
+  /**
+   * @internal
+   */
   override get attributes() {
     return {
       class: 'player-poster',
@@ -70,16 +99,22 @@ export class Poster extends UIContainerPlugin {
     }
   }
 
+  /**
+   * @internal
+   */
   override get events() {
     return {
       click: 'clicked',
     }
   }
 
-  get showOnVideoEnd() {
+  private get showOnVideoEnd() {
     return this.options.poster?.showOnVideoEnd !== false
   }
 
+  /**
+   * @internal
+   */
   override bindEvents() {
     this.listenTo(this.container, Events.CONTAINER_STOP, this.onStop)
     this.listenTo(this.container, Events.CONTAINER_PLAY, this.onPlay)
@@ -97,12 +132,18 @@ export class Poster extends UIContainerPlugin {
     this.listenTo(this.container, Events.PLAYBACK_PLAY_INTENT, this.onPlayIntent)
   }
 
+  /**
+   * Reenables earlier disabled plugin
+   */
   override enable() {
     super.enable()
     this.hasStartedPlaying = this.container.playback.isPlaying()
     this.update()
   }
 
+  /**
+   * Disables the plugin, unmounting it from the DOM
+   */
   override disable() {
     trace(`${T} disable`)
     this.hasStartedPlaying = false
@@ -252,12 +293,15 @@ export class Poster extends UIContainerPlugin {
     }
   }
 
+  /**
+   * @internal
+   */
   override render() {
     if (!this.shouldRender) {
       return this
     }
 
-    this.$el.html(this.template())
+    this.$el.html(Poster.template())
 
     const isRegularPoster =
       this.options.poster && this.options.poster.custom === undefined
@@ -291,6 +335,9 @@ export class Poster extends UIContainerPlugin {
     return this
   }
 
+  /**
+   * @internal
+   */
   override destroy() {
     this.container.$el.removeClass('container-with-poster-clickable')
     return this

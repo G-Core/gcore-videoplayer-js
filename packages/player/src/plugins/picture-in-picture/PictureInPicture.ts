@@ -1,7 +1,7 @@
 import { UICorePlugin, template, Events } from '@clappr/core';
 import { trace } from '@gcorevideo/utils';
 
-import { CLAPPR_VERSION } from '../build.js';
+import { CLAPPR_VERSION } from '../../build.js';
 
 import pipIcon from '../../../assets/icons/new/pip.svg';
 import buttonHtml from '../../../assets/picture-in-picture/button.ejs';
@@ -9,11 +9,11 @@ import '../../../assets/picture-in-picture/button.scss';
 
 const VERSION = '0.0.1';
 
-const T = `plugins.picture_in_picture`;
+const T = `plugins.media_control_pip`;
 
 export class PictureInPicture extends UICorePlugin {
   get name() {
-    return 'picture_in_picture';
+    return 'media_control_pip';
   }
 
   get supportedVersion() {

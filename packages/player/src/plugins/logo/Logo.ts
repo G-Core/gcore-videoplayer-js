@@ -1,6 +1,6 @@
 import { UIContainerPlugin, Events, template as t, Container } from '@clappr/core';
 
-import { CLAPPR_VERSION } from '../build.js';
+import { CLAPPR_VERSION } from '../../build.js';
 import { calculateSize } from './utils/index.js';
 import { ZeptoResult } from '../../utils/types.js';
 

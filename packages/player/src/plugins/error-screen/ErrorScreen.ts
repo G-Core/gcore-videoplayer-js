@@ -1,7 +1,7 @@
 import { UICorePlugin, Events, template, PlayerError } from '@clappr/core';
 import { trace } from '@gcorevideo/utils';
 
-import { CLAPPR_VERSION } from '../build.js';
+import { CLAPPR_VERSION } from '../../build.js';
 import type { TimerId, ZeptoResult } from '../../utils/types.js';
 
 import reloadIcon from '../../../assets/icons/old/reload.svg';
@@ -217,6 +217,7 @@ export class ErrorScreen extends UICorePlugin {
     if (err) {
       this.err = err;
     }
+    // TODO use container.disableMediaControl() instead
     this.core.mediaControl.disable();
     this.render();
     this.$el.show();

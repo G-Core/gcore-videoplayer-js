@@ -13,12 +13,12 @@ import {
   $,
   Core,
 } from '@clappr/core'
-import { reportError } from '@gcorevideo/utils';
+import { reportError } from '@gcorevideo/utils'
 import { type TimeProgress } from '../../playback.types.js'
 
 import { Kibo } from '../kibo/index.js'
 
-import { CLAPPR_VERSION } from '../build.js'
+import { CLAPPR_VERSION } from '../../build.js'
 import { ZeptoResult } from '../../utils/types.js'
 import { getPageX, isFullscreen } from '../utils.js'
 
@@ -35,9 +35,15 @@ import fullscreenOffIcon from '../../../assets/icons/new/fullscreen-off.svg'
 import fullscreenOnIcon from '../../../assets/icons/new/fullscreen-on.svg'
 
 /**
+ * Media control elements, mount points for additional plugins
  * @beta
  */
-export type MediaControlElement = 'clipText' | 'pip' | 'seekBarContainer'
+export type MediaControlElement =
+  | 'bottomGear'
+  | 'clipText'
+  | 'pip'
+  | 'playbackRate'
+  | 'seekBarContainer'
 
 const T = 'plugins.media_control'
 
@@ -67,11 +73,17 @@ type DisabledClickable = {
 }
 
 /**
- * The MediaControl is responsible for displaying the Player controls.
+ * The MediaControl provides a foundation for developing custom media controls UI.
  * @beta
  * @remarks
- * This plugin provides a foundation for developing a media controls UI via additional plugins.
  * The methods exposed are to be used by the other plugins that extend the media control UI.
+ * The plugin registration should be arranged so that MediaControl is initialized before every other plugin that depends on it.
+ * @example
+ * ```ts
+ * Player.registerPlugin(MediaControl) // <--- This must go first
+ * Player.registerPlugin(LevelSelector) // a media control plugin
+ * Player.registerPlugin(NerdStats) // another media control plugin
+ * ```
  */
 export class MediaControl extends UICorePlugin {
   private advertisementPlaying = false
@@ -111,8 +123,6 @@ export class MediaControl extends UICorePlugin {
   private rendered = false
 
   private settings: Record<string, unknown> = {}
-
-  private svgMask: ZeptoResult | null = null
 
   private userDisabled = false
 
@@ -170,29 +180,46 @@ export class MediaControl extends UICorePlugin {
 
   private static readonly template = template(mediaControlHTML)
 
+  /**
+   * @internal
+   */
   get name() {
     return 'media_control'
   }
 
+  /**
+   * @internal
+   */
   get supportedVersion() {
     return { min: CLAPPR_VERSION }
   }
 
-  get disabled() {
+  private get disabled() {
     const playbackIsNOOP =
       this.container && this.container.getPlaybackType() === Playback.NO_OP
 
     return this.userDisabled || playbackIsNOOP
   }
 
+  /**
+   * @internal
+   * @deprecated
+   */
   get container() {
     return this.core && this.core.activeContainer
   }
 
+  /**
+   * @internal
+   * @deprecated
+   */
   get playback() {
     return this.core && this.core.activePlayback
   }
 
+  /**
+   * @internal
+   */
   override get attributes() {
     return {
       class: 'media-control-skin-1',
@@ -200,6 +227,9 @@ export class MediaControl extends UICorePlugin {
     }
   }
 
+  /**
+   * @internal
+   */
   override get events() {
     return {
       'click [data-play]': 'play',
@@ -231,11 +261,11 @@ export class MediaControl extends UICorePlugin {
   }
 
   /**
-   * Current volume
+   * Current volume [0..100]
    */
-  get volume() {
-    return this.container && this.container.isReady
-      ? this.container.volume
+  get volume(): number {
+    return this.core.activeContainer.isReady
+      ? this.core.activeContainer.volume
       : this.intendedVolume
   }
 
@@ -256,7 +286,7 @@ export class MediaControl extends UICorePlugin {
 
     this.userDisabled = false
     if (
-      (this.container && this.container.mediaControlDisabled) ||
+      this.core.activeContainer.mediaControlDisabled ||
       this.options.chromeless
     ) {
       this.disable()
@@ -269,6 +299,9 @@ export class MediaControl extends UICorePlugin {
     $(document).bind('touchmove', this.updateDrag)
   }
 
+  /**
+   * @internal
+   */
   override getExternalInterface() {
     return {
       setVolume: this.setVolume,
@@ -276,6 +309,9 @@ export class MediaControl extends UICorePlugin {
     }
   }
 
+  /**
+   * @internal
+   */
   override bindEvents() {
     // @ts-ignore
     this.stopListening()
@@ -318,7 +354,7 @@ export class MediaControl extends UICorePlugin {
     // }
   }
 
-  bindContainerEvents() {
+  private bindContainerEvents() {
     if (!this.container) {
       return
     }
@@ -382,6 +418,9 @@ export class MediaControl extends UICorePlugin {
     }
   }
 
+  /**
+   * Disables the plugin and unmounts its UI
+   */
   override disable() {
     this.userDisabled = true
     this.hide()
@@ -389,6 +428,9 @@ export class MediaControl extends UICorePlugin {
     this.$el.hide()
   }
 
+  /**
+   * Reenables the plugin disabled earlier with the {@link MediaControl.disable} method
+   */
   override enable() {
     if (this.options.chromeless) {
       return
@@ -396,27 +438,6 @@ export class MediaControl extends UICorePlugin {
     this.userDisabled = false
     this.bindKeyEvents()
     this.show()
-  }
-
-  /**
-   * Start the playback
-   */
-  play() {
-    this.container && this.container.play()
-  }
-
-  /**
-   * Pause the playback
-   */
-  pause() {
-    this.container && this.container.pause()
-  }
-
-  /**
-   * Stop the playback
-   */
-  stop() {
-    this.container && this.container.stop()
   }
 
   /**
@@ -1053,14 +1074,31 @@ export class MediaControl extends UICorePlugin {
   /**
    * Get a media control element DOM node
    * @param name - The name of the media control element
-   * @returns The DOM node to render the media control element
+   * @returns The DOM node to render to or extend
+   * @remarks
+   * Use this method to render custom media control UI in a plugin
+   * @example
+   * ```ts
+   * class MyPlugin extends UICorePlugin {
+   *   override render() {
+   *     const mediaControl = this.core.getPlugin('media_control')
+   *     const clipText = mediaControl.getElement('clipText')
+   *     clipText?.el.text('Here we go')
+   *     return this
+   *   }
+   * }
+   * ```
    */
   getElement(name: MediaControlElement): ZeptoResult | null {
     switch (name) {
       case 'clipText':
         return this.$clipText
+      case 'bottomGear':
+        return this.$bottomGear
       case 'pip':
         return this.$pip
+      case 'playbackRate':
+        return this.$playbackRate
       case 'seekBarContainer':
         return this.$seekBarContainer
     }
@@ -1223,6 +1261,9 @@ export class MediaControl extends UICorePlugin {
       $(element).find('svg path').css({ fill: this.buttonsColor })
   }
 
+  /**
+   * @internal
+   */
   override destroy() {
     $(document).unbind('mouseup', this.stopDrag)
     $(document).unbind('mousemove', this.updateDrag)
@@ -1237,6 +1278,9 @@ export class MediaControl extends UICorePlugin {
     this.trigger(Events.MEDIACONTROL_OPTIONS_CHANGE)
   }
 
+  /**
+   * @internal
+   */
   override render() {
     const timeout = this.options.hideMediaControlDelay || 2000
 
@@ -1343,11 +1387,6 @@ export class MediaControl extends UICorePlugin {
     }
   }
 
-  // TODO
-  setMuted(value: boolean) {
-    this.container.options.mute = value
-  }
-
   private static getPageX(event: MouseEvent | TouchEvent): number {
     return getPageX(event)
   }
@@ -1367,7 +1406,7 @@ export class MediaControl extends UICorePlugin {
   }
 
   /**
-   * Enable the control button
+   * Enable the user interaction disabled earlier
    */
   enableControlButton() {
     this.disabledClickableList.forEach((element) => {
@@ -1376,7 +1415,7 @@ export class MediaControl extends UICorePlugin {
   }
 
   /**
-   * Disable the control button
+   * Disable the user interaction for the control buttons
    */
   disabledControlButton() {
     this.disabledClickableList.forEach((element) => {
@@ -1393,7 +1432,6 @@ export class MediaControl extends UICorePlugin {
   }
 }
 
-// TODO drop?
 MediaControl.extend = function (properties) {
   return extend(MediaControl, properties)
 }

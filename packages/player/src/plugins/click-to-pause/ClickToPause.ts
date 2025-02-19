@@ -5,7 +5,7 @@
 import { ContainerPlugin, Events, Playback } from '@clappr/core';
 import { trace } from '@gcorevideo/utils';
 
-import { CLAPPR_VERSION } from '../build.js';
+import { CLAPPR_VERSION } from '../../build.js';
 
 // const VERSION = '0.0.1';
 

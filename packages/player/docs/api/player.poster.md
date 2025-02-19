@@ -4,6 +4,11 @@
 
 ## Poster class
 
+> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
+> 
+
+Displays a poster image in the background and a big play button on top when playback is stopped
+
 **Signature:**
 
 ```typescript
@@ -11,163 +16,32 @@ export declare class Poster extends UIContainerPlugin
 ```
 **Extends:** UIContainerPlugin
 
-## Properties
+## Remarks
 
-<table><thead><tr><th>
+When the playback is stopped, media control UI is disabled.
 
-Property
+Configuration options:
 
+- `poster.custom` - custom CSS background
 
-</th><th>
+- `poster.showForNoOp` - whether to show the poster when the playback is not started
 
-Modifiers
+- `poster.url` - the URL of the poster image
 
+- `poster.showOnVideoEnd` - whether to show the poster when the playback is ended
 
-</th><th>
+## Example
 
-Type
 
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>
-
-[attributes](./player.poster.attributes.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-{ class: string; 'data-poster': string; }
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[events](./player.poster.events.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-{ click: string; }
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[name](./player.poster.name.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[shouldRender](./player.poster.shouldrender.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-boolean
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[showOnVideoEnd](./player.poster.showonvideoend.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-boolean
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[supportedVersion](./player.poster.supportedversion.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-{ min: string; }
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[template](./player.poster.template.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-any
-
-
-</td><td>
-
-
-</td></tr>
-</tbody></table>
+```ts
+new Player({
+ ...
+ poster: {
+   showForNoOp: true,
+   url: 'https://via.placeholder.com/150.png',
+ }
+})
+```
 
 ## Methods
 
@@ -189,30 +63,6 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-[bindEvents()](./player.poster.bindevents.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[destroy()](./player.poster.destroy.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
 [disable()](./player.poster.disable.md)
 
 
@@ -220,6 +70,8 @@ Description
 
 
 </td><td>
+
+**_(BETA)_** Disables the plugin, unmounting it from the DOM
 
 
 </td></tr>
@@ -233,17 +85,7 @@ Description
 
 </td><td>
 
-
-</td></tr>
-<tr><td>
-
-[render()](./player.poster.render.md)
-
-
-</td><td>
-
-
-</td><td>
+**_(BETA)_** Reenables earlier disabled plugin
 
 
 </td></tr>

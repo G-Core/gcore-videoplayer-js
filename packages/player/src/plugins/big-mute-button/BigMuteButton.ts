@@ -1,7 +1,7 @@
 import { Events, template, UICorePlugin, Utils } from '@clappr/core';
 import { trace } from '@gcorevideo/utils';
 
-import { CLAPPR_VERSION } from '../build.js';
+import { CLAPPR_VERSION } from '../../build.js';
 import { ZeptoResult } from "../../utils/types.js";
 
 import volumeMuteIcon from '../../../assets/icons/new/volume-off.svg';
@@ -183,6 +183,7 @@ export class BigMuteButton extends UICorePlugin {
     const localVolume = Utils.Config.restore('volume');
     const volume = !isNaN(localVolume) ? localVolume : 100;
 
+    // TODO use container.setVolume() instead
     this.core.mediaControl.setVolume(volume === 0 ? 100 : volume);
 
     this.destroyBigMuteBtn(e);

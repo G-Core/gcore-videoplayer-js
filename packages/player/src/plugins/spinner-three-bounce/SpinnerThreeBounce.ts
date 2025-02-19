@@ -9,7 +9,7 @@ import { trace } from '@gcorevideo/utils';
 import spinnerHTML from '../../../assets/spinner-three-bounce/spinner.ejs';
 import '../../../assets/spinner-three-bounce/spinner.scss';
 import { TimerId } from '../../utils/types.js';
-import { CLAPPR_VERSION } from '../build.js';
+import { CLAPPR_VERSION } from '../../build.js';
 
 const T = 'plugins.spinner'
 

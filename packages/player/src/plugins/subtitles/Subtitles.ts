@@ -11,7 +11,7 @@ import { type TimeValue } from '../../playback.types.js'
 import { reportError } from '@gcorevideo/utils'
 import assert from 'assert'
 
-import { CLAPPR_VERSION } from '../build.js'
+import { CLAPPR_VERSION } from '../../build.js'
 
 import '../../../assets/subtitles/style.scss'
 import subtitlesOffIcon from '../../../assets/icons/new/subtitles-off.svg'
@@ -26,7 +26,7 @@ const VERSION: string = '0.0.1'
 
 const LOCAL_STORAGE_SUBTITLES_ID = 'subtitles_select'
 
-const T = 'plugins.subtitles'
+const T = 'plugins.media_control_subtitles'
 
 type TextTrackInfo = {
   language: string
@@ -53,7 +53,7 @@ export class Subtitles extends UICorePlugin {
   private $string: ZeptoResult | undefined
 
   get name() {
-    return 'subtitles'
+    return 'media_control_subtitles'
   }
 
   get supportedVersion() {

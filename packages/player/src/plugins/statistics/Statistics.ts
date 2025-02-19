@@ -5,7 +5,7 @@ import type { PlaybackType } from '../..//types'
 import { reportError } from '@gcorevideo/utils'
 import assert from 'assert'
 
-import { CLAPPR_VERSION } from '../build.js'
+import { CLAPPR_VERSION } from '../../build.js'
 
 const CUSTOM_EVENTS_CONTAINER_START = 'container:start'
 

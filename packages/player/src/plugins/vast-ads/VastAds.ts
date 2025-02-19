@@ -15,7 +15,7 @@ import { reportError } from '@gcorevideo/utils'
 import assert from 'assert'
 import { TimePosition } from '../../playback.types.js'
 
-import { CLAPPR_VERSION } from '../build.js'
+import { CLAPPR_VERSION } from '../../build.js'
 import { TimerId, ZeptoResult } from '../../utils/types.js'
 import RollManager from './rollmanager.js'
 import SCTEManager from './sctemanager.js'
@@ -817,7 +817,7 @@ export class VastAds extends UICorePlugin {
     setTimeout(async () => {
       if (currentRoll === 'scteroll') {
         this.options.mute = this.core.options.mute
-        this.core.mediaControl.setMuted(this.core.options.mute)
+        this.setMuted(this.core.options.mute)
         this.core.mediaControl.setInitialVolume()
       }
 
@@ -882,7 +882,7 @@ export class VastAds extends UICorePlugin {
         }
         await this.playback?.play()
         this.options.mute = this.core.options.mute
-        this.core.mediaControl.setMuted(this.core.options.mute)
+        this.setMuted(this.core.options.mute)
         this.core.mediaControl.setInitialVolume()
       }
     }, 0)
@@ -909,7 +909,7 @@ export class VastAds extends UICorePlugin {
     return this
   }
 
-  // destroy() {
-  //   super.destroy();
-  // }
+  private setMuted(muted: boolean) {
+    this.core.activeContainer.options.mute = muted
+  }
 }

@@ -7,7 +7,7 @@
 > This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
 > 
 
-The MediaControl is responsible for displaying the Player controls.
+The MediaControl provides a foundation for developing custom media controls UI.
 
 **Signature:**
 
@@ -18,7 +18,16 @@ export declare class MediaControl extends UICorePlugin
 
 ## Remarks
 
-This plugin provides a foundation for developing a media controls UI via additional plugins. The methods exposed are to be used by the other plugins that extend the media control UI.
+The methods exposed are to be used by the other plugins that extend the media control UI. The plugin registration should be arranged so that MediaControl is initialized before every other plugin that depends on it.
+
+## Example
+
+
+```ts
+Player.registerPlugin(MediaControl) // <--- This must go first
+Player.registerPlugin(LevelSelector) // a media control plugin
+Player.registerPlugin(NerdStats) // another media control plugin
+```
 
 ## Constructors
 
@@ -79,90 +88,6 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-[attributes](./player.mediacontrol.attributes.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-{ class: string; 'data-media-control-skin-1': string; }
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
-[container](./player.mediacontrol.container.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-any
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
-[disabled](./player.mediacontrol.disabled.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-any
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
-[events](./player.mediacontrol.events.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-{ 'click \[data-play\]': string; 'click \[data-pause\]': string; 'click \[data-playpause\]': string; 'click \[data-stop\]': string; 'click \[data-playstop\]': string; 'click \[data-fullscreen\]': string; 'click .bar-container\[data-seekbar\]': string; 'click .bar-container\[data-volume\]': string; 'click .drawer-icon\[data-volume\]': string; 'mouseenter .drawer-container\[data-volume\]': string; 'mouseleave .drawer-container\[data-volume\]': string; 'mousedown .bar-container\[data-volume\]': string; 'touchstart .bar-container\[data-volume\]': string; 'mousemove .bar-container\[data-volume\]': string; 'touchmove .bar-container\[data-volume\]': string; 'mousedown .bar-scrubber\[data-seekbar\]': string; 'mousedown .bar-container\[data-seekbar\]': string; 'touchstart .bar-scrubber\[data-seekbar\]': string; 'touchstart .bar-container\[data-seekbar\]': string; 'mousemove .bar-container\[data-seekbar\]': string; 'touchmove .bar-container\[data-seekbar\]': string; 'mouseleave .bar-container\[data-seekbar\]': string; 'touchend .bar-container\[data-seekbar\]': string; 'mouseenter .media-control-layer\[data-controls\]': string; 'mouseleave .media-control-layer\[data-controls\]': string; }
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
 [muted](./player.mediacontrol.muted.md)
 
 
@@ -184,69 +109,6 @@ boolean
 </td></tr>
 <tr><td>
 
-[name](./player.mediacontrol.name.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
-[playback](./player.mediacontrol.playback.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-any
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
-[supportedVersion](./player.mediacontrol.supportedversion.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-{ min: string; }
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
 [volume](./player.mediacontrol.volume.md)
 
 
@@ -257,12 +119,12 @@ any
 
 </td><td>
 
-any
+number
 
 
 </td><td>
 
-**_(BETA)_** Current volume
+**_(BETA)_** Current volume \[0..100\]
 
 
 </td></tr>
@@ -288,48 +150,6 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-[bindContainerEvents()](./player.mediacontrol.bindcontainerevents.md)
-
-
-</td><td>
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
-[bindEvents()](./player.mediacontrol.bindevents.md)
-
-
-</td><td>
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
-[destroy()](./player.mediacontrol.destroy.md)
-
-
-</td><td>
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
 [disable()](./player.mediacontrol.disable.md)
 
 
@@ -338,7 +158,7 @@ Description
 
 </td><td>
 
-**_(BETA)_**
+**_(BETA)_** Disables the plugin and unmounts its UI
 
 
 </td></tr>
@@ -352,7 +172,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Disable the control button
+**_(BETA)_** Disable the user interaction for the control buttons
 
 
 </td></tr>
@@ -366,7 +186,7 @@ Description
 
 </td><td>
 
-**_(BETA)_**
+**_(BETA)_** Reenables the plugin disabled earlier with the [MediaControl.disable()](./player.mediacontrol.disable.md) method
 
 
 </td></tr>
@@ -380,7 +200,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Enable the control button
+**_(BETA)_** Enable the user interaction disabled earlier
 
 
 </td></tr>
@@ -400,62 +220,6 @@ Description
 </td></tr>
 <tr><td>
 
-[getExternalInterface()](./player.mediacontrol.getexternalinterface.md)
-
-
-</td><td>
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
-[pause()](./player.mediacontrol.pause.md)
-
-
-</td><td>
-
-
-</td><td>
-
-**_(BETA)_** Pause the playback
-
-
-</td></tr>
-<tr><td>
-
-[play()](./player.mediacontrol.play.md)
-
-
-</td><td>
-
-
-</td><td>
-
-**_(BETA)_** Start the playback
-
-
-</td></tr>
-<tr><td>
-
-[render()](./player.mediacontrol.render.md)
-
-
-</td><td>
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
 [setInitialVolume()](./player.mediacontrol.setinitialvolume.md)
 
 
@@ -470,20 +234,6 @@ Description
 </td></tr>
 <tr><td>
 
-[setMuted(value)](./player.mediacontrol.setmuted.md)
-
-
-</td><td>
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
 [setVolume(value, isInitialVolume)](./player.mediacontrol.setvolume.md)
 
 
@@ -493,20 +243,6 @@ Description
 </td><td>
 
 **_(BETA)_** Set the volume
-
-
-</td></tr>
-<tr><td>
-
-[stop()](./player.mediacontrol.stop.md)
-
-
-</td><td>
-
-
-</td><td>
-
-**_(BETA)_** Stop the playback
 
 
 </td></tr>

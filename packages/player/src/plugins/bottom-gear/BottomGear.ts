@@ -1,7 +1,8 @@
 import { UICorePlugin, template, Events } from '@clappr/core';
 import { trace } from '@gcorevideo/utils';
+import assert from 'assert';
 
-import { CLAPPR_VERSION } from '../build.js';
+import { CLAPPR_VERSION } from '../../build.js';
 
 import pluginHtml from '../../../assets/bottom-gear/bottomgear.ejs';
 import '../../../assets/bottom-gear/gear.scss';
@@ -9,30 +10,45 @@ import '../../../assets/bottom-gear/gear-sub-menu.scss';
 import gearIcon from '../../../assets/icons/new/gear.svg';
 import gearHdIcon from '../../../assets/icons/new/gear-hd.svg';
 
-const VERSION = '0.0.1';
+const VERSION = '2.19.12';
+
+const T = 'plugins.media_control_gear';
 
 /**
+ * Adds the gear button that triggers extra options menu on the right side of the {@link MediaControl | media control} UI
  * @beta
+ * @remarks
+ * The plugins provides a base for attaching custom settings UI in the gear menu
  */
 export class BottomGear extends UICorePlugin {
   private isHd = false;
 
+  /**
+   * @internal
+   */
   get name() {
-    return 'gear';
+    return 'media_control_gear';
   }
 
+  /**
+   * @internal
+   */
   get supportedVersion() {
     return { min: CLAPPR_VERSION };
   }
 
+  /**
+   * @internal
+   */
   static get version() {
     return VERSION;
   }
 
-  get template() {
-    return template(pluginHtml);
-  }
+  private static readonly template = template(pluginHtml)
 
+  /**
+   * @internal
+   */
   override get attributes() {
     return {
       'class': this.name,
@@ -40,47 +56,37 @@ export class BottomGear extends UICorePlugin {
     };
   }
 
+  /**
+   * @internal
+   */
   override get events() {
     return {
       'click .button-gear': 'toggleGearMenu',
     };
   }
 
-  get container() {
-    return this.core && this.core.activeContainer;
-  }
-
+  /**
+   * @internal
+   */
   override bindEvents() {
+    const mediaControl = this.core.getPlugin('media_control');
+    assert(mediaControl, 'media_control plugin is required');
+
     this.listenTo(this.core, Events.CORE_ACTIVE_CONTAINER_CHANGED, this.onActiveContainerChanged);
-    this.listenTo(this.core, 'gear:refresh', this.refresh);
-    this.listenTo(this.core.mediaControl, Events.MEDIACONTROL_CONTAINERCHANGED, this.reload);
-    this.listenTo(this.core.mediaControl, Events.MEDIACONTROL_RENDERED, this.render);
-    this.listenTo(this.core.mediaControl, Events.MEDIACONTROL_HIDE, this.hide);
+    this.listenTo(this.core, 'gear:refresh', this.refresh); // TODO use direct plugin method call
+    // this.listenTo(mediaControl, Events.MEDIACONTROL_CONTAINERCHANGED, this.reload);
+    this.listenTo(mediaControl, Events.MEDIACONTROL_RENDERED, this.render);
+    this.listenTo(mediaControl, Events.MEDIACONTROL_HIDE, this.hide); // TODO mediacontrol show as well
     this.bindContainerEvents();
   }
 
-  unBindEvents() {
-    this.stopListening(this.core, Events.CORE_ACTIVE_CONTAINER_CHANGED, this.onActiveContainerChanged);
-    this.stopListening(this.core.mediaControl, Events.MEDIACONTROL_CONTAINERCHANGED, this.reload);
-    this.stopListening(this.core.mediaControl, Events.MEDIACONTROL_RENDERED, this.render);
-    this.stopListening(this.core.mediaControl, Events.MEDIACONTROL_HIDE, this.hide);
-  }
-
   private onActiveContainerChanged() {
-    this.bindEvents();
     this.bindContainerEvents();
   }
 
   private bindContainerEvents() {
-    if (!this.container) {
-      return;
-    }
-    this.listenTo(this.container, Events.CONTAINER_HIGHDEFINITIONUPDATE, this.highDefinitionUpdate);
-  }
-
-  reload() {
-    this.unBindEvents();
-    this.bindEvents();
+    trace(`${T} bindContainerEvents`);
+    this.listenTo(this.core.activeContainer, Events.CONTAINER_HIGHDEFINITIONUPDATE, this.highDefinitionUpdate);
   }
 
   private highDefinitionUpdate(isHd: boolean) {
@@ -93,33 +99,38 @@ export class BottomGear extends UICorePlugin {
     }
   }
 
+  /**
+   * @internal
+   */
   override render() {
+    const mediaControl = this.core.getPlugin('media_control');
+    assert(mediaControl, 'media_control plugin is required');
+
+    // TODO use options.mediaControl.gear.items
     const items = [
       'quality',
       'rate',
       'nerd',
     ];
-
     const icon = this.isHd ? gearHdIcon : gearIcon;
+    this.$el.html(BottomGear.template({ icon, items }));
 
-    this.$el.html(this.template({ icon, items }));
-
-    this.core.mediaControl.$bottomGear?.html(this.el);
-    this.core.trigger('gear:rendered');
+    mediaControl.getElement('bottomGear')?.html(this.el);
+    this.core.trigger('gear:rendered'); // TODO trigger on mediaControl instead
 
     return this;
   }
 
-  refresh() {
+  private refresh() {
     this.render();
     this.$el.find('.gear-wrapper').show();
   }
 
-  toggleGearMenu() {
+  private toggleGearMenu() {
     this.$el.find('.gear-wrapper').toggle();
   }
 
-  hide() {
+  private hide() {
     this.$el.find('.gear-wrapper').hide();
   }
 }

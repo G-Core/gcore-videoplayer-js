@@ -43,6 +43,7 @@ describe('LevelSelector', () => {
     beforeEach(() => {
       const activeContainer = createContainer()
       activePlayback = createPlayback()
+      let mediaControl: UICorePlugin | null = null
       core = Object.assign(new EventLite(), {
         activeContainer,
         activePlayback,
@@ -52,8 +53,14 @@ describe('LevelSelector', () => {
             labels: { 360: '360p', 720: 'HD' },
           },
         },
+        getPlugin: vi.fn().mockImplementation((name: string) => {
+          if (name === 'media_control') {
+            return mediaControl
+          }
+          return null
+        }),
       })
-      core.mediaControl = new UICorePlugin(core)
+      mediaControl = createMediaControl(core)
       levelSelector = new LevelSelector(core)
     })
     describe('initially', () => {
@@ -110,6 +117,7 @@ describe('LevelSelector', () => {
     beforeEach(() => {
       const activeContainer = createContainer()
       activePlayback = createPlayback()
+      let mediaControl: UICorePlugin | null = null
       core = Object.assign(new EventLite(), {
         activeContainer,
         activePlayback,
@@ -119,8 +127,14 @@ describe('LevelSelector', () => {
             labels: { 360: '360p', 720: '720p' },
           },
         },
+        getPlugin: vi.fn().mockImplementation((name: string) => {
+          if (name === 'media_control') {
+            return mediaControl
+          }
+          return null
+        }),
       })
-      core.mediaControl = new UICorePlugin(core)
+      mediaControl = createMediaControl(core)
       levelSelector = new LevelSelector(core)
     })
     describe('basically', () => {
@@ -218,3 +232,9 @@ expect.extend({
     }
   }
 })
+
+function createMediaControl(core: any) {
+  const mediaControl = new UICorePlugin(core)
+  mediaControl.getElement = vi.fn().mockReturnValue(null)
+  return mediaControl
+}

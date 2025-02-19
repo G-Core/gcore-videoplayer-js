@@ -1,6 +1,6 @@
 import { Container, Events, UICorePlugin, template } from '@clappr/core';
 
-import { CLAPPR_VERSION } from '../build.js';
+import { CLAPPR_VERSION } from '../../build.js';
 
 import pluginHtml from '../../../assets/share/share.ejs';
 import '../../../assets/share/style.scss';
@@ -15,7 +15,7 @@ export class Share extends UICorePlugin {
   private container: Container | null = null;
 
   get name() {
-    return 'share';
+    return 'media_control_share';
   }
 
   get supportedVersion() {

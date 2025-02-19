@@ -5,7 +5,7 @@
 import { Events, Playback, UICorePlugin, Utils, template } from '@clappr/core';
 import { TimeUpdate } from '../../playback.types.js';
 
-import { CLAPPR_VERSION } from '../build.js';
+import { CLAPPR_VERSION } from '../../build.js';
 
 import seekTimeHTML from '../../../assets/seek-time/seek-time.html';
 import '../../../assets/seek-time/seek-time.scss';
@@ -15,7 +15,7 @@ const { formatTime } = Utils;
 
 export class SeekTime extends UICorePlugin {
   get name() {
-    return 'seek_time';
+    return 'media_control_seek_time';
   }
 
   get supportedVersion() {

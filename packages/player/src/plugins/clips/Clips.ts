@@ -29,7 +29,7 @@ export class ClipsPlugin extends UICorePlugin {
   private svgMask: ZeptoResult | null = null;
 
   get name() {
-    return 'clips';
+    return 'media_control_clips';
   }
 
   override get attributes() {
@@ -154,7 +154,7 @@ export class ClipsPlugin extends UICorePlugin {
   }
 
   private setSVGMask(svg: string) {
-    this.core.mediaControl.setSVGMask(svg);
+    // this.core.mediaControl.setSVGMask(svg);
     if (this.svgMask) {
       this.svgMask.remove()
     }

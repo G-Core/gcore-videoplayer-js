@@ -1,6 +1,6 @@
 import { UICorePlugin as UICorePluginOriginal, Browser, Playback, Events, template } from '@clappr/core';
 
-import { CLAPPR_VERSION } from '../build.js';
+import { CLAPPR_VERSION } from '../../build.js';
 
 import pluginHtml from '../../../assets/skip-time/skip-time.ejs';
 import '../../../assets/skip-time/style.scss';

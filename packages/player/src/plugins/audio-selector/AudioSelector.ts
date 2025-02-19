@@ -6,7 +6,7 @@ import {
   Events as HlsEvents,
 } from 'hls.js';
 
-import { CLAPPR_VERSION } from '../build.js';
+import { CLAPPR_VERSION } from '../../build.js';
 
 import pluginHtml from '../../../assets/audio-selector/track-selector.ejs';
 import '../../../assets/audio-selector/style.scss';
@@ -49,7 +49,7 @@ export class AudioSelector extends UICorePlugin {
   private tracks: AudioTrackItem[] = [];
 
   get name() {
-    return 'audio_selector';
+    return 'media_control_audio_selector';
   }
 
   get supportedVersion() {

@@ -1,7 +1,7 @@
 import { Browser, Core, Events, Playback, template, UICorePlugin } from '@clappr/core';
 import { reportError, trace } from '@gcorevideo/utils';
 
-import { CLAPPR_VERSION } from '../build.js';
+import { CLAPPR_VERSION } from '../../build.js';
 
 import pluginHtml from '../../../assets/multi-camera/multicamera.ejs';
 import '../../../assets/multi-camera/style.scss';
@@ -23,7 +23,7 @@ type MediaSourceInfo = {
 
 const VERSION = '0.0.1';
 
-const T = 'plugins.multicamera';
+const T = 'plugins.media_control_multicamera';
 
 export class MultiCamera extends UICorePlugin {
   private currentCamera: MediaSourceInfo | null = null;
@@ -37,7 +37,7 @@ export class MultiCamera extends UICorePlugin {
   private noActiveStreams = false;
 
   get name() {
-    return 'multicamera';
+    return 'media_control_multicamera';
   }
 
   get supportedVersion() {

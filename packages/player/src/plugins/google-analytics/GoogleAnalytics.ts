@@ -4,7 +4,7 @@
 
 import { Container, ContainerPlugin, Events } from '@clappr/core';
 
-import { CLAPPR_VERSION } from '../build.js';
+import { CLAPPR_VERSION } from '../../build.js';
 
 declare const _gaq: {
   push(args: string[]): void;

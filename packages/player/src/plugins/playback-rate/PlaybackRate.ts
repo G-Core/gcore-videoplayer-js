@@ -1,6 +1,6 @@
 import { Events, UICorePlugin, Playback, template } from '@clappr/core';
 
-import { CLAPPR_VERSION } from '../build.js';
+import { CLAPPR_VERSION } from '../../build.js';
 import type { ZeptoResult } from '../../utils/types.js';
 
 import pluginHtml from '../../../assets/playback-rate/playback-rate-selector.ejs';
@@ -28,6 +28,7 @@ const DEFAULT_PLAYBACK_RATES = [
 
 const DEFAULT_PLAYBACK_RATE = '1.0';
 
+// TODO
 const MEDIACONTROL_PLAYBACKRATE = 'playbackRate';
 
 export class PlaybackRate extends UICorePlugin {
@@ -40,7 +41,7 @@ export class PlaybackRate extends UICorePlugin {
   private selectedRate: string = DEFAULT_PLAYBACK_RATE;
 
   get name() {
-    return 'playback_rate';
+    return 'media_control_playback_rate';
   }
 
   get supportedVersion() {
@@ -265,5 +266,3 @@ export class PlaybackRate extends UICorePlugin {
     currentLevelElement.find('a').addClass('gcore-skin-active');
   }
 }
-
-// PlaybackRate.MEDIACONTROL_PLAYBACKRATE = 'playbackRate';

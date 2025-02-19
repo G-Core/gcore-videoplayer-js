@@ -1,6 +1,6 @@
 import { UICorePlugin, Events } from '@clappr/core';
 
-import { CLAPPR_VERSION } from '../build.js';
+import { CLAPPR_VERSION } from '../../build.js';
 
 export class DisableControls extends UICorePlugin {
   get name() {

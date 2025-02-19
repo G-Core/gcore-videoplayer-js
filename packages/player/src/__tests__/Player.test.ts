@@ -154,91 +154,17 @@ describe('Player', () => {
     )
   })
   describe('autoPlay', () => {
-    it('should be false', () => {
-      const player = new Player({autoPlay: true, sources: []})
-      const node = document.createElement('div')
-      player.attachTo(node)
-      expect(PlayerClappr).toHaveBeenCalledWith(
-        expect.objectContaining({
-          autoPlay: false,
-        }),
-      )
+    describe('initially', () => {
+      it('should reset to false', () => {
+        const player = new Player({autoPlay: true, sources: []})
+        const node = document.createElement('div')
+        player.attachTo(node)
+        expect(PlayerClappr).toHaveBeenCalledWith(
+          expect.objectContaining({
+            autoPlay: false,
+          }),
+        )
+      })
     })
   })
 })
-
-class MockPlayback extends EventLite {
-  constructor(
-    protected options: any,
-    readonly i18n: any,
-    protected playerError?: any,
-  ) {
-    super()
-  }
-
-  get name() {
-    return 'mock'
-  }
-
-  consent() {}
-
-  play() {}
-
-  pause() {}
-
-  stop() {}
-
-  destroy() {}
-
-  seek() {}
-
-  seekPercentage() {}
-
-  getDuration() {
-    return 100
-  }
-
-  enterPiP() {}
-
-  exitPiP() {}
-
-  getPlaybackType() {
-    return 'live'
-  }
-
-  getStartTimeOffset() {
-    return 0
-  }
-
-  getCurrentTime() {
-    return 0
-  }
-
-  isHighDefinitionInUse() {
-    return false
-  }
-
-  mute() {}
-
-  unmute() {}
-
-  volume() {}
-
-  configure() {}
-
-  attemptAutoPlay() {
-    return true
-  }
-
-  canAutoPlay() {
-    return true
-  }
-
-  onResize() {
-    return true
-  }
-
-  trigger(event: string, ...args: any[]) {
-    this.emit(event, ...args)
-  }
-}

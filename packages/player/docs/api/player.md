@@ -52,7 +52,7 @@ Description
 
 </td><td>
 
-**_(BETA)_**
+**_(BETA)_** Adds the gear button that triggers extra options menu on the right side of the [media control](./player.mediacontrol.md) UI
 
 
 </td></tr>
@@ -121,6 +121,8 @@ Description
 
 </td><td>
 
+**_(BETA)_** Adds the DVR controls to the media control UI
+
 
 </td></tr>
 <tr><td>
@@ -157,7 +159,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Allows to control the quality level of the playback.
+**_(BETA)_** A [media control](./player.mediacontrol.md) plugin that provides a UI to control the quality level of the playback.
 
 
 </td></tr>
@@ -177,7 +179,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** The MediaControl is responsible for displaying the Player controls.
+**_(BETA)_** The MediaControl provides a foundation for developing custom media controls UI.
 
 
 </td></tr>
@@ -225,6 +227,8 @@ Description
 
 
 </td><td>
+
+**_(BETA)_** Displays a poster image in the background and a big play button on top when playback is stopped
 
 
 </td></tr>
@@ -523,7 +527,7 @@ Description
 
 </td><td>
 
-**_(BETA)_**
+**_(BETA)_** Media control elements, mount points for additional plugins
 
 
 </td></tr>

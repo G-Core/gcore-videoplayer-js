@@ -1,6 +1,6 @@
 import { UICorePlugin, Events, template, $, Core, Container } from '@clappr/core';
 
-import { CLAPPR_VERSION } from '../build.js';
+import { CLAPPR_VERSION } from '../../build.js';
 
 import '../../../assets/context-menu/context_menu.scss';
 import templateHtml from '../../../assets/context-menu/context_menu.ejs';

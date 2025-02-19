@@ -1,29 +1,48 @@
 import { Core, Events, Playback, UICorePlugin, template } from '@clappr/core';
+import assert from 'assert';
 
-import { CLAPPR_VERSION } from '../build.js';
+import { CLAPPR_VERSION } from '../../build.js';
 
 import dvrHTML from '../../../assets/dvr-controls/index.ejs';
 import '../../../assets/dvr-controls/dvr_controls.scss';
 
+/**
+ * Adds the DVR controls to the media control UI
+ * @beta
+ *
+ * @remarks
+ * The plugin is rendered in the {@link MediaControl | media control} UI.
+ * It renders the live stream indicator and the DVR seek bar if DVR is enabled.
+ */
 export class DvrControls extends UICorePlugin {
-  get template() {
-    return template(dvrHTML);
-  }
+  private static readonly template = template(dvrHTML);
 
+  /**
+   * @internal
+   */
   get name() {
-    return 'dvr_controls';
+    return 'media_control_dvr';
   }
 
+  /**
+   * @internal
+   */
   get supportedVersion() {
     return { min: CLAPPR_VERSION };
   }
 
+  /**
+   * @internal
+   */
   override get events() {
     return {
       'click .live-button': 'click'
     };
   }
 
+  /**
+   * @internal
+   */
   override get attributes() {
     return {
       'class': 'dvr-controls',
@@ -36,6 +55,9 @@ export class DvrControls extends UICorePlugin {
     this.settingsUpdate();
   }
 
+  /**
+   * @internal
+   */
   override bindEvents() {
     this.bindCoreEvents();
     this.bindContainerEvents();
@@ -86,9 +108,9 @@ export class DvrControls extends UICorePlugin {
     }
   }
 
-  click() {
-    const mediaControl = this.core.mediaControl;
-    const container = mediaControl.container;
+  private click() {
+    const mediaControl = this.core.getPlugin('media_control');
+    const container = this.core.activeContainer;
 
     if (!container.isPlaying()) {
       container.play();
@@ -99,9 +121,9 @@ export class DvrControls extends UICorePlugin {
     }
   }
 
-  settingsUpdate() {
+  private settingsUpdate() {
     // @ts-ignore
-    this.stopListening();
+    this.stopListening(); // TODO sort out
     this.core.mediaControl.$el.removeClass('live');
     if (this.shouldRender()) {
       this.render();
@@ -110,20 +132,26 @@ export class DvrControls extends UICorePlugin {
     this.bindEvents();
   }
 
-  shouldRender() {
+  private shouldRender() {
     const useDvrControls = this.core.options.useDvrControls === undefined || !!this.core.options.useDvrControls;
 
     return useDvrControls && this.core.getPlaybackType() === Playback.LIVE;
   }
 
+  /**
+   * @internal
+   */
   override render() {
-    this.$el.html(this.template({
+    this.$el.html(DvrControls.template({
       live: this.core.i18n.t('live'),
       backToLive: this.core.i18n.t('back_to_live')
     }));
     if (this.shouldRender()) {
-      this.core.mediaControl.$el.addClass('live');
-      this.core.mediaControl.$('.media-control-left-panel[data-media-control]').append(this.$el);
+      const mediaControl = this.core.mediaControl;
+      assert(mediaControl, 'media_control plugin is required');
+      // TODO don't tap into the $el directly
+      mediaControl.$el.addClass('live');
+      mediaControl.$('.media-control-left-panel[data-media-control]').append(this.$el);
     }
 
     return this;

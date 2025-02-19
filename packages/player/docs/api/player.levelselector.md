@@ -7,7 +7,7 @@
 > This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
 > 
 
-Allows to control the quality level of the playback.
+A [media control](./player.mediacontrol.md) plugin that provides a UI to control the quality level of the playback.
 
 **Signature:**
 
@@ -18,22 +18,24 @@ export declare class LevelSelector extends UICorePlugin
 
 ## Remarks
 
-The plugin is rendered as a button in the gear menu. When clicked, it shows a list of quality levels to choose from.
+The plugin is rendered as a button in the [gear menu](./player.bottomgear.md)<!-- -->. When clicked, it shows a list of quality levels to choose from.
 
 Configuration options:
 
-- `labels`<!-- -->: The labels to show in the level selector. \[vertical resolution\]: string - `restrictResolution`<!-- -->: The maximum resolution to allow in the level selector.
+- `labels`<!-- -->: The labels to show in the level selector. \[video resolution\]: string
+
+- `restrictResolution`<!-- -->: The maximum resolution to allow in the level selector.
 
 ## Example
 
 
 ```ts
-{
+new Player({
   levelSelector: {
     restrictResolution: 360,
-    labels: { 360: '360p', 720: '720p' },
+    labels: { 360: 'SD', 720: 'HD' },
   },
-}
+})
 ```
 
 ## Properties
@@ -61,27 +63,6 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-[attributes](./player.levelselector.attributes.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-{ class: string; 'data-level-selector': string; }
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
 [events](./player.levelselector.events.md)
 
 
@@ -93,119 +74,6 @@ Description
 </td><td>
 
 { 'click .gear-sub-menu\_btn': string; 'click .gear-option': string; 'click .go-back': string; }
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
-[name](./player.levelselector.name.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
-[supportedVersion](./player.levelselector.supportedversion.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-{ min: string; }
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
-[version](./player.levelselector.version.md)
-
-
-</td><td>
-
-`static`
-
-`readonly`
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-</tbody></table>
-
-## Methods
-
-<table><thead><tr><th>
-
-Method
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>
-
-[bindEvents()](./player.levelselector.bindevents.md)
-
-
-</td><td>
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
-[render()](./player.levelselector.render.md)
-
-
-</td><td>
 
 
 </td><td>

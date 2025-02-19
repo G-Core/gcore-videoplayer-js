@@ -12,7 +12,7 @@ import {
 } from '../../types.js'
 import { trace } from '@gcorevideo/utils'
 
-import { CLAPPR_VERSION } from '../build'
+import { CLAPPR_VERSION } from '../../build.js'
 
 const T = 'plugins.source_controller'
 

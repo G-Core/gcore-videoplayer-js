@@ -54,5 +54,23 @@ The name of the media control element
 
 [ZeptoResult](./player.zeptoresult.md) \| null
 
-The DOM node to render the media control element
+The DOM node to render to or extend
+
+## Remarks
+
+Use this method to render custom media control UI in a plugin
+
+## Example
+
+
+```ts
+class MyPlugin extends UICorePlugin {
+  override render() {
+    const mediaControl = this.core.getPlugin('media_control')
+    const clipText = mediaControl.getElement('clipText')
+    clipText?.el.text('Here we go')
+    return this
+  }
+}
+```
 

@@ -2,7 +2,7 @@ import { UICorePlugin, Events, template, Core, Container } from '@clappr/core';
 import { reportError } from '@gcorevideo/utils';
 import Mousetrap from 'mousetrap';
 
-import { CLAPPR_VERSION } from '../build.js';
+import { CLAPPR_VERSION } from '../../build.js';
 import { ClapprStatsEvents, Metrics as BaseMetrics } from '../clappr-stats/types.js';
 import { newMetrics as newBaseMetrics } from '../clappr-stats/utils.js';
 import Formatter from './formatter.js';
@@ -125,7 +125,7 @@ export class ClapprNerdStats extends UICorePlugin {
   private iconPosition: IconPosition;
 
   get name() {
-    return 'clappr_nerd_stats';
+    return 'media_control_nerd_stats';
   }
 
   get supportedVersion() {
@@ -181,6 +181,7 @@ export class ClapprNerdStats extends UICorePlugin {
 
   override bindEvents() {
     this.listenToOnce(this.core, Events.CORE_READY, this.init);
+    // TODO trigger on mediaControl instead
     this.listenTo(this.core, 'gear:rendered', this.addToBottomGear);
   }
 

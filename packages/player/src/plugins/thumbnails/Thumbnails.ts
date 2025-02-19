@@ -4,7 +4,7 @@ import parseSRT, { type ParsedSRT } from 'parse-srt';
 
 import { TimeValue } from '../../playback.types.js';
 
-import { CLAPPR_VERSION } from '../build.js';
+import { CLAPPR_VERSION } from '../../build.js';
 
 import pluginHtml from '../../../assets/thumbnails/scrub-thumbnails.ejs';
 import '../../../assets/thumbnails/style.scss';
@@ -31,7 +31,7 @@ type Thumb = {
   imageH?: number;
 }
 
-const T = 'plugins.thumbnails';
+const T = 'plugins.media_control_thumbnails';
 
 export class Thumbnails extends UICorePlugin {
   private _$spotlight: ZeptoResult | null = null;
@@ -61,7 +61,7 @@ export class Thumbnails extends UICorePlugin {
   private _thumbs: Thumb[] = [];
 
   get name() {
-    return 'thumbnails';
+    return 'media_control_thumbnails';
   }
 
   get supportedVersion() {

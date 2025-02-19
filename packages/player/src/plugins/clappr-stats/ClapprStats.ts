@@ -2,7 +2,7 @@ import { Container, ContainerPlugin, Events as CoreEvents, Log } from '@clappr/c
 import type { QualityLevel, TimePosition, TimeProgress } from '../../playback.types.js';
 import assert from 'assert';
 
-import { CLAPPR_VERSION } from '../build.js';
+import { CLAPPR_VERSION } from '../../build.js';
 import { TimerId } from '../../utils/types.js';
 import type { Metrics, MetricsUpdateFn } from './types.js';
 import { ClapprStatsEvents } from './types.js';

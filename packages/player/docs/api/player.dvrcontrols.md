@@ -4,12 +4,21 @@
 
 ## DvrControls class
 
+> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
+> 
+
+Adds the DVR controls to the media control UI
+
 **Signature:**
 
 ```typescript
 export declare class DvrControls extends UICorePlugin 
 ```
 **Extends:** UICorePlugin
+
+## Remarks
+
+The plugin is rendered in the [media control](./player.mediacontrol.md) UI. It renders the live stream indicator and the DVR seek bar if DVR is enabled.
 
 ## Constructors
 
@@ -39,207 +48,7 @@ Description
 
 </td><td>
 
-Constructs a new instance of the `DvrControls` class
-
-
-</td></tr>
-</tbody></table>
-
-## Properties
-
-<table><thead><tr><th>
-
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>
-
-[attributes](./player.dvrcontrols.attributes.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-{ class: string; 'data-dvr-controls': string; }
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[events](./player.dvrcontrols.events.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-{ 'click .live-button': string; }
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[name](./player.dvrcontrols.name.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[supportedVersion](./player.dvrcontrols.supportedversion.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-{ min: string; }
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[template](./player.dvrcontrols.template.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-any
-
-
-</td><td>
-
-
-</td></tr>
-</tbody></table>
-
-## Methods
-
-<table><thead><tr><th>
-
-Method
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>
-
-[bindEvents()](./player.dvrcontrols.bindevents.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[click()](./player.dvrcontrols.click.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[render()](./player.dvrcontrols.render.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[settingsUpdate()](./player.dvrcontrols.settingsupdate.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[shouldRender()](./player.dvrcontrols.shouldrender.md)
-
-
-</td><td>
-
-
-</td><td>
+**_(BETA)_** Constructs a new instance of the `DvrControls` class
 
 
 </td></tr>

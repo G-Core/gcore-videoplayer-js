@@ -2,8 +2,9 @@ import { Events, template, UICorePlugin } from '@clappr/core'
 import { reportError, trace } from '@gcorevideo/utils'
 
 import { type QualityLevel } from '../../playback.types.js'
-import { CLAPPR_VERSION } from '../build.js'
+import { CLAPPR_VERSION } from '../../build.js'
 import { ZeptoResult } from '../../utils/types.js'
+import { TemplateFunction } from '../types.js'
 
 import buttonHtml from '../../../assets/level-selector/button.ejs'
 import listHtml from '../../../assets/level-selector/list.ejs'
@@ -14,32 +15,31 @@ import checkIcon from '../../../assets/icons/new/check.svg'
 import '../../../assets/level-selector/style.scss'
 
 
-const T = 'plugins.level_selector'
+const T = 'plugins.media_control_level_selector'
 const VERSION = '2.19.4'
 
-type TemplateFunction = (data: Record<string, unknown>) => string
-
 /**
- * Allows to control the quality level of the playback.
+ * A {@link MediaControl | media control} plugin that provides a UI to control the quality level of the playback.
  * @beta
  *
  * @remarks
- * The plugin is rendered as a button in the gear menu.
+ * The plugin is rendered as a button in the {@link BottomGear | gear menu}.
  * When clicked, it shows a list of quality levels to choose from.
  *
  * Configuration options:
  *
- * - `labels`: The labels to show in the level selector. [vertical resolution]: string
+ * - `labels`: The labels to show in the level selector. [video resolution]: string
+ *
  * - `restrictResolution`: The maximum resolution to allow in the level selector.
  *
  * @example
  * ```ts
- * {
+ * new Player({
  *   levelSelector: {
  *     restrictResolution: 360,
- *     labels: { 360: '360p', 720: '720p' },
+ *     labels: { 360: 'SD', 720: 'HD' },
  *   },
- * }
+ * })
  * ```
  */
 export class LevelSelector extends UICorePlugin {
@@ -57,18 +57,30 @@ export class LevelSelector extends UICorePlugin {
 
   private listTemplate: TemplateFunction | null = null
 
+  /**
+   * @internal
+   */
   get name() {
-    return 'level_selector'
+    return 'media_control_level_selector'
   }
 
+  /**
+   * @internal
+   */
   get supportedVersion() {
     return { min: CLAPPR_VERSION }
   }
 
+  /**
+   * @internal
+   */
   static get version() {
     return VERSION
   }
 
+  /**
+   * @internal
+   */
   override get attributes() {
     return {
       class: this.name,
@@ -88,6 +100,9 @@ export class LevelSelector extends UICorePlugin {
     }
   }
 
+  /**
+   * @internal
+   */
   override bindEvents() {
     this.listenTo(this.core, Events.CORE_ACTIVE_CONTAINER_CHANGED, () => this.bindPlaybackEvents())
     this.listenTo(this.core, 'gear:rendered', this.render)
@@ -164,6 +179,9 @@ export class LevelSelector extends UICorePlugin {
     return !!(this.levels && this.levels.length > 1)
   }
 
+  /**
+   * @internal
+   */
   override render() {
     if (!this.shouldRender()) {
       return this
@@ -186,9 +204,10 @@ export class LevelSelector extends UICorePlugin {
         hdIcon,
       })
       this.$el.html(html)
-      this.core.mediaControl.$el
+      const mediaControl = this.core.getPlugin('media_control')
+      mediaControl.getElement('bottomGear')
         ?.find('.gear-options-list [data-quality]')
-        .html(this.el)
+        ?.html(this.el)
     }
   }
 
@@ -205,7 +224,8 @@ export class LevelSelector extends UICorePlugin {
       removeAuto: this.removeAuto,
     })
     this.$el.html(html)
-    this.core.mediaControl.$el?.find('.gear-wrapper').html(this.el)
+    const mediaControl = this.core.getPlugin('media_control')
+    mediaControl.getElement('bottomGear')?.find('.gear-wrapper').html(this.el)
   }
 
   private get maxLevel() {

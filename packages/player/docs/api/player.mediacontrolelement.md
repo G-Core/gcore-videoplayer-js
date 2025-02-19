@@ -7,9 +7,10 @@
 > This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
 > 
 
+Media control elements, mount points for additional plugins
 
 **Signature:**
 
 ```typescript
-export type MediaControlElement = 'clipText' | 'pip' | 'seekBarContainer';
+export type MediaControlElement = 'bottomGear' | 'clipText' | 'pip' | 'playbackRate' | 'seekBarContainer';
 ```

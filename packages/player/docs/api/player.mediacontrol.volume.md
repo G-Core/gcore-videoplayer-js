@@ -7,10 +7,10 @@
 > This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
 > 
 
-Current volume
+Current volume \[0..100\]
 
 **Signature:**
 
 ```typescript
-get volume(): any;
+get volume(): number;
 ```
