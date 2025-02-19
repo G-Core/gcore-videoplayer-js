@@ -146,11 +146,24 @@ describe('Player', () => {
           expect(PlayerClappr).toHaveBeenCalledWith(
             expect.objectContaining({
               source,
+              // TODO sources
             }),
           )
         })
       },
     )
+  })
+  describe('autoPlay', () => {
+    it('should be false', () => {
+      const player = new Player({autoPlay: true, sources: []})
+      const node = document.createElement('div')
+      player.attachTo(node)
+      expect(PlayerClappr).toHaveBeenCalledWith(
+        expect.objectContaining({
+          autoPlay: false,
+        }),
+      )
+    })
   })
 })
 

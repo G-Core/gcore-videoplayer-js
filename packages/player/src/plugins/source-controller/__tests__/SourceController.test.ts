@@ -75,6 +75,7 @@ describe('SourceController', () => {
         })
         const _ = new SourceController(core)
         core.emit('core:ready')
+        core.emit('core:active:container:changed')
         core.activePlayback.emit('playback:error', { code: PlaybackErrorCode.MediaSourceUnavailable })
         nextPlayback =  new _MockPlayback({} as any, {} as any)
         vi.spyOn(nextPlayback, 'consent')
@@ -111,6 +112,7 @@ describe('SourceController', () => {
             }
           })
           core.emit('core:ready')
+          core.emit('core:active:container:changed')
         })
         it('should disable the poster', async () => {
           expect(poster.disable).toHaveBeenCalled()
@@ -134,6 +136,7 @@ describe('SourceController', () => {
         })
         const _ = new SourceController(core)
         core.emit('core:ready')
+        core.emit('core:active:container:changed')
         core.activePlayback.emit('playback:error', { code: PlaybackErrorCode.MediaSourceUnavailable })
         nextPlayback =  new _MockPlayback({} as any, {} as any)
         vi.spyOn(nextPlayback, 'consent')
@@ -157,6 +160,7 @@ describe('SourceController', () => {
         })
         const _ = new SourceController(core)
         core.emit('core:ready')
+        core.emit('core:active:container:changed')
         core.activePlayback.emit('playback:error', { code: PlaybackErrorCode.MediaSourceUnavailable })
         await clock.tickAsync(1000)
         nextPlayback =  new _MockPlayback({} as any, {} as any)
@@ -172,6 +176,7 @@ describe('SourceController', () => {
           }
         })
         core.emit('core:ready')
+        core.emit('core:active:container:changed')
         nextPlayback.emit('playback:play')
       })
       it('should enable the poster', async () => {

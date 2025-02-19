@@ -9,7 +9,7 @@ import {
 } from '../../playback.types.js'
 import {
   type PlayerMediaSourceDesc,
-} from '../..//types'
+} from '../../types.js'
 import { trace } from '@gcorevideo/utils'
 
 import { CLAPPR_VERSION } from '../build'
@@ -121,12 +121,13 @@ export class SourceController extends CorePlugin {
   override bindEvents() {
     super.bindEvents()
 
-    this.listenTo(this.core, ClapprEvents.CORE_READY, () => this.onReady())
+    this.listenTo(this.core, ClapprEvents.CORE_ACTIVE_CONTAINER_CHANGED, () => this.onReady())
   }
 
   private onReady() {
     trace(`${T} onReady`, {
       retrying: this.active,
+      currentSource: this.sourcesList[this.currentSourceIndex],
     })
     const spinner = this.core.activeContainer?.getPlugin('spinner')
     if (spinner) {
@@ -144,9 +145,6 @@ export class SourceController extends CorePlugin {
   }
 
   private bindContainerEventListeners() {
-    trace(`${T} bindContainerEventListeners`, {
-      activePlayback: this.core.activePlayback?.name,
-    })
     this.core.activePlayback.on(
       ClapprEvents.PLAYBACK_ERROR,
       (error: PlaybackError) => {
@@ -193,7 +191,6 @@ export class SourceController extends CorePlugin {
     trace(`${T} retryPlayback enter`, {
       currentSourceIndex: this.currentSourceIndex,
       currentSource: this.sourcesList[this.currentSourceIndex],
-      sourcesList: this.sourcesList,
     })
     this.active = true
     this.getNextMediaSource().then((nextSource: PlayerMediaSourceDesc) => {
@@ -202,9 +199,7 @@ export class SourceController extends CorePlugin {
       })
       const rnd = RETRY_DELAY_BLUR * Math.random()
       this.sync(() => {
-        trace(`${T} retryPlayback loading...`, {
-          nextSource,
-        })
+        trace(`${T} retryPlayback loading...`)
         this.core.load(nextSource.source, nextSource.mimeType)
         trace(`${T} retryPlayback loaded`, {
           nextSource,

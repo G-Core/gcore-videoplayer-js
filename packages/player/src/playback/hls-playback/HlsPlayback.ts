@@ -9,6 +9,7 @@ import {
   Playback,
   PlayerError,
   Utils,
+  $,
 } from '@clappr/core'
 import { trace } from '@gcorevideo/utils'
 import assert from 'assert'
@@ -371,11 +372,15 @@ export default class HlsPlayback extends HTML5Video {
   }
 
   _createHLSInstance() {
-    const config = {
-      ...this.options.playback.hlsjsConfig,
-      maxBufferLength: 2,
-      maxMaxBufferLength: 4,
-    }
+    const config = $.extend(
+      true,
+      {
+        maxBufferLength: 2,
+        maxMaxBufferLength: 4,
+      },
+      this.options.playback.hlsjsConfig,
+    )
+    trace(`${T} _createHLSInstance`, { config })
 
     this._hls = new HLSJS(config)
   }

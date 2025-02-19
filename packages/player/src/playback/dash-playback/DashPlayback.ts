@@ -239,14 +239,17 @@ export default class DashPlayback extends HTML5Video {
     this._dash.initialize()
 
     if (this.options.dash) {
-      // TODO use $.extend
-      const settings = $.extend({}, this.options.dash, {
-        streaming: {
-          text: {
-            defaultEnabled: false,
+      const settings = $.extend(
+        true,
+        {
+          streaming: {
+            text: {
+              defaultEnabled: false,
+            },
           },
         },
-      })
+        this.options.dash,
+      )
       this._dash.updateSettings(settings)
     }
 
@@ -277,10 +280,13 @@ export default class DashPlayback extends HTML5Video {
       })
     })
 
-    this._dash.on(DASHJS.MediaPlayer.events.QUALITY_CHANGE_RENDERED, (evt: DASHJS.QualityChangeRenderedEvent) => {
-      const currentLevel = this.getLevel(evt.newQuality)
-      this.onLevelSwitchEnd(currentLevel)
-    })
+    this._dash.on(
+      DASHJS.MediaPlayer.events.QUALITY_CHANGE_RENDERED,
+      (evt: DASHJS.QualityChangeRenderedEvent) => {
+        const currentLevel = this.getLevel(evt.newQuality)
+        this.onLevelSwitchEnd(currentLevel)
+      },
+    )
 
     this._dash.on(
       DASHJS.MediaPlayer.events.METRIC_ADDED,

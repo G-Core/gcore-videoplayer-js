@@ -168,7 +168,7 @@ export class MediaControl extends UICorePlugin {
 
   private $volumeIcon: ZeptoResult | null = null
 
-  private readonly template = template(mediaControlHTML)
+  private static readonly template = template(mediaControlHTML)
 
   get name() {
     return 'media_control'
@@ -1189,10 +1189,6 @@ export class MediaControl extends UICorePlugin {
 
     let variables: string[] = []
 
-    if (!template) {
-      return
-    }
-
     // TODO camel case
     if (design.background_color) {
       variables = variables.concat([
@@ -1244,7 +1240,7 @@ export class MediaControl extends UICorePlugin {
   override render() {
     const timeout = this.options.hideMediaControlDelay || 2000
 
-    const html = this.template({ settings: this.settings ?? {} })
+    const html = MediaControl.template({ settings: this.settings ?? {} })
     this.$el.html(html)
     // const style = Styler.getStyleFor(mediaControlStyle, { baseUrl: this.options.baseUrl });
     // this.$el.append(style[0]);

@@ -83,10 +83,6 @@ export class Player {
 
   private rootNode: HTMLElement | null = null
 
-  private tuneInTimerId: ReturnType<typeof setTimeout> | null = null
-
-  private tunedIn = false
-
   constructor(config: PlayerConfig) {
     this.setConfig(config)
     // TODO decide whether the order of playback modules might vary,
@@ -185,11 +181,6 @@ export class Player {
       this.player = null
     }
     this.ready = false
-    this.tunedIn = false
-    if (this.tuneInTimerId) {
-      clearTimeout(this.tuneInTimerId)
-      this.tuneInTimerId = null
-    }
   }
 
   /**
@@ -362,6 +353,8 @@ export class Player {
 
   private initPlayer(coreOptions: CoreOptions): void {
     trace(`${T} initPlayer`, {
+      autoPlay: coreOptions.autoPlay,
+      sources: coreOptions.sources,
       // TODO selected options
     })
 
@@ -369,53 +362,34 @@ export class Player {
 
     const player = new PlayerClappr(coreOptions)
     this.player = player
-
-    // TODO checks if the whole thing is necessary
-    this.tuneInTimerId = globalThis.setTimeout(() => {
-      trace(`${T} tuneInTimer`, {
-        ready: this.ready,
-        tunedIn: this.tunedIn,
-      })
-      this.tuneInTimerId = null
-      this.tuneIn()
-    }, 4000)
+    this.bindCoreListeners()
   }
 
   private async tuneIn() {
     assert.ok(this.player)
-    trace(`${T} tuneIn`, {
-      ready: this.ready,
-      tunedIn: this.tunedIn,
-    })
-    if (this.tunedIn) {
-      return
-    }
-    this.tunedIn = true
-    const player = this.player
-    
-    this.bindContainerEventListeners(player)
-    player.core.on(
+    this.bindContainerEventListeners()
+    this.player.core.on(
       ClapprEvents.CORE_ACTIVE_CONTAINER_CHANGED,
-      () => this.bindContainerEventListeners(player),
+      () => this.bindContainerEventListeners(),
       null,
     )
-    this.bindSizeManagementListeners(player)
-
     if (this.config.autoPlay) {
-      setTimeout(() => {
-        trace(`${T} autoPlay`, {
-          playback: this.player?.core.activePlayback.name,
-        })
-        player.play({
-          autoPlay: true,
-        })
-      }, 0)
+      this.triggerAutoPlay()
     }
     try {
       this.emitter.emit(PlayerEvent.Ready)
     } catch (e) {
       reportError(e)
     }
+  }
+
+  private triggerAutoPlay() {
+    trace(`${T} triggerAutoPlay`)
+    setTimeout(() => {
+      this.player?.play({
+        autoPlay: true,
+      })
+    }, 0)
   }
 
   private safeTriggerEvent<E extends PlayerEvent>(event: E, ...args: PlayerEventParams<E>) {
@@ -436,11 +410,6 @@ export class Player {
         return
       }
       this.ready = true
-      if (this.tuneInTimerId) {
-        clearTimeout(this.tuneInTimerId)
-        this.tuneInTimerId = null
-      }
-      // TODO ensure that CORE_ACTIVE_CONTAINER_CHANGED does not get caught before onReady
       setTimeout(() => this.tuneIn(), 0)
     },
     onPlay: () => {
@@ -476,16 +445,11 @@ export class Player {
 
     this.rootNode = rootNode
 
-    const coreOptions: CoreOptions & PluginOptions = {
-      ...this.config, // plugin settings
+    const coreOptions: CoreOptions & PluginOptions = $.extend(true, {
       allowUserInteraction: true,
-      autoPlay: false,
-      dash: this.config.dash, // TODO move this to the playback section
-      debug: this.config.debug || 'none',
+      debug: 'none',
       events: this.events,
       height: rootNode.clientHeight,
-      loop: this.config.loop,
-      mute: this.config.mute,
       playback: {
         controls: false,
         playInline: true,
@@ -493,18 +457,17 @@ export class Player {
         mute: this.config.mute,
         crossOrigin: 'anonymous', // TODO
         hlsjsConfig: {
-          // TODO
           debug: this.config.debug === 'all' || this.config.debug === 'hls',
         },
       },
       parent: rootNode,
-      playbackType: this.config.playbackType,
       width: rootNode.clientWidth,
-      source: source ? source.source : undefined,
+    }, this.config, {
+      autoPlay: false,
       mimeType: source ? source.mimeType : undefined,
+      source: source ? source.source : undefined,
       sources,
-      strings: this.config.strings,
-    }
+    })
     return coreOptions
   }
 
@@ -520,23 +483,27 @@ export class Player {
     )
   }
 
-  private bindContainerEventListeners(player: PlayerClappr) {
-    if (Browser.isiOS && player.core.activePlayback) {
-      player.core.activePlayback.$el.on('webkitendfullscreen', () => {
+  private bindContainerEventListeners() {
+    const activePlayback = this.player?.core.activePlayback
+    const activeContainer = this.player?.core.activeContainer
+    if (Browser.isiOS && activePlayback) {
+      // TODO check out
+      activePlayback.$el.on('webkitendfullscreen', () => {
         try {
-          player.core.handleFullscreenChange()
+          activeContainer?.handleFullscreenChange()
         } catch (e) {
           reportError(e)
         }
       })
     }
-    player.core.activeContainer.on(ClapprEvents.CONTAINER_VOLUME, (volume: number) => {
+    activeContainer?.on(ClapprEvents.CONTAINER_VOLUME, (volume: number) => {
       this.safeTriggerEvent(PlayerEvent.VolumeUpdate, volume)
     }, null)
   }
 
-  private bindSizeManagementListeners(player: PlayerClappr) {
-    player.core.on(
+  private bindCoreListeners() {
+    const core = this.player?.core
+    core?.on(
       ClapprEvents.CORE_SCREEN_ORIENTATION_CHANGED,
       ({ orientation }: { orientation: 'landscape' | 'portrait' }) => {
         trace(`${T} on CORE_SCREEN_ORIENTATION_CHANGED`, {
@@ -547,7 +514,7 @@ export class Player {
           },
         })
         if (Browser.isiOS && this.rootNode) {
-          player.core.resize({
+          core?.resize({
             width: this.rootNode.clientWidth,
             height: this.rootNode.clientHeight,
           })
@@ -555,7 +522,7 @@ export class Player {
       },
       null,
     )
-    player.core.on(
+    core?.on(
       ClapprEvents.CORE_RESIZE,
       ({ width, height }: { width: number; height: number }) => {
         trace(`${T} on CORE_RESIZE`, {
@@ -566,7 +533,7 @@ export class Player {
       },
       null,
     )
-    player.core.on(
+    core?.on(
       ClapprEvents.CORE_FULLSCREEN,
       (isFullscreen: boolean) => {
         trace(`${T} CORE_FULLSCREEN`, {
