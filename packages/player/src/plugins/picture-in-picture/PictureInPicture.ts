@@ -9,31 +9,56 @@ import '../../../assets/picture-in-picture/button.scss';
 
 const VERSION = '0.0.1';
 
-const T = `plugins.media_control_pip`;
+const T = `plugins.pip`;
 
+/**
+ * Enables picture in picture mode.
+ * @beta
+ * @remarks
+ * Depends on:
+ *
+ * - {@link MediaControl}
+ *
+ * It renders a button to toggle picture in picture mode in the media control UI.
+ */
 export class PictureInPicture extends UICorePlugin {
+  /**
+   * @internal
+   */
   get name() {
-    return 'media_control_pip';
+    return 'pip';
   }
 
+  /**
+   * @internal
+   */
   get supportedVersion() {
     return { min: CLAPPR_VERSION };
   }
 
+  /**
+   * @internal
+   */
   static get version() {
     return VERSION;
   }
 
+  /**
+   * @internal
+   */
   override get events() {
     return {
       'click button': 'togglePictureInPicture',
     };
   }
 
-  get videoElement() {
+  private get videoElement() {
     return this.core.activePlayback.el;
   }
 
+  /**
+   * @internal
+   */
   override bindEvents() {
     this.listenTo(this.core.mediaControl, Events.MEDIACONTROL_RENDERED, this.render);
   }
@@ -47,6 +72,9 @@ export class PictureInPicture extends UICorePlugin {
     return document.pictureInPictureEnabled && !!HTMLVideoElement.prototype.requestPictureInPicture;
   }
 
+  /**
+   * @internal
+   */
   override render() {
     if (!this.isPiPSupported()) {
       return this;
@@ -64,7 +92,7 @@ export class PictureInPicture extends UICorePlugin {
     return this;
   }
 
-  togglePictureInPicture() {
+  private togglePictureInPicture() {
     trace(`${T} togglePictureInPicture`);
     if (this.videoElement !== document.pictureInPictureElement) {
       this.requestPictureInPicture();
@@ -73,14 +101,14 @@ export class PictureInPicture extends UICorePlugin {
     }
   }
 
-  requestPictureInPicture() {
+  private requestPictureInPicture() {
     trace(`${T} requestPictureInPicture`, {
       videoElement: !!this.videoElement,
     });
     this.videoElement.requestPictureInPicture();
   }
 
-  exitPictureInPicture() {
+  private exitPictureInPicture() {
     trace(`${T} exitPictureInPicture`);
     document.exitPictureInPicture();
   }

@@ -4,6 +4,11 @@
 
 ## PictureInPicture class
 
+> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
+> 
+
+Enables picture in picture mode.
+
 **Signature:**
 
 ```typescript
@@ -11,204 +16,11 @@ export declare class PictureInPicture extends UICorePlugin
 ```
 **Extends:** UICorePlugin
 
-## Properties
+## Remarks
 
-<table><thead><tr><th>
+Depends on:
 
-Property
+- [MediaControl](./player.mediacontrol.md)
 
+It renders a button to toggle picture in picture mode in the media control UI.
 
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>
-
-[events](./player.pictureinpicture.events.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-{ 'click button': string; }
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[name](./player.pictureinpicture.name.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[supportedVersion](./player.pictureinpicture.supportedversion.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-{ min: string; }
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[version](./player.pictureinpicture.version.md)
-
-
-</td><td>
-
-`static`
-
-`readonly`
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[videoElement](./player.pictureinpicture.videoelement.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-any
-
-
-</td><td>
-
-
-</td></tr>
-</tbody></table>
-
-## Methods
-
-<table><thead><tr><th>
-
-Method
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>
-
-[bindEvents()](./player.pictureinpicture.bindevents.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[exitPictureInPicture()](./player.pictureinpicture.exitpictureinpicture.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[render()](./player.pictureinpicture.render.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[requestPictureInPicture()](./player.pictureinpicture.requestpictureinpicture.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[togglePictureInPicture()](./player.pictureinpicture.togglepictureinpicture.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-</tbody></table>

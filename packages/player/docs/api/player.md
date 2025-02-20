@@ -203,6 +203,8 @@ TODO
 
 </td><td>
 
+**_(BETA)_** Enables picture in picture mode.
+
 
 </td></tr>
 <tr><td>

@@ -19,19 +19,26 @@ export class VolumeFade extends UICorePlugin {
 
   private interval: TimerId | null = null;
 
+  /**
+   * @internal
+   */
   get name() {
     return 'volume_fade';
   }
 
+  /**
+   * @internal
+   */
   override bindEvents() {
+    // TODO on container changed
     this.listenTo(this.core, Events.CORE_READY, this.onCoreReady);
     if (this.core.mediaControl) {
       this.listenTo(this.core.mediaControl, 'mediacontrol:volume:user', this._onUserChangeVolume);
     }
-    this.listenTo(this.core, 'core:volume:config', this._onVolumeConfig);
+    // this.listenTo(this.core, 'core:volume:config', this._onVolumeConfig);
   }
 
-  unBindEvents() {
+  private unBindEvents() {
     this.core.$el.off('mouseleave.volume');
     this.core.$el.off('mouseenter.volume');
   }
