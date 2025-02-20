@@ -76,29 +76,15 @@ describe('LevelSelector', () => {
         await clock.tickAsync(1)
       })
       it('should render the proper level label', () => {
+        // @ts-ignore
         expect(levelSelector.el.textContent).toMatchQualityLevelLabel('Auto')
       })
     })
     describe.each([
-      [
-        'auto',
-        LEVELS,
-        -1,
-        'Auto',
-      ],
-      [
-        'standard label',
-        LEVELS,
-        0,
-        '360p',
-      ],
-      [
-        'custom label',
-        LEVELS,
-        1,
-        'HD',
-      ],
-    ])("%s", (_, levels, current, label) => {
+      ['auto', LEVELS, -1, 'Auto'],
+      ['standard label', LEVELS, 0, '360p'],
+      ['custom label', LEVELS, 1, 'HD'],
+    ])('%s', (_, levels, current, label) => {
       beforeEach(async () => {
         core.emit('core:active:container:changed')
         await clock.tickAsync(1)
@@ -107,14 +93,19 @@ describe('LevelSelector', () => {
         await clock.tickAsync(1)
         levelSelector.$el.find('.gear-option').click()
         await clock.tickAsync(1)
-        levelSelector.$el.find(`.gear-sub-menu_btn[data-id="${current}"]`).click()
+        levelSelector.$el
+          .find(`.gear-sub-menu_btn[data-id="${current}"]`)
+          .click()
         await clock.tickAsync(1)
       })
       it('should render the proper level labels', () => {
         expect(levelSelector.el.innerHTML).toMatchSnapshot()
       })
       it('should render the selected level', () => {
-        expect(levelSelector.$el.find('ul.gear-sub-menu .current')[0].textContent).toMatchQualityLevelOption(label)
+        expect(
+          levelSelector.$el.find('ul.gear-sub-menu .current')[0].textContent,
+          // @ts-ignore
+        ).toMatchQualityLevelOption(label)
       })
     })
   })
@@ -156,7 +147,8 @@ describe('LevelSelector', () => {
       })
       it('should render the restricted quality level label', () => {
         expect(
-          levelSelector.el.textContent
+          levelSelector.el.textContent,
+          // @ts-ignore
         ).toMatchQualityLevelLabel('360p')
 
         expect(levelSelector.el.innerHTML).toMatchSnapshot()
@@ -195,7 +187,10 @@ describe('LevelSelector', () => {
         expect(levelSelector.el.innerHTML).toMatchSnapshot()
       })
       it('should properly apply the restriction', () => {
-        expect(levelSelector.$el.find('li:not(.level-disabled)')[0].textContent).toMatchQualityLevelOption('360p')
+        expect(
+          levelSelector.$el.find('li:not(.level-disabled)')[0].textContent,
+          // @ts-ignore
+        ).toMatchQualityLevelOption('360p')
       })
     })
   })
@@ -227,7 +222,10 @@ expect.extend({
       .trim()
     return {
       pass: rendered.includes(`Quality ${expected}`),
-      message: () => `Quality label must${isNot ? ' not' : ''} be ${expected} in "${rendered}"`,
+      message: () =>
+        `Quality label must${
+          isNot ? ' not' : ''
+        } be ${expected} in "${rendered}"`,
     }
   },
   toMatchQualityLevelOption(received, expected) {
@@ -238,9 +236,12 @@ expect.extend({
       .trim()
     return {
       pass: rendered === expected,
-      message: () => `Quality option must${isNot ? ' not' : ''} be ${expected} in "${rendered}"`,
+      message: () =>
+        `Quality option must${
+          isNot ? ' not' : ''
+        } be ${expected} in "${rendered}"`,
     }
-  }
+  },
 })
 
 function createMediaControl(core: any) {

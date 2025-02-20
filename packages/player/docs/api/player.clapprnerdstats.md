@@ -7,6 +7,7 @@
 > This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
 > 
 
+Displays useful network-related statistics.
 
 **Signature:**
 
@@ -14,6 +15,20 @@
 export declare class ClapprNerdStats extends UICorePlugin 
 ```
 **Extends:** UICorePlugin
+
+## Remarks
+
+Depends on:
+
+- [MediaControl](./player.mediacontrol.md)
+
+- [BottomGear](./player.bottomgear.md)
+
+- [ClapprStats](./player.clapprstats.md)
+
+The plugin is rendered as an item in the gear menu.
+
+When clicked, it shows an overlay window with the information about the network speed, latency, etc, and recommended quality level.
 
 ## Constructors
 
@@ -44,268 +59,6 @@ Description
 </td><td>
 
 **_(BETA)_** Constructs a new instance of the `ClapprNerdStats` class
-
-
-</td></tr>
-</tbody></table>
-
-## Properties
-
-<table><thead><tr><th>
-
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>
-
-[attributes](./player.clapprnerdstats.attributes.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-{ 'data-clappr-nerd-stats': string; class: string; }
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
-[events](./player.clapprnerdstats.events.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-{ 'click \[data-show-stats-button\]': string; 'click \[data-close-button\]': string; 'click \[data-refresh-button\]': string; }
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
-[name](./player.clapprnerdstats.name.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
-[playerHeight](./player.clapprnerdstats.playerheight.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-any
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
-[playerWidth](./player.clapprnerdstats.playerwidth.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-any
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
-[statsBoxElem](./player.clapprnerdstats.statsboxelem.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
-[statsBoxWidthThreshold](./player.clapprnerdstats.statsboxwidththreshold.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-number
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
-[supportedVersion](./player.clapprnerdstats.supportedversion.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-{ min: string; }
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
-[template](./player.clapprnerdstats.template.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-any
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-</tbody></table>
-
-## Methods
-
-<table><thead><tr><th>
-
-Method
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>
-
-[bindEvents()](./player.clapprnerdstats.bindevents.md)
-
-
-</td><td>
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
-[render()](./player.clapprnerdstats.render.md)
-
-
-</td><td>
-
-
-</td><td>
-
-**_(BETA)_**
 
 
 </td></tr>

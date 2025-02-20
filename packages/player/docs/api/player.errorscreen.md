@@ -4,6 +4,13 @@
 
 ## ErrorScreen class
 
+> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
+> 
+
+Displays a descriptive error in the overlay on top of the player.
+
+TODO
+
 **Signature:**
 
 ```typescript
@@ -51,6 +58,8 @@ Description
 
 </td><td>
 
+**_(BETA)_**
+
 
 </td></tr>
 <tr><td>
@@ -69,6 +78,8 @@ any
 
 
 </td><td>
+
+**_(BETA)_**
 
 
 </td></tr>
@@ -89,6 +100,8 @@ string
 
 </td><td>
 
+**_(BETA)_**
+
 
 </td></tr>
 <tr><td>
@@ -108,6 +121,8 @@ string
 
 </td><td>
 
+**_(BETA)_**
+
 
 </td></tr>
 <tr><td>
@@ -126,6 +141,8 @@ any
 
 
 </td><td>
+
+**_(BETA)_**
 
 
 </td></tr>
@@ -159,6 +176,8 @@ Description
 
 </td><td>
 
+**_(BETA)_**
+
 
 </td></tr>
 <tr><td>
@@ -170,6 +189,8 @@ Description
 
 
 </td><td>
+
+**_(BETA)_**
 
 
 </td></tr>
@@ -183,6 +204,8 @@ Description
 
 </td><td>
 
+**_(BETA)_**
+
 
 </td></tr>
 <tr><td>
@@ -195,6 +218,8 @@ Description
 
 </td><td>
 
+**_(BETA)_**
+
 
 </td></tr>
 <tr><td>
@@ -206,6 +231,8 @@ Description
 
 
 </td><td>
+
+**_(BETA)_**
 
 
 </td></tr>

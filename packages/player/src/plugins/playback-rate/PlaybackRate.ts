@@ -31,6 +31,19 @@ const DEFAULT_PLAYBACK_RATE = '1.0';
 // TODO
 const MEDIACONTROL_PLAYBACKRATE = 'playbackRate';
 
+/**
+ * Allows changing the playback speed of the video.
+ * @beta
+ *
+ * @remarks
+ * Depends on:
+ *
+ * - {@link MediaControl | media_control}
+ *
+ * - {@link BottomGear | bottom_gear}
+ *
+ * It renders a button in the gear menu, which opens a dropdown with the available playback rates.
+ */
 export class PlaybackRate extends UICorePlugin {
   private currentPlayback: Playback | null = null;
 
@@ -40,18 +53,29 @@ export class PlaybackRate extends UICorePlugin {
 
   private selectedRate: string = DEFAULT_PLAYBACK_RATE;
 
+  /**
+   * @internal
+   */
   get name() {
-    return 'media_control_playback_rate';
+    return 'playback_rate';
   }
 
+  /**
+   * @internal
+   */
   get supportedVersion() {
     return { min: CLAPPR_VERSION };
   }
 
-  get template() {
-    return template(pluginHtml);
-  }
+  private static readonly template = template(pluginHtml);
 
+  private static readonly buttonTemplate = template(buttonHtml);
+
+  private static readonly listTemplate = template(listHtml);
+
+  /**
+   * @internal
+   */
   override get attributes() {
     return {
       'class': this.name,
@@ -59,6 +83,9 @@ export class PlaybackRate extends UICorePlugin {
     };
   }
 
+  /**
+   * @internal
+   */
   override get events() {
     return {
       'click .gear-sub-menu_btn': 'onRateSelect',
@@ -67,8 +94,12 @@ export class PlaybackRate extends UICorePlugin {
     };
   }
 
+  /**
+   * @internal
+   */
   override bindEvents() {
     this.listenTo(this.core, 'gear:rendered', this.render);
+    // TODO this.core.getPlugin('media_control'), bottom_gear
     this.listenTo(this.core.mediaControl, Events.MEDIACONTROL_CONTAINERCHANGED, this.reload);
     this.listenTo(this.core.mediaControl, MEDIACONTROL_PLAYBACKRATE, this.updatePlaybackRate);
 
@@ -87,7 +118,7 @@ export class PlaybackRate extends UICorePlugin {
     }
   }
 
-  unBindEvents() {
+  private unBindEvents() {
     this.stopListening(this.core, 'gear:rendered', this.render);
     this.stopListening(this.core.mediaControl, Events.MEDIACONTROL_CONTAINERCHANGED, this.reload);
     this.stopListening(this.core, 'core:advertisement:start', this.onStartAd);
@@ -121,7 +152,7 @@ export class PlaybackRate extends UICorePlugin {
     }
   }
 
-  reload() {
+  private reload() {
     this.unBindEvents();
     this.bindEvents();
   }
@@ -136,6 +167,9 @@ export class PlaybackRate extends UICorePlugin {
     return !(this.currentPlayback?.tagName !== 'video' && this.currentPlayback?.tagName !== 'audio');
   }
 
+  /**
+   * @internal
+   */
   override render() {
     const container = this.core.activeContainer;
 
@@ -153,9 +187,7 @@ export class PlaybackRate extends UICorePlugin {
     }
 
     if (this.shouldRender()) {
-      const t = template(buttonHtml);
-      // const html = t({ playbackRates: this.playbackRates, title: this.getTitle() });
-      const button = t({
+      const button = PlaybackRate.buttonTemplate({
         title: this.getTitle(),
         speedIcon,
         arrowRightIcon,
@@ -177,19 +209,19 @@ export class PlaybackRate extends UICorePlugin {
     return this;
   }
 
-  onStartAd() {
+  private onStartAd() {
     this.prevSelectedRate = this.selectedRate;
     this.setSelectedRate('1.0');
     this.listenToOnce(this.currentPlayback, Events.PLAYBACK_PLAY, this.onFinishAd);
   }
 
-  onFinishAd() {
+  private onFinishAd() {
     if (this.prevSelectedRate) {
       this.setSelectedRate(this.prevSelectedRate);
     }
   }
 
-  onPlay() {
+  private onPlay() {
     if (!this.core.mediaControl.$el.hasClass('dvr')) {
       if (this.core.getPlaybackType() === Playback.LIVE) {
         this.updatePlaybackRate(DEFAULT_PLAYBACK_RATE);
@@ -200,11 +232,10 @@ export class PlaybackRate extends UICorePlugin {
     }
   }
 
-  onStop() {
-
+  private onStop() {
   }
 
-  onRateSelect(event: MouseEvent) {
+  private onRateSelect(event: MouseEvent) {
     event.stopPropagation();
     const rate = (event.currentTarget as HTMLElement).dataset.rate;
     if (rate) {
@@ -215,10 +246,8 @@ export class PlaybackRate extends UICorePlugin {
     return false;
   }
 
-  onShowMenu() {
-    const t = template(listHtml);
-
-    this.$el.html(t({
+  private onShowMenu() {
+    this.$el.html(PlaybackRate.listTemplate({
       playbackRates: this.playbackRates,
       arrowLeftIcon,
       checkIcon,
@@ -228,15 +257,15 @@ export class PlaybackRate extends UICorePlugin {
     this.highlightCurrentRate();
   }
 
-  goBack() {
+  private goBack() {
     this.core.trigger('gear:refresh');
   }
 
-  updatePlaybackRate(rate: string) {
+  private updatePlaybackRate(rate: string) {
     this.setSelectedRate(rate);
   }
 
-  setSelectedRate(rate: string) {
+  private setSelectedRate(rate: string) {
     // Set <video playbackRate="..."
     this.core.$el.find('video,audio').get(0).playbackRate = rate;
     this.selectedRate = rate;
@@ -244,7 +273,7 @@ export class PlaybackRate extends UICorePlugin {
     // Player.player.trigger('playbackRateChanged', rate);
   }
 
-  getTitle() {
+  private getTitle() {
     let title = this.selectedRate;
 
     this.playbackRates.forEach((r) => {
@@ -256,7 +285,7 @@ export class PlaybackRate extends UICorePlugin {
     return title;
   }
 
-  highlightCurrentRate() {
+  private highlightCurrentRate() {
     this.allRateElements().removeClass('current');
     this.allRateElements().find('a').removeClass('gcore-skin-active');
 

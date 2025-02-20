@@ -18,7 +18,11 @@ export declare class DvrControls extends UICorePlugin
 
 ## Remarks
 
-The plugin is rendered in the [media control](./player.mediacontrol.md) UI. It renders the live stream indicator and the DVR seek bar if DVR is enabled.
+Depends on:
+
+- [media\_control](./player.mediacontrol.md)
+
+The plugin renders the live stream indicator and the DVR seek bar, if DVR is enabled, in the media control UI.
 
 ## Constructors
 

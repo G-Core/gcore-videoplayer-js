@@ -11,8 +11,11 @@ import '../../../assets/dvr-controls/dvr_controls.scss';
  * @beta
  *
  * @remarks
- * The plugin is rendered in the {@link MediaControl | media control} UI.
- * It renders the live stream indicator and the DVR seek bar if DVR is enabled.
+ * Depends on:
+ *
+ * - {@link MediaControl | media_control}
+ *
+ * The plugin renders the live stream indicator and the DVR seek bar, if DVR is enabled, in the media control UI.
  */
 export class DvrControls extends UICorePlugin {
   private static readonly template = template(dvrHTML);

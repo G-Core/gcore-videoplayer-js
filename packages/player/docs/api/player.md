@@ -63,7 +63,7 @@ Description
 
 </td><td>
 
-**_(BETA)_**
+**_(BETA)_** Displays useful network-related statistics.
 
 
 </td></tr>
@@ -131,6 +131,10 @@ Description
 
 
 </td><td>
+
+**_(BETA)_** Displays a descriptive error in the overlay on top of the player.
+
+TODO
 
 
 </td></tr>
@@ -207,6 +211,8 @@ Description
 
 
 </td><td>
+
+**_(BETA)_** Allows changing the playback speed of the video.
 
 
 </td></tr>
