@@ -39,8 +39,9 @@ import fullscreenOnIcon from '../../../assets/icons/new/fullscreen-on.svg'
  * @beta
  */
 export type MediaControlElement =
-  | 'bottomGear'
+  | 'bottomGear' // an alias of gear
   | 'clipText'
+  | 'gear'
   | 'pip'
   | 'playbackRate'
   | 'seekBarContainer'
@@ -264,7 +265,7 @@ export class MediaControl extends UICorePlugin {
    * Current volume [0..100]
    */
   get volume(): number {
-    return this.core.activeContainer.isReady
+    return this.core.activeContainer?.isReady
       ? this.core.activeContainer.volume
       : this.intendedVolume
   }
@@ -286,7 +287,6 @@ export class MediaControl extends UICorePlugin {
 
     this.userDisabled = false
     if (
-      this.core.activeContainer.mediaControlDisabled ||
       this.options.chromeless
     ) {
       this.disable()
@@ -1094,6 +1094,7 @@ export class MediaControl extends UICorePlugin {
       case 'clipText':
         return this.$clipText
       case 'bottomGear':
+      case 'gear':
         return this.$bottomGear
       case 'pip':
         return this.$pip

@@ -21,6 +21,9 @@ import '../../../assets/clappr-nerd-stats/clappr-nerd-stats.scss';
 import pluginHtml from '../../../assets/clappr-nerd-stats/clappr-nerd-stats.ejs';
 import buttonHtml from '../../../assets/clappr-nerd-stats/button.ejs';
 import statsIcon from '../../../assets/icons/new/stats.svg';
+import { BottomGear, Events as BottomGearEvents } from '../bottom-gear/BottomGear.js';
+import { MediaControl } from '../media-control/MediaControl.js';
+import assert from 'assert';
 
 const qualityClasses = [
   'speedtest-quality-value-1',
@@ -180,9 +183,10 @@ export class ClapprNerdStats extends UICorePlugin {
   }
 
   override bindEvents() {
+    const mediaControl = this.core.getPlugin('media_control') as MediaControl;
+    assert(mediaControl, 'media_control plugin is required');
     this.listenToOnce(this.core, Events.CORE_READY, this.init);
-    // TODO trigger on mediaControl instead
-    this.listenTo(this.core, 'gear:rendered', this.addToBottomGear);
+    this.listenTo(mediaControl, BottomGearEvents.MEDIACONTROL_GEAR_RENDERED, this.addToBottomGear);
   }
 
   private init() {
@@ -197,33 +201,27 @@ export class ClapprNerdStats extends UICorePlugin {
         'For more info, visit: https://github.com/clappr/clappr-stats.');
       this.disable();
     } else {
-      Mousetrap.bind(this.shortcut, () => this.showOrHide());
+      Mousetrap.bind(this.shortcut, () => this.toggle());
       this.listenTo(this.core, Events.CORE_RESIZE, this.onPlayerResize);
       // TODO: fix
       this.listenTo(clapprStats, ClapprStatsEvents.REPORT_EVENT, this.updateMetrics);
       clapprStats.setUpdateMetrics(this.updateMetrics.bind(this));
       this.updateMetrics(clapprStats.exportMetrics());
       this.render();
-      // this.$el.find('.speed-test-button').on('click', this.onSpeedTestClick.bind(this));
-      // this.$el.find('.close-speed-test').on('click', this.closeSpeedTest.bind(this));
-      // this.$el.find('.speed-test').hide();
     }
   }
 
-  private showOrHide(event?: MouseEvent) {
+  private toggle() {
     if (this.showing) {
-      this.hide(event);
+      this.hide();
     } else {
-      this.show(event);
+      this.show();
     }
   }
 
-  private show(event?: MouseEvent) {
+  private show() {
     this.core.$el.find(this.statsBoxElem).show();
     this.showing = true;
-    if (event) {
-      event.stopPropagation();
-    }
 
     this.refreshSpeedTest();
     initSpeedTest(this.customMetrics).then(() => {
@@ -234,13 +232,9 @@ export class ClapprNerdStats extends UICorePlugin {
     })
   }
 
-  private hide(event?: MouseEvent) {
+  private hide() {
     this.core.$el.find(this.statsBoxElem).hide();
     this.showing = false;
-    if (event) {
-      event.stopPropagation();
-    }
-
     stopSpeedtest();
   }
 
@@ -322,16 +316,16 @@ export class ClapprNerdStats extends UICorePlugin {
   }
 
   private addToBottomGear() {
-    this.core.mediaControl.$el?.find('.gear-options-list [data-nerd]').html(buttonHtml);
-
-    // this.core.$el.append(optionsList);
-    const $button = this.core.$el.find('.nerd-button');
+    const gear = this.core.getPlugin('media_control_gear') as BottomGear;
+    const $el = gear.getElement('nerd')
+    $el.html(buttonHtml)
+    const $button = $el.find('.nerd-button');
 
     $button.find('.stats-icon').html(statsIcon);
 
-    $button.on('click', () => {
-      // $optionsList.remove();
-      this.showOrHide();
+    $button.on('click', (e: MouseEvent) => {
+      e.stopPropagation();
+      this.toggle();
     });
   }
 
