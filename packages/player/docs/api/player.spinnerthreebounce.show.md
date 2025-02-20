@@ -4,47 +4,16 @@
 
 ## SpinnerThreeBounce.show() method
 
+> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
+> 
+
+Shows the spinner
+
 **Signature:**
 
 ```typescript
-show(immediate?: boolean): void;
+show(): void;
 ```
-
-## Parameters
-
-<table><thead><tr><th>
-
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>
-
-immediate
-
-
-</td><td>
-
-boolean
-
-
-</td><td>
-
-_(Optional)_
-
-
-</td></tr>
-</tbody></table>
 **Returns:**
 
 void

@@ -18,7 +18,15 @@ export declare class LevelSelector extends UICorePlugin
 
 ## Remarks
 
-The plugin is rendered as a button in the [gear menu](./player.bottomgear.md)<!-- -->. When clicked, it shows a list of quality levels to choose from.
+Depends on:
+
+- [MediaControl](./player.mediacontrol.md)
+
+- [BottomGear](./player.bottomgear.md)
+
+The plugin is rendered as an item in the gear menu.
+
+When clicked, it shows a list of quality levels to choose from.
 
 Configuration options:
 

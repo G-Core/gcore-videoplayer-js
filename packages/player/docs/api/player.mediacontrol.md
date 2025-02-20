@@ -220,6 +220,20 @@ Description
 </td></tr>
 <tr><td>
 
+[getRightPanel()](./player.mediacontrol.getrightpanel.md)
+
+
+</td><td>
+
+
+</td><td>
+
+**_(BETA)_** Get the right panel area to append custom elements to
+
+
+</td></tr>
+<tr><td>
+
 [setInitialVolume()](./player.mediacontrol.setinitialvolume.md)
 
 

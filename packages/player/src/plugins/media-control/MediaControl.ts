@@ -45,6 +45,7 @@ export type MediaControlElement =
   | 'pip'
   | 'playbackRate'
   | 'seekBarContainer'
+  | 'subtitlesSelector'
 
 const T = 'plugins.media_control'
 
@@ -207,7 +208,7 @@ export class MediaControl extends UICorePlugin {
    * @deprecated
    */
   get container() {
-    return this.core && this.core.activeContainer
+    return this.core.activeContainer
   }
 
   /**
@@ -215,7 +216,7 @@ export class MediaControl extends UICorePlugin {
    * @deprecated
    */
   get playback() {
-    return this.core && this.core.activePlayback
+    return this.core.activePlayback
   }
 
   /**
@@ -327,7 +328,6 @@ export class MediaControl extends UICorePlugin {
     this.listenTo(this.core, Events.CORE_FULLSCREEN, this.show)
     this.listenTo(this.core, Events.CORE_OPTIONS_CHANGE, this.configure)
     this.listenTo(this.core, Events.CORE_RESIZE, this.playerResize)
-    this.bindContainerEvents()
 
     this.listenTo(this.core, 'core:advertisement:start', this.onStartAd)
     this.listenTo(this.core, 'core:advertisement:finish', this.onFinishAd)
@@ -355,63 +355,60 @@ export class MediaControl extends UICorePlugin {
   }
 
   private bindContainerEvents() {
-    if (!this.container) {
-      return
-    }
-    this.listenTo(this.container, Events.CONTAINER_PLAY, this.changeTogglePlay)
-    this.listenTo(this.container, Events.CONTAINER_PAUSE, this.changeTogglePlay)
-    this.listenTo(this.container, Events.CONTAINER_STOP, this.changeTogglePlay)
+    this.listenTo(this.core.activeContainer, Events.CONTAINER_PLAY, this.changeTogglePlay)
+    this.listenTo(this.core.activeContainer, Events.CONTAINER_PAUSE, this.changeTogglePlay)
+    this.listenTo(this.core.activeContainer, Events.CONTAINER_STOP, this.changeTogglePlay)
     this.listenTo(
-      this.container,
+      this.core.activeContainer,
       Events.CONTAINER_DBLCLICK,
       this.toggleFullscreen,
     )
     this.listenTo(
-      this.container,
+      this.core.activeContainer,
       Events.CONTAINER_TIMEUPDATE,
       this.onTimeUpdate,
     )
     this.listenTo(
-      this.container,
+      this.core.activeContainer,
       Events.CONTAINER_PROGRESS,
       this.updateProgressBar,
     )
     this.listenTo(
-      this.container,
+      this.core.activeContainer,
       Events.CONTAINER_SETTINGSUPDATE,
       this.settingsUpdate,
     )
     this.listenTo(
-      this.container,
+      this.core.activeContainer,
       Events.CONTAINER_PLAYBACKDVRSTATECHANGED,
       this.settingsUpdate,
     )
     this.listenTo(
-      this.container,
+      this.core.activeContainer,
       Events.CONTAINER_HIGHDEFINITIONUPDATE,
       this.highDefinitionUpdate,
     )
     this.listenTo(
-      this.container,
+      this.core.activeContainer,
       Events.CONTAINER_MEDIACONTROL_DISABLE,
       this.disable,
     )
     this.listenTo(
-      this.container,
+      this.core.activeContainer,
       Events.CONTAINER_MEDIACONTROL_ENABLE,
       this.enable,
     )
-    this.listenTo(this.container, Events.CONTAINER_ENDED, this.ended)
-    this.listenTo(this.container, Events.CONTAINER_VOLUME, this.onVolumeChanged)
+    this.listenTo(this.core.activeContainer, Events.CONTAINER_ENDED, this.ended)
+    this.listenTo(this.core.activeContainer, Events.CONTAINER_VOLUME, this.onVolumeChanged)
     this.listenTo(
-      this.container,
+      this.core.activeContainer,
       Events.CONTAINER_OPTIONS_CHANGE,
       this.setInitialVolume,
     )
-    if (this.container.playback.el.nodeName.toLowerCase() === 'video') {
+    if (this.core.activePlayback.el.nodeName.toLowerCase() === 'video') {
       // wait until the metadata has loaded and then check if fullscreen on video tag is supported
       this.listenToOnce(
-        this.container,
+        this.core.activeContainer,
         Events.CONTAINER_LOADEDMETADATA,
         this.onLoadedMetadataOnVideoTag,
       )
@@ -455,7 +452,7 @@ export class MediaControl extends UICorePlugin {
   }
 
   private onLoadedMetadataOnVideoTag(event: any) {
-    const video = this.playback && this.playback.el
+    const video = this.core.activePlayback?.el
 
     // video.webkitSupportsFullscreen is deprecated but iOS appears to only use this
     // see https://github.com/clappr/clappr/issues/1127
@@ -729,32 +726,33 @@ export class MediaControl extends UICorePlugin {
 
   private onActiveContainerChanged() {
     this.fullScreenOnVideoTagSupported = null
-    this.bindEvents()
     // set the new container to match the volume of the last one
     this.setInitialVolume()
     this.changeTogglePlay()
     this.bindContainerEvents()
     this.settingsUpdate()
-    this.container &&
-      this.container.trigger(
+    this.core.activeContainer &&
+      this.core.activeContainer.trigger(
         Events.CONTAINER_PLAYBACKDVRSTATECHANGED,
-        this.container.isDvrInUse(),
+        this.core.activeContainer.isDvrInUse(),
       )
-    this.container && this.container.mediaControlDisabled && this.disable()
+    this.core.activeContainer && this.core.activeContainer.mediaControlDisabled && this.disable()
     this.trigger(Events.MEDIACONTROL_CONTAINERCHANGED)
 
-    if (this.container.$el) {
-      this.container.$el.addClass('container-skin-1')
+    if (this.core.activeContainer.$el) {
+      this.core.activeContainer.$el.addClass('container-skin-1')
     }
 
     if (this.options.cropVideo) {
-      this.container.$el.addClass('crop-video')
+      this.core.activeContainer.$el.addClass('crop-video')
     }
 
-    const spinnerPlugin = this.container.getPlugin('spinner')
+    // TODO handle by the spinner itself
+    const spinnerPlugin = this.core.activeContainer.getPlugin('spinner')
 
     spinnerPlugin?.$el.find('div').addClass('gcore-skin-main-color')
 
+    // TODO handle by the seek_time itself
     const seekTimePlugin = this.container.getPlugin('seek_time')
 
     seekTimePlugin?.$el.addClass('gcore-skin-bg-color')
@@ -964,12 +962,11 @@ export class MediaControl extends UICorePlugin {
   }
 
   private settingsUpdate() {
-    const newSettings = this.getSettings()
-    $.extend(true, newSettings, {
+    const newSettings = $.extend(true, {
       left: [],
       default: [],
       right: [],
-    })
+    }, this.core.activeContainer?.settings)
 
     newSettings.left = orderByOrderPattern(
       [...newSettings.left, 'clipsText', 'volume'],
@@ -1012,11 +1009,6 @@ export class MediaControl extends UICorePlugin {
       this.settings = newSettings
       this.render()
     }
-  }
-
-  private getSettings() {
-    // TODO show live and remove duration/position if live
-    return $.extend(true, {}, this.container && this.container.settings)
   }
 
   private highDefinitionUpdate(isHD: boolean) {
@@ -1102,7 +1094,17 @@ export class MediaControl extends UICorePlugin {
         return this.$playbackRate
       case 'seekBarContainer':
         return this.$seekBarContainer
+      case 'subtitlesSelector':
+        return this.$subtitlesSelector
     }
+  }
+
+  /**
+   * Get the right panel area to append custom elements to
+   * @returns  ZeptoSelector of the right panel element
+   */
+  getRightPanel() {
+    return this.$el.find('.media-control-right-panel')
   }
 
   private resetIndicators() {
@@ -1298,7 +1300,7 @@ export class MediaControl extends UICorePlugin {
 
     this.changeTogglePlay()
 
-    if (this.container) {
+    if (this.core.activeContainer) {
       this.hideId = setTimeout(() => this.hide(), timeout)
       this.disabled && this.hide()
     }

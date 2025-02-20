@@ -11,6 +11,7 @@ import {
   type PlayerMediaSourceDesc,
 } from '../../types.js'
 import { trace } from '@gcorevideo/utils'
+import { SpinnerEvents } from '../spinner-three-bounce/SpinnerThreeBounce.js'
 
 import { CLAPPR_VERSION } from '../../build.js'
 
@@ -96,10 +97,16 @@ export class SourceController extends CorePlugin {
 
   private sync: SyncFn = noSync
 
+  /**
+   * @internal
+   */
   get name() {
     return 'source_controller'
   }
 
+  /**
+   * @internal
+   */
   get supportedVersion() {
     return { min: CLAPPR_VERSION }
   }
@@ -132,7 +139,7 @@ export class SourceController extends CorePlugin {
     const spinner = this.core.activeContainer?.getPlugin('spinner')
     if (spinner) {
       this.sync = (cb: () => void) => {
-        spinner.once('spinner:sync', cb)
+        spinner.once(SpinnerEvents.SYNC, cb)
       }
     } else {
       this.sync = noSync
@@ -228,6 +235,9 @@ export class SourceController extends CorePlugin {
     })
   }
 
+  /**
+   * @internal
+   */
   static get version() {
     return VERSION
   }

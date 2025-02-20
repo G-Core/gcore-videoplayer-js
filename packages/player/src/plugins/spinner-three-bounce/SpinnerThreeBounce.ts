@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-import { Container, Events, UIContainerPlugin, template } from '@clappr/core';
+import { Container, Events as ClapprEvents, UIContainerPlugin, template } from '@clappr/core';
 import { PlaybackError, PlaybackErrorCode } from '../../playback.types.js';
 import { trace } from '@gcorevideo/utils';
 
@@ -13,15 +13,41 @@ import { CLAPPR_VERSION } from '../../build.js';
 
 const T = 'plugins.spinner'
 
+/**
+ * Custom events emitted by the plugin
+ */
+export enum SpinnerEvents {
+  /**
+   * Emitted at the end of the spinner animation cycle to facilitate smooth UI updates,
+   * e.g. {@link SourceController} listens to this event to reload the source when the spinner is hidden
+   */
+  SYNC = 'plugins:spinner:sync',
+}
+
+/**
+ * Shows a pending operation indicator when playback is buffering or in other appropriate cases
+ * @beta
+ * @remarks
+ * The plugin emits 
+ */
 export class SpinnerThreeBounce extends UIContainerPlugin {
+  /**
+   * @internal
+   */
   get name() {
     return 'spinner';
   }
 
+  /**
+   * @internal
+   */
   get supportedVersion() {
     return { min: CLAPPR_VERSION };
   }
 
+  /**
+   * @internal
+   */
   override get attributes() {
     return {
       'data-spinner':'',
@@ -39,13 +65,13 @@ export class SpinnerThreeBounce extends UIContainerPlugin {
 
   constructor(container: Container) {
     super(container);
-    this.listenTo(this.container, Events.CONTAINER_STATE_BUFFERING, this.onBuffering);
-    this.listenTo(this.container, Events.CONTAINER_STATE_BUFFERFULL, this.onBufferFull);
-    this.listenTo(this.container, Events.CONTAINER_PLAY, this.onPlay);
-    this.listenTo(this.container, Events.CONTAINER_STOP, this.onStop);
-    this.listenTo(this.container, Events.CONTAINER_ENDED, this.onStop);
-    this.listenTo(this.container, Events.CONTAINER_ERROR, this.onError);
-    this.listenTo(this.container, Events.CONTAINER_READY, this.render);
+    this.listenTo(this.container, ClapprEvents.CONTAINER_STATE_BUFFERING, this.onBuffering);
+    this.listenTo(this.container, ClapprEvents.CONTAINER_STATE_BUFFERFULL, this.onBufferFull);
+    this.listenTo(this.container, ClapprEvents.CONTAINER_PLAY, this.onPlay);
+    this.listenTo(this.container, ClapprEvents.CONTAINER_STOP, this.onStop);
+    this.listenTo(this.container, ClapprEvents.CONTAINER_ENDED, this.onStop);
+    this.listenTo(this.container, ClapprEvents.CONTAINER_ERROR, this.onError);
+    this.listenTo(this.container, ClapprEvents.CONTAINER_READY, this.render);
   }
 
   private onBuffering() {
@@ -90,21 +116,16 @@ export class SpinnerThreeBounce extends UIContainerPlugin {
     }
   }
 
-  show(immediate = false) {
-    trace(`${T} show`, {
-      immediate,
-    })
-    if (immediate) {
-      if (this.showTimeout !== null) {
-        clearTimeout(this.showTimeout);
-        this.showTimeout = null;
-      }
-      this.$el.show();
-    } else if (this.showTimeout === null) {
-      this.showTimeout = setTimeout(() => this.$el.show(), 300);
-    }
+  /**
+   * Shows the spinner
+   */
+  show() {
+    this.showTimeout = setTimeout(() => this.$el.show(), 300);
   }
 
+  /**
+   * Hides the spinner
+   */
   hide() {
     if (this.showTimeout !== null) {
       clearTimeout(this.showTimeout);
@@ -113,6 +134,9 @@ export class SpinnerThreeBounce extends UIContainerPlugin {
     this.$el.hide();
   }
 
+  /**
+   * @internal
+   */
   override render() {
     const showOnStart = this.options.spinner?.showOnStart;
     trace(`${T} render`, {
@@ -121,7 +145,7 @@ export class SpinnerThreeBounce extends UIContainerPlugin {
     })
     this.$el.html(this.template());
     this.el.firstElementChild?.addEventListener('animationiteration', () => {
-      this.trigger('spinner:sync')
+      this.trigger(SpinnerEvents.SYNC)
     })
     this.container.$el.append(this.$el[0]);
     if (showOnStart || this.container.buffering) {

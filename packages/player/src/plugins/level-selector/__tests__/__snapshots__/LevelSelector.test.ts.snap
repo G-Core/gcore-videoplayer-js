@@ -8,7 +8,7 @@ exports[`LevelSelector > basically > auto > should render the proper level label
 <ul class="gear-sub-menu">
     
         <li class="current">
-            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color gcore-skin-active" data-id="-1">
+            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color gcore-skin-active" data-id="-1" id="level_selector_auto">
                 <span class="check-icon">/assets/icons/new/check.svg</span>
             Auto
         </a>
@@ -16,21 +16,21 @@ exports[`LevelSelector > basically > auto > should render the proper level label
     
     
         <li class="">
-            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="2">
+            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="2" id="level_selector_1080">
                 <span class="check-icon">/assets/icons/new/check.svg</span>
                 1080p
             </a>
         </li>
     
         <li class="">
-            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="1">
+            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="1" id="level_selector_720">
                 <span class="check-icon">/assets/icons/new/check.svg</span>
                 HD
             </a>
         </li>
     
         <li class="">
-            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="0">
+            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="0" id="level_selector_360">
                 <span class="check-icon">/assets/icons/new/check.svg</span>
                 360p
             </a>
@@ -48,7 +48,7 @@ exports[`LevelSelector > basically > custom label > should render the proper lev
 <ul class="gear-sub-menu">
     
         <li class="">
-            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="-1">
+            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="-1" id="level_selector_auto">
                 <span class="check-icon">/assets/icons/new/check.svg</span>
             Auto
         </a>
@@ -56,21 +56,21 @@ exports[`LevelSelector > basically > custom label > should render the proper lev
     
     
         <li class="">
-            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="2">
+            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="2" id="level_selector_1080">
                 <span class="check-icon">/assets/icons/new/check.svg</span>
                 1080p
             </a>
         </li>
     
         <li class="current">
-            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color gcore-skin-active" data-id="1">
+            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color gcore-skin-active" data-id="1" id="level_selector_720">
                 <span class="check-icon">/assets/icons/new/check.svg</span>
                 HD
             </a>
         </li>
     
         <li class="">
-            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="0">
+            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="0" id="level_selector_360">
                 <span class="check-icon">/assets/icons/new/check.svg</span>
                 360p
             </a>
@@ -88,7 +88,7 @@ exports[`LevelSelector > basically > standard label > should render the proper l
 <ul class="gear-sub-menu">
     
         <li class="">
-            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="-1">
+            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="-1" id="level_selector_auto">
                 <span class="check-icon">/assets/icons/new/check.svg</span>
             Auto
         </a>
@@ -96,21 +96,21 @@ exports[`LevelSelector > basically > standard label > should render the proper l
     
     
         <li class="">
-            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="2">
+            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="2" id="level_selector_1080">
                 <span class="check-icon">/assets/icons/new/check.svg</span>
                 1080p
             </a>
         </li>
     
         <li class="">
-            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="1">
+            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="1" id="level_selector_720">
                 <span class="check-icon">/assets/icons/new/check.svg</span>
                 HD
             </a>
         </li>
     
         <li class="current">
-            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color gcore-skin-active" data-id="0">
+            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color gcore-skin-active" data-id="0" id="level_selector_360">
                 <span class="check-icon">/assets/icons/new/check.svg</span>
                 360p
             </a>
@@ -139,21 +139,21 @@ exports[`LevelSelector > options.restrictResolution > given vertical video forma
     
     
         <li class="level-disabled">
-            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="2">
+            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="2" id="level_selector_1080">
                 <span class="check-icon">/assets/icons/new/check.svg</span>
                 1080p
             </a>
         </li>
     
         <li class="level-disabled">
-            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="1">
+            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="1" id="level_selector_1280">
                 <span class="check-icon">/assets/icons/new/check.svg</span>
                 720p
             </a>
         </li>
     
         <li class="current">
-            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color gcore-skin-active" data-id="0">
+            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color gcore-skin-active" data-id="0" id="level_selector_640">
                 <span class="check-icon">/assets/icons/new/check.svg</span>
                 360p
             </a>
@@ -172,21 +172,21 @@ exports[`LevelSelector > options.restrictResolution > given vertical video forma
     
     
         <li class="level-disabled">
-            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="2">
+            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="2" id="level_selector_1080">
                 <span class="check-icon">/assets/icons/new/check.svg</span>
                 1080p
             </a>
         </li>
     
         <li class="level-disabled">
-            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="1">
+            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="1" id="level_selector_1280">
                 <span class="check-icon">/assets/icons/new/check.svg</span>
                 720p
             </a>
         </li>
     
         <li class="current">
-            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color gcore-skin-active" data-id="0">
+            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color gcore-skin-active" data-id="0" id="level_selector_640">
                 <span class="check-icon">/assets/icons/new/check.svg</span>
                 360p
             </a>

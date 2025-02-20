@@ -5,6 +5,7 @@ import { type QualityLevel } from '../../playback.types.js'
 import { CLAPPR_VERSION } from '../../build.js'
 import { ZeptoResult } from '../../utils/types.js'
 import { TemplateFunction } from '../types.js'
+import { BottomGear } from '../bottom-gear/BottomGear.js'
 
 import buttonHtml from '../../../assets/level-selector/button.ejs'
 import listHtml from '../../../assets/level-selector/list.ejs'
@@ -13,9 +14,10 @@ import arrowRightIcon from '../../../assets/icons/new/arrow-right.svg'
 import arrowLeftIcon from '../../../assets/icons/new/arrow-left.svg'
 import checkIcon from '../../../assets/icons/new/check.svg'
 import '../../../assets/level-selector/style.scss'
+import assert from 'assert'
 
 
-const T = 'plugins.media_control_level_selector'
+const T = 'plugins.level_selector'
 const VERSION = '2.19.4'
 
 /**
@@ -23,7 +25,14 @@ const VERSION = '2.19.4'
  * @beta
  *
  * @remarks
- * The plugin is rendered as a button in the {@link BottomGear | gear menu}.
+ * Depends on:
+ *
+ * - {@link MediaControl}
+ *
+ * - {@link BottomGear}
+ *
+ * The plugin is rendered as an item in the gear menu.
+ *
  * When clicked, it shows a list of quality levels to choose from.
  *
  * Configuration options:
@@ -53,15 +62,15 @@ export class LevelSelector extends UICorePlugin {
 
   private isOpen = false
 
-  private buttonTemplate: TemplateFunction | null = null
+  private static readonly buttonTemplate: TemplateFunction = template(buttonHtml)
 
-  private listTemplate: TemplateFunction | null = null
+  private static readonly listTemplate: TemplateFunction = template(listHtml)
 
   /**
    * @internal
    */
   get name() {
-    return 'media_control_level_selector'
+    return 'level_selector'
   }
 
   /**
@@ -183,6 +192,8 @@ export class LevelSelector extends UICorePlugin {
    * @internal
    */
   override render() {
+    assert(this.core.getPlugin('bottom_gear'), 'bottom_gear plugin is required')
+
     if (!this.shouldRender()) {
       return this
     }
@@ -193,29 +204,21 @@ export class LevelSelector extends UICorePlugin {
   }
 
   private renderButton() {
-    if (!this.buttonTemplate) {
-      this.buttonTemplate = template(buttonHtml)
-    }
     if (!this.isOpen) {
-      const html = this.buttonTemplate?.({
+      const html = LevelSelector.buttonTemplate({
         arrowRightIcon,
         currentText: this.currentText,
         isHd: this.isHd,
         hdIcon,
       })
       this.$el.html(html)
-      const mediaControl = this.core.getPlugin('media_control')
-      mediaControl.getElement('bottomGear')
-        ?.find('.gear-options-list [data-quality]')
-        ?.html(this.el)
+      const gear = this.core.getPlugin('bottom_gear') as BottomGear
+      gear.getElement('quality')?.html(this.el)
     }
   }
 
   private renderDropdown() {
-    if (!this.listTemplate) {
-      this.listTemplate = template(listHtml)
-    }
-    const html = this.listTemplate!({
+    const html = LevelSelector.listTemplate({
       arrowLeftIcon,
       checkIcon,
       labels: this.levelLabels,
@@ -224,8 +227,8 @@ export class LevelSelector extends UICorePlugin {
       removeAuto: this.removeAuto,
     })
     this.$el.html(html)
-    const mediaControl = this.core.getPlugin('media_control')
-    mediaControl.getElement('bottomGear')?.find('.gear-wrapper').html(this.el)
+    const gear = this.core.getPlugin('bottom_gear') as BottomGear
+    gear?.setContent(this.el)
   }
 
   private get maxLevel() {

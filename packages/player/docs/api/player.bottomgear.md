@@ -20,3 +20,54 @@ export declare class BottomGear extends UICorePlugin
 
 The plugins provides a base for attaching custom settings UI in the gear menu
 
+Depends on:
+
+- [media\_control](./player.mediacontrol.md)
+
+## Methods
+
+<table><thead><tr><th>
+
+Method
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[getElement(name)](./player.bottomgear.getelement.md)
+
+
+</td><td>
+
+
+</td><td>
+
+**_(BETA)_**
+
+
+</td></tr>
+<tr><td>
+
+[setContent(content)](./player.bottomgear.setcontent.md)
+
+
+</td><td>
+
+
+</td><td>
+
+**_(BETA)_** Replaces the content of the gear menu
+
+
+</td></tr>
+</tbody></table>

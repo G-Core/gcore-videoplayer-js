@@ -21,7 +21,7 @@ import '../../../assets/clappr-nerd-stats/clappr-nerd-stats.scss';
 import pluginHtml from '../../../assets/clappr-nerd-stats/clappr-nerd-stats.ejs';
 import buttonHtml from '../../../assets/clappr-nerd-stats/button.ejs';
 import statsIcon from '../../../assets/icons/new/stats.svg';
-import { BottomGear, Events as BottomGearEvents } from '../bottom-gear/BottomGear.js';
+import { BottomGear, GearEvents } from '../bottom-gear/BottomGear.js';
 import { MediaControl } from '../media-control/MediaControl.js';
 import assert from 'assert';
 
@@ -128,7 +128,7 @@ export class ClapprNerdStats extends UICorePlugin {
   private iconPosition: IconPosition;
 
   get name() {
-    return 'media_control_nerd_stats';
+    return 'nerd_stats';
   }
 
   get supportedVersion() {
@@ -186,7 +186,7 @@ export class ClapprNerdStats extends UICorePlugin {
     const mediaControl = this.core.getPlugin('media_control') as MediaControl;
     assert(mediaControl, 'media_control plugin is required');
     this.listenToOnce(this.core, Events.CORE_READY, this.init);
-    this.listenTo(mediaControl, BottomGearEvents.MEDIACONTROL_GEAR_RENDERED, this.addToBottomGear);
+    this.listenTo(mediaControl, GearEvents.MEDIACONTROL_GEAR_RENDERED, this.addToBottomGear);
   }
 
   private init() {
@@ -316,7 +316,7 @@ export class ClapprNerdStats extends UICorePlugin {
   }
 
   private addToBottomGear() {
-    const gear = this.core.getPlugin('media_control_gear') as BottomGear;
+    const gear = this.core.getPlugin('bottom_gear') as BottomGear;
     const $el = gear.getElement('nerd')
     $el.html(buttonHtml)
     const $button = $el.find('.nerd-button');

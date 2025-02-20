@@ -5,7 +5,7 @@
 <ul class="gear-sub-menu">
     <% if (!removeAuto) { %>
         <li>
-            <a href="#" class='gear-sub-menu_btn gcore-skin-text-color' data-id="-1">
+            <a href="#" class='gear-sub-menu_btn gcore-skin-text-color' data-id="-1" id="level_selector_auto">
                 <span class="check-icon"><%= checkIcon %></span>
             Auto
         </a>
@@ -13,7 +13,7 @@
     <% } %>
     <% for (const level of levels.slice().reverse()) { %>
         <li <% if (maxLevel >= 0 && level.level > maxLevel) { %>class="level-disabled"<% } %>>
-            <a href="#" class='gear-sub-menu_btn gcore-skin-text-color' data-id="<%= level.level %>">
+            <a href="#" class='gear-sub-menu_btn gcore-skin-text-color' data-id="<%= level.level %>" id="level_selector_<%= level.height %>">
                 <span class="check-icon"><%= checkIcon %></span>
                 <%= labels[level.level] %>
             </a>

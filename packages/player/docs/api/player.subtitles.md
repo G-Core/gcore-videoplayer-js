@@ -4,6 +4,11 @@
 
 ## Subtitles class
 
+> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
+> 
+
+A [media control](./player.mediacontrol.md) plugin that provides a UI to select the subtitles when available.
+
 **Signature:**
 
 ```typescript
@@ -11,184 +16,31 @@ export declare class Subtitles extends UICorePlugin
 ```
 **Extends:** UICorePlugin
 
-## Properties
+## Remarks
 
-<table><thead><tr><th>
+Depends on:
 
-Property
+- [MediaControl](./player.mediacontrol.md)
 
+Configuration options:
 
-</th><th>
+- subtitles.language - The language of the subtitles to select by default.
 
-Modifiers
+## Example
 
 
-</th><th>
+```ts
+import { Subtitles } from '@gcorevideo/player'
 
-Type
+Player.registerPlugin(Subtitles)
 
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>
-
-[attributes](./player.subtitles.attributes.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-{ class: string; 'data-subtitles': string; }
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[events](./player.subtitles.events.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-{ 'click \[data-subtitles-select\]': string; 'click \[data-subtitles-button\]': string; }
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[name](./player.subtitles.name.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[preselectedLanguage](./player.subtitles.preselectedlanguage.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[supportedVersion](./player.subtitles.supportedversion.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-{ min: string; }
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[template](./player.subtitles.template.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-any
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[templateString](./player.subtitles.templatestring.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-any
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[version](./player.subtitles.version.md)
-
-
-</td><td>
-
-`static`
-
-`readonly`
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-
-</td></tr>
-</tbody></table>
+new Player({
+  ...
+  subtitles: {
+    language: 'en',
+  },
+})
+```
 
 ## Methods
 
@@ -210,30 +62,6 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-[bindEvents()](./player.subtitles.bindevents.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[buttonElement()](./player.subtitles.buttonelement.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
 [hide()](./player.subtitles.hide.md)
 
 
@@ -242,53 +70,7 @@ Description
 
 </td><td>
 
-
-</td></tr>
-<tr><td>
-
-[levelElement(id)](./player.subtitles.levelelement.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[reload()](./player.subtitles.reload.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[render()](./player.subtitles.render.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[selectSubtitles()](./player.subtitles.selectsubtitles.md)
-
-
-</td><td>
-
-
-</td><td>
+**_(BETA)_** Hides the subtitles menu and the subtitles.
 
 
 </td></tr>
@@ -302,41 +84,7 @@ Description
 
 </td><td>
 
-
-</td></tr>
-<tr><td>
-
-[startLevelSwitch()](./player.subtitles.startlevelswitch.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[stopLevelSwitch()](./player.subtitles.stoplevelswitch.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[unBindEvents()](./player.subtitles.unbindevents.md)
-
-
-</td><td>
-
-
-</td><td>
+**_(BETA)_** Shows the subtitles menu and the subtitles.
 
 
 </td></tr>

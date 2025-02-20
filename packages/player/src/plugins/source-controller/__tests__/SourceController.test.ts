@@ -146,7 +146,7 @@ describe('SourceController', () => {
       it('should sync with the spinner before reloading the source', async () => {
         await clock.tickAsync(1000)
         expect(core.load).not.toHaveBeenCalled()
-        spinner.emit('spinner:sync')
+        spinner.emit('plugins:spinner:sync')
         expect(core.load).toHaveBeenCalled()
       })
     })

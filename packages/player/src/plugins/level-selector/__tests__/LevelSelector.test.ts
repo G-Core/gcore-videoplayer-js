@@ -44,6 +44,7 @@ describe('LevelSelector', () => {
       const activeContainer = createContainer()
       activePlayback = createPlayback()
       let mediaControl: UICorePlugin | null = null
+      let bottomGear: UICorePlugin | null = null
       core = Object.assign(new EventLite(), {
         activeContainer,
         activePlayback,
@@ -57,10 +58,14 @@ describe('LevelSelector', () => {
           if (name === 'media_control') {
             return mediaControl
           }
+          if (name === 'bottom_gear') {
+            return bottomGear
+          }
           return null
         }),
       })
       mediaControl = createMediaControl(core)
+      bottomGear = createBottomGear(core)
       levelSelector = new LevelSelector(core)
     })
     describe('initially', () => {
@@ -118,6 +123,7 @@ describe('LevelSelector', () => {
       const activeContainer = createContainer()
       activePlayback = createPlayback()
       let mediaControl: UICorePlugin | null = null
+      let bottomGear: UICorePlugin | null = null
       core = Object.assign(new EventLite(), {
         activeContainer,
         activePlayback,
@@ -131,10 +137,14 @@ describe('LevelSelector', () => {
           if (name === 'media_control') {
             return mediaControl
           }
+          if (name === 'bottom_gear') {
+            return bottomGear
+          }
           return null
         }),
       })
       mediaControl = createMediaControl(core)
+      bottomGear = createBottomGear(core)
       levelSelector = new LevelSelector(core)
     })
     describe('basically', () => {
@@ -235,6 +245,16 @@ expect.extend({
 
 function createMediaControl(core: any) {
   const mediaControl = new UICorePlugin(core)
+  // @ts-ignore
   mediaControl.getElement = vi.fn().mockReturnValue(null)
   return mediaControl
+}
+
+function createBottomGear(core: any) {
+  const bottomGear = new UICorePlugin(core)
+  // @ts-ignore
+  bottomGear.getElement = vi.fn().mockReturnValue(null)
+  // @ts-ignore
+  bottomGear.setContent = vi.fn()
+  return bottomGear
 }

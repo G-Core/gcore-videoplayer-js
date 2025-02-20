@@ -277,6 +277,8 @@ Description
 
 </td><td>
 
+**_(BETA)_** Shows a pending operation indicator when playback is buffering or in other appropriate cases
+
 
 </td></tr>
 <tr><td>
@@ -294,6 +296,8 @@ Description
 
 
 </td><td>
+
+**_(BETA)_** A [media control](./player.mediacontrol.md) plugin that provides a UI to select the subtitles when available.
 
 
 </td></tr>
@@ -334,6 +338,17 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
+[GearEvents](./player.gearevents.md)
+
+
+</td><td>
+
+Custom events emitted by the plugin
+
+
+</td></tr>
+<tr><td>
+
 [PlaybackErrorCode](./player.playbackerrorcode.md)
 
 
@@ -351,6 +366,17 @@ Description
 </td><td>
 
 **_(BETA)_** A top-level event on the player object
+
+
+</td></tr>
+<tr><td>
+
+[SpinnerEvents](./player.spinnerevents.md)
+
+
+</td><td>
+
+Custom events emitted by the plugin
 
 
 </td></tr>
@@ -506,6 +532,17 @@ Description
 </td><td>
 
 **_(BETA)_** Levels of severity of errors. Non-fatal errors usually can be ignored.
+
+
+</td></tr>
+<tr><td>
+
+[GearItemElement](./player.gearitemelement.md)
+
+
+</td><td>
+
+**_(BETA)_** An element inside the gear menu
 
 
 </td></tr>

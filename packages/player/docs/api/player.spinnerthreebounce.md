@@ -4,12 +4,21 @@
 
 ## SpinnerThreeBounce class
 
+> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
+> 
+
+Shows a pending operation indicator when playback is buffering or in other appropriate cases
+
 **Signature:**
 
 ```typescript
 export declare class SpinnerThreeBounce extends UIContainerPlugin 
 ```
 **Extends:** UIContainerPlugin
+
+## Remarks
+
+The plugin emits
 
 ## Constructors
 
@@ -39,89 +48,7 @@ Description
 
 </td><td>
 
-Constructs a new instance of the `SpinnerThreeBounce` class
-
-
-</td></tr>
-</tbody></table>
-
-## Properties
-
-<table><thead><tr><th>
-
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>
-
-[attributes](./player.spinnerthreebounce.attributes.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-{ 'data-spinner': string; class: string; }
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[name](./player.spinnerthreebounce.name.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[supportedVersion](./player.spinnerthreebounce.supportedversion.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-{ min: string; }
-
-
-</td><td>
+**_(BETA)_** Constructs a new instance of the `SpinnerThreeBounce` class
 
 
 </td></tr>
@@ -155,29 +82,21 @@ Description
 
 </td><td>
 
-
-</td></tr>
-<tr><td>
-
-[render()](./player.spinnerthreebounce.render.md)
-
-
-</td><td>
-
-
-</td><td>
+**_(BETA)_** Hides the spinner
 
 
 </td></tr>
 <tr><td>
 
-[show(immediate)](./player.spinnerthreebounce.show.md)
+[show()](./player.spinnerthreebounce.show.md)
 
 
 </td><td>
 
 
 </td><td>
+
+**_(BETA)_** Shows the spinner
 
 
 </td></tr>

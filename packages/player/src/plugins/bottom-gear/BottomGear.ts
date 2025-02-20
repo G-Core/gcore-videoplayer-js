@@ -13,9 +13,15 @@ import { ZeptoResult } from '../../utils/types.js';
 
 const VERSION = '2.19.12';
 
-const T = 'plugins.media_control_gear';
+const T = 'plugins.bottom_gear';
 
-export enum Events {
+/**
+ * Custom events emitted by the plugin
+ */
+export enum GearEvents {
+  /**
+   * Emitted when the gear menu is rendered
+   */
   MEDIACONTROL_GEAR_RENDERED = 'mediacontrol:gear:rendered',
 }
 
@@ -30,6 +36,10 @@ export type GearItemElement = 'quality' | 'rate' | 'nerd';
  * @beta
  * @remarks
  * The plugins provides a base for attaching custom settings UI in the gear menu
+ * 
+ * Depends on:
+ *
+ * - {@link MediaControl | media_control}
  */
 export class BottomGear extends UICorePlugin {
   private isHd = false;
@@ -38,7 +48,7 @@ export class BottomGear extends UICorePlugin {
    * @internal
    */
   get name() {
-    return 'media_control_gear';
+    return 'bottom_gear';
   }
 
   /**
@@ -89,8 +99,20 @@ export class BottomGear extends UICorePlugin {
     this.listenTo(mediaControl, ClapprEvents.MEDIACONTROL_HIDE, this.hide); // TODO mediacontrol show as well
   }
 
+  /**
+   * @param name - Name of a gear menu placeholder item to attach custom UI
+   * @returns Zepto result of the element
+   */
   getElement(name: GearItemElement): ZeptoResult | null {
     return this.core.getPlugin('media_control')?.getElement('gear')?.find(`.gear-options-list [data-${name}]`);
+  }
+
+  /**
+   * Replaces the content of the gear menu
+   * @param content - Zepto result of the element
+   */
+  setContent(content: ZeptoResult) {
+    this.$el.find('.gear-wrapper').html(content);
   }
 
   private onActiveContainerChanged() {
@@ -131,7 +153,7 @@ export class BottomGear extends UICorePlugin {
 
     mediaControl.getElement('gear')?.html(this.el);
     this.core.trigger('gear:rendered'); // @deprecated
-    mediaControl.trigger(Events.MEDIACONTROL_GEAR_RENDERED);
+    mediaControl.trigger(GearEvents.MEDIACONTROL_GEAR_RENDERED);
     return this;
   }
 
