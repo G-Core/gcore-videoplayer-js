@@ -25,6 +25,10 @@ const VERSION = '0.0.1';
 
 const T = 'plugins.media_control_multicamera';
 
+/**
+ * The plugin adds support for loading multiple streams and switching between them using the media control UI.
+ * @beta
+ */
 export class MultiCamera extends UICorePlugin {
   private currentCamera: MediaSourceInfo | null = null;
 

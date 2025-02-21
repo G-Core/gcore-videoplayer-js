@@ -195,6 +195,8 @@ Description
 
 </td><td>
 
+**_(BETA)_** The plugin adds support for loading multiple streams and switching between them using the media control UI.
+
 
 </td></tr>
 <tr><td>
@@ -248,6 +250,8 @@ Description
 
 </td><td>
 
+**_(BETA)_** The plugin adds a seek time indicator to the media control UI.
+
 
 </td></tr>
 <tr><td>
@@ -257,6 +261,8 @@ Description
 
 </td><td>
 
+The plugin adds a share button to the media control UI.
+
 
 </td></tr>
 <tr><td>
@@ -265,6 +271,8 @@ Description
 
 
 </td><td>
+
+The plugin adds skip controls to the media control UI.
 
 
 </td></tr>
@@ -330,7 +338,7 @@ Description
 
 </td><td>
 
-**_(BETA)_**
+**_(BETA)_** Applies fade effect to the player's volume change.
 
 
 </td></tr>
@@ -411,6 +419,8 @@ Custom events emitted by the plugin
 
 </td><td>
 
+**_(BETA)_** Events emitted by the VolumeFade plugin.
+
 
 </td></tr>
 </tbody></table>
@@ -471,6 +481,8 @@ Configuration options
 
 
 </td><td>
+
+**_(BETA)_** The plugin adds a context menu to the player.
 
 
 </td></tr>
@@ -883,7 +895,7 @@ Description
 
 </td><td>
 
-**_(BETA)_**
+**_(BETA)_** [Zepto query result](https://zeptojs.com/#$())
 
 
 </td></tr>

@@ -9,6 +9,9 @@ import closeIcon from '../../../assets/icons/old/close-share.svg';
 import fbIcon from '../../../assets/icons/old/fb.svg';
 import twIcon from '../../../assets/icons/old/twitter.svg';
 
+/**
+ * The plugin adds a share button to the media control UI.
+ */
 export class Share extends UICorePlugin {
   private hide = false;
 

@@ -3,11 +3,16 @@ import { reportError } from '@gcorevideo/utils';
 
 import { TimerId } from '../../utils/types.js';
 
+/**
+ * Events emitted by the VolumeFade plugin.
+ * @beta
+ */
 export enum VolumeFadeEvents {
   FADE = 'core:volume:fade',
 }
 
 /**
+ * Applies fade effect to the player's volume change.
  * @beta
  */
 export class VolumeFade extends UICorePlugin {

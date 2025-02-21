@@ -19,6 +19,10 @@ type MenuOption = {
   name: string
 }
 
+/**
+ * The plugin adds a context menu to the player.
+ * @beta
+ */
 export interface ContextMenuPluginSettings {
   label?: string
   url?: string

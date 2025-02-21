@@ -4,6 +4,8 @@
 
 ## Share class
 
+The plugin adds a share button to the media control UI.
+
 **Signature:**
 
 ```typescript

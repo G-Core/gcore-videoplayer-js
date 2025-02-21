@@ -1,6 +1,6 @@
 // Copyright 2014 Globo.com Player authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
+// license that can be found at https://github.com/clappr/clappr-plugins/blob/master/LICENSE
 
 import { Events, Playback, UICorePlugin, Utils, template } from '@clappr/core';
 import { TimeUpdate } from '../../playback.types.js';
@@ -13,6 +13,10 @@ import { ZeptoResult } from '../../utils/types.js';
 
 const { formatTime } = Utils;
 
+/**
+ * The plugin adds a seek time indicator to the media control UI.
+ * @beta
+ */
 export class SeekTime extends UICorePlugin {
   get name() {
     return 'media_control_seek_time';

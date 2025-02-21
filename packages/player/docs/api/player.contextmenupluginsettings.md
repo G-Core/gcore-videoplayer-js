@@ -4,6 +4,11 @@
 
 ## ContextMenuPluginSettings interface
 
+> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
+> 
+
+The plugin adds a context menu to the player.
+
 **Signature:**
 
 ```typescript
@@ -48,7 +53,7 @@ string
 
 </td><td>
 
-_(Optional)_
+**_(BETA)_** _(Optional)_
 
 
 </td></tr>
@@ -67,7 +72,7 @@ boolean
 
 </td><td>
 
-_(Optional)_
+**_(BETA)_** _(Optional)_
 
 
 </td></tr>
@@ -86,7 +91,7 @@ string
 
 </td><td>
 
-_(Optional)_
+**_(BETA)_** _(Optional)_
 
 
 </td></tr>

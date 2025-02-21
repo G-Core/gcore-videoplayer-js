@@ -4,6 +4,8 @@
 
 ## SkipTime class
 
+The plugin adds skip controls to the media control UI.
+
 **Signature:**
 
 ```typescript
