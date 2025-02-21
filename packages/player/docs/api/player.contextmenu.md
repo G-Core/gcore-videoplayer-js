@@ -4,12 +4,21 @@
 
 ## ContextMenu class
 
+> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
+> 
+
+Displays a small context menu when clicked on the player container.
+
 **Signature:**
 
 ```typescript
-export declare class ContextMenu extends UICorePlugin 
+export declare class ContextMenu extends UIContainerPlugin 
 ```
-**Extends:** UICorePlugin
+**Extends:** UIContainerPlugin
+
+## Remarks
+
+Configuration options - [ContextMenuPluginSettings](./player.contextmenupluginsettings.md)
 
 ## Constructors
 
@@ -31,7 +40,7 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-[(constructor)(core)](./player.contextmenu._constructor_.md)
+[(constructor)(container)](./player.contextmenu._constructor_.md)
 
 
 </td><td>
@@ -39,259 +48,7 @@ Description
 
 </td><td>
 
-Constructs a new instance of the `ContextMenu` class
-
-
-</td></tr>
-</tbody></table>
-
-## Properties
-
-<table><thead><tr><th>
-
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>
-
-[attributes](./player.contextmenu.attributes.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-{ class: string; }
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[events](./player.contextmenu.events.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-{ 'click \[data-version\]': string; }
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[exposeVersion](./player.contextmenu.exposeversion.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-{ label: string; name: string; }
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[label](./player.contextmenu.label.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[mediaControl](./player.contextmenu.mediacontrol.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-any
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[name](./player.contextmenu.name.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[supportedVersion](./player.contextmenu.supportedversion.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-{ min: string; }
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[template](./player.contextmenu.template.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-any
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[url](./player.contextmenu.url.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-
-</td></tr>
-</tbody></table>
-
-## Methods
-
-<table><thead><tr><th>
-
-Method
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>
-
-[bindEvents()](./player.contextmenu.bindevents.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[destroy()](./player.contextmenu.destroy.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[render()](./player.contextmenu.render.md)
-
-
-</td><td>
-
-
-</td><td>
+**_(BETA)_** Constructs a new instance of the `ContextMenu` class
 
 
 </td></tr>

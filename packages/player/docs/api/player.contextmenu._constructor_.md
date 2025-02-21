@@ -4,12 +4,15 @@
 
 ## ContextMenu.(constructor)
 
+> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
+> 
+
 Constructs a new instance of the `ContextMenu` class
 
 **Signature:**
 
 ```typescript
-constructor(core: Core);
+constructor(container: Container);
 ```
 
 ## Parameters
@@ -32,12 +35,12 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-core
+container
 
 
 </td><td>
 
-Core
+Container
 
 
 </td><td>

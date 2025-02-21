@@ -1,134 +1,163 @@
-import { UICorePlugin, Events, template, $, Core, Container } from '@clappr/core';
+import {
+  UICorePlugin,
+  Events,
+  template,
+  $,
+  Core,
+  Container,
+  UIContainerPlugin,
+} from '@clappr/core'
 
-import { CLAPPR_VERSION } from '../../build.js';
+import { CLAPPR_VERSION } from '../../build.js'
 
-import '../../../assets/context-menu/context_menu.scss';
-import templateHtml from '../../../assets/context-menu/context_menu.ejs';
+import '../../../assets/context-menu/context_menu.scss'
+import templateHtml from '../../../assets/context-menu/context_menu.ejs'
+import { version } from '../../version.js'
 
 type MenuOption = {
-  label: string;
-  name: string;
+  label: string
+  name: string
 }
 
-export class ContextMenu extends UICorePlugin {
-  private _label: string = '';
+export interface ContextMenuPluginSettings {
+  label?: string
+  url?: string
+  preventShowContextMenu?: boolean
+}
 
-  private _url: string = '';
+/**
+ * Displays a small context menu when clicked on the player container.
+ * @beta
+ * @remarks
+ * Configuration options - {@link ContextMenuPluginSettings}
+ */
+export class ContextMenu extends UIContainerPlugin {
+  private _label: string = ''
 
-  private container: Container | null = null;
+  private _url: string = ''
 
-  private menuOptions: MenuOption[] = [];
+  private menuOptions: MenuOption[] = []
 
+  /**
+   * @internal
+   */
   get name() {
-    return 'context_menu';
+    return 'context_menu'
   }
 
+  /**
+   * @internal
+   */
   get supportedVersion() {
-    return { min: CLAPPR_VERSION };
+    return { min: CLAPPR_VERSION }
   }
 
+  /**
+   * @internal
+   */
   override get attributes() {
-    return { 'class': 'context-menu' };
+    return { class: 'context-menu' }
   }
 
-  get mediaControl() {
-    return this.core.mediaControl;
+  private static readonly template = template(templateHtml)
+
+  private get label() {
+    return this._label || 'Gcore player ver. ' + version().gplayer
   }
 
-  get template() {
-    return template(templateHtml);
+  private get url() {
+    return this._url || 'https://gcore.com/'
   }
 
-  get label() {
-    return this._label || 'Gcore player ver. ' + process.env.VERSION;
-  }
-
-  get url() {
-    return this._url || 'https://gcore.com/';
-  }
-
-  get exposeVersion() {
+  private get exposeVersion() {
     return {
       label: this.label,
-      name: 'version'
-    };
+      name: 'version',
+    }
   }
 
+  /**
+   * @internal
+   */
   override get events() {
     return {
-      'click [data-version]': 'onOpenMainPage'
-    };
+      'click [data-version]': 'onOpenMainPage',
+    }
   }
 
-  constructor(core: Core) {
-    super(core);
+  constructor(container: Container) {
+    super(container)
     if (this.options.contextMenu && this.options.contextMenu.label) {
-      this._label = this.options.contextMenu.label;
+      this._label = this.options.contextMenu.label
     }
     if (this.options.contextMenu && this.options.contextMenu.url) {
-      this._url = this.options.contextMenu.url;
+      this._url = this.options.contextMenu.url
     }
-    this.render();
-    this.bindEvents();
+    this.render()
+    this.bindEvents()
   }
 
+  /**
+   * @internal
+   */
   override bindEvents() {
-    if (this.mediaControl) {
-      this.listenTo(this.mediaControl, Events.MEDIACONTROL_CONTAINERCHANGED, this.containerChanged);
-
-      if (this.container) {
-        this.listenTo(this.container, Events.CONTAINER_CONTEXTMENU, this.toggleContextMenu);
-        this.listenTo(this.container, Events.CONTAINER_CLICK, this.hide);
-      }
-    }
-    $('body').on('click', this.hide.bind(this));
+    this.listenTo(
+      this.container,
+      Events.CONTAINER_CONTEXTMENU,
+      this.toggleContextMenu,
+    )
+    this.listenTo(this.container, Events.CONTAINER_CLICK, this.hide)
+    $('body').on('click', this.hideOnBodyClick)
   }
 
+  /**
+   * @internal
+   */
   override destroy() {
-    $('body').off('click', this.hide.bind(this));
-    // @ts-ignore
-    this.stopListening();
-    return super.destroy();
-  }
-
-  private containerChanged() {
-    this.container = this.core.activeContainer;
-    // @ts-ignore
-    this.stopListening();
-    this.bindEvents();
+    $('body').off('click', this.hideOnBodyClick)
+    return super.destroy()
   }
 
   private toggleContextMenu(event: MouseEvent) {
-    event.preventDefault();
-    const offset = this.container?.$el.offset();
+    event.preventDefault()
+    const offset = this.container?.$el.offset()
 
-    this.show(event.pageY - offset.top, event.pageX - offset.left);
+    this.show(event.pageY - offset.top, event.pageX - offset.left)
   }
 
   private show(top: number, left: number) {
-    this.hide();
-    if (this.options.contextMenu && this.options.contextMenu.preventShowContextMenu) {
-      return;
+    this.hide()
+    if (
+      this.options.contextMenu &&
+      this.options.contextMenu.preventShowContextMenu
+    ) {
+      return
     }
-    this.$el.css({ top, left });
-    this.$el.show();
+    this.$el.css({ top, left })
+    this.$el.show()
   }
 
   private hide() {
-    this.$el.hide();
+    this.$el.hide()
   }
 
   private onOpenMainPage() {
-    window.open(this.url, '_blank');
+    window.open(this.url, '_blank')
   }
 
+  /**
+   * @internal
+   */
   override render() {
-    this.menuOptions = [this.exposeVersion];
-    this.$el.html(this.template({ options: this.menuOptions }));
-    this.core.$el.append(this.$el);
-    this.hide();
-    this.disable();
+    this.menuOptions = [this.exposeVersion]
+    this.$el.html(ContextMenu.template({ options: this.menuOptions }))
+    this.container.$el.append(this.$el) // TODO append to the container, turn into a container plugin
+    this.hide()
 
-    return this;
+    return this
+  }
+
+  private hideOnBodyClick = () => {
+    this.hide()
   }
 }

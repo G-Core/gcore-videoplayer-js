@@ -107,6 +107,8 @@ Adds a behavior of toggling the playback state on click over the container
 
 </td><td>
 
+**_(BETA)_** Displays a small context menu when clicked on the player container.
+
 
 </td></tr>
 <tr><td>
@@ -465,6 +467,15 @@ Description
 </td><td>
 
 Configuration options
+
+
+</td></tr>
+<tr><td>
+
+[ContextMenuPluginSettings](./player.contextmenupluginsettings.md)
+
+
+</td><td>
 
 
 </td></tr>
