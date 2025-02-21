@@ -4,6 +4,9 @@
 
 ## GearEvents enum
 
+> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
+> 
+
 Custom events emitted by the plugin
 
 **Signature:**
@@ -42,7 +45,7 @@ MEDIACONTROL\_GEAR\_RENDERED
 
 </td><td>
 
-Emitted when the gear menu is rendered
+**_(BETA)_** Emitted when the gear menu is rendered
 
 
 </td></tr>

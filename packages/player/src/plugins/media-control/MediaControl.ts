@@ -39,6 +39,7 @@ import fullscreenOnIcon from '../../../assets/icons/new/fullscreen-on.svg'
  * @beta
  */
 export type MediaControlElement =
+  | 'audioTracksSelector'
   | 'bottomGear' // an alias of gear
   | 'clipText'
   | 'gear'
@@ -198,7 +199,7 @@ export class MediaControl extends UICorePlugin {
 
   private get disabled() {
     const playbackIsNOOP =
-      this.container && this.container.getPlaybackType() === Playback.NO_OP
+      this.core.activeContainer && this.core.activeContainer.getPlaybackType() === Playback.NO_OP
 
     return this.userDisabled || playbackIsNOOP
   }
@@ -1083,6 +1084,8 @@ export class MediaControl extends UICorePlugin {
    */
   getElement(name: MediaControlElement): ZeptoResult | null {
     switch (name) {
+      case 'audioTracksSelector':
+        return this.$audioTracksSelector
       case 'clipText':
         return this.$clipText
       case 'bottomGear':

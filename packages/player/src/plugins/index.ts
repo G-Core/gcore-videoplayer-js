@@ -14,7 +14,6 @@ export * from "./clappr-stats/ClapprStats.js";
 export * from "./click-to-pause/ClickToPause.js";
 export * from "./clips/Clips.js";
 export * from "./context-menu/ContextMenu.js";
-export * from "./disable-controls/DisableControls.js";
 export * from "./dvr-controls/DvrControls.js";
 export * from "./error-screen/ErrorScreen.js";
 export * from "./favicon/Favicon.js";

@@ -8,7 +8,6 @@ export * from "./plugins/clappr-stats/ClapprStats.js";
 export * from "./plugins/click-to-pause/ClickToPause.js";
 export * from "./plugins/clips/Clips.js";
 export * from "./plugins/context-menu/ContextMenu.js";
-export * from "./plugins/disable-controls/DisableControls.js";
 export * from "./plugins/dvr-controls/DvrControls.js";
 export * from "./plugins/error-screen/ErrorScreen.js";
 export * from "./plugins/favicon/Favicon.js";

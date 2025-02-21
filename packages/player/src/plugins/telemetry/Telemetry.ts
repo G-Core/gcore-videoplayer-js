@@ -16,11 +16,13 @@ const T = 'plugins.telemetry'
 
 /**
  * Telemetry event data
+ * @beta
  */
 export type TelemetryEventData = StallEventData | InitEventData | StartEventData | WatchEventData
 
 /**
  * Playback stall event data
+ * @beta
  */
 export interface StallEventData {
   event: TelemetryEvent.Stall

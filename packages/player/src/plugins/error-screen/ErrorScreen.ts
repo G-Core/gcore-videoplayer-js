@@ -32,7 +32,6 @@ const T = 'plugins.error_screen'
 /**
  * Displays a descriptive error in the overlay on top of the player.
  * @beta
- * TODO
  */
 export class ErrorScreen extends UICorePlugin {
   private _retry = 0;

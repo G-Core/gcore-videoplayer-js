@@ -4,6 +4,9 @@
 
 ## StallEventData interface
 
+> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
+> 
+
 Playback stall event data
 
 **Signature:**
@@ -50,7 +53,7 @@ number
 
 </td><td>
 
-Number of stalls
+**_(BETA)_** Number of stalls
 
 
 </td></tr>
@@ -69,6 +72,8 @@ Number of stalls
 
 </td><td>
 
+**_(BETA)_**
+
 
 </td></tr>
 <tr><td>
@@ -86,7 +91,7 @@ number
 
 </td><td>
 
-Playback time when the stall is reported at the end of a stall measurement interval, s
+**_(BETA)_** Playback time when the stall is reported at the end of a stall measurement interval, s
 
 
 </td></tr>
@@ -105,7 +110,7 @@ number
 
 </td><td>
 
-Accumulated buffering duration over the measurement interval, ms
+**_(BETA)_** Accumulated buffering duration over the measurement interval, ms
 
 
 </td></tr>

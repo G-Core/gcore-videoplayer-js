@@ -13,6 +13,7 @@ const T = 'plugins.click_to_pause_custom'
 
 /**
  * Adds a behavior of toggling the playback state on click over the container
+ * @beta
  */
 export class ClickToPause extends ContainerPlugin {
   private pointerEnabled = false

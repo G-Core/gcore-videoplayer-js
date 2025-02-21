@@ -9,8 +9,6 @@
 
 Displays a descriptive error in the overlay on top of the player.
 
-TODO
-
 **Signature:**
 
 ```typescript

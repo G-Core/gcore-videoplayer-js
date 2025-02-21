@@ -1,3 +1,7 @@
+
+/**
+ * @beta
+ */
 export type Metrics = {
   counters: {
     play: number;
@@ -37,6 +41,9 @@ export type Metrics = {
   custom: Record<string, unknown>;
 };
 
+/**
+ * @beta
+ */
 export type BitrateTrackRecord = {
   start: number;
   end?: number;
@@ -44,8 +51,14 @@ export type BitrateTrackRecord = {
   bitrate: number;
 }
 
+/**
+ * @beta
+ */
 export type MetricsUpdateFn = (metrics: Metrics) => void;
 
+/**
+ * @beta
+ */
 export enum ClapprStatsEvents {
   REPORT_EVENT = 'clappr:stats:report',
   PERCENTAGE_EVENT = 'clappr:stats:percentage',

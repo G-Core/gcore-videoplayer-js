@@ -13,8 +13,9 @@ import { getPageX } from '../utils.js'
 
 /**
  * Plugin configuration options for the thumbnails plugin.
+ * @beta
  */
-export type ThumbnailsOptions = {
+export type ThumbnailsPluginSettings = {
   backdropHeight: number
   backdropMaxOpacity: number
   backdropMinOpacity: number
@@ -263,7 +264,7 @@ export class Thumbnails extends UICorePlugin {
     this._renderPlugin()
   }
 
-  private _getOptions(): ThumbnailsOptions {
+  private _getOptions(): ThumbnailsPluginSettings {
     if (!('thumbnails' in this.core.options)) {
       throw "'thumbnail property missing from options object."
     }

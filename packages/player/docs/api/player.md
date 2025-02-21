@@ -30,7 +30,7 @@ Description
 
 </td><td>
 
-**_(BETA)_**
+**_(BETA)_** Adds an audio track selector to the media control UI.
 
 
 </td></tr>
@@ -85,7 +85,7 @@ Description
 
 </td><td>
 
-Adds a behavior of toggling the playback state on click over the container
+**_(BETA)_** Adds a behavior of toggling the playback state on click over the container
 
 
 </td></tr>
@@ -113,15 +113,6 @@ Adds a behavior of toggling the playback state on click over the container
 </td></tr>
 <tr><td>
 
-[DisableControls](./player.disablecontrols.md)
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
 [DvrControls](./player.dvrcontrols.md)
 
 
@@ -139,8 +130,6 @@ Adds a behavior of toggling the playback state on click over the container
 </td><td>
 
 **_(BETA)_** Displays a descriptive error in the overlay on top of the player.
-
-TODO
 
 
 </td></tr>
@@ -361,7 +350,7 @@ Description
 
 </td><td>
 
-Custom events emitted by the plugin
+**_(BETA)_** Custom events emitted by the plugin
 
 
 </td></tr>
@@ -541,7 +530,7 @@ Configuration options
 
 </td><td>
 
-Playback stall event data
+**_(BETA)_** Playback stall event data
 
 
 </td></tr>
@@ -789,7 +778,7 @@ Description
 
 </td><td>
 
-Telemetry event data
+**_(BETA)_** Telemetry event data
 
 
 </td></tr>
@@ -806,12 +795,12 @@ Telemetry event data
 </td></tr>
 <tr><td>
 
-[ThumbnailsOptions](./player.thumbnailsoptions.md)
+[ThumbnailsPluginSettings](./player.thumbnailspluginsettings.md)
 
 
 </td><td>
 
-Plugin configuration options for the thumbnails plugin.
+**_(BETA)_** Plugin configuration options for the thumbnails plugin.
 
 
 </td></tr>

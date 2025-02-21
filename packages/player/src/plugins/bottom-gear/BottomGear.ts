@@ -17,6 +17,7 @@ const T = 'plugins.bottom_gear';
 
 /**
  * Custom events emitted by the plugin
+ * @beta
  */
 export enum GearEvents {
   /**
