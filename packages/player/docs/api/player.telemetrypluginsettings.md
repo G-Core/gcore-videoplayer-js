@@ -4,6 +4,9 @@
 
 ## TelemetryPluginSettings interface
 
+> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
+> 
+
 Plugin settings
 
 **Signature:**
@@ -50,7 +53,7 @@ TelemetrySendFn
 
 </td><td>
 
-Sends the statistics record to the storage. The actual delivery is presumably async and batched.
+**_(BETA)_** Sends the statistics record to the storage. The actual delivery is presumably async and batched.
 
 
 </td></tr>

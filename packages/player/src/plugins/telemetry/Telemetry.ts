@@ -38,20 +38,33 @@ export interface StallEventData {
   time: number
 }
 
+/**
+ * Telemetry init event data
+ * @beta
+ */
 export interface InitEventData {
   event: TelemetryEvent.Init
 }
 
+/**
+ * Telemetry start event data
+ * @beta
+ */
 export interface StartEventData {
   event: TelemetryEvent.Start
 }
 
+/**
+ * Telemetry watch event data
+ * @beta
+ */
 export interface WatchEventData {
   event: TelemetryEvent.Watch
 }
 
 /**
  * Telemetry record
+ * @beta
  */
 export type TelemetryRecord = {
   type: PlaybackType
@@ -60,11 +73,13 @@ export type TelemetryRecord = {
 /**
  * Callback to send the telemetry record to the storage.
  * @param data - The telemetry record to send.
+ * @beta
  */
 type TelemetrySendFn = (data: TelemetryRecord) => void
 
 /**
  * Plugin settings
+ * @beta
  */
 export interface TelemetryPluginSettings {
   /**
@@ -76,6 +91,7 @@ export interface TelemetryPluginSettings {
 
 /**
  * Telemetry event type
+ * @beta
  */
 export enum TelemetryEvent {
   Init = 1,

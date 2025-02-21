@@ -405,7 +405,7 @@ Custom events emitted by the plugin
 
 </td><td>
 
-Telemetry event type
+**_(BETA)_** Telemetry event type
 
 
 </td></tr>
@@ -486,6 +486,8 @@ Configuration options
 
 </td><td>
 
+**_(BETA)_** Telemetry init event data
+
 
 </td></tr>
 <tr><td>
@@ -550,6 +552,8 @@ Playback stall event data
 
 </td><td>
 
+**_(BETA)_** Telemetry start event data
+
 
 </td></tr>
 <tr><td>
@@ -559,7 +563,7 @@ Playback stall event data
 
 </td><td>
 
-Plugin settings
+**_(BETA)_** Plugin settings
 
 
 </td></tr>
@@ -580,6 +584,8 @@ Plugin settings
 
 
 </td><td>
+
+**_(BETA)_** Telemetry watch event data
 
 
 </td></tr>
@@ -794,7 +800,7 @@ Telemetry event data
 
 </td><td>
 
-Telemetry record
+**_(BETA)_** Telemetry record
 
 
 </td></tr>

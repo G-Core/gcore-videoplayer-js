@@ -13,7 +13,7 @@ import '../../../assets/dvr-controls/dvr_controls.scss';
  * @remarks
  * Depends on:
  *
- * - {@link MediaControl | media_control}
+ * - {@link MediaControl}
  *
  * The plugin renders the live stream indicator and the DVR seek bar, if DVR is enabled, in the media control UI.
  */
@@ -24,7 +24,7 @@ export class DvrControls extends UICorePlugin {
    * @internal
    */
   get name() {
-    return 'media_control_dvr';
+    return 'dvr_controls';
   }
 
   /**
@@ -62,35 +62,16 @@ export class DvrControls extends UICorePlugin {
    * @internal
    */
   override bindEvents() {
-    this.bindCoreEvents();
-    this.bindContainerEvents();
-
-    if (this.core.activeContainer) {
-      this.listenTo(this.core.activeContainer, Events.CONTAINER_PLAYBACKDVRSTATECHANGED, this.dvrChanged);
-    }
-  }
-
-  private bindCoreEvents() {
-    if (this.core.mediaControl.settings) {
-      this.listenTo(this.core.mediaControl, Events.MEDIACONTROL_CONTAINERCHANGED, this.containerChanged);
-      this.listenTo(this.core.mediaControl, Events.MEDIACONTROL_RENDERED, this.settingsUpdate);
-      this.listenTo(this.core, Events.CORE_OPTIONS_CHANGE, this.render);
-    } else {
-      setTimeout(() => this.bindCoreEvents(), 100);
-    }
+    const mediaControl = this.core.getPlugin('media_control');
+    assert(mediaControl, 'media_control plugin is required');
+    this.listenTo(mediaControl, Events.MEDIACONTROL_RENDERED, this.settingsUpdate);
+    this.listenTo(this.core, Events.CORE_OPTIONS_CHANGE, this.render);
+    this.listenTo(this.core, Events.CORE_ACTIVE_CONTAINER_CHANGED, this.bindContainerEvents);
   }
 
   private bindContainerEvents() {
-    if (this.core.activeContainer) {
-      this.listenToOnce(this.core.activeContainer, Events.CONTAINER_TIMEUPDATE, this.render);
-      this.listenTo(this.core.activeContainer, Events.CONTAINER_PLAYBACKDVRSTATECHANGED, this.dvrChanged);
-    }
-  }
-
-  private containerChanged() {
-    // @ts-ignore
-    this.stopListening();
-    this.bindEvents();
+    this.listenToOnce(this.core.activeContainer, Events.CONTAINER_TIMEUPDATE, this.render);
+    this.listenTo(this.core.activeContainer, Events.CONTAINER_PLAYBACKDVRSTATECHANGED, this.dvrChanged);
   }
 
   private dvrChanged(dvrEnabled: boolean) {
@@ -127,7 +108,7 @@ export class DvrControls extends UICorePlugin {
   private settingsUpdate() {
     // @ts-ignore
     this.stopListening(); // TODO sort out
-    this.core.mediaControl.$el.removeClass('live');
+    this.core.getPlugin('media_control').$el.removeClass('live'); // TODO don't access directly
     if (this.shouldRender()) {
       this.render();
       this.$el.click(() => this.click());
@@ -150,7 +131,7 @@ export class DvrControls extends UICorePlugin {
       backToLive: this.core.i18n.t('back_to_live')
     }));
     if (this.shouldRender()) {
-      const mediaControl = this.core.mediaControl;
+      const mediaControl = this.core.getPlugin('media_control');
       assert(mediaControl, 'media_control plugin is required');
       // TODO don't tap into the $el directly
       mediaControl.$el.addClass('live');
