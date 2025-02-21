@@ -10,6 +10,8 @@ import '../../../assets/big-mute-button/big-mute-button.scss'
 
 const T = 'plugins.big_mute_button'
 
+// TODO rewrite as a container plugin
+
 /**
  * Displays a big mute button over the video when it's muted.
  * Once pressed, it unmutes the video.

@@ -74,7 +74,7 @@ Description
 
 </td><td>
 
-**_(BETA)_**
+**_(BETA)_** Collects useful statistics about playback performance.
 
 
 </td></tr>

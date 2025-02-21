@@ -7,6 +7,7 @@
 > This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
 > 
 
+Collects useful statistics about playback performance.
 
 **Signature:**
 
@@ -14,6 +15,10 @@
 export declare class ClapprStats extends ContainerPlugin 
 ```
 **Extends:** ContainerPlugin
+
+## Remarks
+
+This plugin does not render anything and is supposed to be extended or used together with other plugins that actually render something.
 
 ## Constructors
 
@@ -49,115 +54,6 @@ Description
 </td></tr>
 </tbody></table>
 
-## Properties
-
-<table><thead><tr><th>
-
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>
-
-[\_playbackName](./player.clapprstats._playbackname.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
-[\_playbackType](./player.clapprstats._playbacktype.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-any
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
-[name](./player.clapprstats.name.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
-[supportedVersion](./player.clapprstats.supportedversion.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-{ min: string; }
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-</tbody></table>
-
 ## Methods
 
 <table><thead><tr><th>
@@ -178,62 +74,6 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-[\_buildReport()](./player.clapprstats._buildreport.md)
-
-
-</td><td>
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
-[\_defaultReport(metrics)](./player.clapprstats._defaultreport.md)
-
-
-</td><td>
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
-[bindEvents()](./player.clapprstats.bindevents.md)
-
-
-</td><td>
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
-[destroy()](./player.clapprstats.destroy.md)
-
-
-</td><td>
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
 [exportMetrics()](./player.clapprstats.exportmetrics.md)
 
 
@@ -242,41 +82,13 @@ Description
 
 </td><td>
 
-**_(BETA)_**
+**_(BETA)_** Returns the collected metrics.
 
 
 </td></tr>
 <tr><td>
 
 [onBitrate(newBitrate)](./player.clapprstats.onbitrate.md)
-
-
-</td><td>
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
-[onFirstPlaying()](./player.clapprstats.onfirstplaying.md)
-
-
-</td><td>
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
-[playAfterPause()](./player.clapprstats.playafterpause.md)
 
 
 </td><td>
@@ -298,35 +110,7 @@ Description
 
 </td><td>
 
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
-[startTimers()](./player.clapprstats.starttimers.md)
-
-
-</td><td>
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
-[stopReporting()](./player.clapprstats.stopreporting.md)
-
-
-</td><td>
-
-
-</td><td>
-
-**_(BETA)_**
+**_(BETA)_** Registers a callback to receive the metrics.
 
 
 </td></tr>

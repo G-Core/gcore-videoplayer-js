@@ -23,7 +23,10 @@ type UriToMeasureBandwidth = {
 const updateMetrics = () => {};
 
 /**
+ * Collects useful statistics about playback performance.
  * @beta
+ * @remarks
+ * This plugin does not render anything and is supposed to be extended or used together with other plugins that actually render something.
  */
 export class ClapprStats extends ContainerPlugin {
   private bwMeasureCount = 0;
@@ -60,19 +63,25 @@ export class ClapprStats extends ContainerPlugin {
 
   private uriToMeasureLatency: string | undefined;
 
+  /**
+   * @internal
+   */
   get name() {
     return 'clappr_stats';
   }
 
+  /**
+   * @internal
+   */
   get supportedVersion() {
     return { min: CLAPPR_VERSION };
   }
 
-  get _playbackName() {
+  private get _playbackName() {
     return String(this.container.playback.name || '');
   }
 
-  get _playbackType() {
+  private get _playbackType() {
     return this.container.getPlaybackType();
   }
 
@@ -100,11 +109,15 @@ export class ClapprStats extends ContainerPlugin {
     this.metrics.timers[timer] += this._now() - this.timers[timer];
   }
 
+  /**
+   * Registers a callback to receive the metrics.
+   * @param updateMetricsFn
+   */
   setUpdateMetrics(updateMetricsFn: MetricsUpdateFn) {
     this.updateFn = updateMetricsFn;
   }
 
-  _defaultReport(metrics: Metrics) {
+  private _defaultReport(metrics: Metrics) {
     this.updateFn(metrics);
   }
 
@@ -122,6 +135,9 @@ export class ClapprStats extends ContainerPlugin {
     };
   }
 
+  /**
+   * @internal
+   */
   override bindEvents() {
     this.listenTo(this.container, CoreEvents.CONTAINER_BITRATE, this.onBitrate);
     this.listenTo(this.container, CoreEvents.CONTAINER_STOP, this.stopReporting);
@@ -141,11 +157,18 @@ export class ClapprStats extends ContainerPlugin {
     this.listenTo(this.container.playback, CoreEvents.PLAYBACK_TIMEUPDATE, this.onTimeUpdate);
   }
 
+  /**
+   * @internal
+   */
   override destroy() {
     this.stopReporting();
     super.destroy();
   }
 
+  /**
+   * Returns the collected metrics.
+   * @returns The collected metrics
+   */
   exportMetrics() {
     return structuredClone(this.metrics);
   }
@@ -166,7 +189,7 @@ export class ClapprStats extends ContainerPlugin {
     this._inc('changeLevel');
   }
 
-  stopReporting() {
+  private stopReporting() {
     this._buildReport();
 
     if (this.intervalId !== null) {
@@ -175,25 +198,26 @@ export class ClapprStats extends ContainerPlugin {
     }
     this._newMetrics();
 
+    // TODO
     // @ts-ignore
     this.stopListening();
     this.bindEvents();
   }
 
-  startTimers() {
+  private startTimers() {
     this.intervalId = setInterval(this._buildReport.bind(this), this.runEach);
     this.start('session');
     this.start('startup');
   }
 
-  onFirstPlaying() {
+  private onFirstPlaying() {
     this.listenTo(this.container, CoreEvents.CONTAINER_TIMEUPDATE, this.onContainerUpdateWhilePlaying);
 
     this.start('watch');
     this._stop('startup');
   }
 
-  playAfterPause() {
+  private playAfterPause() {
     this.listenTo(this.container, CoreEvents.CONTAINER_TIMEUPDATE, this.onContainerUpdateWhilePlaying);
     this._stop('pause');
     this.start('watch');
@@ -280,7 +304,7 @@ export class ClapprStats extends ContainerPlugin {
     }
   }
 
-  _buildReport() {
+  private _buildReport() {
     this._stop('session');
     this.start('session');
 
