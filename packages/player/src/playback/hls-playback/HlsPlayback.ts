@@ -821,9 +821,9 @@ export default class HlsPlayback extends HTML5Video {
 
   play() {
     !this._hls && this._setup()
-    assert.ok(this._hls, 'Hls.js instance is not available')
     !this._manifestParsed &&
       !this.options.hlsPlayback.preload &&
+      // @ts-expect-error
       this._hls.loadSource(this.options.src)
     super.play()
     this._startTimeUpdateTimer()

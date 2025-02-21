@@ -31,12 +31,11 @@ export * from "./poster/Poster.js";
 export * from "./seek-time/SeekTime.js";
 export * from "./share/Share.js";
 export * from "./skip-time/SkipTime.js";
-export * from "./spinner-three-bounce/SpinnerThreeBounce.js";
-export * from "./statistics/Statistics.js";
-export * from "./subtitles/Subtitles.js";
-export * from "./thumbnails/Thumbnails.js";
-export { setTracer} from "@gcorevideo/utils";
 export * from "./source-controller/SourceController.js";
+export * from "./spinner-three-bounce/SpinnerThreeBounce.js";
+export * from "./subtitles/Subtitles.js";
+export * from "./telemetry/Telemetry.js";
+export * from "./thumbnails/Thumbnails.js";
 // _ vast-ads
 // _ video360
 export * from "./volume-fade/VolumeFade.js";

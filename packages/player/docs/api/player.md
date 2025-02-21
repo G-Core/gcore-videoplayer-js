@@ -291,21 +291,23 @@ TODO
 </td></tr>
 <tr><td>
 
-[Statistics](./player.statistics.md)
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
 [Subtitles](./player.subtitles.md)
 
 
 </td><td>
 
 **_(BETA)_** A [media control](./player.mediacontrol.md) plugin that provides a UI to select the subtitles when available.
+
+
+</td></tr>
+<tr><td>
+
+[Telemetry](./player.telemetry.md)
+
+
+</td><td>
+
+**_(BETA)_** Collects and reports the performance statistics.
 
 
 </td></tr>
@@ -390,6 +392,17 @@ Custom events emitted by the plugin
 </td></tr>
 <tr><td>
 
+[TelemetryEvent](./player.telemetryevent.md)
+
+
+</td><td>
+
+Telemetry event type
+
+
+</td></tr>
+<tr><td>
+
 [VolumeFadeEvents](./player.volumefadeevents.md)
 
 
@@ -440,6 +453,15 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
+[InitEventData](./player.initeventdata.md)
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
 [PlaybackError](./player.playbackerror.md)
 
 
@@ -484,12 +506,52 @@ Description
 </td></tr>
 <tr><td>
 
+[StallEventData](./player.stalleventdata.md)
+
+
+</td><td>
+
+Playback stall event data
+
+
+</td></tr>
+<tr><td>
+
+[StartEventData](./player.starteventdata.md)
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[TelemetryPluginSettings](./player.telemetrypluginsettings.md)
+
+
+</td><td>
+
+Plugin settings
+
+
+</td></tr>
+<tr><td>
+
 [TimePosition](./player.timeposition.md)
 
 
 </td><td>
 
 **_(BETA)_** Current playback time and total duration of the media.
+
+
+</td></tr>
+<tr><td>
+
+[WatchEventData](./player.watcheventdata.md)
+
+
+</td><td>
 
 
 </td></tr>
@@ -688,10 +750,23 @@ Description
 </td></tr>
 <tr><td>
 
-[PluginSettings](./player.pluginsettings.md)
+[TelemetryEventData](./player.telemetryeventdata.md)
 
 
 </td><td>
+
+Telemetry event data
+
+
+</td></tr>
+<tr><td>
+
+[TelemetryRecord](./player.telemetryrecord.md)
+
+
+</td><td>
+
+Telemetry record
 
 
 </td></tr>

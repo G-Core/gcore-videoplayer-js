@@ -26,10 +26,10 @@ export * from "./plugins/seek-time/SeekTime.js";
 export * from "./plugins/share/Share.js";
 export * from "./plugins/skip-time/SkipTime.js";
 export * from "./plugins/spinner-three-bounce/SpinnerThreeBounce.js";
-export * from "./plugins/statistics/Statistics.js";
-export * from "./plugins/subtitles/Subtitles.js";
-export * from "./plugins/thumbnails/Thumbnails.js";
 export * from "./plugins/source-controller/SourceController.js";
+export * from "./plugins/subtitles/Subtitles.js";
+export * from "./plugins/telemetry/Telemetry.js";
+export * from "./plugins/thumbnails/Thumbnails.js";
 // _ vast-ads
 // _ video360
 export * from "./plugins/volume-fade/VolumeFade.js";
