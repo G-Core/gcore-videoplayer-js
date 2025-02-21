@@ -41,7 +41,7 @@ Description
 
 </td><td>
 
-**_(BETA)_**
+**_(BETA)_** Displays a big mute button over the video when it's muted. Once pressed, it unmutes the video.
 
 
 </td></tr>
@@ -317,6 +317,8 @@ TODO
 
 
 </td><td>
+
+**_(BETA)_** Displays the thumbnails of the video when available.
 
 
 </td></tr>
@@ -767,6 +769,17 @@ Telemetry event data
 </td><td>
 
 Telemetry record
+
+
+</td></tr>
+<tr><td>
+
+[ThumbnailsOptions](./player.thumbnailsoptions.md)
+
+
+</td><td>
+
+Plugin configuration options for the thumbnails plugin.
 
 
 </td></tr>
