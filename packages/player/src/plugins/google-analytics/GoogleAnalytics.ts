@@ -1,6 +1,6 @@
 // Copyright 2014 Globo.com Player authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
+// license that can be found at https://github.com/clappr/clappr-plugins/blob/master/LICENSE
 
 import { Container, ContainerPlugin, Events } from '@clappr/core';
 
@@ -10,6 +10,10 @@ declare const _gaq: {
   push(args: string[]): void;
 };
 
+/**
+ * An example Google Analytics integration plugin
+ * @beta
+ */
 export class GoogleAnalytics extends ContainerPlugin {
   private account: string = '';
 

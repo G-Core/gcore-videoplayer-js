@@ -20,6 +20,10 @@ type LogoOptions = {
   objectFit?: 'contain' | 'cover' | 'fill' | 'none' | 'scale-down';
 };
 
+/**
+ * The plugin adds custom logo to the player.
+ * @beta
+ */
 export class Logo extends UIContainerPlugin {
   private hasStartedPlaying = false;
 

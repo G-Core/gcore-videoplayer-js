@@ -4,6 +4,11 @@
 
 ## Logo class
 
+> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
+> 
+
+The plugin adds custom logo to the player.
+
 **Signature:**
 
 ```typescript
@@ -39,7 +44,7 @@ Description
 
 </td><td>
 
-Constructs a new instance of the `Logo` class
+**_(BETA)_** Constructs a new instance of the `Logo` class
 
 
 </td></tr>
@@ -85,6 +90,8 @@ Description
 
 </td><td>
 
+**_(BETA)_**
+
 
 </td></tr>
 <tr><td>
@@ -103,6 +110,8 @@ string
 
 
 </td><td>
+
+**_(BETA)_**
 
 
 </td></tr>
@@ -123,6 +132,8 @@ string
 
 </td><td>
 
+**_(BETA)_**
+
 
 </td></tr>
 <tr><td>
@@ -141,6 +152,8 @@ any
 
 
 </td><td>
+
+**_(BETA)_**
 
 
 </td></tr>
@@ -174,6 +187,8 @@ Description
 
 </td><td>
 
+**_(BETA)_**
+
 
 </td></tr>
 <tr><td>
@@ -186,6 +201,8 @@ Description
 
 </td><td>
 
+**_(BETA)_**
+
 
 </td></tr>
 <tr><td>
@@ -197,6 +214,8 @@ Description
 
 
 </td><td>
+
+**_(BETA)_**
 
 
 </td></tr>

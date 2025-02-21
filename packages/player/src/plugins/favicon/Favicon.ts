@@ -12,6 +12,10 @@ const FAVICON_SELECTOR = 'link[rel="shortcut icon"]';
 
 // const oldIcon = $(FAVICON_SELECTOR);
 
+/**
+ * The plugin adds custom favicon to the player's tab.
+ * @beta
+ */
 export class Favicon extends CorePlugin {
   private _container: Container | null = null;
 

@@ -140,6 +140,8 @@ Description
 
 </td><td>
 
+**_(BETA)_** The plugin adds custom favicon to the player's tab.
+
 
 </td></tr>
 <tr><td>
@@ -148,6 +150,8 @@ Description
 
 
 </td><td>
+
+**_(BETA)_** An example Google Analytics integration plugin
 
 
 </td></tr>
@@ -168,6 +172,8 @@ Description
 
 
 </td><td>
+
+**_(BETA)_** The plugin adds custom logo to the player.
 
 
 </td></tr>
