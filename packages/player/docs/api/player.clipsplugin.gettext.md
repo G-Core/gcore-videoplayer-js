@@ -4,6 +4,11 @@
 
 ## ClipsPlugin.getText() method
 
+> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
+> 
+
+Returns the text of the current clip.
+
 **Signature:**
 
 ```typescript
@@ -40,10 +45,14 @@ number
 
 </td><td>
 
+The current time of the player.
+
 
 </td></tr>
 </tbody></table>
 **Returns:**
 
 string
+
+The text of the current clip.
 

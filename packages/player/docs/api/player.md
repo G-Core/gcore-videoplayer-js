@@ -85,6 +85,8 @@ Description
 
 </td><td>
 
+Adds a behavior of toggling the playback state on click over the container
+
 
 </td></tr>
 <tr><td>
@@ -93,6 +95,8 @@ Description
 
 
 </td><td>
+
+**_(BETA)_** Adds a behavior of showing a text over the seekbar to indicate the current clip.
 
 
 </td></tr>
@@ -454,6 +458,17 @@ Description
 
 </th></tr></thead>
 <tbody><tr><td>
+
+[ClipsPluginSettings](./player.clipspluginsettings.md)
+
+
+</td><td>
+
+Configuration options
+
+
+</td></tr>
+<tr><td>
 
 [InitEventData](./player.initeventdata.md)
 

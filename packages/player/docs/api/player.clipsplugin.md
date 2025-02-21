@@ -4,6 +4,11 @@
 
 ## ClipsPlugin class
 
+> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
+> 
+
+Adds a behavior of showing a text over the seekbar to indicate the current clip.
+
 **Signature:**
 
 ```typescript
@@ -11,68 +16,13 @@ export declare class ClipsPlugin extends UICorePlugin
 ```
 **Extends:** UICorePlugin
 
-## Properties
+## Remarks
 
-<table><thead><tr><th>
+Depends on:
 
-Property
+- [MediaControl](./player.mediacontrol.md)
 
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>
-
-[attributes](./player.clipsplugin.attributes.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-{ class: string; }
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[name](./player.clipsplugin.name.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-
-</td></tr>
-</tbody></table>
+Configuration options - [ClipsPluginSettings](./player.clipspluginsettings.md)
 
 ## Methods
 
@@ -94,18 +44,6 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-[bindEvents()](./player.clipsplugin.bindevents.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
 [getText(time)](./player.clipsplugin.gettext.md)
 
 
@@ -114,29 +52,7 @@ Description
 
 </td><td>
 
-
-</td></tr>
-<tr><td>
-
-[makeSvg(duration)](./player.clipsplugin.makesvg.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[unbindEvents()](./player.clipsplugin.unbindevents.md)
-
-
-</td><td>
-
-
-</td><td>
+**_(BETA)_** Returns the text of the current clip.
 
 
 </td></tr>
