@@ -15,12 +15,13 @@ import type {
   CoreOptions,
   CorePluginOptions,
 } from './internal.types.js'
-import type { ContainerSize, PlayerMediaSourceDesc, PlayerPlugin } from './types.js'
+import type {
+  ContainerSize,
+  PlayerMediaSourceDesc,
+  PlayerPluginConstructor,
+} from './types.js'
 import { PlayerConfig, PlayerEvent } from './types.js'
-import {
-  buildMediaSourcesList,
-  wrapSource,
-} from './utils/mediaSources.js'
+import { buildMediaSourcesList, wrapSource } from './utils/mediaSources.js'
 import { registerPlaybacks } from './playback/index.js'
 import { PlaybackError, TimePosition } from './playback.types.js'
 
@@ -28,20 +29,28 @@ import { PlaybackError, TimePosition } from './playback.types.js'
  * @beta
  */
 export type PlayerEventParams<E extends PlayerEvent> =
-  E extends PlayerEvent.Seek ? [number]
-  : E extends PlayerEvent.VolumeUpdate ? [number]
-  : E extends PlayerEvent.TimeUpdate ? [TimePosition]
-  : E extends PlayerEvent.Resize ? [{ width: number, height: number }]
-  : E extends PlayerEvent.Fullscreen ? [boolean]
-  : E extends PlayerEvent.Error ? [PlaybackError]
-  : []
+  E extends PlayerEvent.Seek
+    ? [number]
+    : E extends PlayerEvent.VolumeUpdate
+    ? [number]
+    : E extends PlayerEvent.TimeUpdate
+    ? [TimePosition]
+    : E extends PlayerEvent.Resize
+    ? [{ width: number; height: number }]
+    : E extends PlayerEvent.Fullscreen
+    ? [boolean]
+    : E extends PlayerEvent.Error
+    ? [PlaybackError]
+    : []
 
 /**
  * Type of a listener callback function for a player event.
  * See the description of the event parameters in {@link PlayerEvent}.
  * @beta
  */
-export type PlayerEventHandler<E extends PlayerEvent> = (...args: PlayerEventParams<E>) => void
+export type PlayerEventHandler<E extends PlayerEvent> = (
+  ...args: PlayerEventParams<E>
+) => void
 
 const T = 'GPlayer'
 
@@ -157,7 +166,7 @@ export class Player {
     }
 
     const coreOpts = this.buildCoreOptions(playerElement)
-    const { core, container } = Loader.registeredPlugins
+    const { core, container } = Player.getRegisteredPlugins()
     trace(`${T} init`, {
       registeredPlaybacks: Loader.registeredPlaybacks.map((p) => p.name),
     })
@@ -331,19 +340,52 @@ export class Player {
    * @example
    * ```ts
    * import MyPlugin from './MyPlugin.js'
-   * 
+   *
    * Player.registerPlugin(MyPlugin)
    * ```
    */
-  static registerPlugin(plugin: PlayerPlugin) {
+  static registerPlugin(plugin: PlayerPluginConstructor) {
+    assert.ok(
+      plugin.type === 'core' || plugin.type === 'container',
+      'Invalid plugin type',
+    )
+    if (plugin.type === 'core') {
+      if (plugin.prototype.name === 'media_control') {
+        Player.corePlugins.unshift(plugin)
+      } else {
+        Player.corePlugins.push(plugin)
+      }
+      return
+    }
     Loader.registerPlugin(plugin)
   }
+
+  private static getRegisteredPlugins(): {
+    core: Record<string, PlayerPluginConstructor>
+    container: Record<string, PlayerPluginConstructor>
+  } {
+    for (const plugin of Player.corePlugins) {
+      Loader.registerPlugin(plugin)
+    }
+    return Loader.registeredPlugins
+  }
+
+  private static corePlugins: PlayerPluginConstructor[] = []
 
   /**
    * Unregisters a plugin registered earlier with {@link Player.registerPlugin}.
    * @param plugin - a plugin class
    */
-  static unregisterPlugin(plugin: PlayerPlugin) {
+  static unregisterPlugin(plugin: PlayerPluginConstructor) {
+    // Loader.unregisterPlugin(plugin)
+    assert.ok(
+      plugin.type === 'core' || plugin.type === 'container',
+      'Invalid plugin type',
+    )
+    if (plugin.type === 'core') {
+      Player.corePlugins = Player.corePlugins.filter((p) => p !== plugin)
+      return
+    }
     Loader.unregisterPlugin(plugin)
   }
 
@@ -392,7 +434,10 @@ export class Player {
     }, 0)
   }
 
-  private safeTriggerEvent<E extends PlayerEvent>(event: E, ...args: PlayerEventParams<E>) {
+  private safeTriggerEvent<E extends PlayerEvent>(
+    event: E,
+    ...args: PlayerEventParams<E>
+  ) {
     try {
       this.emitter.emit(event, ...args)
     } catch (e) {
@@ -445,29 +490,34 @@ export class Player {
 
     this.rootNode = rootNode
 
-    const coreOptions: CoreOptions & PluginOptions = $.extend(true, {
-      allowUserInteraction: true,
-      debug: 'none',
-      events: this.events,
-      height: rootNode.clientHeight,
-      playback: {
-        controls: false,
-        playInline: true,
-        preload: Browser.isiOS ? 'metadata' : 'none',
-        mute: this.config.mute,
-        crossOrigin: 'anonymous', // TODO
-        hlsjsConfig: {
-          debug: this.config.debug === 'all' || this.config.debug === 'hls',
+    const coreOptions: CoreOptions & PluginOptions = $.extend(
+      true,
+      {
+        allowUserInteraction: true,
+        debug: 'none',
+        events: this.events,
+        height: rootNode.clientHeight,
+        playback: {
+          controls: false,
+          playInline: true,
+          preload: Browser.isiOS ? 'metadata' : 'none',
+          mute: this.config.mute,
+          crossOrigin: 'anonymous', // TODO
+          hlsjsConfig: {
+            debug: this.config.debug === 'all' || this.config.debug === 'hls',
+          },
         },
+        parent: rootNode,
+        width: rootNode.clientWidth,
       },
-      parent: rootNode,
-      width: rootNode.clientWidth,
-    }, this.config, {
-      autoPlay: false,
-      mimeType: source ? source.mimeType : undefined,
-      source: source ? source.source : undefined,
-      sources,
-    })
+      this.config,
+      {
+        autoPlay: false,
+        mimeType: source ? source.mimeType : undefined,
+        source: source ? source.source : undefined,
+        sources,
+      },
+    )
     return coreOptions
   }
 
@@ -496,14 +546,20 @@ export class Player {
         }
       })
     }
-    activeContainer?.on(ClapprEvents.CONTAINER_VOLUME, (volume: number) => {
-      this.safeTriggerEvent(PlayerEvent.VolumeUpdate, volume)
-    }, null)
+    activeContainer?.on(
+      ClapprEvents.CONTAINER_VOLUME,
+      (volume: number) => {
+        this.safeTriggerEvent(PlayerEvent.VolumeUpdate, volume)
+      },
+      null,
+    )
   }
 
   private bindCoreListeners() {
-    const core = this.player?.core
-    core?.on(
+    // TODO create an class inherited from PlayerClappr
+    assert.ok(this.player, 'Player is not initialized')
+    const core = this.player.core
+    core.on(
       ClapprEvents.CORE_SCREEN_ORIENTATION_CHANGED,
       ({ orientation }: { orientation: 'landscape' | 'portrait' }) => {
         trace(`${T} on CORE_SCREEN_ORIENTATION_CHANGED`, {
@@ -522,7 +578,7 @@ export class Player {
       },
       null,
     )
-    core?.on(
+    core.on(
       ClapprEvents.CORE_RESIZE,
       ({ width, height }: { width: number; height: number }) => {
         trace(`${T} on CORE_RESIZE`, {
@@ -533,7 +589,7 @@ export class Player {
       },
       null,
     )
-    core?.on(
+    core.on(
       ClapprEvents.CORE_FULLSCREEN,
       (isFullscreen: boolean) => {
         trace(`${T} CORE_FULLSCREEN`, {

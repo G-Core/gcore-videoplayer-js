@@ -57,11 +57,21 @@ export type TransportPreference = MediaTransport
 
 /**
  * @beta
- * @see {@link https://clappr.github.io/classes/UIContainerPlugin.html}, {@link https://clappr.github.io/classes/ContainerPlugin.html}
+ * @see {@link https://clappr.github.io/classes/UIContainerPlugin.html},
+ * {@link https://clappr.github.io/classes/ContainerPlugin.html}
  */
 export type PlayerPlugin = {
   new (...args: any[]): unknown
   name: string
+}
+
+export type PlayerPluginConstructor = CorePluginConstructor | ContainerPluginConstructor
+export type CorePluginConstructor = ((core: unknown) => PlayerPlugin) & {
+  type: 'core'
+}
+
+export type ContainerPluginConstructor = ((container: unknown) => PlayerPlugin) & {
+  type: 'container'
 }
 
 /**

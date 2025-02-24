@@ -19,7 +19,7 @@ const { formatTime } = Utils;
  */
 export class SeekTime extends UICorePlugin {
   get name() {
-    return 'media_control_seek_time';
+    return 'seek_time';
   }
 
   get supportedVersion() {

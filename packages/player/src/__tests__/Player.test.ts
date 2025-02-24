@@ -12,7 +12,7 @@ import { Loader, Player as PlayerClappr } from '@clappr/core'
 import EventLite from 'event-lite'
 
 import { Player } from '../Player'
-import { TransportPreference } from '../types'
+import { CorePluginConstructor, TransportPreference } from '../types'
 import { canPlayDash, canPlayHls } from '../playback'
 import { isDashSource, isHlsSource } from '../utils/mediaSources'
 
@@ -165,6 +165,28 @@ describe('Player', () => {
           }),
         )
       })
+    })
+  })
+  describe('registerPlugin', () => {
+    it('should register plugins with respect to dependencies order', () => {
+      class MockMediaControl {
+        get name() {
+          return 'media_control'
+        }
+      }
+      (MockMediaControl as any).type = 'core';
+      class MockMediaControlButtonPlugin {
+        get name() {
+          return 'media_control_button'
+        }
+      }
+      (MockMediaControlButtonPlugin as any).type = 'core'
+      Player.registerPlugin(MockMediaControlButtonPlugin as unknown as CorePluginConstructor)
+      Player.registerPlugin(MockMediaControl as unknown as CorePluginConstructor)
+      const player = new Player({ sources: [] })
+      player.attachTo(document.createElement('div'))
+      expect(Loader.registerPlugin).toHaveBeenNthCalledWith(1, MockMediaControl)
+      expect(Loader.registerPlugin).toHaveBeenNthCalledWith(2, MockMediaControlButtonPlugin)
     })
   })
 })

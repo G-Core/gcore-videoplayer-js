@@ -18,7 +18,7 @@ export class Share extends UICorePlugin {
   private container: Container | null = null;
 
   get name() {
-    return 'media_control_share';
+    return 'share';
   }
 
   get supportedVersion() {
