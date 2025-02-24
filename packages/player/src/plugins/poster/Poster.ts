@@ -78,7 +78,7 @@ export class Poster extends UIContainerPlugin {
   private static readonly template = template(posterHTML)
 
   private get shouldRender() {
-    if (!this.enabled) {
+    if (!this.enabled || this.options.reloading) {
       return false
     }
     const showForNoOp = !!this.options.poster?.showForNoOp

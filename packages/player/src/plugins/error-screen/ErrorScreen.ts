@@ -1,246 +1,171 @@
-import { UICorePlugin, Events, template, PlayerError } from '@clappr/core';
-import { trace } from '@gcorevideo/utils';
+import { UICorePlugin, Events, template } from '@clappr/core'
+import { trace } from '@gcorevideo/utils'
 
-import { CLAPPR_VERSION } from '../../build.js';
-import type { TimerId, ZeptoResult } from '../../utils/types.js';
+import { CLAPPR_VERSION } from '../../build.js'
 
-import reloadIcon from '../../../assets/icons/old/reload.svg';
-import templateHtml from '../../../assets/error-screen/error_screen.ejs';
-import '../../../assets/error-screen/error_screen.scss';
+import reloadIcon from '../../../assets/icons/old/reload.svg'
+import templateHtml from '../../../assets/error-screen/error_screen.ejs'
+import '../../../assets/error-screen/error_screen.scss'
+import { PlaybackErrorCode } from '../../playback.types.js'
 
-const TIME_FOR_UPDATE = 10000;
-const MAX_RETRY = 10;
-
-type ErrorObject = {
-  description: string;
-  details?: string;
-  level: string;
-  code: string;
-  origin: string;
+export type ErrorDesc = {
+  description: string
+  level: string
+  code: string
+  origin: string
+  scope: string
+  raw?: string
+  UI?: {
+    icon?: string
+    title: string
+    message: string
+  }
 }
 
-type PresentationalError = {
-  title: string;
-  message: string;
-  code: string;
-  icon: string;
-  reloadIcon: string;
+type ErrorScreenDesc = {
+  title: string
+  message: string
+  code: string
+  icon?: string
+}
+
+export type ErrorScreenPluginSettings = {
+  noReload?: boolean
 }
 
 const T = 'plugins.error_screen'
 
 /**
- * Displays a descriptive error in the overlay on top of the player.
+ * Displays an error nicely in the overlay on top of the player.
  * @beta
  */
 export class ErrorScreen extends UICorePlugin {
-  private _retry = 0;
+  private err: ErrorScreenDesc | null = null
 
-  private err: PresentationalError | null = null;
-
-  private hideValue = false;
-
-  private timeout: TimerId | null = null;
-
-  private reloadButton: ZeptoResult | null = null;
-
+  /**
+   * @internal
+   */
   get name() {
-    return 'error_gplayer';
+    return 'error_screen'
   }
 
+  /**
+   * @internal
+   */
   get supportedVersion() {
-    return { min: CLAPPR_VERSION };
+    return { min: CLAPPR_VERSION }
   }
 
-  get template() {
-    return template(templateHtml);
-  }
+  private static readonly template = template(templateHtml)
 
-  get container() {
-    return this.core.activeContainer;
-  }
-
+  /**
+   * @internal
+   */
   override get attributes() {
     return {
-      'class': 'player-error-screen',
+      class: 'player-error-screen',
       'data-error-screen': '',
-    };
-  }
-
-  override bindEvents() {
-    this.listenTo(this.core, Events.ERROR, this.onError);
-    this.listenTo(this.core, Events.CORE_READY, this.onCoreReady);
-    this.listenTo(this.core, 'core:advertisement:start', this.onStartAd);
-    this.listenTo(this.core, 'core:advertisement:finish', this.onFinishAd);
-    this.listenTo(this.core.mediaControl, Events.MEDIACONTROL_CONTAINERCHANGED, this.onContainerChanged);
-  }
-
-  private onCoreReady() {
-    trace(`${T} onCoreReady`)
-    if (this.core.activePlayback) {
-      this.listenTo(this.core.activePlayback, Events.PLAYBACK_PLAY, this.onPlay);
     }
+  }
+
+  /**
+   * @internal
+   */
+  override bindEvents() {
+    this.listenTo(this.core, Events.ERROR, this.onError)
+    this.listenTo(
+      this.core,
+      Events.CORE_ACTIVE_CONTAINER_CHANGED,
+      this.onActiveContainerChanged,
+    )
   }
 
   private onPlay() {
     trace(`${T} onPlay`)
-    this.destroyError();
+    this.unmount()
   }
 
-  private destroyError() {
-    trace(`${T} destroyError`)
-    this._retry = 0;
-    this.err = null;
-    if (this.timeout !== null) {
-      clearTimeout(this.timeout);
-      this.timeout = null;
+  private unmount() {
+    trace(`${T} unmount`)
+    this.err = null
+    this.$el.remove()
+  }
+
+  /**
+   * @internal
+   */
+  override get events() {
+    return {
+      'click .player-error-screen__reload': 'reload',
     }
-    this.$el.hide();
-  }
-
-  unBindEvents() {
-    // @ts-ignore
-    this.stopListening(this.core, 'core:advertisement:start');
-    // @ts-ignore
-    this.stopListening(this.core, 'core:advertisement:finish');
-    // @ts-ignore
-    this.stopListening(this.core, Events.ERROR);
-  }
-
-  private bindReload() {
-    this.reloadButton = this.$el.find('.player-error-screen__reload');
-    this.reloadButton && this.reloadButton.on('click', this.reload.bind(this));
   }
 
   private reload() {
-    this._retry++;
-    this.core.configure({
-      ...this.options, 
-        autoPlay: true
-    });
-    this.core.activeContainer.mediaControlDisabled = false;
-    this.unbindReload();
+    setTimeout(() => {
+      this.core.configure({
+        reloading: true,
+        source: this.core.options.source,
+        sources: this.core.options.sources,
+      })
+    }, 0)
   }
 
-  private unbindReload() {
-    this.reloadButton && this.reloadButton.off('click');
-  }
-
-  private onContainerChanged() {
-    this.err = null;
-    if (this.core.getPlugin('error_screen')) {
-      this.core.getPlugin('error_screen').disable();
-    }
-    this.unbindReload();
-    this.hide();
-  }
-
-  private onStartAd() {
-    this.hideValue = true;
-    if (this.err) {
-      this.hide();
-    }
-  }
-
-  private onFinishAd() {
-    this.hideValue = false;
-    if (this.err) {
-      this.container.disableMediaControl();
-      this.container.stop();
-      this.show();
+  private onActiveContainerChanged() {
+    trace(`${T} onActiveContainerChanged`, {
+      reloading: this.core.options.reloading,
+    })
+    this.err = null
+    this.listenTo(
+      this.core.activeContainer.playback,
+      Events.PLAYBACK_PLAY,
+      this.onPlay,
+    )
+    if (this.core.options.reloading) {
+      setTimeout(() => {
+        this.core.options.reloading = false
+        this.unmount()
+        this.core.activeContainer.play({
+          reloading: true,
+        })
+      }, 0)
     }
   }
 
-  private onError(err: ErrorObject) {
+  private onError(err: ErrorDesc) {
     trace(`${T} onError`, { err })
-    if (
-      err.level === PlayerError.Levels.FATAL ||
-      err.details === 'bufferStalledError' ||
-      err.details === 'manifestParsingError'
-    ) {
+    if (err.UI) {
+      if (this.err) {
+        this.unmount()
+      }
       this.err = {
-        title: this.core.i18n.t('no_broadcast'),
-        message: '',
-        code: '',
-        // icon: (this.err.UI && this.err.UI.icon) || '',
-        icon: '',
-        reloadIcon,
-      };
-
-      if (this.options.errorScreen?.reloadOnError === false) {
-        return;
+        title: err.UI.title,
+        message: err.UI.message,
+        code: err.code,
+        icon: err.UI.icon,
       }
-
-      if (this.options.errorScreen?.neverStopToRetry) {
-        this._retry = 0;
-      }
-
-      if (this._retry >= MAX_RETRY) {
-        this.drying();
-
-        return;
-      }
-
-      const ctp = this.container.getPlugin('click_to_pause_custom');
-
-      const toggleCTP = !!ctp?.enabled;
-      if (toggleCTP) {
-        // clickToPausePlugin.afterEnabled = true;
-        ctp.disable();
-      }
-
-      this.timeout = setTimeout(() => {
-        if (toggleCTP) {
-          ctp.enable();
-        }
-        this.reload();
-      }, TIME_FOR_UPDATE);
-
-      const spinnerPlugin = this.container.getPlugin('spinner');
-      if (spinnerPlugin) {
-        spinnerPlugin.show(); // TODO remove?
-        setTimeout(() => spinnerPlugin.show(), 0);
-      }
+      this.render()
     }
   }
 
-  private drying() {
-    const spinnerPlugin = this.container.getPlugin('spinner');
-
-    spinnerPlugin?.hide();
-
-    this._retry = 0;
-    if (!this.hideValue) {
-      this.container.disableMediaControl();
-      this.container.stop();
-      this.show();
-    }
-  }
-
-  show(err?: PresentationalError) {
-    if (err) {
-      this.err = err;
-    }
-    // TODO use container.disableMediaControl() instead
-    this.core.mediaControl.disable();
-    this.render();
-    this.$el.show();
-  }
-
-  hide() {
-    this.$el.hide();
-  }
-
+  /**
+   * @internal
+   */
   override render() {
     if (!this.err) {
-      return this;
+      return this
     }
-    this.$el.html(this.template(this.err));
+    this.$el.html(
+      ErrorScreen.template({
+        ...this.err,
+        reloadIcon: this.options.errorScreen?.noReload ? null : reloadIcon,
+      }),
+    )
 
-    this.core.$el.append(this.el);
+    // TODO append to container instead of core?
+    if (!this.el.parentElement) {
+      this.core.$el.append(this.el)
+    }
 
-    this.bindReload();
-
-    return this;
+    return this
   }
 }

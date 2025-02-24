@@ -1,11 +1,16 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 
-import EventLite from 'event-lite'
 import FakeTimers from '@sinonjs/fake-timers'
 
 import { SourceController } from '../SourceController'
 import { PlaybackErrorCode } from '../../../playback.types.js'
-import { _MockPlayback } from '../../../testUtils.js'
+import {
+  _MockPlayback,
+  createMockCore,
+  createMockPlayback,
+  createMockPlugin,
+  createSpinnerPlugin,
+} from '../../../testUtils.js'
 
 const MOCK_SOURCES = [
   {
@@ -60,7 +65,9 @@ describe('SourceController', () => {
       it('should keep a single source for the core', () => {
         core = createMockCore(inputSourcesConfig)
         const _ = new SourceController(core)
-        expect(core.options).toEqual(expect.objectContaining(correctedSourcesConfig))
+        expect(core.options).toEqual(
+          expect.objectContaining(correctedSourcesConfig),
+        )
       })
     })
   })
@@ -76,8 +83,10 @@ describe('SourceController', () => {
         const _ = new SourceController(core)
         core.emit('core:ready')
         core.emit('core:active:container:changed')
-        core.activePlayback.emit('playback:error', { code: PlaybackErrorCode.MediaSourceUnavailable })
-        nextPlayback =  new _MockPlayback({} as any, {} as any)
+        core.activePlayback.emit('playback:error', {
+          code: PlaybackErrorCode.MediaSourceUnavailable,
+        })
+        nextPlayback = createMockPlayback()
         vi.spyOn(nextPlayback, 'consent')
         vi.spyOn(nextPlayback, 'play')
         core.activePlayback = nextPlayback
@@ -85,7 +94,10 @@ describe('SourceController', () => {
       it('should load the next source after a delay', async () => {
         expect(core.load).not.toHaveBeenCalled()
         await clock.tickAsync(1000)
-        expect(core.load).toHaveBeenCalledWith(MOCK_SOURCES[1].source, MOCK_SOURCES[1].mimeType)
+        expect(core.load).toHaveBeenCalledWith(
+          MOCK_SOURCES[1].source,
+          MOCK_SOURCES[1].mimeType,
+        )
       })
       it('should try to play after loading the source in a random delay', async () => {
         await clock.tickAsync(1000)
@@ -101,6 +113,7 @@ describe('SourceController', () => {
         let poster: any
         let spinner: any
         beforeEach(async () => {
+          await clock.tickAsync(0)
           poster = createMockPlugin()
           spinner = createSpinnerPlugin()
           core.activeContainer.getPlugin.mockImplementation((name: string) => {
@@ -111,7 +124,6 @@ describe('SourceController', () => {
               return spinner
             }
           })
-          core.emit('core:ready')
           core.emit('core:active:container:changed')
         })
         it('should disable the poster', async () => {
@@ -137,8 +149,10 @@ describe('SourceController', () => {
         const _ = new SourceController(core)
         core.emit('core:ready')
         core.emit('core:active:container:changed')
-        core.activePlayback.emit('playback:error', { code: PlaybackErrorCode.MediaSourceUnavailable })
-        nextPlayback =  new _MockPlayback({} as any, {} as any)
+        core.activePlayback.emit('playback:error', {
+          code: PlaybackErrorCode.MediaSourceUnavailable,
+        })
+        nextPlayback = new _MockPlayback({} as any, {} as any)
         vi.spyOn(nextPlayback, 'consent')
         vi.spyOn(nextPlayback, 'play')
         core.activePlayback = nextPlayback
@@ -161,9 +175,11 @@ describe('SourceController', () => {
         const _ = new SourceController(core)
         core.emit('core:ready')
         core.emit('core:active:container:changed')
-        core.activePlayback.emit('playback:error', { code: PlaybackErrorCode.MediaSourceUnavailable })
+        core.activePlayback.emit('playback:error', {
+          code: PlaybackErrorCode.MediaSourceUnavailable,
+        })
         await clock.tickAsync(1000)
-        nextPlayback =  new _MockPlayback({} as any, {} as any)
+        nextPlayback = createMockPlayback()
         core.activePlayback = nextPlayback
         poster = createMockPlugin()
         spinner = createSpinnerPlugin()
@@ -186,14 +202,8 @@ describe('SourceController', () => {
         expect(spinner.hide).toHaveBeenCalled()
       })
       describe.each([
-        [
-          'buffering',
-          'playback:buffering',
-        ],
-        [
-          'pause',
-          'playback:pause',
-        ],
+        ['buffering', 'playback:buffering'],
+        ['pause', 'playback:pause'],
       ])('on a following playback:play event due to %s', (_, event) => {
         it('should do nothing', async () => {
           nextPlayback.emit(event)
@@ -207,30 +217,3 @@ describe('SourceController', () => {
     })
   })
 })
-
-function createMockCore(options: Record<string, unknown> = {}) {
-  return Object.assign(new EventLite(), {
-    activePlayback: new _MockPlayback({} as any, {} as any),
-    activeContainer: Object.assign(new EventLite(), {
-      getPlugin: vi.fn(),
-    }),
-    options: {
-      ...options,
-    },
-    load: vi.fn(),
-  })
-}
-
-function createMockPlugin() {
-  return Object.assign(new EventLite(), {
-    enable: vi.fn(),
-    disable: vi.fn(),
-  })
-}
-
-function createSpinnerPlugin() {
-  return Object.assign(createMockPlugin(), {
-    show: vi.fn(),
-    hide: vi.fn(),
-  })
-}

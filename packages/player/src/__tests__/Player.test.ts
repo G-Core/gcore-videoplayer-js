@@ -1,3 +1,4 @@
+import Events from 'eventemitter3'
 import {
   afterEach,
   beforeEach,
@@ -9,8 +10,6 @@ import {
 } from 'vitest'
 import { LogTracer, setTracer } from '@gcorevideo/utils'
 import { Loader, Player as PlayerClappr } from '@clappr/core'
-import EventLite from 'event-lite'
-
 import { Player } from '../Player'
 import { CorePluginConstructor, TransportPreference } from '../types'
 import { canPlayDash, canPlayHls } from '../playback'
@@ -18,7 +17,7 @@ import { isDashSource, isHlsSource } from '../utils/mediaSources'
 
 function createMockClapprPlayer(): MockedObject<typeof PlayerClappr> {
   return {
-    core: Object.assign(new EventLite(), {
+    core: Object.assign(new Events(), {
       activeContainer: null,
       activePlayback: null,
       load: vi.fn(),

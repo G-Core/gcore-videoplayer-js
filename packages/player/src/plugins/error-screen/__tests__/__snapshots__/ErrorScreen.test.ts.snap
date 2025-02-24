@@ -1,0 +1,20 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`ErrorScreen > on error > targeted at UI > should render 1`] = `
+"<div class="player-error-screen__content" data-error-screen="">
+    
+        <div class="player-error-screen__icon" data-error-screen=""><svg>...</svg></div>
+    
+    <div class="player-error-screen__title" data-error-screen="">My error</div>
+    
+        <div class="player-error-screen__message" data-error-screen="">Lorem ipsum dolor sit amet</div>
+    
+    
+        <div class="player-error-screen__code" data-error-screen="">Error code: foo</div>
+    
+    
+        <div class="player-error-screen__reload" data-error-screen="">/assets/icons/old/reload.svg</div>
+    
+</div>
+"
+`;

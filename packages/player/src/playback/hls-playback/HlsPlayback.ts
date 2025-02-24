@@ -1,10 +1,9 @@
 // Copyright 2014 Globo.com Player authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
+// license that can be found on https://github.com/clappr/hlsjs-playback/blob/main/LICENSE
 
 import {
   Events,
-  HTML5Video,
   Log,
   Playback,
   PlayerError,
@@ -37,10 +36,11 @@ import {
 import { PlaybackType } from '../../types.js'
 import { isHlsSource } from '../../utils/mediaSources.js'
 import { TimerId } from '../../utils/types.js'
+import { BasePlayback } from '../BasePlayback.js'
 
 import { CLAPPR_VERSION } from '../../build.js'
 
-const { now, listContainsIgnoreCase } = Utils
+const { now } = Utils
 
 const AUTO = -1
 const DEFAULT_RECOVER_ATTEMPTS = 16
@@ -78,7 +78,7 @@ type CustomListener = {
 type ErrorInfo = Record<string, unknown>
 
 // @ts-expect-error
-export default class HlsPlayback extends HTML5Video {
+export default class HlsPlayback extends BasePlayback {
   private _ccIsSetup = false
 
   private _ccTracksUpdated = false
@@ -763,7 +763,7 @@ export default class HlsPlayback extends HTML5Video {
     this.trigger(Events.PLAYBACK_TIMEUPDATE, update, this.name)
   }
 
-  _onDurationChange() {
+  override _onDurationChange() {
     const duration = this.getDuration()
 
     if (this._lastDuration === duration) {
@@ -773,7 +773,7 @@ export default class HlsPlayback extends HTML5Video {
     super._onDurationChange() // will call _onTimeUpdate
   }
 
-  _onProgress() {
+  override _onProgress() {
     if (!(this.el as HTMLMediaElement).buffered.length) {
       return
     }
@@ -1104,7 +1104,9 @@ export default class HlsPlayback extends HTML5Video {
   }
 
   private triggerError(error: PlaybackError) {
-    this.trigger(Events.PLAYBACK_ERROR, error)
+    this.trigger(Events.PLAYBACK_ERROR, this.createError(error, {
+      useCodePrefix: false,
+    }))
     this.stop()
   }
 }

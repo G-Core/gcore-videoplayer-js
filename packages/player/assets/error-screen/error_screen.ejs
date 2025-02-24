@@ -9,5 +9,7 @@
     <% if (code) { %>
         <div class="player-error-screen__code" data-error-screen>Error code: <%= code %></div>
     <% } %>
-    <div class="player-error-screen__reload" data-error-screen><%= reloadIcon %></div>
+    <% if (reloadIcon) { %>
+        <div class="player-error-screen__reload" data-error-screen><%= reloadIcon %></div>
+    <% } %>
 </div>

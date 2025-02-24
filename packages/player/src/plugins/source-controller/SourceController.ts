@@ -3,13 +3,8 @@ import {
   CorePlugin,
   type Core as ClapprCore,
 } from '@clappr/core'
-import {
-  type PlaybackError,
-  PlaybackErrorCode,
-} from '../../playback.types.js'
-import {
-  type PlayerMediaSourceDesc,
-} from '../../types.js'
+import { type PlaybackError, PlaybackErrorCode } from '../../playback.types.js'
+import { type PlayerMediaSourceDesc } from '../../types.js'
 import { trace } from '@gcorevideo/utils'
 import { SpinnerEvents } from '../spinner-three-bounce/SpinnerThreeBounce.js'
 
@@ -44,7 +39,7 @@ function noSync(cb: () => void) {
  * @example
  * ```ts
  * import { SourceController } from '@gcorevideo/player'
- * 
+ *
  * Player.registerPlugin(SourceController)
  * ```
  */
@@ -53,7 +48,7 @@ export class SourceController extends CorePlugin {
    * The Logic itself is quite simple:
    * * Here is the short diagram:
    *
-   * sources_list:  
+   * sources_list:
    *       - a.mpd  |    +--------------------+
    *       - b.m3u8 |--->|         init       |
    *       - ...    |    |--------------------|
@@ -128,11 +123,21 @@ export class SourceController extends CorePlugin {
   override bindEvents() {
     super.bindEvents()
 
-    this.listenTo(this.core, ClapprEvents.CORE_ACTIVE_CONTAINER_CHANGED, () => this.onReady())
+    this.listenTo(this.core, ClapprEvents.CORE_READY, this.onCoreReady)
+    this.listenTo(
+      this.core,
+      ClapprEvents.CORE_ACTIVE_CONTAINER_CHANGED,
+      this.onActiveContainerChanged,
+    )
   }
 
-  private onReady() {
-    trace(`${T} onReady`, {
+  private onCoreReady() {
+    trace(`${T} onCoreReady`)
+    this.core.getPlugin('error_screen')?.disable() //  TODO test
+  }
+
+  private onActiveContainerChanged() {
+    trace(`${T} onActiveContainerChanged`, {
       retrying: this.active,
       currentSource: this.sourcesList[this.currentSourceIndex],
     })
@@ -147,7 +152,7 @@ export class SourceController extends CorePlugin {
     this.bindContainerEventListeners()
     if (this.active) {
       this.core.activeContainer?.getPlugin('poster_custom')?.disable()
-      spinner?.show()
+      spinner?.show(0)
     }
   }
 
@@ -167,7 +172,7 @@ export class SourceController extends CorePlugin {
         switch (error.code) {
           case PlaybackErrorCode.MediaSourceUnavailable:
             this.core.activeContainer?.getPlugin('poster_custom')?.disable()
-            this.retryPlayback()
+            setTimeout(() => this.retryPlayback(), 0)
             break
           // TODO handle other errors
           default:
@@ -200,6 +205,7 @@ export class SourceController extends CorePlugin {
       currentSource: this.sourcesList[this.currentSourceIndex],
     })
     this.active = true
+    this.core.activeContainer?.getPlugin('spinner')?.show(0)
     this.getNextMediaSource().then((nextSource: PlayerMediaSourceDesc) => {
       trace(`${T} retryPlayback syncing...`, {
         nextSource,

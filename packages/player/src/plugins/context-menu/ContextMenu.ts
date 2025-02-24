@@ -98,7 +98,7 @@ export class ContextMenu extends UIContainerPlugin {
       this._url = this.options.contextMenu.url
     }
     this.render()
-    this.bindEvents()
+    $('body').on('click', this.hideOnBodyClick)
   }
 
   /**
@@ -111,7 +111,6 @@ export class ContextMenu extends UIContainerPlugin {
       this.toggleContextMenu,
     )
     this.listenTo(this.container, Events.CONTAINER_CLICK, this.hide)
-    $('body').on('click', this.hideOnBodyClick)
   }
 
   /**

@@ -2,15 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-import {
-  Events,
-  HTML5Video,
-  Log,
-  Playback,
-  PlayerError,
-  Utils,
-  $,
-} from '@clappr/core'
+import { Events, Log, Playback, PlayerError, Utils, $ } from '@clappr/core'
 import { trace } from '@gcorevideo/utils'
 import assert from 'assert'
 import DASHJS, {
@@ -32,6 +24,7 @@ import {
   TimeValue,
 } from '../../playback.types.js'
 import { isDashSource } from '../../utils/mediaSources.js'
+import { BasePlayback } from '../BasePlayback.js'
 
 const AUTO = -1
 
@@ -53,7 +46,7 @@ type LocalTimeCorrelation = {
 const T = 'playback.dash'
 
 // @ts-expect-error
-export default class DashPlayback extends HTML5Video {
+export default class DashPlayback extends BasePlayback {
   _levels: QualityLevel[] | null = null
 
   _currentLevel: number | null = null
@@ -470,11 +463,14 @@ export default class DashPlayback extends HTML5Video {
     error: Pick<PlaybackError, 'code' | 'message' | 'description' | 'level'>,
   ) {
     trace(`${T} triggerError`, { error })
-    this.trigger(Events.PLAYBACK_ERROR, {
-      ...error,
-      origin: this.name,
-      scope: DashPlayback.type as PlayerComponentType,
-    })
+
+    // this triggers Events.ERROR to be handled by the UI
+    this.trigger(
+      Events.PLAYBACK_ERROR,
+      this.createError(error, {
+        useCodePrefix: false,
+      }),
+    )
     // only reset the dash player in 10ms async, so that the rest of the
     // calling function finishes
     setTimeout(() => {
@@ -525,7 +521,7 @@ export default class DashPlayback extends HTML5Video {
     )
   }
 
-  _onProgress() {
+  override _onProgress() {
     if (!this._dash) {
       return
     }
@@ -558,7 +554,6 @@ export default class DashPlayback extends HTML5Video {
     if (!this._dash) {
       return
     }
-
     super.pause()
     if (this.dvrEnabled) {
       this._updateDvr(true)

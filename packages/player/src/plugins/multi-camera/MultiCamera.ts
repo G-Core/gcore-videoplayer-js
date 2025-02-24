@@ -320,13 +320,12 @@ export class MultiCamera extends UICorePlugin {
     } catch (error) {
       reportError(error);
     }
-    // TODO figure out
-    this.core.getPlugin('error_gplayer')?.show({
+    // TODO trigger error instead
+    this.core.getPlugin('error_screen')?.show({
       title: this.core.i18n.t('source_offline'),
       message: '',
       code: '',
       icon: '',
-      reloadIcon: '',
     });
   }
 

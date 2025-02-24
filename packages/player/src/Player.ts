@@ -8,7 +8,7 @@ import {
 } from '@clappr/core'
 import { reportError, trace } from '@gcorevideo/utils'
 import assert from 'assert'
-import EventLite from 'event-lite'
+import EventEmitter from 'eventemitter3'
 
 import type {
   CorePlayerEvents,
@@ -84,7 +84,7 @@ type PluginOptions = Record<string, unknown>
 export class Player {
   private config: PlayerConfig = DEFAULT_OPTIONS
 
-  private emitter = new EventLite()
+  private emitter = new EventEmitter()
 
   private player: PlayerClappr | null = null
 
@@ -377,7 +377,6 @@ export class Player {
    * @param plugin - a plugin class
    */
   static unregisterPlugin(plugin: PlayerPluginConstructor) {
-    // Loader.unregisterPlugin(plugin)
     assert.ok(
       plugin.type === 'core' || plugin.type === 'container',
       'Invalid plugin type',

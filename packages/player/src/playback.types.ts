@@ -64,15 +64,15 @@ export enum PlaybackErrorCode {
   /**
    * An unknown or uncategorised error.
    */
-  Generic = 0,
+  Generic = 'GENERIC_ERROR',
   /**
    * The media source is not available. Typically a network error.
    */
-  MediaSourceUnavailable = 1,
+  MediaSourceUnavailable = 'MEDIA_SOURCE_UNAVAILABLE',
   /**
    * The media source is not accessible due to some protection policy.
    */
-  MediaSourceAccessDenied = 3,
+  MediaSourceAccessDenied = 'MEDIA_SOURCE_ACCESS_DENIED',
 }
 
 /**
@@ -120,4 +120,12 @@ export interface PlaybackError {
    * Component subsystem of the error origin
    */
   scope: PlayerComponentType
+
+  /**
+   * UI description of the error.
+   */
+  UI?: {
+    title: string
+    message: string
+  }
 }

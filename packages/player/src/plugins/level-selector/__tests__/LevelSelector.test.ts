@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { UICorePlugin } from '@clappr/core'
 import FakeTimers from '@sinonjs/fake-timers'
-import EventLite from 'event-lite'
 import { Logger, LogTracer, setTracer } from '@gcorevideo/utils'
 import { LevelSelector } from '../LevelSelector.js'
+import { createMockCore, createMockPlayback } from '../../../testUtils.js'
 
 setTracer(new LogTracer('LevelSelector.test'))
 Logger.enable('*')
@@ -41,28 +41,25 @@ describe('LevelSelector', () => {
   })
   describe('basically', () => {
     beforeEach(() => {
-      const activeContainer = createContainer()
-      activePlayback = createPlayback()
+      // const activeContainer = createMockContainer()
       let mediaControl: UICorePlugin | null = null
       let bottomGear: UICorePlugin | null = null
-      core = Object.assign(new EventLite(), {
-        activeContainer,
-        activePlayback,
-        options: {
-          levelSelector: {
-            // restrictResolution: 360,
-            labels: { 360: '360p', 720: 'HD' },
-          },
+      // TODO create mock core
+      core = createMockCore({
+        levelSelector: {
+          // restrictResolution: 360,
+          labels: { 360: '360p', 720: 'HD' },
         },
-        getPlugin: vi.fn().mockImplementation((name: string) => {
-          if (name === 'media_control') {
-            return mediaControl
-          }
-          if (name === 'bottom_gear') {
-            return bottomGear
-          }
-          return null
-        }),
+      })
+      activePlayback = core.activePlayback
+      core.getPlugin.mockImplementation((name: string) => {
+        if (name === 'media_control') {
+          return mediaControl
+        }
+        if (name === 'bottom_gear') {
+          return bottomGear
+        }
+        return null
       })
       mediaControl = createMediaControl(core)
       bottomGear = createBottomGear(core)
@@ -75,7 +72,7 @@ describe('LevelSelector', () => {
         activePlayback.emit('playback:levels:available', LEVELS)
         await clock.tickAsync(1)
       })
-      it('should render the proper level label', () => {
+      it('should render proper level label', () => {
         // @ts-ignore
         expect(levelSelector.el.textContent).toMatchQualityLevelLabel('Auto')
       })
@@ -111,28 +108,23 @@ describe('LevelSelector', () => {
   })
   describe('options.restrictResolution', () => {
     beforeEach(() => {
-      const activeContainer = createContainer()
-      activePlayback = createPlayback()
       let mediaControl: UICorePlugin | null = null
       let bottomGear: UICorePlugin | null = null
-      core = Object.assign(new EventLite(), {
-        activeContainer,
-        activePlayback,
-        options: {
-          levelSelector: {
-            restrictResolution: 360,
-            labels: { 360: '360p', 720: '720p' },
-          },
+      core = createMockCore({
+        levelSelector: {
+          restrictResolution: 360,
+          labels: { 360: '360p', 720: '720p' },
         },
-        getPlugin: vi.fn().mockImplementation((name: string) => {
-          if (name === 'media_control') {
-            return mediaControl
-          }
-          if (name === 'bottom_gear') {
-            return bottomGear
-          }
-          return null
-        }),
+      })
+      activePlayback = core.activePlayback
+      core.getPlugin.mockImplementation((name: string) => {
+        if (name === 'media_control') {
+          return mediaControl
+        }
+        if (name === 'bottom_gear') {
+          return bottomGear
+        }
+        return null
       })
       mediaControl = createMediaControl(core)
       bottomGear = createBottomGear(core)
@@ -195,23 +187,6 @@ describe('LevelSelector', () => {
     })
   })
 })
-
-function createContainer() {
-  const container = Object.assign(new EventLite(), {
-    $el: {
-      html: vi.fn(),
-    },
-  })
-  return container
-}
-
-function createPlayback() {
-  const playback = Object.assign(new EventLite(), {
-    currentLevel: -1,
-    levels: [],
-  })
-  return playback
-}
 
 expect.extend({
   toMatchQualityLevelLabel(received, expected) {

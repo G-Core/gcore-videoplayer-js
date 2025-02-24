@@ -55,6 +55,8 @@ export class SpinnerThreeBounce extends UIContainerPlugin {
     };
   }
 
+  private hideTimeout: TimerId | null = null;
+
   private showTimeout: TimerId | null = null;
 
   private template = template(spinnerHTML);
@@ -119,8 +121,18 @@ export class SpinnerThreeBounce extends UIContainerPlugin {
   /**
    * Shows the spinner
    */
-  show() {
-    this.showTimeout = setTimeout(() => this.$el.show(), 300);
+  show(delay = 300) {
+    trace(`${T} show`)
+    if (this.showTimeout === null) {
+      if (this.hideTimeout !== null) {
+        clearTimeout(this.hideTimeout);
+        this.hideTimeout = null;
+      }
+      this.showTimeout = setTimeout(() => {
+        this.showTimeout = null
+        this.$el.show()
+      }, delay);
+    }
   }
 
   /**
@@ -131,7 +143,12 @@ export class SpinnerThreeBounce extends UIContainerPlugin {
       clearTimeout(this.showTimeout);
       this.showTimeout = null;
     }
-    this.$el.hide();
+    this.hideTimeout = setTimeout(() => {
+      this.hideTimeout = null
+      if (this.showTimeout === null) {
+        this.$el.hide();
+      }
+    }, 0);
   }
 
   /**

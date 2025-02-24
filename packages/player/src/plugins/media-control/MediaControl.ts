@@ -13,7 +13,8 @@ import {
   $,
   Core,
 } from '@clappr/core'
-import { reportError } from '@gcorevideo/utils'
+import { reportError, trace } from '@gcorevideo/utils'
+
 import { type TimeProgress } from '../../playback.types.js'
 
 import { Kibo } from '../kibo/index.js'
@@ -417,10 +418,11 @@ export class MediaControl extends UICorePlugin {
   }
 
   /**
-   * Disables the plugin and unmounts its UI
+   * Hides the media control UI
    */
   override disable() {
-    this.userDisabled = true
+    trace(`${T} disable`)
+    this.userDisabled = true // TODO distinguish between user and system (e.g., unplayable) disabled?
     this.hide()
     this.unbindKeyEvents()
     this.$el.hide()
@@ -430,6 +432,7 @@ export class MediaControl extends UICorePlugin {
    * Reenables the plugin disabled earlier with the {@link MediaControl.disable} method
    */
   override enable() {
+    trace(`${T} enable`)
     if (this.options.chromeless) {
       return
     }
@@ -737,8 +740,13 @@ export class MediaControl extends UICorePlugin {
         Events.CONTAINER_PLAYBACKDVRSTATECHANGED,
         this.core.activeContainer.isDvrInUse(),
       )
-    this.core.activeContainer && this.core.activeContainer.mediaControlDisabled && this.disable()
-    this.trigger(Events.MEDIACONTROL_CONTAINERCHANGED)
+    // TODO test
+    if (this.core.activeContainer.mediaControlDisabled) {
+      this.disable()
+    } else {
+      this.enable()
+    }
+    this.trigger(Events.MEDIACONTROL_CONTAINERCHANGED) // TODO check
 
     if (this.core.activeContainer.$el) {
       this.core.activeContainer.$el.addClass('container-skin-1')
@@ -1273,14 +1281,14 @@ export class MediaControl extends UICorePlugin {
   override destroy() {
     $(document).unbind('mouseup', this.stopDrag)
     $(document).unbind('mousemove', this.updateDrag)
+    $(document).unbind('touchend', this.stopDrag)
+    $(document).unbind('touchmove', this.updateDrag)
     this.unbindKeyEvents()
-    // @ts-ignore
-    this.stopListening()
     return super.destroy()
   }
 
   private configure() {
-    this.advertisementPlaying ? this.disable() : this.enable()
+    // this.advertisementPlaying ? this.disable() : this.enable()
     this.trigger(Events.MEDIACONTROL_OPTIONS_CHANGE)
   }
 
