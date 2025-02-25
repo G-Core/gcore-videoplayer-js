@@ -63,7 +63,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Displays useful network-related statistics.
+**_(BETA)_** PLUGIN that displays useful network-related statistics.
 
 
 </td></tr>
@@ -74,7 +74,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Collects useful statistics about playback performance.
+**_(BETA)_** PLIGIN that collects useful statistics about playback performance.
 
 
 </td></tr>
@@ -96,7 +96,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Adds a behavior of showing a text over the seekbar to indicate the current clip.
+**_(BETA)_** PLUGIN that shows text over the seekbar to indicate the current clip.
 
 
 </td></tr>
@@ -129,7 +129,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Displays a descriptive error in the overlay on top of the player.
+**_(BETA)_** PLUGIN that displays errors nicely in the overlay on top of the player.
 
 
 </td></tr>
@@ -162,7 +162,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** A [media control](./player.mediacontrol.md) plugin that provides a UI to control the quality level of the playback.
+**_(BETA)_** PLUGIN that provides a UI to select the desired quality level of the playback.
 
 
 </td></tr>
@@ -184,7 +184,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** The MediaControl provides a foundation for developing custom media controls UI.
+**_(BETA)_** PLUGIN that provides a foundation for developing custom media controls UI.
 
 
 </td></tr>
@@ -195,7 +195,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** The plugin adds support for loading multiple streams and switching between them using the media control UI.
+**_(BETA)_** PLUGIN that adds support for loading multiple streams and switching between them using the media control UI.
 
 
 </td></tr>
@@ -217,7 +217,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Allows changing the playback speed of the video.
+**_(BETA)_** PLUGIN that allows changing the playback speed of the video.
 
 
 </td></tr>
@@ -261,7 +261,7 @@ Description
 
 </td><td>
 
-The plugin adds a share button to the media control UI.
+**_(BETA)_** PLUGIN that adds a share button to the media control UI.
 
 
 </td></tr>
@@ -272,7 +272,7 @@ The plugin adds a share button to the media control UI.
 
 </td><td>
 
-The plugin adds skip controls to the media control UI.
+**_(BETA)_** PLUGIN that adds skip controls to the media control UI.
 
 
 </td></tr>
@@ -294,7 +294,7 @@ The plugin adds skip controls to the media control UI.
 
 </td><td>
 
-**_(BETA)_** Shows a pending operation indicator when playback is buffering or in other appropriate cases
+**_(BETA)_** PLUGIN that shows a pending operation indicator when playback is buffering or in a similar state
 
 
 </td></tr>
@@ -316,7 +316,7 @@ The plugin adds skip controls to the media control UI.
 
 </td><td>
 
-**_(BETA)_** Collects and reports the performance statistics.
+**_(BETA)_** PLUGIN that collects and reports the performance statistics.
 
 
 </td></tr>
@@ -359,12 +359,12 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-[GearEvents](./player.gearevents.md)
+[MediaControlEvents](./player.mediacontrolevents.md)
 
 
 </td><td>
 
-**_(BETA)_** Custom events emitted by the plugin
+**_(BETA)_** Custom events emitted by the plugins to communicate with one another
 
 
 </td></tr>
@@ -397,7 +397,7 @@ Description
 
 </td><td>
 
-Custom events emitted by the plugin
+**_(BETA)_** Custom events emitted by the plugin
 
 
 </td></tr>
@@ -471,7 +471,7 @@ Description
 
 </td><td>
 
-Configuration options
+**_(BETA)_** Configuration options for the [clips](./player.clipsplugin.md) plugin.
 
 
 </td></tr>
@@ -494,6 +494,17 @@ Configuration options
 </td><td>
 
 **_(BETA)_** Telemetry init event data
+
+
+</td></tr>
+<tr><td>
+
+[LevelSelectorPluginSettings](./player.levelselectorpluginsettings.md)
+
+
+</td><td>
+
+**_(BETA)_** Configuration options for the [level selector](./player.levelselector.md) plugin.
 
 
 </td></tr>
@@ -613,12 +624,34 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
+[ContainerPluginConstructor](./player.containerpluginconstructor.md)
+
+
+</td><td>
+
+**_(BETA)_**
+
+
+</td></tr>
+<tr><td>
+
 [ContainerSize](./player.containersize.md)
 
 
 </td><td>
 
 **_(BETA)_** Dimensions of the player container DOM element.
+
+
+</td></tr>
+<tr><td>
+
+[CorePluginConstructor](./player.corepluginconstructor.md)
+
+
+</td><td>
+
+**_(BETA)_**
 
 
 </td></tr>
@@ -637,12 +670,34 @@ Description
 </td></tr>
 <tr><td>
 
+[ErrorDesc](./player.errordesc.md)
+
+
+</td><td>
+
+**_(BETA)_** An error fired in the player and plugins code to be handled in the UI
+
+
+</td></tr>
+<tr><td>
+
 [ErrorLevel](./player.errorlevel.md)
 
 
 </td><td>
 
 **_(BETA)_** Levels of severity of errors. Non-fatal errors usually can be ignored.
+
+
+</td></tr>
+<tr><td>
+
+[ErrorScreenPluginSettings](./player.errorscreenpluginsettings.md)
+
+
+</td><td>
+
+**_(BETA)_** Configuration options for the [error screen](./player.errorscreen.md) plugin.
 
 
 </td></tr>
@@ -791,6 +846,17 @@ Description
 </td></tr>
 <tr><td>
 
+[PlayerPluginConstructor](./player.playerpluginconstructor.md)
+
+
+</td><td>
+
+**_(BETA)_**
+
+
+</td></tr>
+<tr><td>
+
 [TelemetryEventData](./player.telemetryeventdata.md)
 
 
@@ -808,6 +874,17 @@ Description
 </td><td>
 
 **_(BETA)_** Telemetry record
+
+
+</td></tr>
+<tr><td>
+
+[TelemetrySendFn](./player.telemetrysendfn.md)
+
+
+</td><td>
+
+**_(BETA)_** Callback to send the telemetry record to the storage.
 
 
 </td></tr>

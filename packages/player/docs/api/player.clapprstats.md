@@ -7,7 +7,7 @@
 > This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
 > 
 
-Collects useful statistics about playback performance.
+PLIGIN that collects useful statistics about playback performance.
 
 **Signature:**
 
@@ -83,20 +83,6 @@ Description
 </td><td>
 
 **_(BETA)_** Returns the collected metrics.
-
-
-</td></tr>
-<tr><td>
-
-[onBitrate(newBitrate)](./player.clapprstats.onbitrate.md)
-
-
-</td><td>
-
-
-</td><td>
-
-**_(BETA)_**
 
 
 </td></tr>

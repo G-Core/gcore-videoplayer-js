@@ -9,7 +9,7 @@ import '../../../assets/multi-camera/style.scss';
 import streamsIcon from '../../../assets/icons/old/streams.svg';
 import streamsMomentoIcon from '../../../assets/icons/old/language.svg';
 import streamsWhiteNightsIcon from '../../../assets/icons/old/wn.svg';
-import { ZeptoResult } from '../../utils/types.js';
+import { ZeptoResult } from '../../types.js';
 
 type MultisourcesMode = 'one_first' | 'only_live' | 'show_all';
 
@@ -26,7 +26,7 @@ const VERSION = '0.0.1';
 const T = 'plugins.multicamera';
 
 /**
- * The plugin adds support for loading multiple streams and switching between them using the media control UI.
+ * PLUGIN that adds support for loading multiple streams and switching between them using the media control UI.
  * @beta
  */
 export class MultiCamera extends UICorePlugin {
@@ -381,11 +381,11 @@ export class MultiCamera extends UICorePlugin {
     this.toggleContextMenu();
   }
 
-  getCamerasList() {
+  private getCamerasList() {
     return this.multicamera;
   }
 
-  getCurrentCamera() {
+  private getCurrentCamera() {
     return this.currentCamera;
   }
 

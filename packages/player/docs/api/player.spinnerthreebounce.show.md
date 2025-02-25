@@ -7,13 +7,51 @@
 > This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
 > 
 
-Shows the spinner
+Shows the spinner.
+
+When called, the spinner will not hide (due to its built-in logic) until [SpinnerThreeBounce.hide()](./player.spinnerthreebounce.hide.md) is called
 
 **Signature:**
 
 ```typescript
-show(): void;
+show(delay?: number): void;
 ```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+delay
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+_(Optional)_
+
+
+</td></tr>
+</tbody></table>
 **Returns:**
 
 void

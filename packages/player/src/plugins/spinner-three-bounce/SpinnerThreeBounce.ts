@@ -20,6 +20,7 @@ const T = 'plugins.spinner'
 
 /**
  * Custom events emitted by the plugin
+ * @beta
  */
 export enum SpinnerEvents {
   /**
@@ -30,10 +31,12 @@ export enum SpinnerEvents {
 }
 
 /**
- * Shows a pending operation indicator when playback is buffering or in other appropriate cases
+ * PLUGIN that shows a pending operation indicator when playback is buffering or in a similar state
  * @beta
  * @remarks
- * The plugin emits
+ * Events emitted- {@link SpinnerEvents}
+ * Other plugins can use {@link SpinnerThreeBounce.show | show} and {@link SpinnerThreeBounce.hide | hide} methods to
+ * implement custom pending/progress indication scenarios.
  */
 export class SpinnerThreeBounce extends UIContainerPlugin {
   private userShown = false
@@ -134,7 +137,7 @@ export class SpinnerThreeBounce extends UIContainerPlugin {
   /**
    * Shows the spinner.
    *
-   * When called, the spinner will not hide (due to its built-in logic) until {@link SpinnerThreeBounce#hide} is called
+   * When called, the spinner will not hide (due to its built-in logic) until {@link SpinnerThreeBounce.hide} is called
    */
   show(delay = 300) {
     trace(`${T} show`)

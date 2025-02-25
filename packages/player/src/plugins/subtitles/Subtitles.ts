@@ -17,7 +17,7 @@ import comboboxHTML from '../../../assets/subtitles/combobox.ejs'
 import stringHTML from '../../../assets/subtitles/string.ejs'
 
 import { isFullscreen } from '../utils.js'
-import type { ZeptoResult } from '../../utils/types.js'
+import type { ZeptoResult } from '../../types.js'
 
 const VERSION: string = '2.19.14'
 

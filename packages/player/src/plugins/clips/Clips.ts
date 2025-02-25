@@ -1,7 +1,7 @@
 import { Container, Events, UICorePlugin, $ } from '@clappr/core'
 
 import { TimeProgress } from '../../playback.types.js'
-import type { ZeptoResult } from '../../utils/types.js'
+import type { ZeptoResult } from '../../types.js'
 import { strtimeToMiliseconds } from '../utils.js'
 import '../../../assets/clips/clips.scss'
 import assert from 'assert'
@@ -19,7 +19,8 @@ type ClipItem = {
 }
 
 /**
- * Configuration options
+ * Configuration options for the {@link ClipsPlugin | clips} plugin.
+ * @beta
  */
 export interface ClipsPluginSettings {
   /**
@@ -29,7 +30,7 @@ export interface ClipsPluginSettings {
 }
 
 /**
- * Adds a behavior of showing a text over the seekbar to indicate the current clip.
+ * PLUGIN that shows text over the seekbar to indicate the current clip.
  * @beta
  * @remarks
  * Depends on:

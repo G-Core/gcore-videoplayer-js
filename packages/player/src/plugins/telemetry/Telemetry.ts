@@ -77,7 +77,7 @@ export type TelemetryRecord = {
  * @param data - The telemetry record to send.
  * @beta
  */
-type TelemetrySendFn = (data: TelemetryRecord) => void
+export type TelemetrySendFn = (data: TelemetryRecord) => void
 
 /**
  * Plugin settings
@@ -103,7 +103,7 @@ export enum TelemetryEvent {
 }
 
 /**
- * Collects and reports the performance statistics.
+ * PLUGIN that collects and reports the performance statistics.
  * @beta
  * @remarks
  * This plugin is experimental and its API is likely to change.

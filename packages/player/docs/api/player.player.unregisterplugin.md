@@ -12,7 +12,7 @@ Unregisters a plugin registered earlier with [Player.registerPlugin()](./player.
 **Signature:**
 
 ```typescript
-static unregisterPlugin(plugin: PlayerPlugin): void;
+static unregisterPlugin(plugin: PlayerPluginConstructor): void;
 ```
 
 ## Parameters
@@ -40,7 +40,7 @@ plugin
 
 </td><td>
 
-[PlayerPlugin](./player.playerplugin.md)
+[PlayerPluginConstructor](./player.playerpluginconstructor.md)
 
 
 </td><td>

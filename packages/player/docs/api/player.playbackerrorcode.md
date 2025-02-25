@@ -40,7 +40,7 @@ Generic
 
 </td><td>
 
-`0`
+`"GENERIC_ERROR"`
 
 
 </td><td>
@@ -56,7 +56,7 @@ MediaSourceAccessDenied
 
 </td><td>
 
-`3`
+`"MEDIA_SOURCE_ACCESS_DENIED"`
 
 
 </td><td>
@@ -72,7 +72,7 @@ MediaSourceUnavailable
 
 </td><td>
 
-`1`
+`"MEDIA_SOURCE_UNAVAILABLE"`
 
 
 </td><td>

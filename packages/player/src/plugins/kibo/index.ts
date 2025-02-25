@@ -11,9 +11,6 @@ type KeyboardEventBindings = {
 
 type UpDown = 'up' | 'down';
 
-/**
- * @internal
- */
 export class Kibo {
   private lastKeyCode = -1;
 

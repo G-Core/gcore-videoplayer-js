@@ -17,7 +17,6 @@ import DASHJS, {
 import {
   PlaybackError,
   PlaybackErrorCode,
-  PlayerComponentType,
   QualityLevel,
   TimePosition,
   TimeUpdate,
@@ -25,6 +24,7 @@ import {
 } from '../../playback.types.js'
 import { isDashSource } from '../../utils/mediaSources.js'
 import { BasePlayback } from '../BasePlayback.js'
+import { PlaybackEvents } from '../types.js'
 
 const AUTO = -1
 
@@ -300,8 +300,8 @@ export default class DashPlayback extends BasePlayback {
       },
     )
 
-    this._dash.on(DASHJS.MediaPlayer.events.PLAYBACK_RATE_CHANGED, () => {
-      this.trigger('dash:playback-rate-changed')
+    this._dash.on(DASHJS.MediaPlayer.events.PLAYBACK_RATE_CHANGED, (e: DASHJS.PlaybackRateChangedEvent) => {
+      this.trigger(PlaybackEvents.PLAYBACK_RATE_CHANGED, e.playbackRate)
     })
   }
 
@@ -361,7 +361,7 @@ export default class DashPlayback extends BasePlayback {
     return this._startTime
   }
 
-  seekPercentage(percentage: number) {
+  override seekPercentage(percentage: number) {
     let seekTo = this._duration
 
     if (percentage > 0) {
@@ -376,7 +376,7 @@ export default class DashPlayback extends BasePlayback {
     this.seek(seekTo)
   }
 
-  seek(time: TimeValue) {
+  override seek(time: TimeValue) {
     if (time < 0) {
       // eslint-disable-next-line max-len
       Log.warn(
@@ -478,7 +478,7 @@ export default class DashPlayback extends BasePlayback {
     }, 10)
   }
 
-  _onTimeUpdate() {
+  override _onTimeUpdate() {
     if (this.startChangeQuality) {
       return
     }
@@ -499,7 +499,7 @@ export default class DashPlayback extends BasePlayback {
     this.trigger(Events.PLAYBACK_TIMEUPDATE, update, this.name)
   }
 
-  _onDurationChange() {
+  override _onDurationChange() {
     const duration = this.getDuration()
 
     if (this._lastDuration === duration) {
@@ -540,7 +540,7 @@ export default class DashPlayback extends BasePlayback {
     this.trigger(Events.PLAYBACK_PROGRESS, progress, {})
   }
 
-  play() {
+  override play() {
     trace(`${T} play`, { dash: !!this._dash })
     if (!this._dash) {
       this._setup()
@@ -550,7 +550,7 @@ export default class DashPlayback extends BasePlayback {
     this._startTimeUpdateTimer()
   }
 
-  pause() {
+  override pause() {
     if (!this._dash) {
       return
     }
@@ -560,7 +560,7 @@ export default class DashPlayback extends BasePlayback {
     }
   }
 
-  stop() {
+  override stop() {
     if (this._dash) {
       this._stopTimeUpdateTimer()
       this._dash.reset()
@@ -569,7 +569,7 @@ export default class DashPlayback extends BasePlayback {
     }
   }
 
-  destroy() {
+  override destroy() {
     this._stopTimeUpdateTimer()
     if (this._dash) {
       this._dash.off(DASHJS.MediaPlayer.events.ERROR, this._onDASHJSSError)
@@ -637,6 +637,10 @@ export default class DashPlayback extends BasePlayback {
     const ret = this.levels.find((level) => level.level === quality)
     assert.ok(ret, 'Invalid quality level')
     return ret
+  }
+
+  setPlaybackRate(rate: number) {
+    this._dash?.setPlaybackRate(rate)
   }
 }
 

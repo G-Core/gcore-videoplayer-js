@@ -4,7 +4,10 @@
 
 ## SkipTime class
 
-The plugin adds skip controls to the media control UI.
+> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
+> 
+
+PLUGIN that adds skip controls to the media control UI.
 
 **Signature:**
 
@@ -53,6 +56,8 @@ Description
 
 </td><td>
 
+**_(BETA)_**
+
 
 </td></tr>
 <tr><td>
@@ -71,6 +76,8 @@ any
 
 
 </td><td>
+
+**_(BETA)_**
 
 
 </td></tr>
@@ -91,6 +98,8 @@ any
 
 </td><td>
 
+**_(BETA)_**
+
 
 </td></tr>
 <tr><td>
@@ -109,6 +118,8 @@ string
 
 
 </td><td>
+
+**_(BETA)_**
 
 
 </td></tr>
@@ -129,6 +140,8 @@ string
 
 </td><td>
 
+**_(BETA)_**
+
 
 </td></tr>
 <tr><td>
@@ -147,6 +160,8 @@ any
 
 
 </td><td>
+
+**_(BETA)_**
 
 
 </td></tr>
@@ -180,6 +195,8 @@ Description
 
 </td><td>
 
+**_(BETA)_**
+
 
 </td></tr>
 <tr><td>
@@ -191,6 +208,8 @@ Description
 
 
 </td><td>
+
+**_(BETA)_**
 
 
 </td></tr>
@@ -204,6 +223,8 @@ Description
 
 </td><td>
 
+**_(BETA)_**
+
 
 </td></tr>
 <tr><td>
@@ -215,6 +236,8 @@ Description
 
 
 </td><td>
+
+**_(BETA)_**
 
 
 </td></tr>
@@ -228,6 +251,8 @@ Description
 
 </td><td>
 
+**_(BETA)_**
+
 
 </td></tr>
 <tr><td>
@@ -240,6 +265,8 @@ Description
 
 </td><td>
 
+**_(BETA)_**
+
 
 </td></tr>
 <tr><td>
@@ -251,6 +278,8 @@ Description
 
 
 </td><td>
+
+**_(BETA)_**
 
 
 </td></tr>

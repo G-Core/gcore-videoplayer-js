@@ -1,7 +1,7 @@
 import { CorePlugin, Events, $, Core, Container } from '@clappr/core';
 
 import { CLAPPR_VERSION } from '../../build.js';
-import { ZeptoResult } from '../../utils/types.js';
+import { ZeptoResult } from '../../types.js';
 
 import playIcon from '../../../assets/icons/new/play.svg';
 import pauseIcon from '../../../assets/icons/new/pause.svg';

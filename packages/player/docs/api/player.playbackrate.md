@@ -7,7 +7,7 @@
 > This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
 > 
 
-Allows changing the playback speed of the video.
+PLUGIN that allows changing the playback speed of the video.
 
 **Signature:**
 
@@ -24,5 +24,38 @@ Depends on:
 
 - [bottom\_gear](./player.bottomgear.md)
 
-It renders a button in the gear menu, which opens a dropdown with the available playback rates.
+It renders a button in the gear menu, which opens a dropdown with the options to change the playback rate.
 
+## Constructors
+
+<table><thead><tr><th>
+
+Constructor
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[(constructor)(core)](./player.playbackrate._constructor_.md)
+
+
+</td><td>
+
+
+</td><td>
+
+**_(BETA)_** Constructs a new instance of the `PlaybackRate` class
+
+
+</td></tr>
+</tbody></table>

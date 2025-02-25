@@ -18,5 +18,5 @@ exportMetrics(): Metrics;
 
 Metrics
 
-The collected metrics
+Currently collected metrics
 

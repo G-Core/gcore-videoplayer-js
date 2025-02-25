@@ -23,7 +23,7 @@ type UriToMeasureBandwidth = {
 const updateMetrics = () => {};
 
 /**
- * Collects useful statistics about playback performance.
+ * PLIGIN that collects useful statistics about playback performance.
  * @beta
  * @remarks
  * This plugin does not render anything and is supposed to be extended or used together with other plugins that actually render something.
@@ -111,9 +111,10 @@ export class ClapprStats extends ContainerPlugin {
 
   /**
    * Registers a callback to receive the metrics.
-   * @param updateMetricsFn
+   * @param updateMetricsFn - The callback to receive the metrics
    */
   setUpdateMetrics(updateMetricsFn: MetricsUpdateFn) {
+    // TODO use events instead
     this.updateFn = updateMetricsFn;
   }
 
@@ -167,13 +168,13 @@ export class ClapprStats extends ContainerPlugin {
 
   /**
    * Returns the collected metrics.
-   * @returns The collected metrics
+   * @returns Currently collected metrics
    */
   exportMetrics() {
     return structuredClone(this.metrics);
   }
 
-  onBitrate(newBitrate: QualityLevel) {
+  private onBitrate(newBitrate: QualityLevel) {
     const bitrate = newBitrate.bitrate;
     const now = this._now();
 

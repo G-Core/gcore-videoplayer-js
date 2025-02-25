@@ -1,3 +1,5 @@
+import { $ } from "@clappr/core";
+
 /**
  * Describes a media source with its MIME type and URL.
  *
@@ -65,11 +67,21 @@ export type PlayerPlugin = {
   name: string
 }
 
+/**
+ * @beta
+ */
 export type PlayerPluginConstructor = CorePluginConstructor | ContainerPluginConstructor
+
+/**
+ * @beta
+ */
 export type CorePluginConstructor = ((core: unknown) => PlayerPlugin) & {
   type: 'core'
 }
 
+/**
+ * @beta
+ */
 export type ContainerPluginConstructor = ((container: unknown) => PlayerPlugin) & {
   type: 'container'
 }
@@ -289,3 +301,9 @@ export enum PlayerEvent {
    */
   VolumeUpdate = 'volumeupdate',
 }
+
+/**
+ * {@link https://zeptojs.com/#$() | Zepto query result}
+ * @beta
+ */
+export type ZeptoResult = ReturnType<typeof $>;

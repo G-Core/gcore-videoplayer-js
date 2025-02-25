@@ -13,7 +13,6 @@ export * from "./plugins/error-screen/ErrorScreen.js";
 export * from "./plugins/favicon/Favicon.js";
 // _ ga-events
 export * from "./plugins/google-analytics/GoogleAnalytics.js";
-export * from "./plugins/kibo/index.js";
 export * from "./plugins/level-selector/LevelSelector.js";
 export * from "./plugins/logo/Logo.js";
 export * from "./plugins/media-control/MediaControl.js";

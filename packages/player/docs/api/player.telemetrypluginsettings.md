@@ -48,7 +48,7 @@ Description
 
 </td><td>
 
-TelemetrySendFn
+[TelemetrySendFn](./player.telemetrysendfn.md)
 
 
 </td><td>

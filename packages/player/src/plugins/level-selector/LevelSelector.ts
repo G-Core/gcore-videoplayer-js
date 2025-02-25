@@ -1,9 +1,10 @@
 import { Events, template, UICorePlugin } from '@clappr/core'
 import { reportError, trace } from '@gcorevideo/utils'
+import assert from 'assert'
 
 import { type QualityLevel } from '../../playback.types.js'
 import { CLAPPR_VERSION } from '../../build.js'
-import { ZeptoResult } from '../../utils/types.js'
+import { ZeptoResult } from '../../types.js'
 import { TemplateFunction } from '../types.js'
 import { BottomGear } from '../bottom-gear/BottomGear.js'
 
@@ -14,14 +15,32 @@ import arrowRightIcon from '../../../assets/icons/new/arrow-right.svg'
 import arrowLeftIcon from '../../../assets/icons/new/arrow-left.svg'
 import checkIcon from '../../../assets/icons/new/check.svg'
 import '../../../assets/level-selector/style.scss'
-import assert from 'assert'
-
+import { MediaControl, MediaControlEvents } from '../media-control/MediaControl.js'
 
 const T = 'plugins.level_selector'
 const VERSION = '2.19.4'
 
 /**
- * A {@link MediaControl | media control} plugin that provides a UI to control the quality level of the playback.
+ * Configuration options for the {@link LevelSelector | level selector} plugin.
+ * @beta
+ */
+export interface LevelSelectorPluginSettings {
+  /**
+   * The maximum resolution to allow in the level selector.
+   */
+  restrictResolution?: number
+  /**
+   * The labels to show in the level selector.
+   * @example
+   * ```ts
+   * { 360: 'SD', 720: 'HD' }
+   * ```
+   */
+  labels?: Record<number, string>
+}
+
+/**
+ * PLUGIN that provides a UI to select the desired quality level of the playback.
  * @beta
  *
  * @remarks
@@ -31,15 +50,9 @@ const VERSION = '2.19.4'
  *
  * - {@link BottomGear}
  *
- * The plugin is rendered as an item in the gear menu.
+ * The plugin is rendered as an item in the gear menu, which, when clicked, shows a list of quality levels to choose from.
  *
- * When clicked, it shows a list of quality levels to choose from.
- *
- * Configuration options:
- *
- * - `labels`: The labels to show in the level selector. [video resolution]: string
- *
- * - `restrictResolution`: The maximum resolution to allow in the level selector.
+ * Configuration options - {@link LevelSelectorPluginSettings}
  *
  * @example
  * ```ts
@@ -62,7 +75,8 @@ export class LevelSelector extends UICorePlugin {
 
   private isOpen = false
 
-  private static readonly buttonTemplate: TemplateFunction = template(buttonHtml)
+  private static readonly buttonTemplate: TemplateFunction =
+    template(buttonHtml)
 
   private static readonly listTemplate: TemplateFunction = template(listHtml)
 
@@ -113,8 +127,24 @@ export class LevelSelector extends UICorePlugin {
    * @internal
    */
   override bindEvents() {
-    this.listenTo(this.core, Events.CORE_ACTIVE_CONTAINER_CHANGED, () => this.bindPlaybackEvents())
-    this.listenTo(this.core, 'gear:rendered', this.render)
+    this.listenTo(this.core, Events.CORE_READY, this.onCoreReady);
+    this.listenTo(
+      this.core,
+      Events.CORE_ACTIVE_CONTAINER_CHANGED,
+      this.bindPlaybackEvents,
+    )
+  }
+
+  private onCoreReady() {
+    trace(`${T} onCoreReady`);
+    const mediaControl = this.core.getPlugin('media_control') as MediaControl
+    assert(mediaControl, 'media_control plugin is required')
+    this.listenTo(mediaControl, MediaControlEvents.MEDIACONTROL_GEAR_RENDERED, this.onGearRendered);
+  }
+
+  private onGearRendered() {
+    trace(`${T} onGearRendered`);
+    this.deferRender();
   }
 
   private bindPlaybackEvents() {
@@ -123,8 +153,10 @@ export class LevelSelector extends UICorePlugin {
 
     const activePlayback = this.core.activePlayback
 
-    this.listenTo(activePlayback, Events.PLAYBACK_LEVELS_AVAILABLE, (levels: QualityLevel[]) =>
-      this.fillLevels(levels),
+    this.listenTo(
+      activePlayback,
+      Events.PLAYBACK_LEVELS_AVAILABLE,
+      this.fillLevels,
     )
     this.listenTo(
       activePlayback,
@@ -150,32 +182,27 @@ export class LevelSelector extends UICorePlugin {
         this.deferRender()
       },
     )
-    if (activePlayback?.levels?.length > 0) {
+    if (activePlayback.levels?.length > 0) {
       this.fillLevels(activePlayback.levels)
     }
   }
 
   private onStop() {
     trace(`${T} onStop`)
-    const currentPlayback = this.core.activePlayback
-
-    this.listenToOnce(currentPlayback, Events.PLAYBACK_PLAY, () => {
-      trace(`${T} on PLAYBACK_PLAY after stop`, { selectedLevelId: this.selectedLevelId })
-      if (currentPlayback.getPlaybackType() === 'live') {
+    this.listenToOnce(this.core.activePlayback, Events.PLAYBACK_PLAY, () => {
+      trace(`${T} on PLAYBACK_PLAY after stop`, {
+        selectedLevelId: this.selectedLevelId,
+      })
+      if (this.core.activePlayback.getPlaybackType() === 'live') {
         if (this.selectedLevelId !== -1) {
-          currentPlayback.currentLevel = this.selectedLevelId
+          this.core.activePlayback.currentLevel = this.selectedLevelId
         }
       }
     })
   }
 
   private shouldRender() {
-    if (!this.core.activeContainer) {
-      return false
-    }
-
     const activePlayback = this.core.activePlayback
-
     if (!activePlayback) {
       return false
     }
@@ -192,8 +219,6 @@ export class LevelSelector extends UICorePlugin {
    * @internal
    */
   override render() {
-    assert(this.core.getPlugin('bottom_gear'), 'bottom_gear plugin is required')
-
     if (!this.shouldRender()) {
       return this
     }
@@ -213,7 +238,10 @@ export class LevelSelector extends UICorePlugin {
       })
       this.$el.html(html)
       const gear = this.core.getPlugin('bottom_gear') as BottomGear
-      gear.getElement('quality')?.html(this.el)
+      if (!gear) {
+        trace(`${T} renderButton: bottom_gear plugin not found`)
+      }
+      gear?.getElement('quality')?.html(this.el)
     }
   }
 
@@ -228,6 +256,7 @@ export class LevelSelector extends UICorePlugin {
     })
     this.$el.html(html)
     const gear = this.core.getPlugin('bottom_gear') as BottomGear
+    trace(`${T} renderDropdown: bottom_gear plugin not found`)
     gear?.setContent(this.el)
   }
 
@@ -236,7 +265,8 @@ export class LevelSelector extends UICorePlugin {
     return maxRes
       ? this.levels.findIndex(
           (level) =>
-            (level.height > level.width ? level.width : level.height) === maxRes,
+            (level.height > level.width ? level.width : level.height) ===
+            maxRes,
         )
       : -1
   }
@@ -248,7 +278,11 @@ export class LevelSelector extends UICorePlugin {
     if (maxResolution) {
       this.removeAuto = true
       const initialLevel = levels
-        .filter((level) => (level.width > level.height ? level.height : level.width) <= maxResolution)
+        .filter(
+          (level) =>
+            (level.width > level.height ? level.height : level.width) <=
+            maxResolution,
+        )
         .pop()
       this.setLevel(initialLevel?.level ?? 0)
     }
@@ -280,8 +314,9 @@ export class LevelSelector extends UICorePlugin {
   private goBack() {
     trace(`${T} goBack`)
     this.isOpen = false
-    this.core.trigger('gear:refresh')
-    this.deferRender()
+    setTimeout(() => {
+      this.core.getPlugin('bottom_gear').refresh()
+    }, 0);
   }
 
   private setLevel(index: number) {

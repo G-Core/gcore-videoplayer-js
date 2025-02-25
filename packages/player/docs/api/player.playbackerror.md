@@ -152,4 +152,23 @@ string
 
 
 </td></tr>
+<tr><td>
+
+[UI?](./player.playbackerror.ui.md)
+
+
+</td><td>
+
+
+</td><td>
+
+{ title: string; message: string; }
+
+
+</td><td>
+
+**_(BETA)_** _(Optional)_ UI description of the error.
+
+
+</td></tr>
 </tbody></table>

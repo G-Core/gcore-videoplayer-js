@@ -11,10 +11,10 @@ export class BasePlayback extends HTML5Video {
   createError(errorData: any, options?: ErrorOptions) {
     const i18n =
       this.i18n ||
-        // @ts-ignore
-        (this.core && this.core.i18n) ||
-        // @ts-ignore
-        (this.container && this.container.i18n)
+      // @ts-ignore
+      (this.core && this.core.i18n) ||
+      // @ts-ignore
+      (this.container && this.container.i18n)
 
     if (
       i18n &&
@@ -32,6 +32,14 @@ export class BasePlayback extends HTML5Video {
       this.trigger(Events.PLAYBACK_MEDIACONTROL_DISABLE)
     }
     return super.createError(errorData, options)
+  }
+
+  /**
+   * Sets the playback rate.
+   * @param rate - The playback rate to set.
+   */
+  setPlaybackRate(rate: number) {
+    ;(this.el as HTMLMediaElement).playbackRate = rate
   }
 
   override _onPlaying() {

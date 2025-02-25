@@ -8,7 +8,8 @@ import '../../../assets/skip-time/style.scss';
 type Position = 'mid' | 'left' | 'right';
 
 /**
- * The plugin adds skip controls to the media control UI.
+ * PLUGIN that adds skip controls to the media control UI.
+ * @beta
  */
 export class SkipTime extends UICorePluginOriginal {
   get name() {

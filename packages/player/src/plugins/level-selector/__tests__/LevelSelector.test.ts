@@ -1,9 +1,14 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { UICorePlugin } from '@clappr/core'
+import { $, UICorePlugin } from '@clappr/core'
 import FakeTimers from '@sinonjs/fake-timers'
 import { Logger, LogTracer, setTracer } from '@gcorevideo/utils'
 import { LevelSelector } from '../LevelSelector.js'
-import { createMockCore, createMockPlayback } from '../../../testUtils.js'
+import {
+  createMockCore,
+  createMockMediaControl,
+  createMockPlayback,
+} from '../../../testUtils.js'
+import { MediaControlEvents } from '../../media-control/MediaControl.js'
 
 setTracer(new LogTracer('LevelSelector.test'))
 Logger.enable('*')
@@ -33,6 +38,8 @@ describe('LevelSelector', () => {
   let core: any
   let levelSelector: LevelSelector
   let activePlayback: any
+  let mediaControl: UICorePlugin
+  let bottomGear: UICorePlugin | null
   beforeEach(() => {
     clock = FakeTimers.install()
   })
@@ -41,10 +48,6 @@ describe('LevelSelector', () => {
   })
   describe('basically', () => {
     beforeEach(() => {
-      // const activeContainer = createMockContainer()
-      let mediaControl: UICorePlugin | null = null
-      let bottomGear: UICorePlugin | null = null
-      // TODO create mock core
       core = createMockCore({
         levelSelector: {
           // restrictResolution: 360,
@@ -61,7 +64,7 @@ describe('LevelSelector', () => {
         }
         return null
       })
-      mediaControl = createMediaControl(core)
+      mediaControl = createMockMediaControl(core)
       bottomGear = createBottomGear(core)
       levelSelector = new LevelSelector(core)
     })
@@ -126,7 +129,7 @@ describe('LevelSelector', () => {
         }
         return null
       })
-      mediaControl = createMediaControl(core)
+      mediaControl = createMockMediaControl(core)
       bottomGear = createBottomGear(core)
       levelSelector = new LevelSelector(core)
     })
@@ -219,17 +222,13 @@ expect.extend({
   },
 })
 
-function createMediaControl(core: any) {
-  const mediaControl = new UICorePlugin(core)
-  // @ts-ignore
-  mediaControl.getElement = vi.fn().mockReturnValue(null)
-  return mediaControl
-}
-
 function createBottomGear(core: any) {
   const bottomGear = new UICorePlugin(core)
+  const elemets = {
+    quality: $(document.createElement('div')),
+  }
   // @ts-ignore
-  bottomGear.getElement = vi.fn().mockReturnValue(null)
+  bottomGear.getElement = vi.fn().mockImplementation((name) => elemets[name])
   // @ts-ignore
   bottomGear.setContent = vi.fn()
   return bottomGear

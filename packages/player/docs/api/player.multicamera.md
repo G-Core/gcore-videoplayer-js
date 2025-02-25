@@ -7,7 +7,7 @@
 > This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
 > 
 
-The plugin adds support for loading multiple streams and switching between them using the media control UI.
+PLUGIN that adds support for loading multiple streams and switching between them using the media control UI.
 
 **Signature:**
 
@@ -238,34 +238,6 @@ Description
 <tr><td>
 
 [bindEvents()](./player.multicamera.bindevents.md)
-
-
-</td><td>
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
-[getCamerasList()](./player.multicamera.getcameraslist.md)
-
-
-</td><td>
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
-[getCurrentCamera()](./player.multicamera.getcurrentcamera.md)
 
 
 </td><td>

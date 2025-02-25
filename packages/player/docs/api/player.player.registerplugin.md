@@ -12,7 +12,7 @@ Registers a plugin.
 **Signature:**
 
 ```typescript
-static registerPlugin(plugin: PlayerPlugin): void;
+static registerPlugin(plugin: PlayerPluginConstructor): void;
 ```
 
 ## Parameters
@@ -40,7 +40,7 @@ plugin
 
 </td><td>
 
-[PlayerPlugin](./player.playerplugin.md)
+[PlayerPluginConstructor](./player.playerpluginconstructor.md)
 
 
 </td><td>

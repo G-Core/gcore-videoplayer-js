@@ -11,7 +11,7 @@ import { CLAPPR_VERSION } from '../../build.js'
 import pluginHtml from '../../../assets/audio-selector/track-selector.ejs'
 import '../../../assets/audio-selector/style.scss'
 import audioArrow from '../../../assets/icons/old/quality-arrow.svg'
-import { ZeptoResult } from '../../utils/types.js'
+import { ZeptoResult } from '../../types.js'
 import assert from 'assert'
 
 const VERSION: string = '0.0.1'

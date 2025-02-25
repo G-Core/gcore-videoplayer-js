@@ -7,7 +7,7 @@
 > This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
 > 
 
-Shows a pending operation indicator when playback is buffering or in other appropriate cases
+PLUGIN that shows a pending operation indicator when playback is buffering or in a similar state
 
 **Signature:**
 
@@ -18,7 +18,7 @@ export declare class SpinnerThreeBounce extends UIContainerPlugin
 
 ## Remarks
 
-The plugin emits
+Events emitted- [SpinnerEvents](./player.spinnerevents.md) Other plugins can use [show](./player.spinnerthreebounce.show.md) and [hide](./player.spinnerthreebounce.hide.md) methods to implement custom pending/progress indication scenarios.
 
 ## Constructors
 
@@ -82,13 +82,13 @@ Description
 
 </td><td>
 
-**_(BETA)_** Hides the spinner
+**_(BETA)_** Hides the spinner.
 
 
 </td></tr>
 <tr><td>
 
-[show()](./player.spinnerthreebounce.show.md)
+[show(delay)](./player.spinnerthreebounce.show.md)
 
 
 </td><td>
@@ -96,7 +96,9 @@ Description
 
 </td><td>
 
-**_(BETA)_** Shows the spinner
+**_(BETA)_** Shows the spinner.
+
+When called, the spinner will not hide (due to its built-in logic) until [SpinnerThreeBounce.hide()](./player.spinnerthreebounce.hide.md) is called
 
 
 </td></tr>

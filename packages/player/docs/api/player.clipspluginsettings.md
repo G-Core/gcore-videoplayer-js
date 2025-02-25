@@ -4,7 +4,10 @@
 
 ## ClipsPluginSettings interface
 
-Configuration options
+> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
+> 
+
+Configuration options for the [clips](./player.clipsplugin.md) plugin.
 
 **Signature:**
 
@@ -50,7 +53,7 @@ string
 
 </td><td>
 
-The text to display over the seekbar.
+**_(BETA)_** The text to display over the seekbar.
 
 
 </td></tr>

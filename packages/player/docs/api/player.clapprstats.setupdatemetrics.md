@@ -45,6 +45,8 @@ MetricsUpdateFn
 
 </td><td>
 
+The callback to receive the metrics
+
 
 </td></tr>
 </tbody></table>

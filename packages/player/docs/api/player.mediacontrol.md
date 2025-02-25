@@ -7,7 +7,7 @@
 > This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
 > 
 
-The MediaControl provides a foundation for developing custom media controls UI.
+PLUGIN that provides a foundation for developing custom media controls UI.
 
 **Signature:**
 
@@ -88,6 +88,27 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
+[currentSeekPos](./player.mediacontrol.currentseekpos.md)
+
+
+</td><td>
+
+`readonly`
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+**_(BETA)_**
+
+
+</td></tr>
+<tr><td>
+
 [muted](./player.mediacontrol.muted.md)
 
 
@@ -158,7 +179,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Disables the plugin and unmounts its UI
+**_(BETA)_** Hides the media control UI
 
 
 </td></tr>

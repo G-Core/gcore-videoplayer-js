@@ -7,7 +7,7 @@
 > This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
 > 
 
-Adds a behavior of showing a text over the seekbar to indicate the current clip.
+PLUGIN that shows text over the seekbar to indicate the current clip.
 
 **Signature:**
 

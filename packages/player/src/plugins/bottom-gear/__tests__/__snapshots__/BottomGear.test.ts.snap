@@ -1,0 +1,41 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`BottomGear > should attach to media control 1`] = `
+"<div class="bottom_gear" data-track-selector=""><div class="media-control-gear" data-="">
+    <button type="button" class="button-gear gplayer-lite-btn gcore-skin-button-color" data-gear-button="-1">
+        <span class="gear-icon">/assets/icons/new/gear.svg</span>
+    </button>
+    <div class="gear-wrapper gcore-skin-bg-color">
+        <ul class="gear-options-list">
+            
+                <li data-quality=""></li>
+            
+                <li data-rate=""></li>
+            
+                <li data-nerd=""></li>
+            
+        </ul>
+    </div>
+</div>
+</div>"
+`;
+
+exports[`BottomGear > should render 1`] = `
+"<div class="media-control-gear" data-="">
+    <button type="button" class="button-gear gplayer-lite-btn gcore-skin-button-color" data-gear-button="-1">
+        <span class="gear-icon">/assets/icons/new/gear.svg</span>
+    </button>
+    <div class="gear-wrapper gcore-skin-bg-color">
+        <ul class="gear-options-list">
+            
+                <li data-quality=""></li>
+            
+                <li data-rate=""></li>
+            
+                <li data-nerd=""></li>
+            
+        </ul>
+    </div>
+</div>
+"
+`;

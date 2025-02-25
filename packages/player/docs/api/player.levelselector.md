@@ -7,7 +7,7 @@
 > This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
 > 
 
-A [media control](./player.mediacontrol.md) plugin that provides a UI to control the quality level of the playback.
+PLUGIN that provides a UI to select the desired quality level of the playback.
 
 **Signature:**
 
@@ -24,15 +24,9 @@ Depends on:
 
 - [BottomGear](./player.bottomgear.md)
 
-The plugin is rendered as an item in the gear menu.
+The plugin is rendered as an item in the gear menu, which, when clicked, shows a list of quality levels to choose from.
 
-When clicked, it shows a list of quality levels to choose from.
-
-Configuration options:
-
-- `labels`<!-- -->: The labels to show in the level selector. \[video resolution\]: string
-
-- `restrictResolution`<!-- -->: The maximum resolution to allow in the level selector.
+Configuration options - [LevelSelectorPluginSettings](./player.levelselectorpluginsettings.md)
 
 ## Example
 

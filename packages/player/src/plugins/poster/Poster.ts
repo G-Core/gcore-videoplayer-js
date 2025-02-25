@@ -14,7 +14,7 @@ import {
 import { trace } from '@gcorevideo/utils'
 
 import { CLAPPR_VERSION } from '../../build.js'
-import type { ZeptoResult } from '../../utils/types.js'
+import type { ZeptoResult } from '../../types.js'
 
 import '../../../assets/poster/poster.scss'
 import posterHTML from '../../../assets/poster/poster.ejs'

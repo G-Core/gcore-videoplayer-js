@@ -2,7 +2,7 @@ import { UIContainerPlugin, Events, template as t, Container } from '@clappr/cor
 
 import { CLAPPR_VERSION } from '../../build.js';
 import { calculateSize } from './utils/index.js';
-import { ZeptoResult } from '../../utils/types.js';
+import { ZeptoResult } from '../../types.js';
 
 import logoHTML from '../../../assets/logo/templates/logo.ejs';
 import '../../../assets/logo/styles/logo.scss';

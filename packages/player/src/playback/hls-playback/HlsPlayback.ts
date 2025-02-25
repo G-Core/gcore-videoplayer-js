@@ -2,14 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found on https://github.com/clappr/hlsjs-playback/blob/main/LICENSE
 
-import {
-  Events,
-  Log,
-  Playback,
-  PlayerError,
-  Utils,
-  $,
-} from '@clappr/core'
+import { Events, Log, Playback, PlayerError, Utils, $ } from '@clappr/core'
 import { trace } from '@gcorevideo/utils'
 import assert from 'assert'
 import HLSJS, {
@@ -1104,9 +1097,12 @@ export default class HlsPlayback extends BasePlayback {
   }
 
   private triggerError(error: PlaybackError) {
-    this.trigger(Events.PLAYBACK_ERROR, this.createError(error, {
-      useCodePrefix: false,
-    }))
+    this.trigger(
+      Events.PLAYBACK_ERROR,
+      this.createError(error, {
+        useCodePrefix: false,
+      }),
+    )
     this.stop()
   }
 }

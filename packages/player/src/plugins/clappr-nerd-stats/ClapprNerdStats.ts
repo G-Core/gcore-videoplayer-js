@@ -18,14 +18,14 @@ import {
   stopSpeedtest,
 } from './speedtest/index.js'
 import { CustomMetrics } from './speedtest/types.js'
-import { ZeptoResult } from '../../utils/types.js'
+import { ZeptoResult } from '../../types.js'
 
 import '../../../assets/clappr-nerd-stats/clappr-nerd-stats.scss'
 import pluginHtml from '../../../assets/clappr-nerd-stats/clappr-nerd-stats.ejs'
 import buttonHtml from '../../../assets/clappr-nerd-stats/button.ejs'
 import statsIcon from '../../../assets/icons/new/stats.svg'
-import { BottomGear, GearEvents } from '../bottom-gear/BottomGear.js'
-import { MediaControl } from '../media-control/MediaControl.js'
+import { BottomGear } from '../bottom-gear/BottomGear.js'
+import { MediaControl, MediaControlEvents } from '../media-control/MediaControl.js'
 import assert from 'assert'
 
 const qualityClasses = [
@@ -117,7 +117,7 @@ type Metrics = BaseMetrics & {
 // const T = 'plugins.clappr_nerd_stats';
 
 /**
- * Displays useful network-related statistics.
+ * PLUGIN that displays useful network-related statistics.
  * @beta
  *
  * @remarks
@@ -229,7 +229,7 @@ export class ClapprNerdStats extends UICorePlugin {
     this.listenToOnce(this.core, Events.CORE_READY, this.init)
     this.listenTo(
       mediaControl,
-      GearEvents.MEDIACONTROL_GEAR_RENDERED,
+      MediaControlEvents.MEDIACONTROL_GEAR_RENDERED,
       this.addToBottomGear,
     )
   }

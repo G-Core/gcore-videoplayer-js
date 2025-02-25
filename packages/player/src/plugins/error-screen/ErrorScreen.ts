@@ -8,6 +8,10 @@ import templateHtml from '../../../assets/error-screen/error_screen.ejs'
 import '../../../assets/error-screen/error_screen.scss'
 import { PlaybackErrorCode } from '../../playback.types.js'
 
+/**
+ * An error fired in the player and plugins code to be handled in the UI
+ * @beta
+ */
 export type ErrorDesc = {
   description: string
   level: string
@@ -29,14 +33,21 @@ type ErrorScreenDesc = {
   icon?: string
 }
 
+/**
+ * Configuration options for the {@link ErrorScreen | error screen} plugin.
+ * @beta
+ */
 export type ErrorScreenPluginSettings = {
+  /**
+   * Whether to hide the reload button.
+   */
   noReload?: boolean
 }
 
 const T = 'plugins.error_screen'
 
 /**
- * Displays an error nicely in the overlay on top of the player.
+ * PLUGIN that displays errors nicely in the overlay on top of the player.
  * @beta
  */
 export class ErrorScreen extends UICorePlugin {

@@ -20,7 +20,7 @@ import { type TimeProgress } from '../../playback.types.js'
 import { Kibo } from '../kibo/index.js'
 
 import { CLAPPR_VERSION } from '../../build.js'
-import { ZeptoResult } from '../../utils/types.js'
+import { ZeptoResult } from '../../types.js'
 import { getPageX, isFullscreen } from '../utils.js'
 
 import '../../../assets/media-control/media-control.scss'
@@ -48,6 +48,17 @@ export type MediaControlElement =
   | 'playbackRate'
   | 'seekBarContainer'
   | 'subtitlesSelector'
+
+/**
+ * Custom events emitted by the plugins to communicate with one another
+ * @beta
+ */
+export enum MediaControlEvents {
+  /**
+   * Emitted when the gear menu is rendered
+   */
+  MEDIACONTROL_GEAR_RENDERED = 'mediacontrol:gear:rendered',
+}
 
 const T = 'plugins.media_control'
 
@@ -77,7 +88,7 @@ type DisabledClickable = {
 }
 
 /**
- * The MediaControl provides a foundation for developing custom media controls UI.
+ * PLUGIN that provides a foundation for developing custom media controls UI.
  * @beta
  * @remarks
  * The methods exposed are to be used by the other plugins that extend the media control UI.
@@ -96,7 +107,7 @@ export class MediaControl extends UICorePlugin {
 
   private currentDurationValue: number = 0
   private currentPositionValue: number = 0
-  private currentSeekBarPercentage: number | null = null
+  private currentSeekBarPercentage = 0
 
   private disabledClickableList: DisabledClickable[] = []
   private displayedDuration: string | null = null
@@ -207,7 +218,7 @@ export class MediaControl extends UICorePlugin {
 
   /**
    * @internal
-   * @deprecated
+   * @deprecated Use core.activeContainer directly
    */
   get container() {
     return this.core.activeContainer
@@ -215,7 +226,7 @@ export class MediaControl extends UICorePlugin {
 
   /**
    * @internal
-   * @deprecated
+   * @deprecated Use core.activePlayback directly
    */
   get playback() {
     return this.core.activePlayback
@@ -262,6 +273,10 @@ export class MediaControl extends UICorePlugin {
       'mouseenter .media-control-layer[data-controls]': 'setUserKeepVisible',
       'mouseleave .media-control-layer[data-controls]': 'resetUserKeepVisible',
     }
+  }
+
+  get currentSeekPos() {
+    return this.currentSeekBarPercentage
   }
 
   /**
@@ -735,11 +750,10 @@ export class MediaControl extends UICorePlugin {
     this.changeTogglePlay()
     this.bindContainerEvents()
     this.settingsUpdate()
-    this.core.activeContainer &&
-      this.core.activeContainer.trigger(
-        Events.CONTAINER_PLAYBACKDVRSTATECHANGED,
-        this.core.activeContainer.isDvrInUse(),
-      )
+    this.core.activeContainer.trigger(
+      Events.CONTAINER_PLAYBACKDVRSTATECHANGED,
+      this.core.activeContainer.isDvrInUse(),
+    )
     // TODO test
     if (this.core.activeContainer.mediaControlDisabled) {
       this.disable()

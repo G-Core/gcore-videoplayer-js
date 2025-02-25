@@ -58,6 +58,20 @@ Description
 </td></tr>
 <tr><td>
 
+[refresh()](./player.bottomgear.refresh.md)
+
+
+</td><td>
+
+
+</td><td>
+
+**_(BETA)_** Re-renders the gear menu. It fires the [MEDIACONTROL\_GEAR\_RENDERED](./player.mediacontrolevents.md) event, which the plugins that attach to the gear menu can listen to to re-render themselves.
+
+
+</td></tr>
+<tr><td>
+
 [setContent(content)](./player.bottomgear.setcontent.md)
 
 

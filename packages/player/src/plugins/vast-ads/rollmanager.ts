@@ -4,7 +4,7 @@ import assert from 'assert';
 
 import LoaderXML from './loaderxml.js';
 import Roll from './roll.js';
-import { ZeptoResult } from '../../utils/types.js';
+import { ZeptoResult } from '../../types.js';
 import { AdRollDesc, AdRollItem, AdRollType, VastAdsOptions } from './types.js';
 
 type CoreOptions = Record<string, unknown>;
