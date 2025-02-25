@@ -74,7 +74,6 @@ describe('SourceController', () => {
   describe('on fatal playback failure', () => {
     let core: any
     let nextPlayback: any
-
     describe('basically', () => {
       beforeEach(() => {
         core = createMockCore({
@@ -213,6 +212,41 @@ describe('SourceController', () => {
           expect(poster.enable).toHaveBeenCalledTimes(1)
           expect(spinner.hide).toHaveBeenCalledTimes(1)
         })
+      })
+    })
+    describe('given that playback triggers many errors in a row', () => {
+      beforeEach(async () => {
+        core = createMockCore({
+          sources: MOCK_SOURCES,
+        })
+        const _ = new SourceController(core)
+        core.emit('core:ready')
+        core.emit('core:active:container:changed')
+        core.activePlayback.emit('playback:error', {
+          code: PlaybackErrorCode.MediaSourceUnavailable,
+        })
+        await clock.tickAsync(1)
+        core.activePlayback.emit('playback:error', {
+          code: PlaybackErrorCode.MediaSourceUnavailable,
+        })
+        await clock.tickAsync(1)
+        core.activePlayback.emit('playback:error', {
+          code: PlaybackErrorCode.MediaSourceUnavailable,
+        })
+        await clock.tickAsync(1)
+        nextPlayback = createMockPlayback()
+        vi.spyOn(nextPlayback, 'consent')
+        vi.spyOn(nextPlayback, 'play')
+        core.activePlayback = nextPlayback
+      })
+      it('should run handler only once', async () => {
+        expect(core.load).not.toHaveBeenCalled()
+        await clock.tickAsync(1000)
+        expect(core.load).toHaveBeenCalledTimes(1)
+        expect(core.load).toHaveBeenCalledWith(
+          MOCK_SOURCES[1].source,
+          MOCK_SOURCES[1].mimeType,
+        )
       })
     })
   })

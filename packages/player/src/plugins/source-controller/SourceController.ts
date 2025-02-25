@@ -90,6 +90,8 @@ export class SourceController extends CorePlugin {
 
   private active = false
 
+  private switching = false
+
   private sync: SyncFn = noSync
 
   /**
@@ -166,15 +168,18 @@ export class SourceController extends CorePlugin {
             description: error?.description,
             level: error?.level,
           },
+          switching: this.switching,
           retrying: this.active,
           currentSource: this.sourcesList[this.currentSourceIndex],
         })
+        if (this.switching) {
+          return
+        }
         switch (error.code) {
           case PlaybackErrorCode.MediaSourceUnavailable:
             this.core.activeContainer?.getPlugin('poster_custom')?.disable()
-            setTimeout(() => this.retryPlayback(), 0)
+            this.retryPlayback()
             break
-          // TODO handle other errors
           default:
             break
         }
@@ -187,7 +192,6 @@ export class SourceController extends CorePlugin {
       })
       if (this.active) {
         this.reset()
-        // TODO make poster reset its state on enable
         this.core.activeContainer?.getPlugin('poster_custom')?.enable()
         this.core.activeContainer?.getPlugin('spinner')?.hide()
       }
@@ -205,6 +209,7 @@ export class SourceController extends CorePlugin {
       currentSource: this.sourcesList[this.currentSourceIndex],
     })
     this.active = true
+    this.switching = true
     this.core.activeContainer?.getPlugin('spinner')?.show(0)
     this.getNextMediaSource().then((nextSource: PlayerMediaSourceDesc) => {
       trace(`${T} retryPlayback syncing...`, {
@@ -213,12 +218,12 @@ export class SourceController extends CorePlugin {
       const rnd = RETRY_DELAY_BLUR * Math.random()
       this.sync(() => {
         trace(`${T} retryPlayback loading...`)
+        this.switching = false
         this.core.load(nextSource.source, nextSource.mimeType)
         trace(`${T} retryPlayback loaded`, {
           nextSource,
         })
         setTimeout(() => {
-          // this.core.activePlayback.consent()
           this.core.activePlayback.play()
           trace(`${T} retryPlayback playing`)
         }, rnd)

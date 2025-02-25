@@ -1,3 +1,4 @@
+import { $, UICorePlugin } from '@clappr/core'
 import Events from 'eventemitter3'
 import { vi } from 'vitest'
 /**
@@ -83,12 +84,10 @@ export class _MockPlayback extends Events {
 
 export function createMockCore(options: Record<string, unknown> = {}, container: any = createMockContainer()) {
   const el = document.createElement('div')
-  return Object.assign(new Events(), {
+  const emitter = new Events()
+  return Object.assign(emitter, {
     el,
-    $el: {
-      [0]: el,
-      append: vi.fn(),
-    },
+    $el: $(el),
     activePlayback: container.playback,
     activeContainer: container,
     options: {
@@ -97,6 +96,7 @@ export function createMockCore(options: Record<string, unknown> = {}, container:
     configure: vi.fn(),
     getPlugin: vi.fn(),
     load: vi.fn(),
+    trigger: emitter.emit,
   })
 }
 
@@ -166,12 +166,19 @@ export function createMockPlayback(name = 'mock') {
 export function createMockContainer(playback: any = createMockPlayback()) {
   const el = document.createElement('div')
   return Object.assign(new Events(), {
-    $el: {
-      html: vi.fn(),
-      [0]: el,
-    },
+    $el: $(el),
     el,
     getPlugin: vi.fn(),
     playback,
   })
+}
+
+export function createMockMediaControl(core: any) {
+  const mediaControl = new UICorePlugin(core)
+  const elements = {
+    gear: $(document.createElement('div')),
+  }
+  // @ts-ignore
+  mediaControl.getElement = vi.fn().mockImplementation((name) => elements[name])
+  return mediaControl
 }
