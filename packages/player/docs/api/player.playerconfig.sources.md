@@ -4,9 +4,6 @@
 
 ## PlayerConfig.sources property
 
-> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
-> 
-
 List of media sources, at least one is required.
 
 **Signature:**

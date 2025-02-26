@@ -12,7 +12,7 @@ export enum VolumeFadeEvents {
 }
 
 /**
- * Applies fade effect to the player's volume change.
+ * `PLUGIN` that applies fade effect to the player's volume change.
  * @beta
  */
 export class VolumeFade extends UICorePlugin {

@@ -40,7 +40,7 @@ export interface LevelSelectorPluginSettings {
 }
 
 /**
- * PLUGIN that provides a UI to select the desired quality level of the playback.
+ * `PLUGIN` that provides a UI to select the desired quality level of the playback.
  * @beta
  *
  * @remarks

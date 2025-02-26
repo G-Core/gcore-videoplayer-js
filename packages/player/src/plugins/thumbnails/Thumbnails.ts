@@ -38,7 +38,7 @@ type Thumb = {
 const T = 'plugins.thumbnails'
 
 /**
- * Displays the thumbnails of the video when available.
+ * `PLUGIN` that displays the thumbnails of the video when available.
  * @beta
  * @example
  * ```ts

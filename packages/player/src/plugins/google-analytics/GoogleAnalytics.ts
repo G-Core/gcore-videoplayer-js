@@ -11,7 +11,7 @@ declare const _gaq: {
 };
 
 /**
- * An example Google Analytics integration plugin
+ * `PLUGIN` that integrates with Google Analytics
  * @beta
  */
 export class GoogleAnalytics extends ContainerPlugin {

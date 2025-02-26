@@ -1,12 +1,12 @@
 /**
  * Playback time in seconds since the beginning of the stream (or a segment for the live streams)
- * @beta
+ * @public
  */
 export type TimeValue = number
 
 /**
  * Current playback time and total duration of the media.
- * @beta
+ * @public
  */
 export interface TimePosition {
   /**
@@ -35,7 +35,7 @@ export type TimeUpdate = TimePosition & {
 
 /**
  * A level of quality within a media source.
- * @beta
+ * @public
  */
 export interface QualityLevel {
   /**
@@ -58,7 +58,7 @@ export interface QualityLevel {
 
 /**
  * Codes of errors occurring within the playback component.
- * @beta
+ * @public
  */
 export enum PlaybackErrorCode {
   /**
@@ -77,19 +77,19 @@ export enum PlaybackErrorCode {
 
 /**
  * Levels of severity of errors. Non-fatal errors usually can be ignored.
- * @beta
+ * @public
  */
 export type ErrorLevel = 'FATAL' | 'WARN' | 'INFO'
 
 /**
  * Subsystems of a player component.
- * @beta
+ * @public
  */
 export type PlayerComponentType = 'container' | 'core' | 'playback'
 
 /**
  * An error occurred during the playback.
- * @beta
+ * @public
  */
 export interface PlaybackError {
   /**
@@ -127,5 +127,6 @@ export interface PlaybackError {
   UI?: {
     title: string
     message: string
+    icon?: string
   }
 }

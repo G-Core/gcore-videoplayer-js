@@ -4,9 +4,6 @@
 
 ## PlayerEvent enum
 
-> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
-> 
-
 A top-level event on the player object
 
 **Signature:**
@@ -45,7 +42,7 @@ Ended
 
 </td><td>
 
-**_(BETA)_** Playback has reached the end of the media.
+Playback has reached the end of the media.
 
 
 </td></tr>
@@ -61,7 +58,7 @@ Error
 
 </td><td>
 
-**_(BETA)_** An error occurred. Parameters: [PlaybackError](./player.playbackerror.md)
+An error occurred. Parameters: [PlaybackError](./player.playbackerror.md)
 
 
 </td></tr>
@@ -77,7 +74,7 @@ Fullscreen
 
 </td><td>
 
-**_(BETA)_** The player has switched to or from the fullscreen mode. Parameters:`boolean` isFullscreen
+The player has switched to or from the fullscreen mode. Parameters:`boolean` isFullscreen
 
 
 </td></tr>
@@ -93,7 +90,7 @@ Pause
 
 </td><td>
 
-**_(BETA)_** Playback has been paused.
+Playback has been paused.
 
 
 </td></tr>
@@ -109,7 +106,7 @@ Play
 
 </td><td>
 
-**_(BETA)_** Playback has started.
+Playback has started.
 
 
 </td></tr>
@@ -125,7 +122,7 @@ Ready
 
 </td><td>
 
-**_(BETA)_** The player is ready to use.
+The player is ready to use.
 
 
 </td></tr>
@@ -141,7 +138,7 @@ Resize
 
 </td><td>
 
-**_(BETA)_** The player's container has been resized. Parameters: [ContainerSize](./player.containersize.md)
+The player's container has been resized. Parameters: [ContainerSize](./player.containersize.md)
 
 
 </td></tr>
@@ -157,7 +154,7 @@ Seek
 
 </td><td>
 
-**_(BETA)_** The player is seeking to a new position.
+The player is seeking to a new position.
 
 
 </td></tr>
@@ -173,7 +170,7 @@ Stop
 
 </td><td>
 
-**_(BETA)_** Playback has been stopped.
+Playback has been stopped.
 
 
 </td></tr>
@@ -189,7 +186,7 @@ TimeUpdate
 
 </td><td>
 
-**_(BETA)_** The current playback time has changed. Parameters: [TimePosition](./player.timeposition.md)
+The current playback time has changed. Parameters: [TimePosition](./player.timeposition.md)
 
 
 </td></tr>
@@ -205,7 +202,7 @@ VolumeUpdate
 
 </td><td>
 
-**_(BETA)_** The volume has changed. Parameters: `number` volume in the range 0..1
+The volume has changed. Parameters: `number` volume in the range 0..1
 
 
 </td></tr>

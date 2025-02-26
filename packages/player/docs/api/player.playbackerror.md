@@ -4,9 +4,6 @@
 
 ## PlaybackError interface
 
-> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
-> 
-
 An error occurred during the playback.
 
 **Signature:**
@@ -53,7 +50,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Error code.
+Error code.
 
 
 </td></tr>
@@ -72,7 +69,7 @@ string
 
 </td><td>
 
-**_(BETA)_** Detailed description of the error.
+Detailed description of the error.
 
 
 </td></tr>
@@ -91,7 +88,7 @@ string
 
 </td><td>
 
-**_(BETA)_** Level of severity of the error.
+Level of severity of the error.
 
 
 </td></tr>
@@ -110,7 +107,7 @@ string
 
 </td><td>
 
-**_(BETA)_** Error message. Non-fatal usually can be ignored.
+Error message. Non-fatal usually can be ignored.
 
 
 </td></tr>
@@ -129,7 +126,7 @@ string
 
 </td><td>
 
-**_(BETA)_** Exact component that originated the error.
+Exact component that originated the error.
 
 
 </td></tr>
@@ -148,7 +145,7 @@ string
 
 </td><td>
 
-**_(BETA)_** Component subsystem of the error origin
+Component subsystem of the error origin
 
 
 </td></tr>
@@ -162,12 +159,12 @@ string
 
 </td><td>
 
-{ title: string; message: string; }
+{ title: string; message: string; icon?: string; }
 
 
 </td><td>
 
-**_(BETA)_** _(Optional)_ UI description of the error.
+_(Optional)_ UI description of the error.
 
 
 </td></tr>

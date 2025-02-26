@@ -7,7 +7,7 @@
 > This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
 > 
 
-This plugin is responsible for managing the automatic failover between sources.
+`PLUGIN` that is responsible for managing the automatic failover between sources.
 
 **Signature:**
 

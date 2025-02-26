@@ -6,25 +6,7 @@ import { CLAPPR_VERSION } from '../../build.js'
 import reloadIcon from '../../../assets/icons/old/reload.svg'
 import templateHtml from '../../../assets/error-screen/error_screen.ejs'
 import '../../../assets/error-screen/error_screen.scss'
-import { PlaybackErrorCode } from '../../playback.types.js'
-
-/**
- * An error fired in the player and plugins code to be handled in the UI
- * @beta
- */
-export type ErrorDesc = {
-  description: string
-  level: string
-  code: string
-  origin: string
-  scope: string
-  raw?: string
-  UI?: {
-    icon?: string
-    title: string
-    message: string
-  }
-}
+import { PlaybackError } from '../../playback.types.js'
 
 type ErrorScreenDesc = {
   title: string
@@ -47,7 +29,7 @@ export type ErrorScreenPluginSettings = {
 const T = 'plugins.error_screen'
 
 /**
- * PLUGIN that displays errors nicely in the overlay on top of the player.
+ * `PLUGIN` that displays errors nicely in the overlay on top of the player.
  * @beta
  */
 export class ErrorScreen extends UICorePlugin {
@@ -142,7 +124,7 @@ export class ErrorScreen extends UICorePlugin {
     }
   }
 
-  private onError(err: ErrorDesc) {
+  private onError(err: PlaybackError) {
     trace(`${T} onError`, { err })
     if (err.UI) {
       if (this.err) {

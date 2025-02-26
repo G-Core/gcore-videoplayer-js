@@ -4,9 +4,6 @@
 
 ## QualityLevel interface
 
-> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
-> 
-
 A level of quality within a media source.
 
 **Signature:**
@@ -53,7 +50,7 @@ number
 
 </td><td>
 
-**_(BETA)_** Bitrate of the video, bps.
+Bitrate of the video, bps.
 
 
 </td></tr>
@@ -72,7 +69,7 @@ number
 
 </td><td>
 
-**_(BETA)_** Height of the video, pixels.
+Height of the video, pixels.
 
 
 </td></tr>
@@ -91,7 +88,7 @@ number
 
 </td><td>
 
-**_(BETA)_** Zero-based index of the quality level.
+Zero-based index of the quality level.
 
 
 </td></tr>
@@ -110,7 +107,7 @@ number
 
 </td><td>
 
-**_(BETA)_** Width of the video, pixels.
+Width of the video, pixels.
 
 
 </td></tr>

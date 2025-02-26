@@ -35,7 +35,7 @@ const DEFAULT_PLAYBACK_RATE = '1.0';
 const T = 'plugins.playback_rate';
 
 /**
- * PLUGIN that allows changing the playback speed of the video.
+ * `PLUGIN` that allows changing the playback speed of the video.
  * @beta
  *
  * @remarks

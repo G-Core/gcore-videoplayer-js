@@ -14,7 +14,7 @@ import { ZeptoResult } from '../../types.js';
 const { formatTime } = Utils;
 
 /**
- * The plugin adds a seek time indicator to the media control UI.
+ * `PLUGIN` that adds a seek time indicator to the media control UI.
  * @beta
  */
 export class SeekTime extends UICorePlugin {

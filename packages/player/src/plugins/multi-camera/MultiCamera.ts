@@ -26,7 +26,7 @@ const VERSION = '0.0.1';
 const T = 'plugins.multicamera';
 
 /**
- * PLUGIN that adds support for loading multiple streams and switching between them using the media control UI.
+ * `PLUGIN` that adds support for loading multiple streams and switching between them using the media control UI.
  * @beta
  */
 export class MultiCamera extends UICorePlugin {

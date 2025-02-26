@@ -7,7 +7,7 @@
 > This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
 > 
 
-Displays a big mute button over the video when it's muted. Once pressed, it unmutes the video.
+`PLUGIN` that displays a big mute button over the video when it's muted. Once pressed, it unmutes the video.
 
 **Signature:**
 

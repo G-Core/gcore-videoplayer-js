@@ -23,7 +23,7 @@ const T = 'plugins.bottom_gear';
 export type GearItemElement = 'quality' | 'rate' | 'nerd';
 
 /**
- * Adds the gear button that triggers extra options menu on the right side of the {@link MediaControl | media control} UI
+ * `PLUGIN` that adds the gear button with an extra options menu on the right side of the {@link MediaControl | media control} UI
  * @beta
  * @remarks
  * The plugins provides a base for attaching custom settings UI in the gear menu

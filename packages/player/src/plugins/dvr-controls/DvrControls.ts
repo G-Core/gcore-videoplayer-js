@@ -10,7 +10,7 @@ import { trace } from '@gcorevideo/utils'
 const T = 'plugins.dvr_controls'
 
 /**
- * PLUGIN that adds the DVR controls to the media control UI
+ * `PLUGIN` that adds the DVR controls to the media control UI
  *
  * @beta
  *

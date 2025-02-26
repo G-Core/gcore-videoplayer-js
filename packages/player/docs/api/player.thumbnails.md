@@ -7,7 +7,7 @@
 > This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
 > 
 
-Displays the thumbnails of the video when available.
+`PLUGIN` that displays the thumbnails of the video when available.
 
 **Signature:**
 

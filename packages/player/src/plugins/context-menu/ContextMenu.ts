@@ -28,7 +28,7 @@ export interface ContextMenuPluginSettings {
 }
 
 /**
- * Displays a small context menu when clicked on the player container.
+ * `PLUGIN` that displays a small context menu when clicked on the player container.
  * @beta
  * @remarks
  * Configuration options - {@link ContextMenuPluginSettings}

@@ -7,7 +7,7 @@
 > This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
 > 
 
-Adds the gear button that triggers extra options menu on the right side of the [media control](./player.mediacontrol.md) UI
+`PLUGIN` that adds the gear button with an extra options menu on the right side of the [media control](./player.mediacontrol.md) UI
 
 **Signature:**
 

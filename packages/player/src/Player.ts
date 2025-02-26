@@ -26,7 +26,7 @@ import { registerPlaybacks } from './playback/index.js'
 import { PlaybackError, TimePosition } from './playback.types.js'
 
 /**
- * @beta
+ * @public
  */
 export type PlayerEventParams<E extends PlayerEvent> =
   E extends PlayerEvent.Seek
@@ -46,7 +46,7 @@ export type PlayerEventParams<E extends PlayerEvent> =
 /**
  * Type of a listener callback function for a player event.
  * See the description of the event parameters in {@link PlayerEvent}.
- * @beta
+ * @public
  */
 export type PlayerEventHandler<E extends PlayerEvent> = (
   ...args: PlayerEventParams<E>
@@ -67,15 +67,15 @@ const DEFAULT_OPTIONS: PlayerConfig = {
 
 /**
  * Module to perform the playback.
- * @beta
+ * @public
  */
 export type PlaybackModule = 'dash' | 'hls' | 'html5_video'
 
 type PluginOptions = Record<string, unknown>
 
 /**
- * The main component to use in the application code.
- * @beta
+ * `MAIN` component to use in the application code.
+ * @public
  * @remarks
  * The Player object provides very basic API to control playback.
  * To build a sophisticated UI, use the plugins framework to tap into the Clappr core.

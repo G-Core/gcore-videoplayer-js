@@ -4,9 +4,6 @@
 
 ## TimePosition interface
 
-> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
-> 
-
 Current playback time and total duration of the media.
 
 **Signature:**
@@ -53,7 +50,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Current playback time, 0..duration, seconds.
+Current playback time, 0..duration, seconds.
 
 
 </td></tr>
@@ -72,7 +69,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Total duration of the media, seconds.
+Total duration of the media, seconds.
 
 
 </td></tr>

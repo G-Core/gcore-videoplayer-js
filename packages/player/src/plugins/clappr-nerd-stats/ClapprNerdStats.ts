@@ -117,7 +117,7 @@ type Metrics = BaseMetrics & {
 // const T = 'plugins.clappr_nerd_stats';
 
 /**
- * PLUGIN that displays useful network-related statistics.
+ * `PLUGIN` that displays useful network-related statistics.
  * @beta
  *
  * @remarks

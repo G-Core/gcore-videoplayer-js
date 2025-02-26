@@ -30,7 +30,7 @@ export interface ClipsPluginSettings {
 }
 
 /**
- * PLUGIN that shows text over the seekbar to indicate the current clip.
+ * `PLUGIN` that shows text over the seekbar to indicate the current clip.
  * @beta
  * @remarks
  * Depends on:

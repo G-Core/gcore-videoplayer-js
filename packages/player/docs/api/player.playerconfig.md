@@ -4,9 +4,6 @@
 
 ## PlayerConfig interface
 
-> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
-> 
-
 Configuration options for the player
 
 **Signature:**
@@ -88,7 +85,7 @@ boolean
 
 </td><td>
 
-**_(BETA)_** _(Optional)_ Start playback automatically when the player is ready
+_(Optional)_ Start playback automatically when the player is ready
 
 
 </td></tr>
@@ -107,7 +104,7 @@ boolean
 
 </td><td>
 
-**_(BETA)_** _(Optional)_ Configuration settings for the DASH playback engine
+_(Optional)_ Configuration settings for the DASH playback engine
 
 
 </td></tr>
@@ -126,7 +123,7 @@ boolean
 
 </td><td>
 
-**_(BETA)_** _(Optional)_ Controls the debug output level
+_(Optional)_ Controls the debug output level
 
 
 </td></tr>
@@ -145,7 +142,7 @@ string
 
 </td><td>
 
-**_(BETA)_** _(Optional)_ A language code for the player UI, for example, `es`<!-- -->. Must reference a key in the [strings](./player.playerconfig.strings.md) record.
+_(Optional)_ A language code for the player UI, for example, `es`<!-- -->. Must reference a key in the [strings](./player.playerconfig.strings.md) record.
 
 
 </td></tr>
@@ -164,7 +161,7 @@ boolean
 
 </td><td>
 
-**_(BETA)_** _(Optional)_ Repeat playback when the media ends. Is used with the `vod` [playbackType](./player.playerconfig.playbacktype.md)
+_(Optional)_ Repeat playback when the media ends. Is used with the `vod` [playbackType](./player.playerconfig.playbacktype.md)
 
 
 </td></tr>
@@ -183,7 +180,7 @@ boolean
 
 </td><td>
 
-**_(BETA)_** _(Optional)_ Mute the audio output in order to comply with browsers' autoplay policy.
+_(Optional)_ Mute the audio output in order to comply with browsers' autoplay policy.
 
 
 </td></tr>
@@ -202,7 +199,7 @@ boolean
 
 </td><td>
 
-**_(BETA)_** _(Optional)_ The type of playback (live stream or video on demand).
+_(Optional)_ The type of playback (live stream or video on demand).
 
 
 </td></tr>
@@ -221,7 +218,7 @@ boolean
 
 </td><td>
 
-**_(BETA)_** _(Optional)_ Preferred transport protocol when multiple sources are available.
+_(Optional)_ Preferred transport protocol when multiple sources are available.
 
 
 </td></tr>
@@ -240,7 +237,7 @@ boolean
 
 </td><td>
 
-**_(BETA)_** List of media sources, at least one is required.
+List of media sources, at least one is required.
 
 
 </td></tr>
@@ -259,7 +256,7 @@ boolean
 
 </td><td>
 
-**_(BETA)_** _(Optional)_ Localization strings for the player UI.
+_(Optional)_ Localization strings for the player UI.
 
 
 </td></tr>

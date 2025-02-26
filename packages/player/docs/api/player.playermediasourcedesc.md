@@ -4,9 +4,6 @@
 
 ## PlayerMediaSourceDesc interface
 
-> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
-> 
-
 Describes a media source with its MIME type and URL.
 
 **Signature:**
@@ -57,7 +54,7 @@ string
 
 </td><td>
 
-**_(BETA)_** _(Optional)_ The MIME type of the media source (e.g. `"video/mp4"`<!-- -->, `"application/x-mpegURL"`<!-- -->). Necessary if the type cannot be detected from file extension of the source URL.
+_(Optional)_ The MIME type of the media source (e.g. `"video/mp4"`<!-- -->, `"application/x-mpegURL"`<!-- -->). Necessary if the type cannot be detected from file extension of the source URL.
 
 
 </td></tr>
@@ -76,7 +73,7 @@ string
 
 </td><td>
 
-**_(BETA)_** URL of the media source
+URL of the media source
 
 
 </td></tr>

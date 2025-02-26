@@ -7,7 +7,7 @@
 > This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
 > 
 
-A [media control](./player.mediacontrol.md) plugin that provides a UI to select the subtitles when available.
+`PLUGIN` that provides a UI to select the subtitles when available.
 
 **Signature:**
 

@@ -24,7 +24,7 @@ import { PlaybackError } from '../../playback.types.js'
 const T = 'plugins.poster'
 
 /**
- * Displays a poster image in the background and a big play button on top when playback is stopped
+ * `PLUGIN` that displays a poster image in the background and a big play button on top when playback is stopped
  * @beta
  * @remarks
  * When the playback is stopped, media control UI is disabled.

@@ -4,15 +4,12 @@
 
 ## Player.unregisterPlugin() method
 
-> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
-> 
-
 Unregisters a plugin registered earlier with [Player.registerPlugin()](./player.player.registerplugin.md)<!-- -->.
 
 **Signature:**
 
 ```typescript
-static unregisterPlugin(plugin: PlayerPluginConstructor): void;
+static unregisterPlugin(name: string): void;
 ```
 
 ## Parameters
@@ -35,17 +32,17 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-plugin
+name
 
 
 </td><td>
 
-[PlayerPluginConstructor](./player.playerpluginconstructor.md)
+string
 
 
 </td><td>
 
-a plugin class
+name of the plugin
 
 
 </td></tr>
@@ -53,4 +50,14 @@ a plugin class
 **Returns:**
 
 void
+
+## Remarks
+
+It can be also used to unregister a built-in default plugin.
+
+Currently, the plugins that are always registered are:
+
+- ['strings'](https://github.com/clappr/clappr-core/blob/3126c3a38a6eee9d5aba3918b194e6380fa1178c/src/plugins/strings/strings.js)<!-- -->, which supports internationalization of the player UI
+
+- ['sources'](https://github.com/clappr/clappr-core/blob/3126c3a38a6eee9d5aba3918b194e6380fa1178c/src/plugins/sources/sources.js)<!-- -->, which lets to specify multiple media sources and selects the first suitable playback module
 

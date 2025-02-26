@@ -7,7 +7,7 @@
 > This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
 > 
 
-Adds the DVR controls to the media control UI
+`PLUGIN` that adds the DVR controls to the media control UI
 
 **Signature:**
 
@@ -22,7 +22,7 @@ Depends on:
 
 - [MediaControl](./player.mediacontrol.md)
 
-The plugin renders the live stream indicator and the DVR seek bar, if DVR is enabled, in the media control UI.
+The plugin renders live stream indicator and the DVR seek bar, if DVR is enabled, in the media control UI.
 
 ## Constructors
 

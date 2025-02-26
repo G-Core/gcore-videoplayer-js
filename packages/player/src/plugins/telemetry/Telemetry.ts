@@ -103,7 +103,7 @@ export enum TelemetryEvent {
 }
 
 /**
- * PLUGIN that collects and reports the performance statistics.
+ * `PLUGIN` that collects and reports the performance statistics.
  * @beta
  * @remarks
  * This plugin is experimental and its API is likely to change.

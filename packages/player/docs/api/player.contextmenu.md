@@ -7,7 +7,7 @@
 > This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
 > 
 
-Displays a small context menu when clicked on the player container.
+`PLUGIN` that displays a small context menu when clicked on the player container.
 
 **Signature:**
 

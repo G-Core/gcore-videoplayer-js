@@ -4,9 +4,6 @@
 
 ## PlaybackErrorCode enum
 
-> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
-> 
-
 Codes of errors occurring within the playback component.
 
 **Signature:**
@@ -45,7 +42,7 @@ Generic
 
 </td><td>
 
-**_(BETA)_** An unknown or uncategorised error.
+An unknown or uncategorised error.
 
 
 </td></tr>
@@ -61,7 +58,7 @@ MediaSourceAccessDenied
 
 </td><td>
 
-**_(BETA)_** The media source is not accessible due to some protection policy.
+The media source is not accessible due to some protection policy.
 
 
 </td></tr>
@@ -77,7 +74,7 @@ MediaSourceUnavailable
 
 </td><td>
 
-**_(BETA)_** The media source is not available. Typically a network error.
+The media source is not available. Typically a network error.
 
 
 </td></tr>

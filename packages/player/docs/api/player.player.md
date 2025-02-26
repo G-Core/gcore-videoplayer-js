@@ -4,10 +4,7 @@
 
 ## Player class
 
-> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
-> 
-
-The main component to use in the application code.
+`MAIN` component to use in the application code.
 
 **Signature:**
 
@@ -47,7 +44,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Constructs a new instance of the `Player` class
+Constructs a new instance of the `Player` class
 
 
 </td></tr>
@@ -81,7 +78,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Initializes the player at the given container element.
+Initializes the player at the given container element.
 
 
 </td></tr>
@@ -95,7 +92,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Configures the player.
+Configures the player.
 
 
 </td></tr>
@@ -109,7 +106,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Destroys the player, releasing all resources and unmounting its UI from the DOM.
+Destroys the player, releasing all resources and unmounting its UI from the DOM.
 
 
 </td></tr>
@@ -123,7 +120,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Current playback (time since the beginning of the stream), if appropriate.
+Current playback (time since the beginning of the stream), if appropriate.
 
 
 </td></tr>
@@ -137,7 +134,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Duration of the current media in seconds, if appropriate.
+Duration of the current media in seconds, if appropriate.
 
 
 </td></tr>
@@ -151,7 +148,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Gets the current volume of the media content being played.
+Gets the current volume of the media content being played.
 
 
 </td></tr>
@@ -165,7 +162,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Indicates whether DVR is enabled.
+Indicates whether DVR is enabled.
 
 
 </td></tr>
@@ -179,7 +176,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Indicates whether DVR is in use.
+Indicates whether DVR is in use.
 
 
 </td></tr>
@@ -193,7 +190,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Indicates muted state of the video.
+Indicates muted state of the video.
 
 
 </td></tr>
@@ -207,7 +204,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Indicates the playing state.
+Indicates the playing state.
 
 
 </td></tr>
@@ -221,7 +218,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Mutes the sound of the video.
+Mutes the sound of the video.
 
 
 </td></tr>
@@ -235,7 +232,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Removes a previously added event listener
+Removes a previously added event listener
 
 
 </td></tr>
@@ -249,7 +246,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Adds a listener to a player event
+Adds a listener to a player event
 
 
 </td></tr>
@@ -263,7 +260,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Pauses playback.
+Pauses playback.
 
 
 </td></tr>
@@ -277,7 +274,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Starts playback.
+Starts playback.
 
 
 </td></tr>
@@ -293,7 +290,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Registers a plugin.
+Registers a plugin.
 
 
 </td></tr>
@@ -307,7 +304,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Resizes the player container element and everything within it.
+Resizes the player container element and everything within it.
 
 
 </td></tr>
@@ -321,7 +318,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Seeks to the given time.
+Seeks to the given time.
 
 
 </td></tr>
@@ -335,7 +332,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Sets the current volume of the media content being played.
+Sets the current volume of the media content being played.
 
 
 </td></tr>
@@ -349,7 +346,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Stops playback.
+Stops playback.
 
 
 </td></tr>
@@ -363,13 +360,13 @@ Description
 
 </td><td>
 
-**_(BETA)_** Unmutes the video sound.
+Unmutes the video sound.
 
 
 </td></tr>
 <tr><td>
 
-[unregisterPlugin(plugin)](./player.player.unregisterplugin.md)
+[unregisterPlugin(name)](./player.player.unregisterplugin.md)
 
 
 </td><td>
@@ -379,7 +376,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Unregisters a plugin registered earlier with [Player.registerPlugin()](./player.player.registerplugin.md)<!-- -->.
+Unregisters a plugin registered earlier with [Player.registerPlugin()](./player.player.registerplugin.md)<!-- -->.
 
 
 </td></tr>

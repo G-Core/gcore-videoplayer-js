@@ -43,7 +43,7 @@ type AudioTrackList = {
 }
 
 /**
- * Adds an audio track selector to the media control UI.
+ * `PLUGIN` that adds an audio track selector to the media control UI.
  * @beta
  */
 export class AudioSelector extends UICorePlugin {

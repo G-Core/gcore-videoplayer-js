@@ -31,7 +31,7 @@ export enum SpinnerEvents {
 }
 
 /**
- * PLUGIN that shows a pending operation indicator when playback is buffering or in a similar state
+ * `PLUGIN` that shows a pending operation indicator when playback is buffering or in a similar state
  * @beta
  * @remarks
  * Events emitted- {@link SpinnerEvents}

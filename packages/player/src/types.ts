@@ -6,7 +6,7 @@ import { $, Container, Core } from "@clappr/core";
  * @remarks
  * When the MIME type is provided, it helps the player determine the appropriate playback engine.
  * If omitted, the player will attempt to detect the type from the source URL extension.
- * @beta
+ * @public
  */
 export interface PlayerMediaSourceDesc {
   /**
@@ -23,42 +23,36 @@ export interface PlayerMediaSourceDesc {
 
 /**
  * A media source to fetch the media data from
- * @beta
+ * @public
  */
 export type PlayerMediaSource = string | PlayerMediaSourceDesc
 
 /**
  * Debug output category selector
- * @beta
+ * @public
  */
 export type PlayerDebugTag = 'all' | 'clappr' | 'dash' | 'hls' | 'none'
 
 /**
  * @remarks `true` is equivalent to `'all'`, `false` is equivalent to `'none'`
- * @beta
+ * @public
  */
 export type PlayerDebugSettings = PlayerDebugTag | boolean
 
 /**
- * Type of a stream playback
- * @beta
+ * Type of a stream
+ * @public
  */
 export type PlaybackType = 'live' | 'vod'
 
 /**
- * Media delivery protocol
- * @beta
+ * Preferred streaming media delivery protocol
+ * @public
  */
-export type MediaTransport = 'dash' | 'hls'
+export type TransportPreference = 'dash' | 'hls'
 
 /**
- * Preferred media delivery protocol
- * @beta
- */
-export type TransportPreference = MediaTransport
-
-/**
- * @beta
+ * @public
  * @see {@link https://clappr.github.io/classes/UIContainerPlugin.html},
  * {@link https://clappr.github.io/classes/ContainerPlugin.html}
  */
@@ -67,12 +61,12 @@ export type PlayerPlugin = {
 }
 
 /**
- * @beta
+ * @public
  */
 export type PlayerPluginConstructor = CorePluginConstructor | ContainerPluginConstructor
 
 /**
- * @beta
+ * @public
  */
 export type CorePluginConstructor = {
   new (core: Core): PlayerPlugin
@@ -80,7 +74,7 @@ export type CorePluginConstructor = {
 }
 
 /**
- * @beta
+ * @public
  */
 export type ContainerPluginConstructor = {
   new (container: Container): PlayerPlugin
@@ -126,7 +120,7 @@ export type ContainerPluginConstructor = {
  *   },
  * }
  * ```
- * @beta
+ * @public
  */
 export interface PlayerConfig extends Record<string, unknown> {
   /**
@@ -194,18 +188,18 @@ export interface PlayerConfig extends Record<string, unknown> {
 /**
  * An ISO 639-1 language code.
  * @example `pt`
- * @beta
+ * @public
  */
 export type LangTag = string
 
 /**
- * @beta
+ * @public
  */
 export type TranslationKey = string
 
 /**
  * A plain JS object that must conform to the DASH.js settings schema.
- * @beta
+ * @public
  * {@link https://cdn.dashjs.org/latest/jsdoc/module-Settings.html | DASH.js settings}
  */
 export type DashSettings = Record<string, unknown>
@@ -232,7 +226,7 @@ export type DashSettings = Record<string, unknown>
  * }
  * ```
  *
- * @beta
+ * @public
  */
 export type TranslationSettings = Partial<
   Record<LangTag, Record<TranslationKey, string>>
@@ -240,7 +234,7 @@ export type TranslationSettings = Partial<
 
 /**
  * Dimensions of the player container DOM element.
- * @beta
+ * @public
  */
 export type ContainerSize = {
   width: number
@@ -249,7 +243,7 @@ export type ContainerSize = {
 
 /**
  * A top-level event on the player object
- * @beta
+ * @public
  */
 export enum PlayerEvent {
   /**

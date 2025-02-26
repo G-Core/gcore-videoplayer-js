@@ -13,7 +13,7 @@ const T = 'plugins.big_mute_button'
 // TODO rewrite as a container plugin
 
 /**
- * Displays a big mute button over the video when it's muted.
+ * `PLUGIN` that displays a big mute button over the video when it's muted.
  * Once pressed, it unmutes the video.
  * @beta
  */
@@ -56,7 +56,6 @@ export class BigMuteButton extends UICorePlugin {
    * @internal
    */
   override bindEvents() {
-    super.bindEvents()
     this.listenTo(this.core, Events.CORE_READY, this.onCoreReady)
     this.listenTo(this.core, 'core:advertisement:start', this.onStartAd)
     this.listenTo(this.core, 'core:advertisement:finish', this.onFinishAd)

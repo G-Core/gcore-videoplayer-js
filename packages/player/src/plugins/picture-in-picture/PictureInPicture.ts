@@ -12,7 +12,7 @@ const VERSION = '0.0.1';
 const T = `plugins.pip`;
 
 /**
- * Enables picture in picture mode.
+ * `PLUGIN` that enables picture in picture mode.
  * @beta
  * @remarks
  * Depends on:

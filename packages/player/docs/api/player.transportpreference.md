@@ -4,15 +4,10 @@
 
 ## TransportPreference type
 
-> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
-> 
-
-Preferred media delivery protocol
+Preferred streaming media delivery protocol
 
 **Signature:**
 
 ```typescript
-export type TransportPreference = MediaTransport;
+export type TransportPreference = 'dash' | 'hls';
 ```
-**References:** [MediaTransport](./player.mediatransport.md)
-

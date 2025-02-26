@@ -88,11 +88,11 @@ type DisabledClickable = {
 }
 
 /**
- * PLUGIN that provides a foundation for developing custom media controls UI.
+ * `PLUGIN` that provides a foundation for developing custom media controls UI.
  * @beta
  * @remarks
  * The methods exposed are to be used by the other plugins that extend the media control UI.
- * The plugin registration should be arranged so that MediaControl is initialized before every other plugin that depends on it.
+ * The plugin registration should be arranged so that MediaControl is initialized before every other `PLUGIN` that depends on it.
  * @example
  * ```ts
  * Player.registerPlugin(MediaControl) // <--- This must go first

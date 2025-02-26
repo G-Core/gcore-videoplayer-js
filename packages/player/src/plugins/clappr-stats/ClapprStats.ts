@@ -23,7 +23,7 @@ type UriToMeasureBandwidth = {
 const updateMetrics = () => {};
 
 /**
- * PLIGIN that collects useful statistics about playback performance.
+ * `PLUGIN` that collects useful statistics about playback performance.
  * @beta
  * @remarks
  * This plugin does not render anything and is supposed to be extended or used together with other plugins that actually render something.

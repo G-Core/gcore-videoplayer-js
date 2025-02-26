@@ -21,7 +21,7 @@ type LogoOptions = {
 };
 
 /**
- * The plugin adds custom logo to the player.
+ * `PLUGIN` that adds custom logo to the player.
  * @beta
  */
 export class Logo extends UIContainerPlugin {

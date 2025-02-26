@@ -10,7 +10,7 @@ import fbIcon from '../../../assets/icons/old/fb.svg';
 import twIcon from '../../../assets/icons/old/twitter.svg';
 
 /**
- * PLUGIN that adds a share button to the media control UI.
+ * `PLUGIN` that adds a share button to the media control UI.
  * @beta
  */
 export class Share extends UICorePlugin {

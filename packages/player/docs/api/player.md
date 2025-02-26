@@ -10,6 +10,26 @@ Video player for the Gcore streaming platform
 
 This package provides a video player for the Gcore streaming platform. It is built on top of the Clappr library and provides a framework for building custom integrations. Start with [Player](./player.player.md) for more information.
 
+Various plugins (marked with `PLUGIN` keyword) are available to extend the player with additional features.
+
+## Example
+
+
+```ts
+import { Player, MediaControl, ErrorScreen } from '@gcorevideo/player'
+
+Player.registerPlugin(MediaControl)
+Player.registerPlugin(ErrorScreen)
+
+const player = new Player({
+  autoPlay: true,
+  mute: true,
+  sources: [{ source: 'https://example.com/a.mpd', mimeType: 'application/dash+xml' }],
+})
+
+player.attachTo(document.getElementById('container'))
+```
+
 ## Classes
 
 <table><thead><tr><th>
@@ -30,7 +50,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Adds an audio track selector to the media control UI.
+**_(BETA)_** `PLUGIN` that adds an audio track selector to the media control UI.
 
 
 </td></tr>
@@ -41,7 +61,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Displays a big mute button over the video when it's muted. Once pressed, it unmutes the video.
+**_(BETA)_** `PLUGIN` that displays a big mute button over the video when it's muted. Once pressed, it unmutes the video.
 
 
 </td></tr>
@@ -52,7 +72,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Adds the gear button that triggers extra options menu on the right side of the [media control](./player.mediacontrol.md) UI
+**_(BETA)_** `PLUGIN` that adds the gear button with an extra options menu on the right side of the [media control](./player.mediacontrol.md) UI
 
 
 </td></tr>
@@ -63,7 +83,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** PLUGIN that displays useful network-related statistics.
+**_(BETA)_** `PLUGIN` that displays useful network-related statistics.
 
 
 </td></tr>
@@ -74,7 +94,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** PLIGIN that collects useful statistics about playback performance.
+**_(BETA)_** `PLUGIN` that collects useful statistics about playback performance.
 
 
 </td></tr>
@@ -85,7 +105,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Adds a behavior of toggling the playback state on click over the container
+**_(BETA)_** `PLUGIN` that adds a behavior of toggling the playback state on click over the container
 
 
 </td></tr>
@@ -96,7 +116,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** PLUGIN that shows text over the seekbar to indicate the current clip.
+**_(BETA)_** `PLUGIN` that shows text over the seekbar to indicate the current clip.
 
 
 </td></tr>
@@ -107,7 +127,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Displays a small context menu when clicked on the player container.
+**_(BETA)_** `PLUGIN` that displays a small context menu when clicked on the player container.
 
 
 </td></tr>
@@ -118,7 +138,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Adds the DVR controls to the media control UI
+**_(BETA)_** `PLUGIN` that adds the DVR controls to the media control UI
 
 
 </td></tr>
@@ -129,7 +149,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** PLUGIN that displays errors nicely in the overlay on top of the player.
+**_(BETA)_** `PLUGIN` that displays errors nicely in the overlay on top of the player.
 
 
 </td></tr>
@@ -140,7 +160,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** The plugin adds custom favicon to the player's tab.
+**_(BETA)_** `PLUGIN` that adds custom favicon to the player's tab.
 
 
 </td></tr>
@@ -151,7 +171,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** An example Google Analytics integration plugin
+**_(BETA)_** `PLUGIN` that integrates with Google Analytics
 
 
 </td></tr>
@@ -162,7 +182,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** PLUGIN that provides a UI to select the desired quality level of the playback.
+**_(BETA)_** `PLUGIN` that provides a UI to select the desired quality level of the playback.
 
 
 </td></tr>
@@ -173,7 +193,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** The plugin adds custom logo to the player.
+**_(BETA)_** `PLUGIN` that adds custom logo to the player.
 
 
 </td></tr>
@@ -184,7 +204,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** PLUGIN that provides a foundation for developing custom media controls UI.
+**_(BETA)_** `PLUGIN` that provides a foundation for developing custom media controls UI.
 
 
 </td></tr>
@@ -195,7 +215,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** PLUGIN that adds support for loading multiple streams and switching between them using the media control UI.
+**_(BETA)_** `PLUGIN` that adds support for loading multiple streams and switching between them using the media control UI.
 
 
 </td></tr>
@@ -206,7 +226,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Enables picture in picture mode.
+**_(BETA)_** `PLUGIN` that enables picture in picture mode.
 
 
 </td></tr>
@@ -217,7 +237,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** PLUGIN that allows changing the playback speed of the video.
+**_(BETA)_** `PLUGIN` that allows changing the playback speed of the video.
 
 
 </td></tr>
@@ -228,7 +248,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** The main component to use in the application code.
+`MAIN` component to use in the application code.
 
 
 </td></tr>
@@ -239,7 +259,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Displays a poster image in the background and a big play button on top when playback is stopped
+**_(BETA)_** `PLUGIN` that displays a poster image in the background and a big play button on top when playback is stopped
 
 
 </td></tr>
@@ -250,7 +270,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** The plugin adds a seek time indicator to the media control UI.
+**_(BETA)_** `PLUGIN` that adds a seek time indicator to the media control UI.
 
 
 </td></tr>
@@ -261,7 +281,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** PLUGIN that adds a share button to the media control UI.
+**_(BETA)_** `PLUGIN` that adds a share button to the media control UI.
 
 
 </td></tr>
@@ -272,7 +292,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** PLUGIN that adds skip controls to the media control UI.
+**_(BETA)_** `PLUGIN` that adds skip controls to the media control UI.
 
 
 </td></tr>
@@ -283,7 +303,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** This plugin is responsible for managing the automatic failover between sources.
+**_(BETA)_** `PLUGIN` that is responsible for managing the automatic failover between sources.
 
 
 </td></tr>
@@ -294,7 +314,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** PLUGIN that shows a pending operation indicator when playback is buffering or in a similar state
+**_(BETA)_** `PLUGIN` that shows a pending operation indicator when playback is buffering or in a similar state
 
 
 </td></tr>
@@ -305,7 +325,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** A [media control](./player.mediacontrol.md) plugin that provides a UI to select the subtitles when available.
+**_(BETA)_** `PLUGIN` that provides a UI to select the subtitles when available.
 
 
 </td></tr>
@@ -316,7 +336,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** PLUGIN that collects and reports the performance statistics.
+**_(BETA)_** `PLUGIN` that collects and reports the performance statistics.
 
 
 </td></tr>
@@ -327,7 +347,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Displays the thumbnails of the video when available.
+**_(BETA)_** `PLUGIN` that displays the thumbnails of the video when available.
 
 
 </td></tr>
@@ -338,7 +358,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Applies fade effect to the player's volume change.
+**_(BETA)_** `PLUGIN` that applies fade effect to the player's volume change.
 
 
 </td></tr>
@@ -375,7 +395,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Codes of errors occurring within the playback component.
+Codes of errors occurring within the playback component.
 
 
 </td></tr>
@@ -386,7 +406,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** A top-level event on the player object
+A top-level event on the player object
 
 
 </td></tr>
@@ -515,7 +535,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** An error occurred during the playback.
+An error occurred during the playback.
 
 
 </td></tr>
@@ -526,7 +546,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Configuration options for the player
+Configuration options for the player
 
 
 </td></tr>
@@ -537,7 +557,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Describes a media source with its MIME type and URL.
+Describes a media source with its MIME type and URL.
 
 
 </td></tr>
@@ -548,7 +568,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** A level of quality within a media source.
+A level of quality within a media source.
 
 
 </td></tr>
@@ -592,7 +612,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Current playback time and total duration of the media.
+Current playback time and total duration of the media.
 
 
 </td></tr>
@@ -629,7 +649,6 @@ Description
 
 </td><td>
 
-**_(BETA)_**
 
 
 </td></tr>
@@ -640,7 +659,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Dimensions of the player container DOM element.
+Dimensions of the player container DOM element.
 
 
 </td></tr>
@@ -651,7 +670,6 @@ Description
 
 </td><td>
 
-**_(BETA)_**
 
 
 </td></tr>
@@ -662,20 +680,9 @@ Description
 
 </td><td>
 
-**_(BETA)_** A plain JS object that must conform to the DASH.js settings schema.
+A plain JS object that must conform to the DASH.js settings schema.
 
 [DASH.js settings](https://cdn.dashjs.org/latest/jsdoc/module-Settings.html)
-
-
-</td></tr>
-<tr><td>
-
-[ErrorDesc](./player.errordesc.md)
-
-
-</td><td>
-
-**_(BETA)_** An error fired in the player and plugins code to be handled in the UI
 
 
 </td></tr>
@@ -686,7 +693,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Levels of severity of errors. Non-fatal errors usually can be ignored.
+Levels of severity of errors. Non-fatal errors usually can be ignored.
 
 
 </td></tr>
@@ -719,7 +726,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** An ISO 639-1 language code.
+An ISO 639-1 language code.
 
 
 </td></tr>
@@ -736,23 +743,12 @@ Description
 </td></tr>
 <tr><td>
 
-[MediaTransport](./player.mediatransport.md)
-
-
-</td><td>
-
-**_(BETA)_** Media delivery protocol
-
-
-</td></tr>
-<tr><td>
-
 [PlaybackModule](./player.playbackmodule.md)
 
 
 </td><td>
 
-**_(BETA)_** Module to perform the playback.
+Module to perform the playback.
 
 
 </td></tr>
@@ -763,7 +759,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Type of a stream playback
+Type of a stream
 
 
 </td></tr>
@@ -774,7 +770,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Subsystems of a player component.
+Subsystems of a player component.
 
 
 </td></tr>
@@ -785,8 +781,6 @@ Description
 
 </td><td>
 
-**_(BETA)_**
-
 
 </td></tr>
 <tr><td>
@@ -796,7 +790,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Debug output category selector
+Debug output category selector
 
 
 </td></tr>
@@ -807,7 +801,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Type of a listener callback function for a player event. See the description of the event parameters in [PlayerEvent](./player.playerevent.md)<!-- -->.
+Type of a listener callback function for a player event. See the description of the event parameters in [PlayerEvent](./player.playerevent.md)<!-- -->.
 
 
 </td></tr>
@@ -818,7 +812,6 @@ Description
 
 </td><td>
 
-**_(BETA)_**
 
 
 </td></tr>
@@ -829,7 +822,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** A media source to fetch the media data from
+A media source to fetch the media data from
 
 
 </td></tr>
@@ -840,8 +833,6 @@ Description
 
 </td><td>
 
-**_(BETA)_**
-
 
 </td></tr>
 <tr><td>
@@ -851,7 +842,6 @@ Description
 
 </td><td>
 
-**_(BETA)_**
 
 
 </td></tr>
@@ -928,7 +918,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Playback time in seconds since the beginning of the stream (or a segment for the live streams)
+Playback time in seconds since the beginning of the stream (or a segment for the live streams)
 
 
 </td></tr>
@@ -939,7 +929,6 @@ Description
 
 </td><td>
 
-**_(BETA)_**
 
 
 </td></tr>
@@ -950,7 +939,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Localization strings for the player UI.
+Localization strings for the player UI.
 
 
 </td></tr>
@@ -961,7 +950,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Preferred media delivery protocol
+Preferred streaming media delivery protocol
 
 
 </td></tr>

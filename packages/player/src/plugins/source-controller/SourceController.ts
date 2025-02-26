@@ -27,7 +27,7 @@ function noSync(cb: () => void) {
 }
 
 /**
- * This plugin is responsible for managing the automatic failover between sources.
+ * `PLUGIN` that is responsible for managing the automatic failover between sources.
  * @beta
  * @remarks
  * Have a look at the {@link https://miro.com/app/board/uXjVLiN15tY=/?share_link_id=390327585787 | source failover diagram} for the details

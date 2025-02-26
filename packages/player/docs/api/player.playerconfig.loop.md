@@ -4,9 +4,6 @@
 
 ## PlayerConfig.loop property
 
-> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
-> 
-
 Repeat playback when the media ends. Is used with the `vod` [playbackType](./player.playerconfig.playbacktype.md)
 
 **Signature:**

@@ -34,7 +34,7 @@ type TextTrackInfo = {
 const NO_TRACK = { language: 'off' }
 
 /**
- * A {@link MediaControl | media control} plugin that provides a UI to select the subtitles when available.
+ * `PLUGIN` that provides a UI to select the subtitles when available.
  * @beta
  *
  * @remarks

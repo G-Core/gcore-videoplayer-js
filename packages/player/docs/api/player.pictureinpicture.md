@@ -7,7 +7,7 @@
 > This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
 > 
 
-Enables picture in picture mode.
+`PLUGIN` that enables picture in picture mode.
 
 **Signature:**
 
