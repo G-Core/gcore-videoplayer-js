@@ -21,7 +21,7 @@ import posterHTML from '../../../assets/poster/poster.ejs'
 import playIcon from '../../../assets/icons/new/play.svg'
 import { PlaybackError } from '../../playback.types.js'
 
-const T = 'plugins.poster_custom'
+const T = 'plugins.poster'
 
 /**
  * Displays a poster image in the background and a big play button on top when playback is stopped
@@ -65,7 +65,7 @@ export class Poster extends UIContainerPlugin {
    * @internal
    */
   get name() {
-    return 'poster_custom'
+    return 'poster'
   }
 
   /**

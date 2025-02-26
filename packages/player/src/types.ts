@@ -1,4 +1,4 @@
-import { $ } from "@clappr/core";
+import { $, Container, Core } from "@clappr/core";
 
 /**
  * Describes a media source with its MIME type and URL.
@@ -63,7 +63,6 @@ export type TransportPreference = MediaTransport
  * {@link https://clappr.github.io/classes/ContainerPlugin.html}
  */
 export type PlayerPlugin = {
-  new (...args: any[]): unknown
   name: string
 }
 
@@ -75,15 +74,17 @@ export type PlayerPluginConstructor = CorePluginConstructor | ContainerPluginCon
 /**
  * @beta
  */
-export type CorePluginConstructor = ((core: unknown) => PlayerPlugin) & {
-  type: 'core'
+export type CorePluginConstructor = {
+  new (core: Core): PlayerPlugin
+  type: string // 'core', but it's a nuisance to type it in the plugins definition
 }
 
 /**
  * @beta
  */
-export type ContainerPluginConstructor = ((container: unknown) => PlayerPlugin) & {
-  type: 'container'
+export type ContainerPluginConstructor = {
+  new (container: Container): PlayerPlugin
+  type: string // 'container', but it's a nuisance to type it in the plugins definition
 }
 
 /**

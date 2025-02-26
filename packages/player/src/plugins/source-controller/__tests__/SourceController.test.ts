@@ -116,7 +116,7 @@ describe('SourceController', () => {
           poster = createMockPlugin()
           spinner = createSpinnerPlugin()
           core.activeContainer.getPlugin.mockImplementation((name: string) => {
-            if (name === 'poster_custom') {
+            if (name === 'poster') {
               return poster
             }
             if (name === 'spinner') {
@@ -183,7 +183,7 @@ describe('SourceController', () => {
         poster = createMockPlugin()
         spinner = createSpinnerPlugin()
         core.activeContainer.getPlugin.mockImplementation((name: string) => {
-          if (name === 'poster_custom') {
+          if (name === 'poster') {
             return poster
           }
           if (name === 'spinner') {

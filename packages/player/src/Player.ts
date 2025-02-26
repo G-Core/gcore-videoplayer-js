@@ -360,6 +360,24 @@ export class Player {
     Loader.registerPlugin(plugin)
   }
 
+  /**
+   * Unregisters a plugin registered earlier with {@link Player.registerPlugin}.
+   * @remarks
+   * It can be also used to unregister a built-in default plugin.
+   *
+   * Currently, the plugins that are always registered are:
+   *
+   * - {@link https://github.com/clappr/clappr-core/blob/3126c3a38a6eee9d5aba3918b194e6380fa1178c/src/plugins/strings/strings.js | 'strings'}, which supports internationalization of the player UI
+   *
+   * - {@link https://github.com/clappr/clappr-core/blob/3126c3a38a6eee9d5aba3918b194e6380fa1178c/src/plugins/sources/sources.js | 'sources'}, which lets to specify multiple media sources and selects the first suitable playback module
+   *
+   * @param name - name of the plugin
+   */
+  static unregisterPlugin(name: string) {
+    Player.corePlugins = Player.corePlugins.filter((p) => p.prototype.name !== name)
+    Loader.unregisterPlugin(name)
+  }
+
   private static getRegisteredPlugins(): {
     core: Record<string, PlayerPluginConstructor>
     container: Record<string, PlayerPluginConstructor>
@@ -371,22 +389,6 @@ export class Player {
   }
 
   private static corePlugins: PlayerPluginConstructor[] = []
-
-  /**
-   * Unregisters a plugin registered earlier with {@link Player.registerPlugin}.
-   * @param plugin - a plugin class
-   */
-  static unregisterPlugin(plugin: PlayerPluginConstructor) {
-    assert.ok(
-      plugin.type === 'core' || plugin.type === 'container',
-      'Invalid plugin type',
-    )
-    if (plugin.type === 'core') {
-      Player.corePlugins = Player.corePlugins.filter((p) => p !== plugin)
-      return
-    }
-    Loader.unregisterPlugin(plugin)
-  }
 
   private setConfig(config: Partial<PlayerConfig>) {
     this.config = $.extend(true, this.config, config)

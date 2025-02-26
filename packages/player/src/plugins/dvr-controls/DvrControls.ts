@@ -10,7 +10,8 @@ import { trace } from '@gcorevideo/utils'
 const T = 'plugins.dvr_controls'
 
 /**
- * Adds the DVR controls to the media control UI
+ * PLUGIN that adds the DVR controls to the media control UI
+ *
  * @beta
  *
  * @remarks
@@ -18,7 +19,7 @@ const T = 'plugins.dvr_controls'
  *
  * - {@link MediaControl}
  *
- * The plugin renders the live stream indicator and the DVR seek bar, if DVR is enabled, in the media control UI.
+ * The plugin renders live stream indicator and the DVR seek bar, if DVR is enabled, in the media control UI.
  */
 export class DvrControls extends UICorePlugin {
   private static readonly template = template(dvrHTML)

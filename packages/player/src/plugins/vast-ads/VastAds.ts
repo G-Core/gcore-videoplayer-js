@@ -287,7 +287,7 @@ export class VastAds extends UICorePlugin {
 
   private onPlaybackPlay() {
     setTimeout(() => {
-      const posterPlugin = this.container?.getPlugin('poster_custom')
+      const posterPlugin = this.container?.getPlugin('poster')
 
       posterPlugin?.enable()
       posterPlugin?.$el.hide()
@@ -619,7 +619,7 @@ export class VastAds extends UICorePlugin {
       this._pluginError('failed to get Clappr playback')
     }
     // Attempt to get poster plugin. (May interfere with media control)
-    this._posterPlugin = this._container?.getPlugin('poster_custom')
+    this._posterPlugin = this._container?.getPlugin('poster')
 
     // Attempt to get click-to-pause plugin. (May interfere with advert click handling)
     this._clickToPausePlugin = this._container?.getPlugin(
@@ -722,7 +722,7 @@ export class VastAds extends UICorePlugin {
 
   private adsPlaying() {
     assert(this.container, 'container is not defined')
-    const poster = this.container.getPlugin('poster_custom')
+    const poster = this.container.getPlugin('poster')
 
     poster && poster.disable()
     try {

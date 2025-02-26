@@ -71,7 +71,7 @@ export default class RollManager extends Events {
     this.$areaClick = $areaClick;
     this._playback = this.core.activePlayback;
     this._contentElement = this._playback.el as HTMLMediaElement;
-    this._posterPlugin = this._container.getPlugin('poster_custom');
+    this._posterPlugin = this._container.getPlugin('poster');
     this._clickToPausePlugin = this._container.getPlugin('click_to_pause_custom');
     this._adContainer = _adContainer;
     this._events = {};
@@ -210,7 +210,7 @@ export default class RollManager extends Events {
     //чтобы реклама шла одна за другой
     this._allURLRequest = !!roll.oneByOne;
     try {
-      const customPosterPlugin = this.container.getPlugin('poster_custom');
+      const customPosterPlugin = this.container.getPlugin('poster');
 
       customPosterPlugin.hidePlayButton();
     } catch (error) {

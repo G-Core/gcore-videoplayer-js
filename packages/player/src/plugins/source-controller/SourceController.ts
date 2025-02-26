@@ -153,7 +153,7 @@ export class SourceController extends CorePlugin {
     }
     this.bindContainerEventListeners()
     if (this.active) {
-      this.core.activeContainer?.getPlugin('poster_custom')?.disable()
+      this.core.activeContainer?.getPlugin('poster')?.disable()
       spinner?.show(0)
     }
   }
@@ -177,7 +177,7 @@ export class SourceController extends CorePlugin {
         }
         switch (error.code) {
           case PlaybackErrorCode.MediaSourceUnavailable:
-            this.core.activeContainer?.getPlugin('poster_custom')?.disable()
+            this.core.activeContainer?.getPlugin('poster')?.disable()
             this.retryPlayback()
             break
           default:
@@ -192,7 +192,7 @@ export class SourceController extends CorePlugin {
       })
       if (this.active) {
         this.reset()
-        this.core.activeContainer?.getPlugin('poster_custom')?.enable()
+        this.core.activeContainer?.getPlugin('poster')?.enable()
         this.core.activeContainer?.getPlugin('spinner')?.hide()
       }
     })

@@ -1,9 +1,7 @@
 import {
-  UICorePlugin,
   Events,
   template,
   $,
-  Core,
   Container,
   UIContainerPlugin,
 } from '@clappr/core'
