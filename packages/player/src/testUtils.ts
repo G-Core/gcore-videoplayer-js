@@ -82,7 +82,10 @@ export class _MockPlayback extends Events {
   }
 }
 
-export function createMockCore(options: Record<string, unknown> = {}, container: any = createMockContainer()) {
+export function createMockCore(
+  options: Record<string, unknown> = {},
+  container: any = createMockContainer(),
+) {
   const el = document.createElement('div')
   const emitter = new Events()
   return Object.assign(emitter, {
@@ -90,10 +93,14 @@ export function createMockCore(options: Record<string, unknown> = {}, container:
     $el: $(el),
     activePlayback: container.playback,
     activeContainer: container,
+    i18n: {
+      t: vi.fn().mockImplementation((key: string) => key),
+    },
     options: {
       ...options,
     },
     configure: vi.fn(),
+    getPlaybackType: vi.fn(),
     getPlugin: vi.fn(),
     load: vi.fn(),
     trigger: emitter.emit,
@@ -165,20 +172,37 @@ export function createMockPlayback(name = 'mock') {
 
 export function createMockContainer(playback: any = createMockPlayback()) {
   const el = document.createElement('div')
-  return Object.assign(new Events(), {
-    $el: $(el),
+  const emitter = new Events()
+  return Object.assign(emitter, {
     el,
-    getPlugin: vi.fn(),
     playback,
+    $el: $(el),
+    getDuration: vi.fn().mockReturnValue(0),
+    getPlugin: vi.fn(),
+    isPlaying: vi.fn().mockReturnValue(false),
+    play: vi.fn(),
+    seek: vi.fn(),
+    trigger: emitter.emit,
   })
 }
 
 export function createMockMediaControl(core: any) {
   const mediaControl = new UICorePlugin(core)
+  mediaControl.$el.html(
+    `<div class="media-control-left-panel" data-media-control></div>
+    <div class="media-control-right-panel" data-media-control></div>
+    <div class="media-control-center-panel" data-media-control></div>`,
+  )
   const elements = {
     gear: $(document.createElement('div')),
   }
   // @ts-ignore
   mediaControl.getElement = vi.fn().mockImplementation((name) => elements[name])
+  // @ts-ignore
+  mediaControl.getLeftPanel = vi.fn().mockImplementation(() => mediaControl.$el.find('.media-control-left-panel'))
+  // @ts-ignore
+  mediaControl.getRightPanel = vi.fn().mockImplementation(() => mediaControl.$el.find('.media-control-right-panel'))
+  // @ts-ignore
+  mediaControl.getCenterPanel = vi.fn().mockImplementation(() => mediaControl.$el.find('.media-control-center-panel'))
   return mediaControl
 }

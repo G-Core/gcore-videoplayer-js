@@ -1,6 +1,8 @@
+// This is a derived work from the {@link https://github.com/clappr/clappr-plugins/tree/ffaa9d27005fa5a8a7c243ffc47eb5655b84b371/src/plugins/media_control | Clappr MediaControl plugin}
+// It is redistributed under the terms of the {@link ../../../../../LICENSE | Apache 2.0} license.
 // Copyright 2014 Globo.com Player authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
+// license that can be found in the {@link https://github.com/clappr/clappr-plugins/blob/master/LICENSE | LICENSE}.
 
 import assert from 'assert'
 import {
@@ -1130,6 +1132,18 @@ export class MediaControl extends UICorePlugin {
    */
   getRightPanel() {
     return this.$el.find('.media-control-right-panel')
+  }
+
+  /**
+   * Get the left panel area to append custom elements to
+   * @returns  ZeptoSelector of the left panel element
+   */
+  getLeftPanel() {
+    return this.$el.find('.media-control-left-panel')
+  }
+
+  getCenterPanel() {
+    return this.$el.find('.media-control-center-panel')
   }
 
   private resetIndicators() {

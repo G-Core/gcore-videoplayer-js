@@ -6,6 +6,7 @@ import { CLAPPR_VERSION } from '../../build.js'
 import dvrHTML from '../../../assets/dvr-controls/index.ejs'
 import '../../../assets/dvr-controls/dvr_controls.scss'
 import { trace } from '@gcorevideo/utils'
+import { MediaControl } from '../media-control/MediaControl.js'
 
 const T = 'plugins.dvr_controls'
 
@@ -19,7 +20,9 @@ const T = 'plugins.dvr_controls'
  *
  * - {@link MediaControl}
  *
- * The plugin renders live stream indicator and the DVR seek bar, if DVR is enabled, in the media control UI.
+ * The plugin renders live stream indicator.
+ * If DVR is enabled, the indicator shows whether the current position is at the live edge of the stream or not.
+ * In the latter case, the indicator can be clicked to seek to the live edge.
  */
 export class DvrControls extends UICorePlugin {
   private static readonly template = template(dvrHTML)
@@ -57,15 +60,20 @@ export class DvrControls extends UICorePlugin {
     }
   }
 
-  constructor(core: Core) {
-    super(core)
-    this.settingsUpdate()
-  }
-
   /**
    * @internal
    */
   override bindEvents() {
+    this.listenTo(this.core, Events.CORE_READY, this.onCoreReady)
+    this.listenTo(this.core, Events.CORE_OPTIONS_CHANGE, this.render)
+    this.listenTo(
+      this.core,
+      Events.CORE_ACTIVE_CONTAINER_CHANGED,
+      this.bindContainerEvents,
+    )
+  }
+
+  private onCoreReady() {
     const mediaControl = this.core.getPlugin('media_control')
     assert(mediaControl, 'media_control plugin is required')
     this.listenTo(
@@ -73,12 +81,7 @@ export class DvrControls extends UICorePlugin {
       Events.MEDIACONTROL_RENDERED,
       this.settingsUpdate,
     )
-    this.listenTo(this.core, Events.CORE_OPTIONS_CHANGE, this.render)
-    this.listenTo(
-      this.core,
-      Events.CORE_ACTIVE_CONTAINER_CHANGED,
-      this.bindContainerEvents,
-    )
+    this.settingsUpdate()
   }
 
   private bindContainerEvents() {
@@ -94,57 +97,45 @@ export class DvrControls extends UICorePlugin {
     )
   }
 
-  private onDvrChanged(dvrEnabled: boolean) {
+  private onDvrChanged(dvrInUse: boolean) {
     trace(`${T} onDvrChanged`, {
-      dvrEnabled,
+      dvrInUse,
     })
     if (this.core.getPlaybackType() !== Playback.LIVE) {
       return
     }
-    this.settingsUpdate()
-    this.core.mediaControl.$el.addClass('live')
-    if (dvrEnabled) {
-      // TODO
-      this.core.mediaControl.$el
+    this.render()
+    const mediaControl = this.core.getPlugin('media_control')
+    mediaControl.$el.addClass('live')
+    if (dvrInUse) {
+      mediaControl.$el
         .addClass('dvr')
         .find(
+          // TODO add API, test
           '.media-control-indicator[data-position], .media-control-indicator[data-duration]',
         )
         .hide()
     } else {
-      this.core.mediaControl.$el.removeClass('dvr')
+      mediaControl.$el.removeClass('dvr')
     }
   }
 
   private click() {
-    const mediaControl = this.core.getPlugin('media_control')
     const container = this.core.activeContainer
-
     if (!container.isPlaying()) {
       container.play()
     }
-
-    if (mediaControl.$el.hasClass('dvr')) {
-      container.seek(container.getDuration())
-    }
+    container.seek(container.getDuration())
   }
 
   private settingsUpdate() {
-    // @ts-ignore
-    this.stopListening() // TODO sort out
-    this.core.getPlugin('media_control').$el.removeClass('live') // TODO don't access directly
-    if (this.shouldRender()) {
-      this.render()
-      this.$el.click(() => this.click())
-    }
-    this.bindEvents()
+    trace(`${T} settingsUpdate`)
+    this.core.getPlugin('media_control').$el.removeClass('live')
+    this.render()
   }
 
   private shouldRender() {
-    const useDvrControls =
-      this.core.options.useDvrControls === undefined ||
-      !!this.core.options.useDvrControls
-
+    const useDvrControls = this.core.options.useDvrControls !== false
     return useDvrControls && this.core.getPlaybackType() === Playback.LIVE
   }
 
@@ -154,6 +145,7 @@ export class DvrControls extends UICorePlugin {
   override render() {
     trace(`${T} render`, {
       dvrEnabled: this.core.activePlayback?.dvrEnabled,
+      playbackType: this.core.getPlaybackType(),
     })
     if (!this.shouldRender()) {
       return this
@@ -164,13 +156,9 @@ export class DvrControls extends UICorePlugin {
         backToLive: this.core.i18n.t('back_to_live'),
       }),
     )
-    const mediaControl = this.core.getPlugin('media_control')
-    assert(mediaControl, 'media_control plugin is required')
-    // TODO don't tap into the $el directly
+    const mediaControl = this.core.getPlugin('media_control') as MediaControl
     mediaControl.$el.addClass('live')
-    mediaControl
-      .$('.media-control-left-panel[data-media-control]')
-      .append(this.$el)
+    mediaControl.getLeftPanel().append(this.$el)
 
     return this
   }

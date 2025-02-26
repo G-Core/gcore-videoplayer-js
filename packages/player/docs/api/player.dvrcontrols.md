@@ -22,38 +22,5 @@ Depends on:
 
 - [MediaControl](./player.mediacontrol.md)
 
-The plugin renders live stream indicator and the DVR seek bar, if DVR is enabled, in the media control UI.
+The plugin renders live stream indicator. If DVR is enabled, the indicator shows whether the current position is at the live edge of the stream or not. In the latter case, the indicator can be clicked to seek to the live edge.
 
-## Constructors
-
-<table><thead><tr><th>
-
-Constructor
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>
-
-[(constructor)(core)](./player.dvrcontrols._constructor_.md)
-
-
-</td><td>
-
-
-</td><td>
-
-**_(BETA)_** Constructs a new instance of the `DvrControls` class
-
-
-</td></tr>
-</tbody></table>
