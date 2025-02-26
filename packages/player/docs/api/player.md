@@ -8,7 +8,7 @@ Video player for the Gcore streaming platform
 
 ## Remarks
 
-This package provides a video player for the Gcore streaming platform. It is built on top of the Clappr library and provides a framework for building custom integrations. Start with [Player](./player.player.md) for more information.
+This package provides a video player for the Gcore streaming platform. It is built on top of the [Clappr](https://github.com/clappr/clappr) library and provides a framework for building custom integrations. Start with [Player](./player.player.md) for more information.
 
 Various plugins (marked with `PLUGIN` keyword) are available to extend the player with additional features.
 
@@ -160,7 +160,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** `PLUGIN` that adds custom favicon to the player's tab.
+**_(BETA)_** `PLUGIN` that changes the favicon according to the player's state.
 
 
 </td></tr>
@@ -502,7 +502,18 @@ Description
 
 </td><td>
 
-**_(BETA)_** The plugin adds a context menu to the player.
+**_(BETA)_** Context menu plugin settings
+
+
+</td></tr>
+<tr><td>
+
+[FaviconPluginSettings](./player.faviconpluginsettings.md)
+
+
+</td><td>
+
+**_(BETA)_**
 
 
 </td></tr>

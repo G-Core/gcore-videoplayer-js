@@ -10,15 +10,23 @@ import stopIcon from '../../../assets/icons/new/stop.svg';
 const FAVICON_COLOR = '#567';
 const FAVICON_SELECTOR = 'link[rel="shortcut icon"]';
 
-// const oldIcon = $(FAVICON_SELECTOR);
-
 /**
- * `PLUGIN` that adds custom favicon to the player's tab.
  * @beta
  */
-export class Favicon extends CorePlugin {
-  private _container: Container | null = null;
+export interface FaviconPluginSettings {
+  /**
+   * CSS color of the favicon.
+   */
+  faviconColor?: string;
+}
 
+/**
+ * `PLUGIN` that changes the favicon according to the player's state.
+ * @beta
+ * @remarks
+ * There are three states: stopped, playing and paused.
+ */
+export class Favicon extends CorePlugin {
   private oldIcon: ZeptoResult;
 
   private playIcon: ZeptoResult | null = null;
@@ -27,18 +35,23 @@ export class Favicon extends CorePlugin {
 
   private stopIcon: ZeptoResult | null = null;
 
+  /**
+   * @internal
+   */
   get name() {
     return 'favicon';
   }
 
+  /**
+   * @internal
+   */
   get supportedVersion() {
     return { min: CLAPPR_VERSION };
   }
 
-  //   get oldIcon() {
-  //     return oldIcon;
-  //   }
-
+  /**
+   * @internal
+   */
   constructor(core: Core) {
     super(core);
     this.oldIcon = $(FAVICON_SELECTOR);
@@ -46,45 +59,35 @@ export class Favicon extends CorePlugin {
       this.stopIcon = this.createIcon(stopIcon);
       this.changeIcon(this.stopIcon);
     }
-    this.configure();
   }
 
-  configure() {
-    if (this.core.options.changeFavicon) {
-      if (!this.enabled) {
-        // @ts-ignore
-        this.stopListening(this.core, Events.CORE_OPTIONS_CHANGE);
-        this.enable();
-      }
-    } else if (this.enabled) {
-      this.disable();
-      this.listenTo(this.core, Events.CORE_OPTIONS_CHANGE, this.configure);
-    }
-  }
-
+  /**
+   * @internal
+   */
   override bindEvents() {
-    this.listenTo(this.core, Events.CORE_OPTIONS_CHANGE, this.configure);
     this.listenTo(this.core, Events.CORE_ACTIVE_CONTAINER_CHANGED, this.containerChanged);
-    this.core.activeContainer && this.containerChanged();
   }
 
   private containerChanged() {
-    // @ts-ignore
-    this._container && this.stopListening(this._container);
-    this._container = this.core.activeContainer;
-    this.listenTo(this._container, Events.CONTAINER_PLAY, this.setPlayIcon);
-    this.listenTo(this._container, Events.CONTAINER_PAUSE, this.setPauseIcon);
-    this.listenTo(this._container, Events.CONTAINER_STOP, this.resetIcon);
-    this.listenTo(this._container, Events.CONTAINER_ENDED, this.resetIcon);
-    this.listenTo(this._container, Events.CONTAINER_ERROR, this.resetIcon);
+    this.listenTo(this.core.activeContainer, Events.CONTAINER_PLAY, this.setPlayIcon);
+    this.listenTo(this.core.activeContainer, Events.CONTAINER_PAUSE, this.setPauseIcon);
+    this.listenTo(this.core.activeContainer, Events.CONTAINER_STOP, this.resetIcon);
+    this.listenTo(this.core.activeContainer, Events.CONTAINER_ENDED, this.resetIcon);
+    this.listenTo(this.core.activeContainer, Events.CONTAINER_ERROR, this.resetIcon);
     this.resetIcon();
   }
 
+  /**
+   * @internal
+   */
   override disable() {
     super.disable();
     this.resetIcon();
   }
 
+  /**
+   * @internal
+   */
   override destroy() {
     super.destroy();
     this.resetIcon();
@@ -113,7 +116,6 @@ export class Favicon extends CorePlugin {
     if (!this.playIcon) {
       this.playIcon = this.createIcon(playIcon);
     }
-
     this.changeIcon(this.playIcon);
   }
 
@@ -121,21 +123,16 @@ export class Favicon extends CorePlugin {
     if (!this.pauseIcon) {
       this.pauseIcon = this.createIcon(pauseIcon);
     }
-
     this.changeIcon(this.pauseIcon);
   }
 
   private resetIcon() {
-    $(FAVICON_SELECTOR).remove();
     const icon = this.oldIcon.length > 0 ? this.oldIcon : this.stopIcon;
-
     this.changeIcon(icon);
   }
 
-  private changeIcon(icon: ZeptoResult | null) {
-    if (icon) {
-      $('link[rel="shortcut icon"]').remove();
-      $('head').append(icon);
-    }
+  private changeIcon(icon: ZeptoResult) {
+    $('link[rel="shortcut icon"]').remove();
+    $('head').append(icon);
   }
 }

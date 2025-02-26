@@ -154,7 +154,6 @@ export class ErrorScreen extends UICorePlugin {
       }),
     )
 
-    // TODO append to container instead of core?
     if (!this.el.parentElement) {
       this.core.$el.append(this.el)
     }

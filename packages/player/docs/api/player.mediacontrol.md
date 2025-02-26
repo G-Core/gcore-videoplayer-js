@@ -227,6 +227,20 @@ Description
 </td></tr>
 <tr><td>
 
+[getCenterPanel()](./player.mediacontrol.getcenterpanel.md)
+
+
+</td><td>
+
+
+</td><td>
+
+**_(BETA)_**
+
+
+</td></tr>
+<tr><td>
+
 [getElement(name)](./player.mediacontrol.getelement.md)
 
 
@@ -236,6 +250,20 @@ Description
 </td><td>
 
 **_(BETA)_** Get a media control element DOM node
+
+
+</td></tr>
+<tr><td>
+
+[getLeftPanel()](./player.mediacontrol.getleftpanel.md)
+
+
+</td><td>
+
+
+</td><td>
+
+**_(BETA)_** Get the left panel area to append custom elements to
 
 
 </td></tr>
