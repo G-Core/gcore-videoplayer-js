@@ -109,7 +109,7 @@ export interface PlaybackError {
    */
   message: string
   /**
-   * Exact component that originated the error.
+   * Name of the component that originated the error.
    * @example
    * - 'core'
    * - 'dash'
@@ -117,7 +117,7 @@ export interface PlaybackError {
    */
   origin: string
   /**
-   * Component subsystem of the error origin
+   * Component subsystem of the error origin, together with the `origin` uniquely identifies the originating component.
    */
   scope: PlayerComponentType
 

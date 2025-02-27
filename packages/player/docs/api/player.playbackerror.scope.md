@@ -4,7 +4,7 @@
 
 ## PlaybackError.scope property
 
-Component subsystem of the error origin
+Component subsystem of the error origin, together with the `origin` uniquely identifies the originating component.
 
 **Signature:**
 

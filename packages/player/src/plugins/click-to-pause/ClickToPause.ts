@@ -70,11 +70,6 @@ export class ClickToPause extends ContainerPlugin {
     const isLivePlayback = this.container.getPlaybackType() === Playback.LIVE
     const pointerEnabled = !isLivePlayback || this.container.isDvrEnabled()
 
-    trace(`${T} settingsUpdate`, {
-      isLivePlayback,
-      pointerEnabled,
-    })
-
     if (pointerEnabled === this.pointerEnabled) {
       return
     }

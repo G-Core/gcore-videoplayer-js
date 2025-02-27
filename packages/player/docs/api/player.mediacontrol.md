@@ -7,7 +7,7 @@
 > This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
 > 
 
-`PLUGIN` that provides a foundation for developing custom media controls UI.
+`PLUGIN` that provides basic playback controls UI and a foundation for developing custom UI.
 
 **Signature:**
 
@@ -18,16 +18,7 @@ export declare class MediaControl extends UICorePlugin
 
 ## Remarks
 
-The methods exposed are to be used by the other plugins that extend the media control UI. The plugin registration should be arranged so that MediaControl is initialized before every other `PLUGIN` that depends on it.
-
-## Example
-
-
-```ts
-Player.registerPlugin(MediaControl) // <--- This must go first
-Player.registerPlugin(LevelSelector) // a media control plugin
-Player.registerPlugin(NerdStats) // another media control plugin
-```
+The methods exposed are to be used by the other plugins that extend the media control UI.
 
 ## Constructors
 
