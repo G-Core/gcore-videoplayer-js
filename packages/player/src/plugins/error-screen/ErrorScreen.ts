@@ -94,6 +94,7 @@ export class ErrorScreen extends UICorePlugin {
   }
 
   private reload() {
+    trace(`${T} reload`)
     setTimeout(() => {
       this.core.configure({
         reloading: true,

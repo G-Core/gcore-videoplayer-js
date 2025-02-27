@@ -152,7 +152,8 @@ export class PlaybackRate extends UICorePlugin {
 
   private onPlaybackRateChange(playbackRate: number) {
     const selectedRate = parseInt(this.selectedRate, 10);
-    if (playbackRate !== selectedRate) {
+    // TODO check it doesn't interfere with the DASH.js or HLS.js playback live catchup
+    if (Math.abs(playbackRate - selectedRate) > 0.1) {
       trace(`${T} onPlaybackRateChange setting target rate`, {
         playbackRate,
         selectedRate,
