@@ -10,7 +10,7 @@ exports[`ErrorScreen > on error > targeted at UI > should render 1`] = `
         <div class="player-error-screen__message" data-error-screen="">Lorem ipsum dolor sit amet</div>
     
     
-        <div class="player-error-screen__code" data-error-screen="">Error code: foo</div>
+        <div class="player-error-screen__code" data-error-screen="">error_code: foo</div>
     
     
         <div class="player-error-screen__reload" data-error-screen="">/assets/icons/old/reload.svg</div>
