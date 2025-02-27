@@ -129,7 +129,6 @@ export class DvrControls extends UICorePlugin {
   }
 
   private settingsUpdate() {
-    trace(`${T} settingsUpdate`)
     this.core.getPlugin('media_control').$el.removeClass('live')
     this.render()
   }

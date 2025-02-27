@@ -4,7 +4,7 @@
 
 ## PlaybackError.origin property
 
-Exact component that originated the error.
+Name of the component that originated the error.
 
 **Signature:**
 

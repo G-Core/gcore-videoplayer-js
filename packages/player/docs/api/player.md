@@ -204,7 +204,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** `PLUGIN` that provides a foundation for developing custom media controls UI.
+**_(BETA)_** `PLUGIN` that provides basic playback controls UI and a foundation for developing custom UI.
 
 
 </td></tr>

@@ -9,7 +9,6 @@ import {
   UIContainerPlugin,
   template,
   $,
-  Container,
 } from '@clappr/core'
 import { trace } from '@gcorevideo/utils'
 
@@ -28,6 +27,8 @@ const T = 'plugins.poster'
  * @beta
  * @remarks
  * When the playback is stopped, media control UI is disabled.
+ * Note that the poster image, if specified via the player config, will be used to update video element's poster attribute by the
+ * HTML5-video-based playback module.
  *
  * Configuration options:
  *
@@ -51,6 +52,8 @@ const T = 'plugins.poster'
  * ```
  */
 export class Poster extends UIContainerPlugin {
+  // TODO merge non-poster related functionality into the ClickToPause plugin
+
   private hasFatalError = false
 
   private hasStartedPlaying = false
@@ -236,8 +239,6 @@ export class Poster extends UIContainerPlugin {
         this.container.playback.consent()
         this.container.playback.play()
       }
-    } else {
-      this.container.trigger('container:start')
     }
 
     return false

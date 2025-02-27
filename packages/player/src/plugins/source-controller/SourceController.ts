@@ -108,6 +108,9 @@ export class SourceController extends CorePlugin {
     return { min: CLAPPR_VERSION }
   }
 
+  /**
+   * @internal
+   */
   constructor(core: ClapprCore) {
     super(core)
     this.sourcesList = this.core.options.sources

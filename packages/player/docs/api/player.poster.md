@@ -18,7 +18,7 @@ export declare class Poster extends UIContainerPlugin
 
 ## Remarks
 
-When the playback is stopped, media control UI is disabled.
+When the playback is stopped, media control UI is disabled. Note that the poster image, if specified via the player config, will be used to update video element's poster attribute by the HTML5-video-based playback module.
 
 Configuration options:
 

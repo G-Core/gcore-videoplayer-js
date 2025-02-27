@@ -126,7 +126,7 @@ string
 
 </td><td>
 
-Exact component that originated the error.
+Name of the component that originated the error.
 
 
 </td></tr>
@@ -145,7 +145,7 @@ Exact component that originated the error.
 
 </td><td>
 
-Component subsystem of the error origin
+Component subsystem of the error origin, together with the `origin` uniquely identifies the originating component.
 
 
 </td></tr>

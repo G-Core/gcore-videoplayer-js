@@ -19,6 +19,7 @@ import { reportError, trace } from '@gcorevideo/utils'
 
 import { type TimeProgress } from '../../playback.types.js'
 
+// TODO replace Kibo with mousetrap
 import { Kibo } from '../kibo/index.js'
 
 import { CLAPPR_VERSION } from '../../build.js'
@@ -90,17 +91,10 @@ type DisabledClickable = {
 }
 
 /**
- * `PLUGIN` that provides a foundation for developing custom media controls UI.
+ * `PLUGIN` that provides basic playback controls UI and a foundation for developing custom UI.
  * @beta
  * @remarks
  * The methods exposed are to be used by the other plugins that extend the media control UI.
- * The plugin registration should be arranged so that MediaControl is initialized before every other `PLUGIN` that depends on it.
- * @example
- * ```ts
- * Player.registerPlugin(MediaControl) // <--- This must go first
- * Player.registerPlugin(LevelSelector) // a media control plugin
- * Player.registerPlugin(NerdStats) // another media control plugin
- * ```
  */
 export class MediaControl extends UICorePlugin {
   private advertisementPlaying = false
@@ -1316,7 +1310,6 @@ export class MediaControl extends UICorePlugin {
   }
 
   private configure() {
-    // this.advertisementPlaying ? this.disable() : this.enable()
     this.trigger(Events.MEDIACONTROL_OPTIONS_CHANGE)
   }
 

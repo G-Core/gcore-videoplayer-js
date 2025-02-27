@@ -504,7 +504,7 @@ export default class HlsPlayback extends BasePlayback {
     this.trigger(Events.PLAYBACK_READY, this.name)
   }
 
-  _recover(evt: HlsEvents.ERROR, data: HlsErrorData, error: PlaybackError) {
+  private _recover(evt: HlsEvents.ERROR, data: HlsErrorData, error: PlaybackError) {
     assert(this._hls, 'Hls.js instance is not available')
     if (!this._recoveredDecodingError) {
       this._recoveredDecodingError = true
