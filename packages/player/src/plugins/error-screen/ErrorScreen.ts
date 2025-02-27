@@ -151,6 +151,7 @@ export class ErrorScreen extends UICorePlugin {
       ErrorScreen.template({
         ...this.err,
         reloadIcon: this.options.errorScreen?.noReload ? null : reloadIcon,
+        i18n: this.core.i18n,
       }),
     )
 
