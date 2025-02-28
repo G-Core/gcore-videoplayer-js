@@ -15,10 +15,14 @@ const VERSION: string = '0.0.1'
 const T = 'plugins.audio_selector'
 
 /**
- * `PLUGIN` that adds an audio track selector to the media control UI.
+ * `PLUGIN` that makes possible to switch audio tracks via the media control UI.
  * @beta
  * @remarks
- * TODO
+ * The plugin is activated when there are multiple audio tracks available.
+ * The plugin adds a button showing the current audio track and a dropdown to switch to another audio track.
+ * Depends on:
+ *
+ * - {@link MediaControl}
  */
 export class AudioSelector extends UICorePlugin {
   private currentTrack: AudioTrack | null = null

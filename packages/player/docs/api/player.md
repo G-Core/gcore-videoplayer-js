@@ -50,7 +50,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** `PLUGIN` that adds an audio track selector to the media control UI.
+**_(BETA)_** `PLUGIN` that makes possible to switch audio tracks via the media control UI.
 
 
 </td></tr>
