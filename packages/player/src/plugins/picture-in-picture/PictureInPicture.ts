@@ -52,6 +52,12 @@ export class PictureInPicture extends UICorePlugin {
     };
   }
 
+  override get attributes() {
+    return {
+      'class': 'media-control-pip',
+    };
+  }
+
   private get videoElement() {
     return this.core.activePlayback.el;
   }
@@ -86,7 +92,7 @@ export class PictureInPicture extends UICorePlugin {
 
     const mediaControl = this.core.getPlugin('media_control');
     if (mediaControl) {
-      mediaControl.getElement('pip')?.html(this.el);
+      mediaControl.putElement('pip', this.el);
     }
 
     return this;

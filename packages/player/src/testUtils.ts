@@ -199,6 +199,8 @@ export function createMockMediaControl(core: any) {
   // @ts-ignore
   mediaControl.getElement = vi.fn().mockImplementation((name) => elements[name])
   // @ts-ignore
+  mediaControl.putElement = vi.fn()
+  // @ts-ignore
   mediaControl.getLeftPanel = vi.fn().mockImplementation(() => mediaControl.$el.find('.media-control-left-panel'))
   // @ts-ignore
   mediaControl.getRightPanel = vi.fn().mockImplementation(() => mediaControl.$el.find('.media-control-right-panel'))

@@ -5,7 +5,6 @@ import { PlaybackErrorCode } from '../playback.types.js'
 /**
  * This class adds common behaviors to all playback modules.
  * @internal
- * TODO use custom HTML5Video playback with this layer applied
  */
 export class BasePlayback extends HTML5Video {
   createError(errorData: any, options?: ErrorOptions) {

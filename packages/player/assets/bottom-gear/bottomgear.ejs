@@ -1,12 +1,10 @@
-<div class="media-control-gear" data-<%= name %>>
-    <button type="button" class="button-gear gplayer-lite-btn gcore-skin-button-color" data-gear-button="-1">
-        <span class="gear-icon"><%= icon %></span>
-    </button>
-    <div class="gear-wrapper gcore-skin-bg-color">
-        <ul class="gear-options-list">
-            <% items.forEach(function (gear) { %>
-                <li data-<%= gear %>></li>
-            <% }); %>
-        </ul>
-    </div>
+<button type="button" class="button-gear media-control-button gplayer-lite-btn gcore-skin-button-color gear-icon" data-gear-button="-1">
+    <%= icon %>
+</button>
+<div class="gear-wrapper gcore-skin-bg-color">
+    <ul class="gear-options-list">
+        <% for (const item of items) { %>
+            <li data-<%= item %>></li>
+        <% } %>
+    </ul>
 </div>

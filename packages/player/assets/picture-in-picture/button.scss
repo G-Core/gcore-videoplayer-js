@@ -1,8 +1,9 @@
 .media-control-pip {
+  order: 95;
+  display: flex;
+
   button {
-    float: right;
-    height: 40px;
-    margin-right: 20px;
+    height: 20px;
 
     svg {
       height: 20px;

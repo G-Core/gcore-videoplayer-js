@@ -63,8 +63,7 @@ export class BottomGear extends UICorePlugin {
    */
   override get attributes() {
     return {
-      'class': this.name,
-      'data-track-selector': ''
+      'class': 'media-control-gear',
     };
   }
 
@@ -81,12 +80,8 @@ export class BottomGear extends UICorePlugin {
    * @internal
    */
   override bindEvents() {
-    const mediaControl = this.core.getPlugin('media_control');
-    assert(mediaControl, 'media_control plugin is required');
-
+    this.listenTo(this.core, ClapprEvents.CORE_READY, this.onCoreReady)
     this.listenTo(this.core, ClapprEvents.CORE_ACTIVE_CONTAINER_CHANGED, this.onActiveContainerChanged);
-    this.listenTo(mediaControl, ClapprEvents.MEDIACONTROL_RENDERED, this.render);
-    this.listenTo(mediaControl, ClapprEvents.MEDIACONTROL_HIDE, this.hide); // TODO mediacontrol show as well
   }
 
   /**
@@ -94,7 +89,7 @@ export class BottomGear extends UICorePlugin {
    * @returns Zepto result of the element
    */
   getElement(name: GearItemElement): ZeptoResult | null {
-    return this.core.getPlugin('media_control')?.getElement('gear')?.find(`.gear-options-list [data-${name}]`);
+    return this.$el.find(`.gear-options-list [data-${name}]`);
   }
 
   /**
@@ -126,7 +121,6 @@ export class BottomGear extends UICorePlugin {
    */
   override render() {
     const mediaControl = this.core.getPlugin('media_control');
-    assert(mediaControl, 'media_control plugin is required');
 
     // TODO use options.mediaControl.gear.items
     const items: GearItemElement[] = [
@@ -137,7 +131,7 @@ export class BottomGear extends UICorePlugin {
     const icon = this.isHd ? gearHdIcon : gearIcon;
     this.$el.html(BottomGear.template({ icon, items }));
 
-    mediaControl.getElement('gear')?.html(this.el);
+    mediaControl.putElement('gear', this.$el);
     mediaControl.trigger(MediaControlEvents.MEDIACONTROL_GEAR_RENDERED);
     return this;
   }
@@ -158,5 +152,12 @@ export class BottomGear extends UICorePlugin {
 
   private hide() {
     this.$el.find('.gear-wrapper').hide();
+  }
+
+  private onCoreReady() {
+    const mediaControl = this.core.getPlugin('media_control');
+    assert(mediaControl, 'media_control plugin is required');
+    this.listenTo(mediaControl, ClapprEvents.MEDIACONTROL_RENDERED, this.render);
+    this.listenTo(mediaControl, ClapprEvents.MEDIACONTROL_HIDE, this.hide); // TODO mediacontrol show as well
   }
 }

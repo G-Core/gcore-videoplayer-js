@@ -27,7 +27,6 @@ import { ZeptoResult } from '../../types.js'
 import { getPageX, isFullscreen } from '../utils.js'
 
 import '../../../assets/media-control/media-control.scss'
-import '../../../assets/media-control/plugins.scss'
 
 import mediaControlHTML from '../../../assets/media-control/media-control.ejs'
 import playIcon from '../../../assets/icons/new/play.svg'
@@ -44,7 +43,6 @@ import fullscreenOnIcon from '../../../assets/icons/new/fullscreen-on.svg'
  */
 export type MediaControlElement =
   | 'audioTracksSelector'
-  | 'bottomGear' // an alias of gear
   | 'clipText'
   | 'gear'
   | 'pip'
@@ -142,8 +140,6 @@ export class MediaControl extends UICorePlugin {
   private verticalVolume = false
 
   private $audioTracksSelector: ZeptoResult | null = null
-
-  private $bottomGear: ZeptoResult | null = null
 
   private $clipText: ZeptoResult | null = null
 
@@ -1059,11 +1055,6 @@ export class MediaControl extends UICorePlugin {
     this.$volumeBarBackground = this.$el.find('.bar-background[data-volume]')
     this.$volumeBarFill = this.$el.find('.bar-fill-1[data-volume]')
     this.$volumeBarScrubber = this.$el.find('.bar-scrubber[data-volume]')
-    this.$bottomGear = this.$el.find('.media-control-bottomgear')
-    this.$pip = this.$el.find('.media-control-pip')
-    this.$audioTracksSelector = this.$el.find(
-      '.media-control-audio-tracks[data-audiotracks]',
-    )
     this.$subtitlesSelector = this.$el.find(
       '.media-control-subtitles[data-subtitles]',
     )
@@ -1086,6 +1077,7 @@ export class MediaControl extends UICorePlugin {
    * Get a media control element DOM node
    * @param name - The name of the media control element
    * @returns The DOM node to render to or extend
+   * @deprecated  Use {@link MediaControl.putElement} instead
    * @remarks
    * Use this method to render custom media control UI in a plugin
    * @example
@@ -1103,20 +1095,33 @@ export class MediaControl extends UICorePlugin {
   getElement(name: MediaControlElement): ZeptoResult | null {
     switch (name) {
       case 'audioTracksSelector':
-        return this.$audioTracksSelector
+        return null
       case 'clipText':
         return this.$clipText
-      case 'bottomGear':
       case 'gear':
-        return this.$bottomGear
+        return null
       case 'pip':
-        return this.$pip
+        return null
       case 'playbackRate':
         return this.$playbackRate
       case 'seekBarContainer':
         return this.$seekBarContainer
       case 'subtitlesSelector':
         return this.$subtitlesSelector
+    }
+  }
+
+  putElement(name: MediaControlElement, element: ZeptoResult) {
+    switch (name) {
+      case 'audioTracksSelector':
+        this.getRightPanel().append(element)
+        break
+      case 'pip':
+        this.getRightPanel().append(element)
+        break
+      case 'gear':
+        this.getRightPanel().append(element)
+        break
     }
   }
 

@@ -18,29 +18,6 @@
       max-height: 300px;
       transform: none;
 
-      .share-container-main {
-        // .share-container-header--linktext,
-        // .share-container-header--socialtext,
-        // .share-container-header--embedtext,
-        // .share-container-header--embed {
-        //  display: none;
-        // }
-
-        //.share-container-header--socialicon {
-        //  margin-top: -84px;
-        //}
-        //
-        //.share-container-header--link {
-        //  width: 100%;
-        //  border-left: none;
-        //  border-right: none;
-        //  margin-top: 52px;
-        //  height: 32px;
-        //  font-size: 12px;
-        //  padding: 10px;
-        //}
-      }
-
       .share-container-header {
         border: none;
 
@@ -54,39 +31,42 @@
   .media-control-quality,
   .media-control-audio-tracks {
     display: block;
+  }
 
-    .level_selector[data-level-selector],
-    .audio_selector[data-track-selector] {
-      margin-top: 3px;
-      margin-right: 10px;
+  .level-selector[data-level-selector],
+  .media-control-audio-tracks[data-track-selector] {
+    margin-top: 3px;
+    margin-right: 10px;
 
-      ul {
-        bottom: 30px;
-        width: 50px;
+    ul {
+      bottom: 30px;
+      width: 50px;
 
-        li {
+      li {
+        height: 23px;
+        font-size: 14px;
+
+        a {
           height: 23px;
-          font-size: 14px;
-
-          a {
-            height: 23px;
-            padding: 2px 5px;
-          }
+          padding: 2px 5px;
         }
       }
+    }
 
-      button[data-level-selector-button],
-      button[data-track-selector-button] {
-        .quality-text, .audio-text {
-          font-size: 13px;
-        }
+    button[data-level-selector-button],
+    button[data-track-selector-button] {
 
-        span.quality-arrow, span.audio-arrow {
-          width: 7px;
-          height: 5px;
-          margin-left: 4px;
-          margin-top: 11px;
-        }
+      .quality-text,
+      .audio-text {
+        font-size: 13px;
+      }
+
+      span.quality-arrow,
+      span.audio-arrow {
+        width: 7px;
+        height: 5px;
+        margin-left: 4px;
+        margin-top: 11px;
       }
     }
   }
@@ -104,54 +84,12 @@
           margin: 0;
         }
       }
-
-      // ul {
-      //  width: 150px;
-      //  bottom: 32px;
-      //  padding: 0;
-
-      //  li {
-      //    .multicamera-item {
-      //      .multicamera-poster {
-      //        width: 40px;
-      //        height: 30px;
-      //        img {
-      //          width: 40px;
-      //          height: 30px;
-      //        }
-      //      }
-      //      .multicamera-text {
-      //        width: 70px;
-      //        .multicamera-title {
-      //          width: 70px;
-      //          height: 15px;
-      //          font-size: 12px;
-      //        }
-      //      }
-      //    }
-      //  }
-      //  &::after {
-      //    display: none;
-      //  }
-      // }
-
     }
   }
 
   .media-control-layer[data-controls] {
-    height: 32px;
-
-    .media-control-bottomgear {
-      .button-gear {
-        height: 33px;
-        margin-right: 10px;
-        padding-right: 0;
-
-        svg {
-          height: 17px;
-        }
-      }
-    }
+    padding-left: 10px;
+    padding-right: 12px;
 
     .media-control-indicator {
       line-height: 32px;
@@ -201,18 +139,7 @@
     button.media-control-button {
       height: 32px;
 
-      &[data-playpause] {
-        margin-left: 10px;
-        margin-right: 10px;
-      }
-
-      &[data-playstop] {
-        margin-left: 10px;
-        margin-right: 10px;
-      }
-
       &[data-fullscreen] {
-        margin-right: 12px;
         height: 33px;
       }
 
@@ -222,6 +149,7 @@
     }
 
     .media-clip-container {
+
       .media-clip-text,
       .media-clip-point {
         line-height: 33px;

@@ -16,6 +16,9 @@ import HLSJS, {
   type LevelUpdatedData,
   type LevelLoadedData,
   type LevelSwitchingData,
+  MediaPlaylist,
+  AudioTracksUpdatedData,
+  AudioTrackSwitchedData,
 } from 'hls.js'
 
 import {
@@ -32,6 +35,7 @@ import { TimerId } from '../../utils/types.js'
 import { BasePlayback } from '../BasePlayback.js'
 
 import { CLAPPR_VERSION } from '../../build.js'
+import { AudioTrack } from '@clappr/core/types/base/playback/playback.js'
 
 const { now } = Utils
 
@@ -67,10 +71,6 @@ type CustomListener = {
   once?: boolean
 }
 
-// TODO level, code, description, etc
-type ErrorInfo = Record<string, unknown>
-
-// @ts-expect-error
 export default class HlsPlayback extends BasePlayback {
   private _ccIsSetup = false
 
@@ -145,7 +145,7 @@ export default class HlsPlayback extends BasePlayback {
   set currentLevel(id: number) {
     this._currentLevel = id
     this.trigger(Events.PLAYBACK_LEVEL_SWITCH_START)
-    assert.ok(this._hls, 'Hls.js instance is not available')
+    assert.ok(this._hls, 'HLS.js is not initialized')
     if (this.options.playback.hlsUseNextLevel) {
       this._hls.nextLevel = this._currentLevel
     } else {
@@ -154,17 +154,17 @@ export default class HlsPlayback extends BasePlayback {
   }
 
   get latency() {
-    assert.ok(this._hls, 'Hls.js instance is not available')
+    assert.ok(this._hls, 'HLS.js is not initialized')
     return this._hls.latency
   }
 
   get currentProgramDateTime() {
-    assert.ok(this._hls, 'Hls.js instance is not available')
+    assert.ok(this._hls, 'HLS.js is not initialized')
     assert.ok(this._hls.playingDate, 'Hls.js playingDate is not defined')
     return this._hls.playingDate
   }
 
-  get _startTime() {
+  private get _startTime() {
     if (
       this._playbackType === Playback.LIVE &&
       this._playlistType !== 'EVENT'
@@ -175,13 +175,13 @@ export default class HlsPlayback extends BasePlayback {
     return this._playableRegionStartTime
   }
 
-  get _now() {
+  private get _now() {
     return now()
   }
 
   // the time in the video element which should represent the start of the sliding window
   // extrapolated to increase in real time (instead of jumping as the early segments are removed)
-  get _extrapolatedStartTime() {
+  private get _extrapolatedStartTime() {
     if (!this._localStartTimeCorrelation) {
       return this._playableRegionStartTime
     }
@@ -216,7 +216,7 @@ export default class HlsPlayback extends BasePlayback {
     )
   }
 
-  get _duration() {
+  private get _duration() {
     return this._extrapolatedEndTime - this._startTime
   }
 
@@ -237,7 +237,7 @@ export default class HlsPlayback extends BasePlayback {
   //                               .       .       .   --> |
   //                               .       .       .       .
   //                                 extrapolatedStartTime
-  get _extrapolatedWindowDuration() {
+  private get _extrapolatedWindowDuration() {
     if (this._segmentTargetDuration === null) {
       return 0
     }
@@ -294,7 +294,7 @@ export default class HlsPlayback extends BasePlayback {
     this._setInitialState()
   }
 
-  _setInitialState() {
+  private _setInitialState() {
     // @ts-ignore
     this._minDvrSize =
       typeof this.options.hlsMinimumDvrSize === 'undefined'
@@ -345,14 +345,14 @@ export default class HlsPlayback extends BasePlayback {
       this.options.hlsRecoverAttempts || DEFAULT_RECOVER_ATTEMPTS
   }
 
-  _setup() {
+  private _setup() {
     this._destroyHLSInstance()
     this._createHLSInstance()
     this._listenHLSEvents()
     this._attachHLSMedia()
   }
 
-  _destroyHLSInstance() {
+  private _destroyHLSInstance() {
     if (!this._hls) {
       return
     }
@@ -364,7 +364,7 @@ export default class HlsPlayback extends BasePlayback {
     this._hls = null
   }
 
-  _createHLSInstance() {
+  private _createHLSInstance() {
     const config = $.extend(
       true,
       {
@@ -378,19 +378,19 @@ export default class HlsPlayback extends BasePlayback {
     this._hls = new HLSJS(config)
   }
 
-  _attachHLSMedia() {
+  private _attachHLSMedia() {
     if (!this._hls) {
       return
     }
     this._hls.attachMedia(this.el as HTMLMediaElement)
   }
 
-  _listenHLSEvents() {
+  private _listenHLSEvents() {
     if (!this._hls) {
       return
     }
     this._hls.once(HLSJS.Events.MEDIA_ATTACHED, () => {
-      assert.ok(this._hls, 'Hls.js instance is not available')
+      assert.ok(this._hls, 'HLS.js is not initialized')
       this.options.hlsPlayback.preload && this._hls.loadSource(this.options.src)
     })
 
@@ -456,29 +456,33 @@ export default class HlsPlayback extends BasePlayback {
       HLSJS.Events.SUBTITLE_TRACKS_UPDATED,
       () => (this._ccTracksUpdated = true),
     )
+    this._hls.on(HlsEvents.AUDIO_TRACKS_UPDATED, (evt, data) =>
+      this._onAudioTracksUpdated(evt, data),
+    )
+    this._hls.on(HlsEvents.AUDIO_TRACK_SWITCHED, (evt, data) => this._onAudioTrackSwitched(evt, data))
     this.bindCustomListeners()
   }
 
-  bindCustomListeners() {
+  private bindCustomListeners() {
     this.customListeners.forEach((item: CustomListener) => {
       const requestedEventName = item.eventName
       const typeOfListener = item.once ? 'once' : 'on'
-      assert.ok(this._hls, 'Hls.js instance is not available')
+      assert.ok(this._hls, 'HLS.js is not initialized')
       requestedEventName &&
         this._hls[`${typeOfListener}`](requestedEventName, item.callback)
     })
   }
 
-  unbindCustomListeners() {
+  private unbindCustomListeners() {
     this.customListeners.forEach((item: CustomListener) => {
       const requestedEventName = item.eventName
 
-      assert.ok(this._hls, 'Hls.js instance is not available')
+      assert.ok(this._hls, 'HLS.js is not initialized')
       requestedEventName && this._hls.off(requestedEventName, item.callback)
     })
   }
 
-  _onFragmentParsingMetadata(
+  private _onFragmentParsingMetadata(
     evt: HlsEvents.FRAG_PARSING_METADATA,
     data: FragParsingMetadataData,
   ) {
@@ -489,13 +493,13 @@ export default class HlsPlayback extends BasePlayback {
     })
   }
 
-  render() {
+  protected override render() {
     this._ready()
 
     return super.render()
   }
 
-  _ready() {
+  protected override _ready() {
     if (this._isReadyState) {
       return
     }
@@ -505,7 +509,7 @@ export default class HlsPlayback extends BasePlayback {
   }
 
   private _recover(evt: HlsEvents.ERROR, data: HlsErrorData, error: PlaybackError) {
-    assert(this._hls, 'Hls.js instance is not available')
+    assert(this._hls, 'HLS.js is not initialized')
     if (!this._recoveredDecodingError) {
       this._recoveredDecodingError = true
       this._hls.recoverMediaError()
@@ -528,7 +532,7 @@ export default class HlsPlayback extends BasePlayback {
   // this playback manages the src on the video element itself
   protected override _setupSrc(srcUrl: string) {} // eslint-disable-line no-unused-vars
 
-  _startTimeUpdateTimer() {
+  private _startTimeUpdateTimer() {
     if (this._timeUpdateTimer) {
       return
     }
@@ -538,7 +542,7 @@ export default class HlsPlayback extends BasePlayback {
     }, 100)
   }
 
-  _stopTimeUpdateTimer() {
+  private _stopTimeUpdateTimer() {
     if (!this._timeUpdateTimer) {
       return
     }
@@ -546,7 +550,7 @@ export default class HlsPlayback extends BasePlayback {
     this._timeUpdateTimer = null
   }
 
-  getProgramDateTime() {
+  private getProgramDateTime() {
     return this._programDateTime ?? 0
   }
 
@@ -598,12 +602,12 @@ export default class HlsPlayback extends BasePlayback {
     this.seek(this.getDuration())
   }
 
-  _updateDvr(status: boolean) {
+  private _updateDvr(status: boolean) {
     this.trigger(Events.PLAYBACK_DVR, status)
     this.trigger(Events.PLAYBACK_STATS_ADD, { dvr: status })
   }
 
-  _updateSettings() {
+  private _updateSettings() {
     if (this._playbackType === Playback.VOD) {
       // @ts-expect-error
       this.settings.left = ['playpause', 'position', 'duration']
@@ -620,7 +624,7 @@ export default class HlsPlayback extends BasePlayback {
     this.trigger(Events.PLAYBACK_SETTINGSUPDATE)
   }
 
-  _onHLSJSError(evt: HlsEvents.ERROR, data: HlsErrorData) {
+  private _onHLSJSError(evt: HlsEvents.ERROR, data: HlsErrorData) {
     trace(`${T} _onHLSJSError`, {
       fatal: data.fatal,
       type: data.type,
@@ -728,7 +732,7 @@ export default class HlsPlayback extends BasePlayback {
     }
   }
 
-  _keyIsDenied(data: HlsErrorData) {
+  private _keyIsDenied(data: HlsErrorData) {
     return (
       data.type === HLSJS.ErrorTypes.NETWORK_ERROR &&
       data.details === HLSJS.ErrorDetails.KEY_LOAD_ERROR &&
@@ -738,7 +742,7 @@ export default class HlsPlayback extends BasePlayback {
     )
   }
 
-  _onTimeUpdate() {
+  private _onTimeUpdate() {
     const update: TimeUpdate = {
       current: this.getCurrentTime(),
       total: this.getDuration(),
@@ -869,7 +873,7 @@ export default class HlsPlayback extends BasePlayback {
   }
 
   private _fillLevels() {
-    assert.ok(this._hls, 'Hls.js instance is not available')
+    assert.ok(this._hls, 'HLS.js is not initialized')
     this._levels = this._hls.levels.map((level, index) => {
       return {
         level: index, // or level.id?
@@ -1105,6 +1109,39 @@ export default class HlsPlayback extends BasePlayback {
     )
     this.stop()
   }
+
+  get audioTracks(): AudioTrack[] {
+    assert.ok(this._hls, 'HLS.js is not initialized')
+    return this._hls.audioTracks.map(toClapprTrack)
+  }
+
+  // @ts-expect-error
+  get currentAudioTrack(): AudioTrack | null {
+    assert.ok(this._hls, 'HLS.js is not initialized')
+    const idx = this._hls.audioTrack
+    const track = this._hls.audioTracks[idx] // TODO or find by .id == idx?
+    if (track) {
+      return toClapprTrack(track)
+    }
+    return null
+  }
+
+  switchAudioTrack(id: string): void {
+    assert.ok(this._hls, 'HLS.js is not initialized')
+    this._hls.audioTrack = Number(id) // TODO or find index by .id == id?
+  }
+
+  private _onAudioTracksUpdated(_: HlsEvents.AUDIO_TRACKS_UPDATED, data: AudioTracksUpdatedData) {
+    trace(`${T} onAudioTracksUpdated`)
+    this.trigger(Events.PLAYBACK_AUDIO_AVAILABLE, data.audioTracks.map(toClapprTrack))
+  }
+
+  private _onAudioTrackSwitched(_: HlsEvents.AUDIO_TRACK_SWITCHED, data: AudioTrackSwitchedData) {
+    trace(`${T} onAudioTrackSwitched`)
+    // @ts-ignore
+    const track = this._hls.audioTracks[data.id]
+    this.trigger(Events.PLAYBACK_AUDIO_CHANGED, toClapprTrack(track))
+  }
 }
 
 HlsPlayback.canPlay = function (resource: string, mimeType?: string): boolean {
@@ -1112,4 +1149,13 @@ HlsPlayback.canPlay = function (resource: string, mimeType?: string): boolean {
     return false
   }
   return HLSJS.isSupported()
+}
+
+function toClapprTrack(t: MediaPlaylist): AudioTrack {
+  return {
+    id: String(t.id),
+    language: t.lang ?? '',
+    kind: t.type === 'main' ? 'main' : 'description', // TODO check
+    label: t.name,
+  }
 }

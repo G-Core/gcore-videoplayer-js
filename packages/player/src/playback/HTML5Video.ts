@@ -5,6 +5,7 @@ import { PlaybackErrorCode } from '../playback.types.js'
 import { BasePlayback } from './BasePlayback.js'
 import { trace } from '@gcorevideo/utils'
 import { TimerId } from '../utils/types.js'
+import { AudioTrack } from '@clappr/core/types/base/playback/playback.js'
 
 const T = 'playback.html5_video'
 
@@ -32,10 +33,6 @@ export default class HTML5Video extends BasePlayback {
       !errorData.UI &&
       errorData.code === MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED
     ) {
-      // errorData.UI = {
-      //   title: i18n.t('no_broadcast'),
-      //   message: errorData.message,
-      // }
       errorData.code = PlaybackErrorCode.MediaSourceUnavailable
     }
     return super.createError(errorData, { ...options, useCodePrefix: false })
@@ -94,6 +91,62 @@ export default class HTML5Video extends BasePlayback {
     if (this.stallTimerId) {
       clearTimeout(this.stallTimerId)
       this.stallTimerId = null
+    }
+  }
+
+  get audioTracks(): AudioTrack[] {
+    const tracks = (this.el as HTMLMediaElement).audioTracks
+    const supported = !!tracks
+    trace(`${T} get audioTracks`, { supported })
+    const retval: AudioTrack[] = []
+    if (supported) {
+      for (let i = 0; i < tracks.length; i++) {
+        const track = tracks[i]
+        retval.push({
+          id: track.id,
+          label: track.label,
+          language: track.language,
+          kind: track.kind as 'main' | 'description', // TODO check
+        } as AudioTrack)
+      }
+    }
+    return retval
+  }
+
+  // @ts-expect-error
+  get currentAudioTrack() {
+    const tracks = (this.el as HTMLMediaElement).audioTracks
+    const supported = !!tracks
+    trace(`${T} get currentAudioTrack`, {
+      supported,
+    })
+    if (supported) {
+      for (let i = 0; i < tracks.length; i++) {
+        const track = tracks[i]
+        if (track.enabled) {
+          return {
+            id: track.id,
+            label: track.label,
+            language: track.language,
+            kind: track.kind,
+          } as AudioTrack
+        }
+      }
+    }
+    return null
+  }
+
+  switchAudioTrack(id: string) {
+    const tracks = (this.el as HTMLMediaElement).audioTracks
+    const supported = !!tracks
+    trace(`${T} switchAudioTrack`, {
+      supported,
+    })
+    if (supported) {
+      for (let i = 0; i < tracks.length; i++) {
+        const track = tracks[i]
+        track.enabled = track.id === id
+      }
     }
   }
 }

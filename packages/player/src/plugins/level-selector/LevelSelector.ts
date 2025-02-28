@@ -106,7 +106,7 @@ export class LevelSelector extends UICorePlugin {
    */
   override get attributes() {
     return {
-      class: this.name,
+      class: 'level-selector',
       'data-level-selector': '',
     }
   }
