@@ -46,6 +46,7 @@ const T = 'plugins.playback_rate';
  * - {@link BottomGear | bottom_gear}
  *
  * It renders a button in the gear menu, which opens a dropdown with the options to change the playback rate.
+ * Note that the playback rate change is supported only for VOD or DVR enabled live streams.
  */
 export class PlaybackRate extends UICorePlugin {
   private playbackRates: PlaybackRateOption[] = DEFAULT_PLAYBACK_RATES;

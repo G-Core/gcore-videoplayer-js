@@ -7,6 +7,10 @@ import { PlaybackErrorCode } from '../playback.types.js'
  * @internal
  */
 export class BasePlayback extends HTML5Video {
+  get isHTML5Video() {
+    return true
+  }
+
   createError(errorData: any, options?: ErrorOptions) {
     const i18n =
       this.i18n ||

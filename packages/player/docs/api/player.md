@@ -618,6 +618,15 @@ A level of quality within a media source.
 </td></tr>
 <tr><td>
 
+[TextTrackItem](./player.texttrackitem.md)
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
 [TimePosition](./player.timeposition.md)
 
 
@@ -853,6 +862,15 @@ A media source to fetch the media data from
 
 </td><td>
 
+
+
+</td></tr>
+<tr><td>
+
+[SubtitlesPluginSettings](./player.subtitlespluginsettings.md)
+
+
+</td><td>
 
 
 </td></tr>

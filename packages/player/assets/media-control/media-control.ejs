@@ -42,9 +42,6 @@
     <% var renderNerd = function(name) { %>
         <div class="media-control-nerd" data-<%= name %>></div>
     <% }; %>
-    <% var renderSubtitles = function(name) { %>
-        <div class="media-control-subtitles" data-<%= name %>></div>
-    <% }; %>
     <% var renderMultiCamera = function(name) { %>
         <div class="media-control-multicamera" data-<%= name %>></div>
     <% }; %>
@@ -87,8 +84,6 @@
                 renderNerd(setting)
             } else if (setting === "multicamera") {
                 renderMultiCamera(setting)
-            } else if (setting === "subtitles") {
-                renderSubtitles(setting)
             } else if (setting === "playbackrate") {
                 renderPlaybackRate(setting)
             } else if (setting === "vr") {

@@ -171,8 +171,6 @@ export class MediaControl extends UICorePlugin {
 
   private $seekBarScrubber: ZeptoResult | null = null
 
-  private $subtitlesSelector: ZeptoResult | null = null
-
   private $volumeBarContainer: ZeptoResult | null = null
 
   private $volumeBarBackground: ZeptoResult | null = null
@@ -203,7 +201,8 @@ export class MediaControl extends UICorePlugin {
 
   private get disabled() {
     const playbackIsNOOP =
-      this.core.activeContainer && this.core.activeContainer.getPlaybackType() === Playback.NO_OP
+      this.core.activeContainer &&
+      this.core.activeContainer.getPlaybackType() === Playback.NO_OP
 
     return this.userDisabled || playbackIsNOOP
   }
@@ -296,9 +295,7 @@ export class MediaControl extends UICorePlugin {
     this.bindKeyEvents()
 
     this.userDisabled = false
-    if (
-      this.options.chromeless
-    ) {
+    if (this.options.chromeless) {
       this.disable()
     }
 
@@ -364,9 +361,21 @@ export class MediaControl extends UICorePlugin {
   }
 
   private bindContainerEvents() {
-    this.listenTo(this.core.activeContainer, Events.CONTAINER_PLAY, this.changeTogglePlay)
-    this.listenTo(this.core.activeContainer, Events.CONTAINER_PAUSE, this.changeTogglePlay)
-    this.listenTo(this.core.activeContainer, Events.CONTAINER_STOP, this.changeTogglePlay)
+    this.listenTo(
+      this.core.activeContainer,
+      Events.CONTAINER_PLAY,
+      this.changeTogglePlay,
+    )
+    this.listenTo(
+      this.core.activeContainer,
+      Events.CONTAINER_PAUSE,
+      this.changeTogglePlay,
+    )
+    this.listenTo(
+      this.core.activeContainer,
+      Events.CONTAINER_STOP,
+      this.changeTogglePlay,
+    )
     this.listenTo(
       this.core.activeContainer,
       Events.CONTAINER_DBLCLICK,
@@ -408,7 +417,11 @@ export class MediaControl extends UICorePlugin {
       this.enable,
     )
     this.listenTo(this.core.activeContainer, Events.CONTAINER_ENDED, this.ended)
-    this.listenTo(this.core.activeContainer, Events.CONTAINER_VOLUME, this.onVolumeChanged)
+    this.listenTo(
+      this.core.activeContainer,
+      Events.CONTAINER_VOLUME,
+      this.onVolumeChanged,
+    )
     this.listenTo(
       this.core.activeContainer,
       Events.CONTAINER_OPTIONS_CHANGE,
@@ -977,11 +990,15 @@ export class MediaControl extends UICorePlugin {
   }
 
   private settingsUpdate() {
-    const newSettings = $.extend(true, {
-      left: [],
-      default: [],
-      right: [],
-    }, this.core.activeContainer?.settings)
+    const newSettings = $.extend(
+      true,
+      {
+        left: [],
+        default: [],
+        right: [],
+      },
+      this.core.activeContainer?.settings,
+    )
 
     newSettings.left = orderByOrderPattern(
       [...newSettings.left, 'clipsText', 'volume'],
@@ -1055,9 +1072,6 @@ export class MediaControl extends UICorePlugin {
     this.$volumeBarBackground = this.$el.find('.bar-background[data-volume]')
     this.$volumeBarFill = this.$el.find('.bar-fill-1[data-volume]')
     this.$volumeBarScrubber = this.$el.find('.bar-scrubber[data-volume]')
-    this.$subtitlesSelector = this.$el.find(
-      '.media-control-subtitles[data-subtitles]',
-    )
     this.$playbackRate = this.$el.find(
       '.media-control-playbackrate[data-playbackrate]',
     )
@@ -1107,7 +1121,7 @@ export class MediaControl extends UICorePlugin {
       case 'seekBarContainer':
         return this.$seekBarContainer
       case 'subtitlesSelector':
-        return this.$subtitlesSelector
+        return null
     }
   }
 
@@ -1116,10 +1130,13 @@ export class MediaControl extends UICorePlugin {
       case 'audioTracksSelector':
         this.getRightPanel().append(element)
         break
+      case 'gear':
+        this.getRightPanel().append(element)
+        break
       case 'pip':
         this.getRightPanel().append(element)
         break
-      case 'gear':
+      case 'subtitlesSelector':
         this.getRightPanel().append(element)
         break
     }

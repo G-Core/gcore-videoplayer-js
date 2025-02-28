@@ -22,9 +22,7 @@ Depends on:
 
 - [MediaControl](./player.mediacontrol.md)
 
-Configuration options:
-
-- subtitles.language - The language of the subtitles to select by default.
+Configuration options - [SubtitlesPluginSettings](./player.subtitlespluginsettings.md)
 
 ## Example
 

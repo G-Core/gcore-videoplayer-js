@@ -22,6 +22,8 @@ const T = 'plugins.bottom_gear';
  */
 export type GearItemElement = 'quality' | 'rate' | 'nerd';
 
+// TODO disabled if no items added
+
 /**
  * `PLUGIN` that adds the gear button with an extra options menu on the right side of the {@link MediaControl | media control} UI
  * @beta
@@ -30,7 +32,7 @@ export type GearItemElement = 'quality' | 'rate' | 'nerd';
  * 
  * Depends on:
  *
- * - {@link MediaControl | media_control}
+ * - {@link MediaControl}
  */
 export class BottomGear extends UICorePlugin {
   private isHd = false;

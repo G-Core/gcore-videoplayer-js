@@ -22,7 +22,7 @@ The plugins provides a base for attaching custom settings UI in the gear menu
 
 Depends on:
 
-- [media\_control](./player.mediacontrol.md)
+- [MediaControl](./player.mediacontrol.md)
 
 ## Methods
 

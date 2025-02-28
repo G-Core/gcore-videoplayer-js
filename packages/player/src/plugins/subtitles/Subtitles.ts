@@ -1,14 +1,9 @@
-import {
-  Events,
-  UICorePlugin,
-  Browser,
-  template,
-  $,
-} from '@clappr/core'
+import { Events, UICorePlugin, Browser, template, $ } from '@clappr/core'
 import { reportError, trace } from '@gcorevideo/utils'
 import assert from 'assert'
 
 import { CLAPPR_VERSION } from '../../build.js'
+import type { TextTrackItem } from '../../playback.types.js'
 
 import '../../../assets/subtitles/style.scss'
 import subtitlesOffIcon from '../../../assets/icons/new/subtitles-off.svg'
@@ -21,17 +16,16 @@ import type { ZeptoResult } from '../../types.js'
 
 const VERSION: string = '2.19.14'
 
-const LOCAL_STORAGE_SUBTITLES_ID =
-  'gplayer.plugins.subtitles.selected'
+const LOCAL_STORAGE_SUBTITLES_ID = 'gplayer.plugins.subtitles.selected'
 
 const T = 'plugins.subtitles'
 
-type TextTrackInfo = {
-  language: string
-  mode?: 'showing' | 'hidden' | 'disabled'
+export type SubtitlesPluginSettings = {
+  /**
+   * Initially selected subtitles language
+   */
+  language?: string
 }
-
-const NO_TRACK = { language: 'off' }
 
 /**
  * `PLUGIN` that provides a UI to select the subtitles when available.
@@ -42,10 +36,7 @@ const NO_TRACK = { language: 'off' }
  *
  * - {@link MediaControl}
  *
- * Configuration options:
- *
- * - subtitles.language - The language of the subtitles to select by default.
- *
+ * Configuration options -  {@link SubtitlesPluginSettings}
  * @example
  * ```ts
  * import { Subtitles } from '@gcorevideo/player'
@@ -61,15 +52,13 @@ const NO_TRACK = { language: 'off' }
  * ```
  */
 export class Subtitles extends UICorePlugin {
-  private currentLevel: TextTrackInfo | null = null
-
   private isPreselectedApplied = false
 
   private isShowing = false
 
-  private track: TextTrackInfo = { ...NO_TRACK }
+  private track: TextTrackItem | null = null
 
-  private tracks: TextTrackList | null = null
+  private tracks: TextTrackItem[] = []
 
   private $string: ZeptoResult | null = null
 
@@ -103,7 +92,7 @@ export class Subtitles extends UICorePlugin {
    */
   override get attributes() {
     return {
-      class: this.name,
+      class: 'media-control-subtitles',
       'data-subtitles': '',
     }
   }
@@ -113,50 +102,61 @@ export class Subtitles extends UICorePlugin {
    */
   override get events() {
     return {
-      'click [data-subtitles-select]': 'onLevelSelect',
-      'click [data-subtitles-button]': 'onShowLevelSelectMenu',
+      'click [data-subtitles-select]': 'onItemSelect',
+      'click [data-subtitles-button]': 'toggleMenu',
     }
   }
 
   private get preselectedLanguage(): string {
-    return this.core.options.subtitles?.language ?? 'off'
+    return this.core.options.subtitles?.language ?? ''
   }
 
   /**
    * @internal
    */
   override bindEvents() {
-    const mediaControl = this.core.getPlugin('media_control')
-    assert(mediaControl, 'media_control plugin is required')
+    this.listenTo(this.core, Events.CORE_READY, this.onCoreReady)
     this.listenTo(this.core, Events.CORE_RESIZE, this.playerResize)
     this.listenTo(
       this.core,
       Events.CORE_ACTIVE_CONTAINER_CHANGED,
-      this.bindPlaybackEvents,
+      this.onContainerChanged,
     )
+  }
+
+  private onCoreReady() {
+    trace(`${T} onCoreReady`)
+    const mediaControl = this.core.getPlugin('media_control')
+    assert(mediaControl, 'media_control plugin is required')
     this.listenTo(mediaControl, Events.MEDIACONTROL_RENDERED, this.render)
     this.listenTo(
       mediaControl,
       Events.MEDIACONTROL_HIDE,
-      this.hideSelectLevelMenu,
+      this.hideMenu,
     )
   }
 
-  private bindPlaybackEvents() {
+  private onContainerChanged() {
+    trace(`${T} onContainerChanged`)
     this.listenTo(
       this.core.activeContainer,
       Events.CONTAINER_FULLSCREEN,
       this.playerResize,
     )
-    this.listenToOnce(
-      this.core.activePlayback,
-      Events.PLAYBACK_PLAY,
-      this.getTracks,
-    )
     this.listenTo(
       this.core.activeContainer,
       'container:advertisement:start',
       this.onStartAd,
+    )
+    this.listenTo(
+      this.core.activePlayback,
+      Events.PLAYBACK_SUBTITLE_AVAILABLE,
+      this.onSubtitleAvailable,
+    )
+    this.listenTo(
+      this.core.activePlayback,
+      Events.PLAYBACK_SUBTITLE_CHANGED,
+      this.onSubtitleChanged,
     )
 
     // fix for iOS
@@ -176,17 +176,49 @@ export class Subtitles extends UICorePlugin {
     })
   }
 
-  private getTracks() {
-    if (this.core.activePlayback) {
-      try {
-        const tracks = (this.core.activePlayback.el as HTMLMediaElement)
-          .textTracks
-        if (tracks.length > 0) {
-          this.setTracks(tracks)
+  private onSubtitleAvailable() {
+    trace(`${T} onSubtitleAvailable`)
+    this.applyTracks()
+  }
+
+  private onSubtitleChanged({ id }: { id: number }) {
+    trace(`${T} onSubtitleChanged`, { id })
+    if (id === -1) {
+      this.clearSubtitleText()
+    }
+    for (const track of this.tracks) {
+      if (track.id === id) {
+        track.track.mode = 'showing'
+
+        this.setSubtitleText(this.getSubtitleText(track.track))
+
+        track.track.oncuechange = (e) => {
+          try {
+            if (track.track.activeCues?.length) {
+              const html = (track.track.activeCues[0] as VTTCue).getCueAsHTML()
+
+              this.setSubtitleText(html)
+            } else {
+              this.clearSubtitleText()
+            }
+          } catch (error) {
+            reportError(error)
+          }
         }
-      } catch (error) {
-        reportError(error)
+      } else {
+        track.track.oncuechange = null
+        track.track.mode = 'hidden'
       }
+    }
+  }
+
+  private applyTracks() {
+    try {
+      this.tracks = this.core.activePlayback.closedCaptionsTracks
+      this.applyPreselectedSubtitles()
+      this.render()
+    } catch (error) {
+      reportError(error)
     }
   }
 
@@ -211,11 +243,12 @@ export class Subtitles extends UICorePlugin {
   }
 
   private playerResize() {
+    trace(`${T} playerResize`)
     const shouldShow =
       this.core.activeContainer &&
       isFullscreen(this.core.activeContainer.el) &&
-      this.currentLevel &&
-      this.currentLevel.mode &&
+      this.track &&
+      this.track.track.mode &&
       Browser.isiOS &&
       this.isShowing
 
@@ -239,7 +272,7 @@ export class Subtitles extends UICorePlugin {
     this.$string.hide()
     if (this.tracks) {
       for (const t of this.tracks) {
-        t.mode = 'hidden'
+        t.track.mode = 'hidden'
       }
     }
   }
@@ -253,26 +286,22 @@ export class Subtitles extends UICorePlugin {
     if (
       this.core.activeContainer &&
       isFullscreen(this.core.activeContainer.el) &&
-      this.currentLevel &&
-      this.currentLevel.mode &&
+      this.track &&
+      this.track.track.mode &&
       Browser.isiOS
     ) {
       this.$string.hide()
-      this.currentLevel.mode = 'showing'
+      this.track.track.mode = 'showing'
     } else {
       this.$string.show()
     }
   }
 
   private shouldRender() {
-    return !!(this.tracks && this.tracks.length > 0)
+    return this.tracks.length > 0
   }
 
   private resizeFont() {
-    if (!this.core.activeContainer) {
-      return
-    }
-
     if (!this.$string) {
       return
     }
@@ -294,71 +323,42 @@ export class Subtitles extends UICorePlugin {
       return this
     }
 
-    trace(`${T} render`, {
-      tracks: this.tracks?.length,
-      track: this.track?.language,
-    })
-
     const mediaControl = this.core.getPlugin('media_control')
-    assert(mediaControl, 'media_control plugin is required')
 
     this.$el.html(Subtitles.template({ tracks: this.tracks }))
     this.core.activeContainer.$el.find('.subtitle-string').remove()
     this.$string = $(Subtitles.templateString())
     this.resizeFont()
 
-    this.core.activeContainer.$el.append(this.$string[0])
-    const ss = mediaControl.getElement('subtitlesSelector')
-    if (ss && ss.length > 0) {
-      ss.append(this.el)
-    } else {
-      mediaControl.getRightPanel().append(this.el)
-    }
+    this.core.activeContainer.$el.append(this.$string)
+    mediaControl.putElement('subtitlesSelector', this.$el)
 
-    this.updateCurrentLevel(this.track)
-    this.highlightCurrentSubtitles()
-
-    this.applyPreselectedSubtitles()
+    this.updateSelection()
 
     this.renderIcon()
 
     return this
   }
 
-  private setTracks(tracks: TextTrackList) {
-    this.tracks = tracks
-    this.render()
+  private findById(id: number) {
+    return this.tracks.find((track) => track.id === id) ?? null
   }
 
-  private findLevelBy(id: string) {
-    if (this.tracks) {
-      for (const track of this.tracks) {
-        if (track.language === id) {
-          return track // TODO TrackInfo?
-        }
-      }
-    }
-  }
-
-  private selectLevel(id: string) {
+  private selectItem(item: TextTrackItem | null) {
     this.clearSubtitleText()
-    this.track = this.findLevelBy(id) || { ...NO_TRACK }
+    this.track = item
 
-    this.hideSelectLevelMenu()
-    if (!this.track) {
-      this.track = { language: 'off' }
-    }
-
-    this.updateCurrentLevel(this.track)
+    this.hideMenu()
+    this.updateSelection()
   }
 
-  private onLevelSelect(event: MouseEvent) {
-    const id = (event.target as HTMLElement).dataset.subtitlesSelect
+  private onItemSelect(event: MouseEvent) {
+    const id = (event.target as HTMLElement).dataset.subtitlesSelect ?? '-1'
 
-    if (id) {
-      localStorage.setItem(LOCAL_STORAGE_SUBTITLES_ID, id)
-      this.selectLevel(id)
-    }
+    trace(`${T} onItemSelect`, { id })
+
+    localStorage.setItem(LOCAL_STORAGE_SUBTITLES_ID, id)
+    this.selectItem(this.findById(Number(id)))
 
     return false
   }
@@ -366,91 +366,57 @@ export class Subtitles extends UICorePlugin {
   private applyPreselectedSubtitles() {
     if (!this.isPreselectedApplied) {
       this.isPreselectedApplied = true
+      if (!this.preselectedLanguage) {
+        return
+      }
       setTimeout(() => {
-        this.selectLevel(this.preselectedLanguage)
-      }, 300)
+        this.selectItem(
+          this.tracks.find(
+            (t) => t.track.language === this.preselectedLanguage,
+          ) ?? null,
+        )
+      }, 300) // TODO why delay?
     }
   }
 
-  private onShowLevelSelectMenu() {
-    trace(`${T} onShowLevelSelectMenu`)
-    this.toggleContextMenu()
-  }
-
-  private hideSelectLevelMenu() {
+  private hideMenu() {
     ;(this.$('[data-subtitles] ul') as ZeptoResult).hide()
   }
 
-  private toggleContextMenu() {
-    (this.$('[data-subtitles] ul') as ZeptoResult).toggle()
+  private toggleMenu() {
+    ;(this.$('[data-subtitles] ul') as ZeptoResult).toggle()
   }
 
-  private buttonElement(): ZeptoResult {
-    return this.$('[data-subtitles] button')
-  }
-
-  private levelElement(id?: string): ZeptoResult {
+  private itemElement(id: number): ZeptoResult {
     return (
-      this.$(
-        '[data-subtitles] ul a' + (id ? '[data-subtitles-select="' + id + '"]' : ''),
-      ) as ZeptoResult
+      this.$(`ul li a[data-subtitles-select="${id}"]`) as ZeptoResult
     ).parent()
   }
 
-  private startLevelSwitch() {
-    this.buttonElement().addClass('changing')
-  }
-
-  private stopLevelSwitch() {
-    this.buttonElement().removeClass('changing')
+  private allItemElements(): ZeptoResult {
+    return this.$('[data-subtitles] li')
   }
 
   private selectSubtitles() {
-    if (!this.currentLevel) {
-      return
-    }
+    const trackId = this.track ? this.track.id : -1
 
-    if (this.tracks) {
-      for (let i = 0; i < this.tracks.length; i++) {
-        const track = this.tracks[i]
-        if (track.language === this.currentLevel.language) {
-          track.mode = 'showing'
+    this.core.activePlayback.closedCaptionsTrackId = trackId
+  }
 
-          const currentTime = this.core.activePlayback?.getCurrentTime() ?? 0
-          const cues = track.cues
-          let subtitleText = ''
+  private getSubtitleText(track: TextTrack) {
+    const currentTime = this.core.activePlayback?.getCurrentTime() ?? 0
+    const cues = track.cues
+    const lines = []
 
-          if (cues && cues.length) {
-            for (const cue of cues) {
-              if (currentTime >= cue.startTime && currentTime <= cue.endTime) {
-                subtitleText +=
-                  (cue as VTTCue).getCueAsHTML().textContent + '\n'
-              }
-            }
-          }
-
-          this.setSubtitleText(subtitleText)
-
-          track.oncuechange = (e) => {
-            try {
-              if (track.activeCues?.length) {
-                const html = (track.activeCues[0] as VTTCue).getCueAsHTML()
-
-                this.setSubtitleText(html)
-              } else {
-                this.clearSubtitleText()
-              }
-            } catch (error) {
-              // console.error(error);
-              reportError(error)
-            }
-          }
-          continue
+    if (cues && cues.length) {
+      for (const cue of cues) {
+        if (currentTime >= cue.startTime && currentTime <= cue.endTime) {
+          lines.push((cue as VTTCue).getCueAsHTML().textContent)
         }
-        this.tracks[i].oncuechange = null
-        this.tracks[i].mode = 'hidden'
       }
     }
+
+    return lines.join('\n')
   }
 
   private setSubtitleText(text: string | DocumentFragment) {
@@ -461,9 +427,8 @@ export class Subtitles extends UICorePlugin {
     this.setSubtitleText('')
   }
 
-  private updateCurrentLevel(track: TextTrackInfo) {
-    this.currentLevel = track
-    if (track.language === 'off') {
+  private updateSelection() {
+    if (!this.track) {
       this.hide()
     } else {
       this.show()
@@ -473,24 +438,24 @@ export class Subtitles extends UICorePlugin {
   }
 
   private highlightCurrentSubtitles() {
-    this.levelElement().removeClass('current')
-    this.levelElement().find('a').removeClass('gcore-skin-active')
+    this.allItemElements()
+      .removeClass('current')
+      .find('a')
+      .removeClass('gcore-skin-active')
 
-    if (this.currentLevel) {
-      const currentLevelElement = this.levelElement(this.currentLevel.language)
-
-      currentLevelElement.addClass('current')
-      currentLevelElement.find('a').addClass('gcore-skin-active')
-    }
+    trace(`${T} highlightCurrentSubtitles`, {
+      track: this.track?.id,
+    })
+    const currentLevelElement = this.itemElement(this.track ? this.track.id : -1)
+    currentLevelElement
+      .addClass('current')
+      .find('a')
+      .addClass('gcore-skin-active')
   }
 
   private renderIcon() {
     const icon = this.isShowing ? subtitlesOnIcon : subtitlesOffIcon
 
-    this.core
-      .getPlugin('media_control')
-      .getElement('subtitlesSelector')
-      ?.find('span.subtitle-text')
-      .html(icon)
+    this.$el.find('span.subtitle-text').html(icon)
   }
 }
