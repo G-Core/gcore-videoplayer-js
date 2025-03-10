@@ -25,7 +25,8 @@ export * from "./plugins/share/Share.js";
 export * from "./plugins/skip-time/SkipTime.js";
 export * from "./plugins/spinner-three-bounce/SpinnerThreeBounce.js";
 export * from "./plugins/source-controller/SourceController.js";
-export * from "./plugins/subtitles/Subtitles.js";
+export * from "./plugins/subtitles/ClosedCaptions.js";
+export { ClosedCaptions as Subtitles } from "./plugins/subtitles/ClosedCaptions.js"; // TODO remove in future versions
 export * from "./plugins/telemetry/Telemetry.js";
 export * from "./plugins/thumbnails/Thumbnails.js";
 // _ vast-ads

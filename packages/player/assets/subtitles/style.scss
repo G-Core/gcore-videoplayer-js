@@ -4,7 +4,7 @@
   outline: none !important;
 }
 
-.media-control-subtitles[data-subtitles] {
+.media-control-cc[data-cc] {
   position: relative;
   order: 85;
 
@@ -15,7 +15,7 @@
     border: none;
     cursor: pointer;
 
-    .subtitle-text {
+    .cc-text {
       svg {
         fill: white;
       }

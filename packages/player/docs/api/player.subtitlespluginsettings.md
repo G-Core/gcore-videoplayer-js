@@ -4,10 +4,15 @@
 
 ## SubtitlesPluginSettings type
 
+> Warning: This API is now obsolete.
+> 
+> Use [ClosedCaptionsPluginSettings](./player.closedcaptionspluginsettings.md) instead.
+> 
+
 **Signature:**
 
 ```typescript
-export type SubtitlesPluginSettings = {
-    language?: string;
-};
+export type SubtitlesPluginSettings = ClosedCaptionsPluginSettings;
 ```
+**References:** [ClosedCaptionsPluginSettings](./player.closedcaptionspluginsettings.md)
+

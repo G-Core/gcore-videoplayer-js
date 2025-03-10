@@ -416,6 +416,7 @@ export default class DashPlayback extends BasePlayback {
     this.trigger(Events.PLAYBACK_STATS_ADD, { dvr: status })
   }
 
+  // TODO move to the base class
   override _updateSettings() {
     if (this._playbackType === Playback.VOD) {
       // @ts-expect-error

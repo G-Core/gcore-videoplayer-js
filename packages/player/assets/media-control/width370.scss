@@ -1,5 +1,5 @@
 .media-control-skin-1[data-media-control-skin-1].w370 {
-  .media-control-subtitles {
+  .media-control-cc {
     width: 28px;
 
     svg {
@@ -27,12 +27,12 @@
   }
 
   .media-control-quality,
-  .media-control-audio-tracks {
+  .media-control-audiotracks {
     display: block;
   }
 
   .level-selector[data-level-selector],
-  .media-control-audio-tracks[data-track-selector] {
+  .media-control-audiotracks[data-audiotracks] {
     margin-top: 3px;
     margin-right: 10px;
 
@@ -52,7 +52,7 @@
     }
 
     button[data-level-selector-button],
-    button[data-track-selector-button] {
+    button[data-audiotracks-button] {
 
       .quality-text,
       .audio-text {

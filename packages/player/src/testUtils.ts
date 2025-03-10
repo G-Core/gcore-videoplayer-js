@@ -126,47 +126,31 @@ export function createMockPlayback(name = 'mock') {
   return Object.assign(emitter, {
     name,
     currentLevel: -1,
+    dvrEnabled: false,
     levels: [],
     consent() {},
     play() {},
     pause() {},
     stop() {},
-    destroy() {},
-    seek() {},
-    seekPercentage() {},
-    getDuration() {
-      return 100
-    },
-    enterPiP() {},
-    exitPiP() {},
-    getPlaybackType() {
-      return 'live'
-    },
-    getStartTimeOffset() {
-      return 0
-    },
-    getCurrentTime() {
-      return 0
-    },
-    isHighDefinitionInUse() {
-      return false
-    },
-    mute() {},
-    unmute() {},
-    volume() {},
-    configure() {},
-    attemptAutoPlay() {
-      return true
-    },
-    canAutoPlay() {
-      return true
-    },
-    onResize() {
-      return true
-    },
-    trigger(event: string, ...args: any[]) {
-      emitter.emit(event, ...args)
-    },
+    destroy: vi.fn(),
+    seek: vi.fn(),
+    seekPercentage: vi.fn(),
+    getDuration: vi.fn().mockImplementation(() => 100),
+    enterPiP: vi.fn(),
+    exitPiP: vi.fn(),
+    getPlaybackType: vi.fn().mockImplementation(() => 'live'),
+    getStartTimeOffset: vi.fn().mockImplementation(() => 0),
+    getCurrentTime: vi.fn().mockImplementation(() => 0),
+    isHighDefinitionInUse: vi.fn().mockImplementation(() => false),
+    mute: vi.fn(),
+    unmute: vi.fn(),
+    volume: vi.fn(),
+    configure: vi.fn(),
+    attemptAutoPlay: vi.fn().mockImplementation(() => true),
+    canAutoPlay: vi.fn().mockImplementation(() => true),
+    onResize: vi.fn().mockImplementation(() => true),
+    setPlaybackRate: vi.fn(),
+    trigger: emitter.emit,
   })
 }
 
@@ -179,6 +163,8 @@ export function createMockContainer(playback: any = createMockPlayback()) {
     $el: $(el),
     getDuration: vi.fn().mockReturnValue(0),
     getPlugin: vi.fn(),
+    getPlaybackType: vi.fn().mockReturnValue('live'),
+    isDvrInUse: vi.fn().mockReturnValue(false),
     isPlaying: vi.fn().mockReturnValue(false),
     play: vi.fn(),
     seek: vi.fn(),

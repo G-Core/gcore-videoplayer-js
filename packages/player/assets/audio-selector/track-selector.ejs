@@ -1,10 +1,10 @@
-<button data-track-selector-button class='gcore-skin-button-color'>
+<button data-audiotracks-button class='gcore-skin-button-color' id="audiotracks-button">
     <span class='audio-text'><%= title %></span> <span class="audio-arrow"></span>
 </button>
-<ul class='gcore-skin-bg-color'>
+<ul class='gcore-skin-bg-color' id="audiotracks-select">
     <% for (const track of tracks) { %>
         <li>
-            <a href="#" class='gcore-skin-text-color' data-track-selector-select="<%= track.id %>">
+            <a href="#" class='gcore-skin-text-color' data-audiotracks-select="<%= track.id %>">
                 <%= track.label %>
             </a>
         </li>

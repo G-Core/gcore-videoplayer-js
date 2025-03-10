@@ -42,13 +42,13 @@ import fullscreenOnIcon from '../../../assets/icons/new/fullscreen-on.svg'
  * @beta
  */
 export type MediaControlElement =
-  | 'audioTracksSelector'
+  | 'audiotracks'
   | 'clipText'
   | 'gear'
   | 'pip'
   | 'playbackRate'
   | 'seekBarContainer'
-  | 'subtitlesSelector'
+  | 'cc'
 
 /**
  * Custom events emitted by the plugins to communicate with one another
@@ -95,7 +95,7 @@ type DisabledClickable = {
  * The methods exposed are to be used by the other plugins that extend the media control UI.
  */
 export class MediaControl extends UICorePlugin {
-  private advertisementPlaying = false
+  // private advertisementPlaying = false
 
   private buttonsColor: string | null = null
 
@@ -131,7 +131,7 @@ export class MediaControl extends UICorePlugin {
 
   private rendered = false
 
-  private settings: Record<string, unknown> = {}
+  private settings: Record<string, MediaControlElement[]> = {} // TODO & seekEnabled: boolean, ...
 
   private userDisabled = false
 
@@ -394,12 +394,12 @@ export class MediaControl extends UICorePlugin {
     this.listenTo(
       this.core.activeContainer,
       Events.CONTAINER_SETTINGSUPDATE,
-      this.settingsUpdate,
+      this.updateSettings,
     )
     this.listenTo(
       this.core.activeContainer,
       Events.CONTAINER_PLAYBACKDVRSTATECHANGED,
-      this.settingsUpdate,
+      this.updateSettings,
     )
     this.listenTo(
       this.core.activeContainer,
@@ -427,14 +427,12 @@ export class MediaControl extends UICorePlugin {
       Events.CONTAINER_OPTIONS_CHANGE,
       this.setInitialVolume,
     )
-    if (this.core.activePlayback.el.nodeName.toLowerCase() === 'video') {
-      // wait until the metadata has loaded and then check if fullscreen on video tag is supported
-      this.listenToOnce(
-        this.core.activeContainer,
-        Events.CONTAINER_LOADEDMETADATA,
-        this.onLoadedMetadataOnVideoTag,
-      )
-    }
+  // wait until the metadata has loaded and then check if fullscreen on video tag is supported
+    this.listenToOnce(
+      this.core.activeContainer,
+      Events.CONTAINER_LOADEDMETADATA,
+      this.onLoadedMetadata,
+    )
   }
 
   /**
@@ -475,14 +473,14 @@ export class MediaControl extends UICorePlugin {
     this.updateVolumeUI()
   }
 
-  private onLoadedMetadataOnVideoTag(event: any) {
+  private onLoadedMetadata() {
     const video = this.core.activePlayback?.el
 
     // video.webkitSupportsFullscreen is deprecated but iOS appears to only use this
     // see https://github.com/clappr/clappr/issues/1127
     if (!Fullscreen.fullscreenEnabled() && video.webkitSupportsFullscreen) {
       this.fullScreenOnVideoTagSupported = true
-      this.settingsUpdate()
+      this.updateSettings()
     }
   }
 
@@ -754,7 +752,7 @@ export class MediaControl extends UICorePlugin {
     this.setInitialVolume()
     this.changeTogglePlay()
     this.bindContainerEvents()
-    this.settingsUpdate()
+    this.updateSettings()
     this.core.activeContainer.trigger(
       Events.CONTAINER_PLAYBACKDVRSTATECHANGED,
       this.core.activeContainer.isDvrInUse(),
@@ -989,7 +987,7 @@ export class MediaControl extends UICorePlugin {
     }
   }
 
-  private settingsUpdate() {
+  private updateSettings() {
     const newSettings = $.extend(
       true,
       {
@@ -997,7 +995,7 @@ export class MediaControl extends UICorePlugin {
         default: [],
         right: [],
       },
-      this.core.activeContainer?.settings,
+      this.core.activeContainer.settings,
     )
 
     newSettings.left = orderByOrderPattern(
@@ -1005,11 +1003,12 @@ export class MediaControl extends UICorePlugin {
       LEFT_ORDER,
     )
 
+    // actual order of the items appear rendered is controlled by CSS
     newSettings.right = [
       'fullscreen',
       'pip',
-      'bottomgear',
-      'subtitles',
+      'gear',
+      'cc',
       'multicamera',
       'playbackrate',
       'vr',
@@ -1021,7 +1020,7 @@ export class MediaControl extends UICorePlugin {
         !Fullscreen.fullscreenEnabled()) ||
       this.options.fullscreenDisable
     ) {
-      // remove fullscreen from settings if it is present
+      // remove fullscreen from settings if it is not available
       removeArrayItem(newSettings.default, 'fullscreen')
       removeArrayItem(newSettings.left, 'fullscreen')
       removeArrayItem(newSettings.right, 'fullscreen')
@@ -1078,7 +1077,7 @@ export class MediaControl extends UICorePlugin {
     this.$multiCameraSelector = this.$el.find(
       '.media-control-multicamera[data-multicamera]',
     )
-    this.$clipText = this.$el.find('.media-clip-text[data-clipstext]')
+    this.$clipText = this.$el.find('.media-clip-text[data-clipstext]') // TODO
     this.$clipTextContainer = this.$el.find(
       '.media-clip-container[data-clipstext]',
     )
@@ -1108,37 +1107,32 @@ export class MediaControl extends UICorePlugin {
    */
   getElement(name: MediaControlElement): ZeptoResult | null {
     switch (name) {
-      case 'audioTracksSelector':
+      case 'audiotracks':
         return null
       case 'clipText':
         return this.$clipText
-      case 'gear':
-        return null
-      case 'pip':
-        return null
       case 'playbackRate':
         return this.$playbackRate
       case 'seekBarContainer':
         return this.$seekBarContainer
-      case 'subtitlesSelector':
-        return null
     }
   }
 
-  putElement(name: MediaControlElement, element: ZeptoResult) {
-    switch (name) {
-      case 'audioTracksSelector':
-        this.getRightPanel().append(element)
-        break
-      case 'gear':
-        this.getRightPanel().append(element)
-        break
-      case 'pip':
-        this.getRightPanel().append(element)
-        break
-      case 'subtitlesSelector':
-        this.getRightPanel().append(element)
-        break
+  putElement(name: MediaControlElement, element: HTMLElement) {
+    const panel = this.getElementLocation(name);
+    trace(`${T} putElement`, { name, panel: !!panel })
+    if (panel) {
+      const current = panel.find(`[data-${name}]`)
+      element.setAttribute(`data-${name}`, "")
+      // TODO test
+      if (current.length) {
+        if (current[0] === element) {
+          return
+        }
+        current.replaceWith(element)
+      } else {
+        panel.append(element)
+      }
     }
   }
 
@@ -1424,13 +1418,13 @@ export class MediaControl extends UICorePlugin {
 
   // TODO manage by the ads plugin
   private onStartAd() {
-    this.advertisementPlaying = true
+    // this.advertisementPlaying = true
     this.disable()
   }
 
   // TODO manage by the ads plugin
   private onFinishAd() {
-    this.advertisementPlaying = false
+    // this.advertisementPlaying = false
     this.enable()
   }
 
@@ -1486,6 +1480,19 @@ export class MediaControl extends UICorePlugin {
     }
 
     return isFinite(this.core.activePlayback.getDuration())
+  }
+
+  private getElementLocation(name: MediaControlElement) {
+    if (this.settings.right?.includes(name)) {
+      return this.getRightPanel();
+    }
+    if (this.settings.left?.includes(name)) {
+      return this.getLeftPanel();
+    }
+    if (this.settings.default?.includes(name)) {
+      return this.getCenterPanel();
+    }
+    return null;
   }
 }
 

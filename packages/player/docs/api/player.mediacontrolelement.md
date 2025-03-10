@@ -12,5 +12,5 @@ Media control elements, mount points for additional plugins
 **Signature:**
 
 ```typescript
-export type MediaControlElement = 'audioTracksSelector' | 'clipText' | 'gear' | 'pip' | 'playbackRate' | 'seekBarContainer' | 'subtitlesSelector';
+export type MediaControlElement = 'audiotracks' | 'clipText' | 'gear' | 'pip' | 'playbackRate' | 'seekBarContainer' | 'cc';
 ```

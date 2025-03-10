@@ -10,7 +10,7 @@
 **Signature:**
 
 ```typescript
-putElement(name: MediaControlElement, element: ZeptoResult): void;
+putElement(name: MediaControlElement, element: HTMLElement): void;
 ```
 
 ## Parameters
@@ -52,7 +52,7 @@ element
 
 </td><td>
 
-[ZeptoResult](./player.zeptoresult.md)
+HTMLElement
 
 
 </td><td>

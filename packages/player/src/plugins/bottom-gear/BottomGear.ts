@@ -20,7 +20,12 @@ const T = 'plugins.bottom_gear';
  * An element inside the gear menu
  * @beta
  */
-export type GearItemElement = 'quality' | 'rate' | 'nerd';
+export type GearOptionsItem = 'quality' | 'rate' | 'nerd';
+
+/**
+ * @deprecated Use {@link GearOptionsItem} instead
+ */
+export type GearItemElement = GearOptionsItem;
 
 // TODO disabled if no items added
 
@@ -90,9 +95,11 @@ export class BottomGear extends UICorePlugin {
    * @param name - Name of a gear menu placeholder item to attach custom UI
    * @returns Zepto result of the element
    */
-  getElement(name: GearItemElement): ZeptoResult | null {
+  getElement(name: GearOptionsItem): ZeptoResult | null {
     return this.$el.find(`.gear-options-list [data-${name}]`);
   }
+
+  // TODO implement putElement/addElement method
 
   /**
    * Replaces the content of the gear menu
@@ -125,7 +132,7 @@ export class BottomGear extends UICorePlugin {
     const mediaControl = this.core.getPlugin('media_control');
 
     // TODO use options.mediaControl.gear.items
-    const items: GearItemElement[] = [
+    const items: GearOptionsItem[] = [
       'quality',
       'rate',
       'nerd',
@@ -133,7 +140,7 @@ export class BottomGear extends UICorePlugin {
     const icon = this.isHd ? gearHdIcon : gearIcon;
     this.$el.html(BottomGear.template({ icon, items }));
 
-    mediaControl.putElement('gear', this.$el);
+    mediaControl.putElement('gear', this.el);
     mediaControl.trigger(MediaControlEvents.MEDIACONTROL_GEAR_RENDERED);
     return this;
   }

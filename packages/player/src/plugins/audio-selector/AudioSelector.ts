@@ -9,6 +9,7 @@ import pluginHtml from '../../../assets/audio-selector/track-selector.ejs'
 import '../../../assets/audio-selector/style.scss'
 import audioArrow from '../../../assets/icons/old/quality-arrow.svg'
 import { ZeptoResult } from '../../types.js'
+import { MediaControl } from '../media-control/MediaControl.js'
 
 const VERSION: string = '0.0.1'
 
@@ -57,8 +58,8 @@ export class AudioSelector extends UICorePlugin {
    */
   override get attributes() {
     return {
-      class: 'media-control-audio-tracks',
-      'data-track-selector': '',
+      class: 'media-control-audiotracks',
+
     }
   }
 
@@ -67,8 +68,8 @@ export class AudioSelector extends UICorePlugin {
    */
   override get events() {
     return {
-      'click [data-track-selector-select]': 'onTrackSelect',
-      'click [data-track-selector-button]': 'onShowLevelSelectMenu',
+      'click [data-audiotracks-select]': 'onTrackSelect',
+      'click [data-audiotracks-button]': 'onShowLevelSelectMenu',
     }
   }
 
@@ -156,12 +157,12 @@ export class AudioSelector extends UICorePlugin {
       return this
     }
 
-    const mediaControl = this.core.getPlugin('media_control')
+    const mediaControl = this.core.getPlugin('media_control') as MediaControl
     this.$el.html(
       AudioSelector.template({ tracks: this.tracks, title: this.getTitle() }),
     )
     this.$('.audio-arrow').append(audioArrow)
-    mediaControl.putElement('audioTracksSelector', this.$el)
+    mediaControl.putElement('audiotracks', this.el)
 
     this.updateText()
     this.highlightCurrentTrack()
@@ -179,7 +180,7 @@ export class AudioSelector extends UICorePlugin {
   }
 
   private onTrackSelect(event: MouseEvent) {
-    const id = (event.target as HTMLElement)?.dataset?.trackSelectorSelect
+    const id = (event.target as HTMLElement)?.dataset?.audiotracksSelect
     if (id) {
       this.selectAudioTrack(id)
     }
@@ -218,7 +219,7 @@ export class AudioSelector extends UICorePlugin {
     return (
       this.$(
         'ul a' +
-          (id !== undefined ? '[data-track-selector-select="' + id + '"]' : ''),
+          (id !== undefined ? '[data-audiotracks-select="' + id + '"]' : ''),
       ) as ZeptoResult
     ).parent()
   }

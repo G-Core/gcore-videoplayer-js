@@ -52,9 +52,6 @@
             <div class="media-clip-text gcore-skin-text-color" data-<%= name %>></div>
         </div>
     <% }; %>
-    <% var renderPlaybackRate = function(name) { %>
-        <div class="media-control-playbackrate" data-<%= name %>></div>
-    <% }; %>
     <% var renderVR = function(name) { %>
         <div class="media-control-vr" data-<%= name %>></div>
     <% }; %>
@@ -84,13 +81,11 @@
                 renderNerd(setting)
             } else if (setting === "multicamera") {
                 renderMultiCamera(setting)
-            } else if (setting === "playbackrate") {
-                renderPlaybackRate(setting)
             } else if (setting === "vr") {
                 renderVR(setting)
             } else if (setting === "clipsText") {
                 renderClipsText(setting)
-            } else {
+            } else if (setting === "fullscreen") {
                 renderButton(setting);
             }
         });

@@ -4,13 +4,15 @@
 
 ## GearItemElement type
 
-> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
+> Warning: This API is now obsolete.
 > 
-
-An element inside the gear menu
+> Use [GearOptionsItem](./player.gearoptionsitem.md) instead
+> 
 
 **Signature:**
 
 ```typescript
-export type GearItemElement = 'quality' | 'rate' | 'nerd';
+export type GearItemElement = GearOptionsItem;
 ```
+**References:** [GearOptionsItem](./player.gearoptionsitem.md)
+

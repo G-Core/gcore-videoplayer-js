@@ -43,6 +43,8 @@ export class PictureInPicture extends UICorePlugin {
     return VERSION;
   }
 
+  private static buttonTemplate = template(buttonHtml);
+
   /**
    * @internal
    */
@@ -71,8 +73,8 @@ export class PictureInPicture extends UICorePlugin {
 
   private isPiPSupported() {
     trace(`${T} isPiPSupported`, {
-      pictureInPictureEnabled: document.pictureInPictureEnabled,
-      requestPictureInPicture: HTMLVideoElement.prototype.requestPictureInPicture,
+      pictureInPictureEnabled: !!document.pictureInPictureEnabled,
+      requestPictureInPicture: !!HTMLVideoElement.prototype.requestPictureInPicture,
     });
 
     return document.pictureInPictureEnabled && !!HTMLVideoElement.prototype.requestPictureInPicture;
@@ -86,9 +88,7 @@ export class PictureInPicture extends UICorePlugin {
       return this;
     }
 
-    const t = template(buttonHtml);
-
-    this.$el.html(t({ pipIcon }));
+    this.$el.html(PictureInPicture.buttonTemplate({ pipIcon }));
 
     const mediaControl = this.core.getPlugin('media_control');
     if (mediaControl) {

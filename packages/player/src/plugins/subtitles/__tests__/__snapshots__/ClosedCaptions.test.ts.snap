@@ -1,0 +1,25 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`ClosedCaptions > basically > should render 1`] = `
+"<button data-cc-button="" class="media-control-button media-control-icon gcore-skin-button-color" id="cc-button">
+    <span class="cc-text">/assets/icons/new/subtitles-off.svg</span>
+</button>
+
+<ul class="gcore-skin-bg-color" id="cc-select">
+    
+        <li>
+            <a href="#" class="gcore-skin-text-color" data-cc-select="1">
+                English
+            </a>
+        </li>
+    
+        <li>
+            <a href="#" class="gcore-skin-text-color" data-cc-select="2">
+                Spanish
+            </a>
+        </li>
+    
+    <li class="current"><a href="#" class="gcore-skin-text-color gcore-skin-active" data-cc-select="-1">Off</a></li>
+</ul>
+"
+`;

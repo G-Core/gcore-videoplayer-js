@@ -16,11 +16,11 @@ import type { ZeptoResult } from '../../types.js'
 
 const VERSION: string = '2.19.14'
 
-const LOCAL_STORAGE_SUBTITLES_ID = 'gplayer.plugins.subtitles.selected'
+const LOCAL_STORAGE_CC_ID = 'gplayer.plugins.cc.selected'
 
-const T = 'plugins.subtitles'
+const T = 'plugins.cc'
 
-export type SubtitlesPluginSettings = {
+export type ClosedCaptionsPluginSettings = {
   /**
    * Initially selected subtitles language
    */
@@ -28,30 +28,38 @@ export type SubtitlesPluginSettings = {
 }
 
 /**
+ * @deprecated Use {@link ClosedCaptionsPluginSettings} instead.
+ */
+export type SubtitlesPluginSettings = ClosedCaptionsPluginSettings;
+
+/**
  * `PLUGIN` that provides a UI to select the subtitles when available.
  * @beta
  *
  * @remarks
+ * The plugin is activated when closed captions tracks are provided with the media source.
+ * It shows a familiar "CC" button with a dropdown menu to select the subtitles language.
+ *
  * Depends on:
  *
  * - {@link MediaControl}
  *
- * Configuration options -  {@link SubtitlesPluginSettings}
+ * Configuration options -  {@link ClosedCaptionsPluginSettings}
  * @example
  * ```ts
- * import { Subtitles } from '@gcorevideo/player'
+ * import { ClosedCaptions } from '@gcorevideo/player'
  *
- * Player.registerPlugin(Subtitles)
+ * Player.registerPlugin(ClosedCaptions)
  *
  * new Player({
  *   ...
- *   subtitles: {
+ *   cc: {
  *     language: 'en',
  *   },
  * })
  * ```
  */
-export class Subtitles extends UICorePlugin {
+export class ClosedCaptions extends UICorePlugin {
   private isPreselectedApplied = false
 
   private isShowing = false
@@ -60,13 +68,13 @@ export class Subtitles extends UICorePlugin {
 
   private tracks: TextTrackItem[] = []
 
-  private $string: ZeptoResult | null = null
+  private $line: ZeptoResult | null = null
 
   /**
    * @internal
    */
   get name() {
-    return 'subtitles'
+    return 'cc'
   }
 
   /**
@@ -92,8 +100,7 @@ export class Subtitles extends UICorePlugin {
    */
   override get attributes() {
     return {
-      class: 'media-control-subtitles',
-      'data-subtitles': '',
+      class: 'media-control-cc',
     }
   }
 
@@ -102,13 +109,13 @@ export class Subtitles extends UICorePlugin {
    */
   override get events() {
     return {
-      'click [data-subtitles-select]': 'onItemSelect',
-      'click [data-subtitles-button]': 'toggleMenu',
+      'click [data-cc-select]': 'onItemSelect',
+      'click [data-cc-button]': 'toggleMenu',
     }
   }
 
   private get preselectedLanguage(): string {
-    return this.core.options.subtitles?.language ?? ''
+    return this.core.options.cc?.language ?? this.core.options.subtitles?.language ?? ''
   }
 
   /**
@@ -269,7 +276,7 @@ export class Subtitles extends UICorePlugin {
   hide() {
     this.isShowing = false
     this.renderIcon()
-    this.$string.hide()
+    this.$line.hide()
     if (this.tracks) {
       for (const t of this.tracks) {
         t.track.mode = 'hidden'
@@ -290,25 +297,25 @@ export class Subtitles extends UICorePlugin {
       this.track.track.mode &&
       Browser.isiOS
     ) {
-      this.$string.hide()
+      this.$line.hide()
       this.track.track.mode = 'showing'
     } else {
-      this.$string.show()
+      this.$line.show()
     }
   }
 
   private shouldRender() {
-    return this.tracks.length > 0
+    return this.tracks?.length > 0
   }
 
   private resizeFont() {
-    if (!this.$string) {
+    if (!this.$line) {
       return
     }
 
     const skinWidth = this.core.activeContainer.$el.width()
 
-    this.$string.find('p').css('font-size', skinWidth * 0.03)
+    this.$line.find('p').css('font-size', skinWidth * 0.03)
   }
 
   /**
@@ -325,13 +332,13 @@ export class Subtitles extends UICorePlugin {
 
     const mediaControl = this.core.getPlugin('media_control')
 
-    this.$el.html(Subtitles.template({ tracks: this.tracks }))
-    this.core.activeContainer.$el.find('.subtitle-string').remove()
-    this.$string = $(Subtitles.templateString())
+    this.$el.html(ClosedCaptions.template({ tracks: this.tracks }))
+    this.core.activeContainer.$el.find('#cc-line').remove()
+    this.$line = $(ClosedCaptions.templateString())
     this.resizeFont()
 
-    this.core.activeContainer.$el.append(this.$string)
-    mediaControl.putElement('subtitlesSelector', this.$el)
+    this.core.activeContainer.$el.append(this.$line)
+    mediaControl.putElement('cc', this.el)
 
     this.updateSelection()
 
@@ -353,11 +360,11 @@ export class Subtitles extends UICorePlugin {
   }
 
   private onItemSelect(event: MouseEvent) {
-    const id = (event.target as HTMLElement).dataset.subtitlesSelect ?? '-1'
+    const id = (event.target as HTMLElement).dataset.ccSelect ?? '-1'
 
     trace(`${T} onItemSelect`, { id })
 
-    localStorage.setItem(LOCAL_STORAGE_SUBTITLES_ID, id)
+    localStorage.setItem(LOCAL_STORAGE_CC_ID, id)
     this.selectItem(this.findById(Number(id)))
 
     return false
@@ -380,21 +387,22 @@ export class Subtitles extends UICorePlugin {
   }
 
   private hideMenu() {
-    ;(this.$('[data-subtitles] ul') as ZeptoResult).hide()
+    ;(this.$('[data-cc] ul') as ZeptoResult).hide()
   }
 
   private toggleMenu() {
-    ;(this.$('[data-subtitles] ul') as ZeptoResult).toggle()
+    trace(`${T} toggleMenu`)
+    ;(this.$('[data-cc] ul') as ZeptoResult).toggle()
   }
 
   private itemElement(id: number): ZeptoResult {
     return (
-      this.$(`ul li a[data-subtitles-select="${id}"]`) as ZeptoResult
+      this.$(`ul li a[data-cc-select="${id}"]`) as ZeptoResult
     ).parent()
   }
 
   private allItemElements(): ZeptoResult {
-    return this.$('[data-subtitles] li')
+    return this.$('[data-cc] li')
   }
 
   private selectSubtitles() {
@@ -420,7 +428,7 @@ export class Subtitles extends UICorePlugin {
   }
 
   private setSubtitleText(text: string | DocumentFragment) {
-    this.$string.find('p').html(text)
+    this.$line.find('p').html(text)
   }
 
   private clearSubtitleText() {
@@ -456,6 +464,6 @@ export class Subtitles extends UICorePlugin {
   private renderIcon() {
     const icon = this.isShowing ? subtitlesOnIcon : subtitlesOffIcon
 
-    this.$el.find('span.subtitle-text').html(icon)
+    this.$el.find('span.cc-text').html(icon)
   }
 }
