@@ -218,20 +218,6 @@ Description
 </td></tr>
 <tr><td>
 
-[getCenterPanel()](./player.mediacontrol.getcenterpanel.md)
-
-
-</td><td>
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
 [getElement(name)](./player.mediacontrol.getelement.md)
 
 
@@ -241,34 +227,6 @@ Description
 </td><td>
 
 **_(BETA)_** Get a media control element DOM node
-
-
-</td></tr>
-<tr><td>
-
-[getLeftPanel()](./player.mediacontrol.getleftpanel.md)
-
-
-</td><td>
-
-
-</td><td>
-
-**_(BETA)_** Get the left panel area to append custom elements to
-
-
-</td></tr>
-<tr><td>
-
-[getRightPanel()](./player.mediacontrol.getrightpanel.md)
-
-
-</td><td>
-
-
-</td><td>
-
-**_(BETA)_** Get the right panel area to append custom elements to
 
 
 </td></tr>
@@ -311,6 +269,20 @@ Description
 </td><td>
 
 **_(BETA)_** Set the volume
+
+
+</td></tr>
+<tr><td>
+
+[toggleElement(name, show)](./player.mediacontrol.toggleelement.md)
+
+
+</td><td>
+
+
+</td><td>
+
+**_(BETA)_** Toggle the visibility of a media control element
 
 
 </td></tr>

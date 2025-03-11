@@ -805,7 +805,9 @@ export class MediaControl extends UICorePlugin {
   }
 
   private showVolumeBar() {
-    this.hideVolumeId && clearTimeout(this.hideVolumeId)
+    if (this.hideVolumeId) {
+      clearTimeout(this.hideVolumeId)
+    }
     this.$volumeBarContainer?.removeClass('volume-bar-hide')
   }
 

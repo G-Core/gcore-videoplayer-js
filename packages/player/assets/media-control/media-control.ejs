@@ -85,7 +85,7 @@
                 renderVR(setting)
             } else if (setting === "clipsText") {
                 renderClipsText(setting)
-            } else if (setting === "fullscreen") {
+            } else if (["playpause", "playstop", "fullscreen"].includes(setting)) {
                 renderButton(setting);
             }
         });

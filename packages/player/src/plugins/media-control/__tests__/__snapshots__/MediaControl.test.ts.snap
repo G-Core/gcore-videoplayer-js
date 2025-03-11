@@ -193,6 +193,8 @@ exports[`MediaControl > updateSettings > dvr > when disabled > should disable DV
     
         <div class="media-control-left-panel" data-media-control="">
             
+        <button type="button" class="media-control-button media-control-icon gcore-skin-button-color paused" data-playpause="" aria-label="playpause">/assets/icons/new/play.svg</button>
+    
         <div class="drawer-container" data-volume="">
             <div class="drawer-icon-container" data-volume="">
                 <div class="drawer-icon media-control-icon gcore-skin-button-color" data-volume="">/assets/icons/new/volume-max.svg</div>
@@ -255,6 +257,8 @@ exports[`MediaControl > updateSettings > dvr > when enabled > should enable DVR 
     
         <div class="media-control-left-panel" data-media-control="">
             
+        <button type="button" class="media-control-button media-control-icon gcore-skin-button-color paused" data-playpause="" aria-label="playpause">/assets/icons/new/play.svg</button>
+    
         <div class="drawer-container" data-volume="">
             <div class="drawer-icon-container" data-volume="">
                 <div class="drawer-icon media-control-icon gcore-skin-button-color" data-volume="">/assets/icons/new/volume-max.svg</div>
