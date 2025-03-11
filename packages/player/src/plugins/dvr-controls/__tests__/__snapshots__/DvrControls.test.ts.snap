@@ -1,43 +1,25 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`DvrControls > live stream > DVR at live edge > should render 1`] = `
-"<div class="live-info">live</div>
-<button type="button" class="live-button" aria-label="back_to_live">back_to_live</button>
+exports[`DvrControls > basically > should render 1`] = `
+"<div class="live-info" id="media-control-live">live</div>
+<button type="button" class="live-button" aria-label="back_to_live" id="media-control-back-to-live">back_to_live</button>
 "
 `;
 
-exports[`DvrControls > live stream > DVR at live edge > should render to the media control left panel 1`] = `
-"<div class="media-control-left-panel" data-media-control=""><div class="dvr-controls" data-dvr-controls=""><div class="live-info">live</div>
-<button type="button" class="live-button" aria-label="back_to_live">back_to_live</button>
-</div></div>
-    <div class="media-control-right-panel" data-media-control=""></div>
-    <div class="media-control-center-panel" data-media-control=""></div>"
+exports[`DvrControls > live stream > DVR at live edge > should render 1`] = `
+"<div class="live-info" id="media-control-live">live</div>
+<button type="button" class="live-button" aria-label="back_to_live" id="media-control-back-to-live">back_to_live</button>
+"
 `;
 
 exports[`DvrControls > live stream > DVR behind live edge > should render 1`] = `
-"<div class="live-info">live</div>
-<button type="button" class="live-button" aria-label="back_to_live">back_to_live</button>
+"<div class="live-info" id="media-control-live">live</div>
+<button type="button" class="live-button" aria-label="back_to_live" id="media-control-back-to-live">back_to_live</button>
 "
-`;
-
-exports[`DvrControls > live stream > DVR behind live edge > should render to the media control left panel 1`] = `
-"<div class="media-control-left-panel" data-media-control=""><div class="dvr-controls" data-dvr-controls=""><div class="live-info">live</div>
-<button type="button" class="live-button" aria-label="back_to_live">back_to_live</button>
-</div></div>
-    <div class="media-control-right-panel" data-media-control=""></div>
-    <div class="media-control-center-panel" data-media-control=""></div>"
 `;
 
 exports[`DvrControls > live stream > no DVR > should render 1`] = `
-"<div class="live-info">live</div>
-<button type="button" class="live-button" aria-label="back_to_live">back_to_live</button>
+"<div class="live-info" id="media-control-live">live</div>
+<button type="button" class="live-button" aria-label="back_to_live" id="media-control-back-to-live">back_to_live</button>
 "
-`;
-
-exports[`DvrControls > live stream > no DVR > should render to the media control left panel 1`] = `
-"<div class="media-control-left-panel" data-media-control=""><div class="dvr-controls" data-dvr-controls=""><div class="live-info">live</div>
-<button type="button" class="live-button" aria-label="back_to_live">back_to_live</button>
-</div></div>
-    <div class="media-control-right-panel" data-media-control=""></div>
-    <div class="media-control-center-panel" data-media-control=""></div>"
 `;

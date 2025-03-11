@@ -6,6 +6,11 @@
 :root {
   --font-size-media-controls: 14px;
   --font-size-media-controls-dropdown: 16px;
+  --player-vod-color: #005aff;
+  --player-dvr-color: #fff;
+  --player-live-color: #ff0101;
+  --player-seekbar-current-color: #ff5700;
+  --player-seekbar-buffer-color: #fff;
 }
 
 .media-control-skin-1[data-media-control-skin-1] {
@@ -221,7 +226,7 @@
           left: 0;
           width: 0;
           height: 100%;
-          background-color: white;
+          background-color: var(--player-seekbar-buffer-color);
           transition: all 0.1s ease-out;
         }
 
@@ -231,7 +236,7 @@
           left: 0;
           width: 0;
           height: 100%;
-          background-color: #ff5700;
+          background-color: var(--player-seekbar-current-color);
           transition: all 0.1s ease-out;
         }
       }
@@ -335,7 +340,7 @@
             left: 0;
             width: 0;
             height: 100%;
-            background-color: #005aff;
+            background-color: var(--player-vod-color);
             transition: all 0.1s ease-out;
           }
         }

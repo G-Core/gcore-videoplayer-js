@@ -1,4 +1,4 @@
-import { $, UICorePlugin } from '@clappr/core'
+import { $, Playback, UICorePlugin } from '@clappr/core'
 import Events from 'eventemitter3'
 import { vi } from 'vitest'
 /**
@@ -42,7 +42,7 @@ export class _MockPlayback extends Events {
   exitPiP() {}
 
   getPlaybackType() {
-    return 'live'
+    return Playback.LIVE
   }
 
   getStartTimeOffset() {
@@ -100,7 +100,7 @@ export function createMockCore(
       ...options,
     },
     configure: vi.fn(),
-    getPlaybackType: vi.fn(),
+    getPlaybackType: vi.fn().mockReturnValue(Playback.LIVE),
     getPlugin: vi.fn(),
     load: vi.fn(),
     trigger: emitter.emit,
@@ -126,7 +126,9 @@ export function createMockPlayback(name = 'mock') {
   return Object.assign(emitter, {
     name,
     currentLevel: -1,
+    el: document.createElement('video'),
     dvrEnabled: false,
+    dvrInUse: false,
     levels: [],
     consent() {},
     play() {},
@@ -138,7 +140,7 @@ export function createMockPlayback(name = 'mock') {
     getDuration: vi.fn().mockImplementation(() => 100),
     enterPiP: vi.fn(),
     exitPiP: vi.fn(),
-    getPlaybackType: vi.fn().mockImplementation(() => 'live'),
+    getPlaybackType: vi.fn().mockImplementation(() => Playback.LIVE),
     getStartTimeOffset: vi.fn().mockImplementation(() => 0),
     getCurrentTime: vi.fn().mockImplementation(() => 0),
     isHighDefinitionInUse: vi.fn().mockImplementation(() => false),
@@ -155,7 +157,7 @@ export function createMockPlayback(name = 'mock') {
 }
 
 export function createMockContainer(playback: any = createMockPlayback()) {
-  const el = document.createElement('div')
+  const el = playback.el
   const emitter = new Events()
   return Object.assign(emitter, {
     el,
@@ -163,8 +165,9 @@ export function createMockContainer(playback: any = createMockPlayback()) {
     $el: $(el),
     getDuration: vi.fn().mockReturnValue(0),
     getPlugin: vi.fn(),
-    getPlaybackType: vi.fn().mockReturnValue('live'),
+    getPlaybackType: vi.fn().mockReturnValue(Playback.LIVE),
     isDvrInUse: vi.fn().mockReturnValue(false),
+    isDvrEnabled: vi.fn().mockReturnValue(false),
     isPlaying: vi.fn().mockReturnValue(false),
     play: vi.fn(),
     seek: vi.fn(),
@@ -187,10 +190,6 @@ export function createMockMediaControl(core: any) {
   // @ts-ignore
   mediaControl.putElement = vi.fn()
   // @ts-ignore
-  mediaControl.getLeftPanel = vi.fn().mockImplementation(() => mediaControl.$el.find('.media-control-left-panel'))
-  // @ts-ignore
-  mediaControl.getRightPanel = vi.fn().mockImplementation(() => mediaControl.$el.find('.media-control-right-panel'))
-  // @ts-ignore
-  mediaControl.getCenterPanel = vi.fn().mockImplementation(() => mediaControl.$el.find('.media-control-center-panel'))
+  mediaControl.toggleElement = vi.fn()
   return mediaControl
 }

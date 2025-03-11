@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { DvrControls } from '../DvrControls.js'
 import { createMockCore, createMockMediaControl } from '../../../testUtils.js'
+import { Events, Playback } from '@clappr/core'
 // import { LogTracer, Logger, setTracer } from '@gcorevideo/utils'
 
 // setTracer(new LogTracer('DvrControls.test'))
@@ -28,36 +29,29 @@ describe('DvrControls', () => {
     describe.each([
       ['no DVR', false, false, false],
       ['DVR at live edge', true, false, false],
-      ['DVR behind live edge', true, true, true],
-    ])('%s', (_, dvrEnabled, dvrInUse, indicateDvr) => {
+    ])('%s', (_, dvrEnabled, dvrInUse) => {
       beforeEach(() => {
         core.activePlayback.dvrEnabled = dvrEnabled
-        core.trigger('core:ready')
-        core.trigger('core:active:container:changed')
+        core.activeContainer.isDvrEnabled.mockReturnValue(dvrEnabled)
+        core.trigger(Events.CORE_READY)
+        core.trigger(Events.CORE_ACTIVE_CONTAINER_CHANGED, core.activeContainer)
         if (dvrInUse) {
-          core.activeContainer.trigger('container:dvr', true)
+          core.activePlayback.dvrInUse = true
+          core.activeContainer.isDvrInUse.mockReturnValue(true)
+          core.activeContainer.emit(Events.CONTAINER_PLAYBACKDVRSTATECHANGED, true)
         }
       })
       it('should render', () => {
         expect(dvrControls.el.textContent).toBeTruthy()
         expect(dvrControls.el.innerHTML).toMatchSnapshot()
       })
-      it('should render to the media control left panel', () => {
-        expect(mediaControl.$el.find('.media-control-left-panel').text()).toContain('live')
-        expect(mediaControl.el.innerHTML).toMatchSnapshot()
+      it('should hide duration and position indicators', () => {
+        expect(mediaControl.toggleElement).toHaveBeenCalledWith('duration', false)
+        expect(mediaControl.toggleElement).toHaveBeenCalledWith('position', false)
       })
-      it('should indicate live streaming mode', () => {
-        expect(mediaControl.$el.hasClass('live')).toBe(true)
+      it('should render to the media control', () => {
+        expect(mediaControl.putElement).toHaveBeenCalledWith('dvr', dvrControls.el)
       })
-      if (indicateDvr) {
-        it('should indicate DVR mode', () => {
-          expect(mediaControl.$el.hasClass('dvr')).toBe(true)
-        })
-      } else {
-        it('should not indicate DVR mode', () => {
-          expect(mediaControl.$el.hasClass('dvr')).toBe(false)
-        })
-      }
     })
     describe('when back_to_live button is clicked', () => {
       beforeEach(() => {
@@ -76,16 +70,20 @@ describe('DvrControls', () => {
       })
     })
   })
-  describe('VOD stream', () => {
+  describe('basically', () => {
     beforeEach(() => {
-      core.getPlaybackType.mockReturnValue('vod')
+      core.getPlaybackType.mockReturnValue(Playback.VOD)
+      core.activeContainer.getPlaybackType.mockReturnValue(Playback.VOD)
+      core.activePlayback.getPlaybackType.mockReturnValue(Playback.VOD)
     })
     beforeEach(() => {
-      core.trigger('core:ready')
-      core.trigger('core:active:container:changed')
+      core.trigger(Events.CORE_READY)
+      core.trigger(Events.CORE_ACTIVE_CONTAINER_CHANGED, core.activeContainer)
     })
-    it('should not render', () => {
-      expect(dvrControls.el.textContent).toBeFalsy()
+    it('should render', () => {
+      expect(dvrControls.el.innerHTML).toMatchSnapshot()
+      expect(dvrControls.el.textContent).toContain('live')
+      expect(dvrControls.el.textContent).toContain('back_to_live')
     })
   })
 })
