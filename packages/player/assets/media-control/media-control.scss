@@ -2,7 +2,16 @@
 @use "container";
 @use "width270";
 @use "width370";
-// @import "https://fonts.googleapis.com/css?family=Roboto";
+
+:root {
+  --font-size-media-controls: 14px;
+  --font-size-media-controls-dropdown: 16px;
+  --player-vod-color: #005aff;
+  --player-dvr-color: #fff;
+  --player-live-color: #ff0101;
+  --player-seekbar-current-color: #ff5700;
+  --player-seekbar-buffer-color: #fff;
+}
 
 .media-control-skin-1[data-media-control-skin-1] {
   position: absolute;
@@ -11,6 +20,7 @@
   z-index: 9999;
   pointer-events: none;
   font-family: Roboto, "Open Sans", Arial, sans-serif;
+  font-size: var(--font-size-media-controls);
 
   &.dragging {
     pointer-events: auto;
@@ -55,30 +65,36 @@
     position: absolute;
     bottom: 0;
     width: 100%;
+    padding: 0 12px 0 8px;
     height: var(--bottom-panel);
-    font-size: 0;
     vertical-align: middle;
     pointer-events: auto;
     transition: bottom 0.4s ease-out;
+    display: flex;
+    justify-content: space-between;
 
-    .media-control-left-panel[data-media-control-skin-1] {
-      position: absolute;
-      top: 0;
-      left: 4px;
-      height: 100%;
+    .media-control-left-panel {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      justify-content: flex-start;
     }
 
-    .media-control-center-panel[data-media-control-skin-1] {
+    .media-control-center-panel {
       height: 100%;
       text-align: center;
       line-height: var(--bottom-panel);
     }
 
-    .media-control-right-panel[data-media-control-skin-1] {
-      position: absolute;
-      top: 0;
-      right: 4px;
-      height: 100%;
+    .media-control-right-panel {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      justify-content: flex-end;
+      @media (max-width: 420px) {
+        gap: 0.5rem;
+        overflow: hidden;
+      }
     }
 
     button.media-control-button {
@@ -87,8 +103,8 @@
       padding: 0;
       cursor: pointer;
       display: inline-block;
-      height: 40px;
-      width: 20px;
+      height: 20px;
+      width: 24px;
 
       svg {
         height: 20px;
@@ -118,10 +134,9 @@
       }
 
       &[data-fullscreen] {
-        float: right;
+        order: 100;
         background-color: transparent;
         border: 0;
-        margin-right: 12px;
         height: 40px;
       }
 
@@ -133,20 +148,13 @@
         float: right;
         height: 100%;
       }
-
-      &[data-playpause], &[data-playstop] {
-        float: left;
-        margin-left: 8px;
-        margin-right: 14px;
-      }
     }
 
     .media-control-indicator {
+
       &[data-position],
       &[data-duration] {
-        display: inline-block;
-        float: left;
-        font-size: 14px;
+        display: flex;
         color: white;
         cursor: default;
         line-height: var(--bottom-panel);
@@ -154,7 +162,7 @@
       }
 
       &[data-position] {
-        margin: 1px 6px 0 7px;
+        margin: 1px 0 0 7px;
       }
 
       &[data-duration] {
@@ -180,7 +188,6 @@
         overflow: hidden;
         display: inline-block;
         float: left;
-        font-size: 14px;
         color: white;
         cursor: default;
         line-height: var(--bottom-panel);
@@ -219,7 +226,7 @@
           left: 0;
           width: 0;
           height: 100%;
-          background-color: white;
+          background-color: var(--player-seekbar-buffer-color);
           transition: all 0.1s ease-out;
         }
 
@@ -229,7 +236,7 @@
           left: 0;
           width: 0;
           height: 100%;
-          background-color: #ff5700;
+          background-color: var(--player-seekbar-current-color);
           transition: all 0.1s ease-out;
         }
       }
@@ -240,7 +247,7 @@
       }
     }
 
-    .bar-container[data-seekbar].seek-disabled + .bar-scrubber[data-seekbar] {
+    .bar-container[data-seekbar].seek-disabled+.bar-scrubber[data-seekbar] {
       cursor: default;
       display: none;
     }
@@ -267,15 +274,13 @@
     }
 
     .drawer-container[data-volume] {
-      float: left;
-      display: inline-block;
+      display: flex;
+      justify-content: flex-start;
       height: var(--bottom-panel);
       cursor: pointer;
       box-sizing: border-box;
-      margin-right: 20px;
 
       .drawer-icon-container[data-volume] {
-        float: left;
         bottom: 0;
 
         .drawer-icon[data-volume] {
@@ -303,7 +308,6 @@
       }
 
       .bar-container[data-volume] {
-        float: left;
         position: relative;
         margin-left: 10px;
         top: 8px;
@@ -336,7 +340,7 @@
             left: 0;
             width: 0;
             height: 100%;
-            background-color: #005aff;
+            background-color: var(--player-vod-color);
             transition: all 0.1s ease-out;
           }
         }
@@ -385,6 +389,89 @@
           }
         }
       }
+    }
+  }
+}
+
+/* TODO distribute between plugins' styles */
+.media-control-skin-1[data-media-control-skin-1] {
+  .media-control-cc {
+    button[data-cc-button] {
+      display: flex;
+      justify-content: center;
+      padding: 0;
+      align-items: center;
+
+      &:hover {
+        color: white;
+      }
+    }
+
+    ul { // TODO extract common styles
+      background-color: rgb(74 74 74 / 60%);
+      border: none;
+      width: auto;
+      border-radius: 4px;
+      bottom: 52px;
+      margin-left: -28px;
+
+      li {
+        font-size: 16px;
+        text-align: center;
+        white-space: nowrap;
+        height: 30px;
+
+        a {
+          height: 30px;
+          padding: 5px 10px;
+          color: #fffffe;
+
+          &:hover {
+            background-color: rgb(0 0 0 / 40%);
+          }
+        }
+
+        &.current a {
+          background-color: rgb(0 0 0 / 40%);
+        }
+
+        &:first-child {
+          a {
+            border-bottom-left-radius: 4px;
+            border-bottom-right-radius: 4px;
+          }
+        }
+
+        &:last-child {
+          a {
+            border-top-left-radius: 4px;
+            border-top-right-radius: 4px;
+          }
+        }
+      }
+    }
+  }
+
+  .seek-time[data-seek-time] {
+    height: 26px;
+    line-height: 26px;
+    bottom: 52px;
+    border-radius: 3px;
+    background-color: rgb(74 74 74 / 70%);
+
+    span {
+      letter-spacing: 0.8px;
+      font-size: 14px;
+      font-family: Roboto, "Open Sans", Arial, sans-serif;
+    }
+
+    span[data-seek-time] {
+      padding-left: 8px;
+      padding-right: 8px;
+    }
+
+    span[data-duration] {
+      display: none !important;
     }
   }
 }

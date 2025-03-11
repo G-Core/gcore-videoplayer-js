@@ -7,7 +7,7 @@
         <div class="player-error-screen__message" data-error-screen><%= message %></div>
     <% } %>
     <% if (code) { %>
-        <div class="player-error-screen__code" data-error-screen>Error code: <%= code %></div>
+        <div class="player-error-screen__code" data-error-screen><%= i18n.t('error_code') %>: <%= code %></div>
     <% } %>
     <% if (reloadIcon) { %>
         <div class="player-error-screen__reload" data-error-screen><%= reloadIcon %></div>

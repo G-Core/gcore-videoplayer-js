@@ -26,9 +26,7 @@ describe('BottomGear', () => {
     expect(bottomGear.el.innerHTML).toMatchSnapshot()
   })
   it('should attach to media control', () => {
-    const gearElement = mediaControl.getElement('gear')
-    expect(gearElement[0].innerHTML).not.toEqual('')
-    expect(gearElement[0].innerHTML).toMatchSnapshot()
+    expect(mediaControl.putElement).toHaveBeenCalledWith('gear', bottomGear.el)
   })
   it('should emit event', () => {
     expect(onGearRendered).toHaveBeenCalled()

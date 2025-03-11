@@ -168,7 +168,7 @@ export class Player {
     const coreOpts = this.buildCoreOptions(playerElement)
     const { core, container } = Player.getRegisteredPlugins()
     trace(`${T} init`, {
-      registeredPlaybacks: Loader.registeredPlaybacks.map((p) => p.name),
+      registeredPlaybacks: Loader.registeredPlaybacks.map((p) => p.prototype.name),
     })
     coreOpts.plugins = {
       core: Object.values(core),

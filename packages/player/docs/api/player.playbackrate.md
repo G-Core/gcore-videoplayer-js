@@ -24,7 +24,7 @@ Depends on:
 
 - [bottom\_gear](./player.bottomgear.md)
 
-It renders a button in the gear menu, which opens a dropdown with the options to change the playback rate.
+It renders a button in the gear menu, which opens a dropdown with the options to change the playback rate. Note that the playback rate change is supported only for VOD or DVR enabled live streams.
 
 ## Constructors
 

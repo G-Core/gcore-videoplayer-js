@@ -43,12 +43,20 @@ export class PictureInPicture extends UICorePlugin {
     return VERSION;
   }
 
+  private static buttonTemplate = template(buttonHtml);
+
   /**
    * @internal
    */
   override get events() {
     return {
       'click button': 'togglePictureInPicture',
+    };
+  }
+
+  override get attributes() {
+    return {
+      'class': 'media-control-pip',
     };
   }
 
@@ -65,8 +73,8 @@ export class PictureInPicture extends UICorePlugin {
 
   private isPiPSupported() {
     trace(`${T} isPiPSupported`, {
-      pictureInPictureEnabled: document.pictureInPictureEnabled,
-      requestPictureInPicture: HTMLVideoElement.prototype.requestPictureInPicture,
+      pictureInPictureEnabled: !!document.pictureInPictureEnabled,
+      requestPictureInPicture: !!HTMLVideoElement.prototype.requestPictureInPicture,
     });
 
     return document.pictureInPictureEnabled && !!HTMLVideoElement.prototype.requestPictureInPicture;
@@ -80,13 +88,11 @@ export class PictureInPicture extends UICorePlugin {
       return this;
     }
 
-    const t = template(buttonHtml);
-
-    this.$el.html(t({ pipIcon }));
+    this.$el.html(PictureInPicture.buttonTemplate({ pipIcon }));
 
     const mediaControl = this.core.getPlugin('media_control');
     if (mediaControl) {
-      mediaControl.getElement('pip')?.html(this.el);
+      mediaControl.putElement('pip', this.el);
     }
 
     return this;

@@ -7,7 +7,7 @@
 > This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
 > 
 
-`PLUGIN` that provides a foundation for developing custom media controls UI.
+`PLUGIN` that provides basic playback controls UI and a foundation for developing custom UI.
 
 **Signature:**
 
@@ -18,16 +18,7 @@ export declare class MediaControl extends UICorePlugin
 
 ## Remarks
 
-The methods exposed are to be used by the other plugins that extend the media control UI. The plugin registration should be arranged so that MediaControl is initialized before every other `PLUGIN` that depends on it.
-
-## Example
-
-
-```ts
-Player.registerPlugin(MediaControl) // <--- This must go first
-Player.registerPlugin(LevelSelector) // a media control plugin
-Player.registerPlugin(NerdStats) // another media control plugin
-```
+The methods exposed are to be used by the other plugins that extend the media control UI.
 
 ## Constructors
 
@@ -227,20 +218,6 @@ Description
 </td></tr>
 <tr><td>
 
-[getCenterPanel()](./player.mediacontrol.getcenterpanel.md)
-
-
-</td><td>
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
 [getElement(name)](./player.mediacontrol.getelement.md)
 
 
@@ -255,7 +232,7 @@ Description
 </td></tr>
 <tr><td>
 
-[getLeftPanel()](./player.mediacontrol.getleftpanel.md)
+[putElement(name, element)](./player.mediacontrol.putelement.md)
 
 
 </td><td>
@@ -263,21 +240,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Get the left panel area to append custom elements to
-
-
-</td></tr>
-<tr><td>
-
-[getRightPanel()](./player.mediacontrol.getrightpanel.md)
-
-
-</td><td>
-
-
-</td><td>
-
-**_(BETA)_** Get the right panel area to append custom elements to
+**_(BETA)_**
 
 
 </td></tr>
@@ -306,6 +269,20 @@ Description
 </td><td>
 
 **_(BETA)_** Set the volume
+
+
+</td></tr>
+<tr><td>
+
+[toggleElement(name, show)](./player.mediacontrol.toggleelement.md)
+
+
+</td><td>
+
+
+</td><td>
+
+**_(BETA)_** Toggle the visibility of a media control element
 
 
 </td></tr>

@@ -36,23 +36,11 @@
     <% var renderIndicator = function(name) { %>
         <div class="media-control-indicator gcore-skin-text-color" data-<%= name %>></div>
     <% }; %>
-    <% var renderBottomGear = function(name) { %>
-        <div class="media-control-bottomgear" data-<%= name %>></div>
-    <% }; %>
-    <% var renderPIP = function(name) { %>
-        <div class="media-control-pip" data-<%= name %>></div>
-    <% }; %>
     <% var renderQuality = function(name) { %>
         <div class="media-control-quality" data-<%= name %>></div>
     <% }; %>
     <% var renderNerd = function(name) { %>
         <div class="media-control-nerd" data-<%= name %>></div>
-    <% }; %>
-    <% var renderAudioTracks = function(name) { %>
-        <div class="media-control-audio-tracks" data-<%= name %>></div>
-    <% }; %>
-    <% var renderSubtitles = function(name) { %>
-        <div class="media-control-subtitles" data-<%= name %>></div>
     <% }; %>
     <% var renderMultiCamera = function(name) { %>
         <div class="media-control-multicamera" data-<%= name %>></div>
@@ -63,9 +51,6 @@
             <div class="media-clip-point gcore-skin-text-color" data-<%= name %>>•</div>
             <div class="media-clip-text gcore-skin-text-color" data-<%= name %>></div>
         </div>
-    <% }; %>
-    <% var renderPlaybackRate = function(name) { %>
-        <div class="media-control-playbackrate" data-<%= name %>></div>
     <% }; %>
     <% var renderVR = function(name) { %>
         <div class="media-control-vr" data-<%= name %>></div>
@@ -92,37 +77,27 @@
                 renderIndicator(setting);
             } else if (setting === "quality") {
                 renderQuality(setting)
-            } else if (setting === "bottomgear") {
-                renderBottomGear(setting)
-            } else if (setting === "pip") {
-                renderPIP(setting)
             } else if (setting === "nerd") {
                 renderNerd(setting)
             } else if (setting === "multicamera") {
                 renderMultiCamera(setting)
-            } else if (setting === "subtitles") {
-                renderSubtitles(setting)
-            } else if (setting === "playbackrate") {
-                renderPlaybackRate(setting)
             } else if (setting === "vr") {
                 renderVR(setting)
             } else if (setting === "clipsText") {
                 renderClipsText(setting)
-            } else if (setting === "audiotracks") {
-                renderAudioTracks(setting)
-            } else {
+            } else if (["playpause", "playstop", "fullscreen"].includes(setting)) {
                 renderButton(setting);
             }
         });
     }; %>
-    <% if (settings.default && settings.default.length) { %>
-        <div class="media-control-center-panel" data-media-control>
-            <% render(settings.default); %>
-        </div>
-    <% } %>
     <% if (settings.left && settings.left.length) { %>
         <div class="media-control-left-panel" data-media-control>
             <% render(settings.left); %>
+        </div>
+    <% } %>
+    <% if (settings.default && settings.default.length) { %>
+        <div class="media-control-center-panel" data-media-control>
+            <% render(settings.default); %>
         </div>
     <% } %>
     <% if (settings.right && settings.right.length) { %>

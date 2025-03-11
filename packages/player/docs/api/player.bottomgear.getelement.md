@@ -10,7 +10,7 @@
 **Signature:**
 
 ```typescript
-getElement(name: GearItemElement): ZeptoResult | null;
+getElement(name: GearOptionsItem): ZeptoResult | null;
 ```
 
 ## Parameters
@@ -38,7 +38,7 @@ name
 
 </td><td>
 
-[GearItemElement](./player.gearitemelement.md)
+[GearOptionsItem](./player.gearoptionsitem.md)
 
 
 </td><td>

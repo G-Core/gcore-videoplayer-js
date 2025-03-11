@@ -1,6 +1,7 @@
-// Copyright 2014 Globo.com Player authors. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
+// This code is derived on works by Globo.com.
+// This code is distributed under the terms of the Apache License 2.0.
+// Original code's license can be found on
+// https://github.com/clappr/clappr/blob/8752995ea439321ac7ca3cd35e8c64de7a3c3d17/LICENSE
 
 import { Events, Log, Playback, PlayerError, Utils, $ } from '@clappr/core'
 import { trace } from '@gcorevideo/utils'
@@ -25,6 +26,7 @@ import {
 import { isDashSource } from '../../utils/mediaSources.js'
 import { BasePlayback } from '../BasePlayback.js'
 import { PlaybackEvents } from '../types.js'
+import { AudioTrack } from '@clappr/core/types/base/playback/playback.js'
 
 const AUTO = -1
 
@@ -45,7 +47,6 @@ type LocalTimeCorrelation = {
 
 const T = 'playback.dash'
 
-// @ts-expect-error
 export default class DashPlayback extends BasePlayback {
   _levels: QualityLevel[] | null = null
 
@@ -271,6 +272,8 @@ export default class DashPlayback extends BasePlayback {
         const newLevel = this.getLevel(evt.newQuality)
         this.onLevelSwitch(newLevel)
       })
+
+      this.checkAudioTracks()
     })
 
     this._dash.on(
@@ -300,8 +303,20 @@ export default class DashPlayback extends BasePlayback {
       },
     )
 
-    this._dash.on(DASHJS.MediaPlayer.events.PLAYBACK_RATE_CHANGED, (e: DASHJS.PlaybackRateChangedEvent) => {
-      this.trigger(PlaybackEvents.PLAYBACK_RATE_CHANGED, e.playbackRate)
+    this._dash.on(
+      DASHJS.MediaPlayer.events.PLAYBACK_RATE_CHANGED,
+      (e: DASHJS.PlaybackRateChangedEvent) => {
+        this.trigger(PlaybackEvents.PLAYBACK_RATE_CHANGED, e.playbackRate)
+      },
+    )
+
+    this._dash.on(DASHJS.MediaPlayer.events.TRACK_CHANGE_RENDERED, (e: any) => {
+      if ((e as DASHJS.TrackChangeRenderedEvent).mediaType === 'audio') {
+        this.trigger(
+          Events.PLAYBACK_AUDIO_CHANGED,
+          toClapprTrack(e.newMediaInfo),
+        )
+      }
     })
   }
 
@@ -401,6 +416,7 @@ export default class DashPlayback extends BasePlayback {
     this.trigger(Events.PLAYBACK_STATS_ADD, { dvr: status })
   }
 
+  // TODO move to the base class
   override _updateSettings() {
     if (this._playbackType === Playback.VOD) {
       // @ts-expect-error
@@ -642,6 +658,40 @@ export default class DashPlayback extends BasePlayback {
   setPlaybackRate(rate: number) {
     this._dash?.setPlaybackRate(rate)
   }
+
+  get audioTracks(): AudioTrack[] {
+    assert.ok(this._dash, 'DASH.js MediaPlayer is not initialized')
+    const tracks = this._dash.getTracksFor('audio')
+    trace(`${T} get audioTracks`, { tracks })
+    return tracks.map(toClapprTrack)
+  }
+
+  // @ts-expect-error
+  get currentAudioTrack(): AudioTrack | null {
+    trace(`${T} get currentAudioTrack`)
+    assert.ok(this._dash, 'DASH.js MediaPlayer is not initialized')
+    const t = this._dash.getCurrentTrackFor('audio')
+    if (!t) {
+      return null
+    }
+    return toClapprTrack(t)
+  }
+
+  switchAudioTrack(id: string): void {
+    assert.ok(this._dash, 'DASH.js MediaPlayer is not initialized')
+    const tracks = this._dash.getTracksFor('audio')
+    const track = tracks.find((t) => t.id === id)
+    assert.ok(track, 'Invalid audio track ID')
+    this._dash.setCurrentTrack(track)
+  }
+
+  private checkAudioTracks() {
+    // @ts-ignore
+    const tracks = this._dash.getTracksFor('audio')
+    if (tracks.length) {
+      this.trigger(Events.PLAYBACK_AUDIO_AVAILABLE, tracks.map(toClapprTrack))
+    }
+  }
 }
 
 DashPlayback.canPlay = function (resource, mimeType) {
@@ -655,4 +705,13 @@ DashPlayback.canPlay = function (resource, mimeType) {
     'WebKitMediaSource' in window ? window.WebKitMediaSource : undefined
   const ctor = ms || mms || wms
   return typeof ctor === 'function'
+}
+
+function toClapprTrack(t: DASHJS.MediaInfo): AudioTrack {
+  return {
+    id: t.id,
+    kind: t.roles && t.roles?.length > 0 ? t.roles[0] : 'main', // TODO
+    label: t.labels.map((l) => l.text).join(' '), // TODO
+    language: t.lang,
+  } as AudioTrack
 }

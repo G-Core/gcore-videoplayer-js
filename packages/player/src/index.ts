@@ -6,7 +6,7 @@
  * It is built on top of the {@link https://github.com/clappr/clappr | Clappr} library and provides a framework for building custom integrations.
  * Start with {@link Player} for more information.
  *
- * Various plugins (marked with `PLUGIN` keyword) are available to extend the player with additional features.
+ * Various plugins (marked with `PLUGIN` keyword) are available to extend the core functionality with additional features.
  * @example
  * ```ts
  * import { Player, MediaControl, ErrorScreen } from '@gcorevideo/player'

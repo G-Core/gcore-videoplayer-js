@@ -1,0 +1,303 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`MediaControl > putElement > cc > should put the element in the right panel 1`] = `
+"<div class="media-control-background" data-background=""></div>
+
+<div class="media-control-layer gcore-skin-bg-color" data-controls="">
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+    
+    
+        <div class="media-control-left-panel" data-media-control="">
+            
+        <div class="drawer-container" data-volume="">
+            <div class="drawer-icon-container" data-volume="">
+                <div class="drawer-icon media-control-icon gcore-skin-button-color" data-volume="">/assets/icons/new/volume-max.svg</div>
+                <span class="drawer-text" data-volume=""></span>
+            </div>
+            
+    <div class="bar-container" data-volume="">
+        <div class="bar-background" data-volume="">
+            <div class="bar-fill-1 gcore-skin-main-color" data-volume="" style=""></div>
+        </div>
+        <div class="bar-scrubber" data-volume="" style="">
+            <div class="bar-scrubber-icon gcore-skin-main-color" data-volume=""></div>
+        </div>
+    </div>
+    
+        </div>
+    
+
+        <div class="media-clip-container gcore-skin-text-color" data-clipstext="">
+            <div class="media-clip-point gcore-skin-text-color" data-clipstext="">•</div>
+            <div class="media-clip-text gcore-skin-text-color" data-clipstext=""></div>
+        </div>
+    
+        </div>
+    
+    
+    
+        <div class="media-control-right-panel" data-media-control="">
+            
+        <div class="media-control-multicamera" data-multicamera=""></div>
+    
+        <div class="media-control-vr" data-vr=""></div>
+    
+        <div class="my-media-control" data-cc="">test</div></div>
+    
+</div>
+<style>:root {}</style>"
+`;
+
+exports[`MediaControl > putElement > gear > should put the element in the right panel 1`] = `
+"<div class="media-control-background" data-background=""></div>
+
+<div class="media-control-layer gcore-skin-bg-color" data-controls="">
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+    
+    
+        <div class="media-control-left-panel" data-media-control="">
+            
+        <div class="drawer-container" data-volume="">
+            <div class="drawer-icon-container" data-volume="">
+                <div class="drawer-icon media-control-icon gcore-skin-button-color" data-volume="">/assets/icons/new/volume-max.svg</div>
+                <span class="drawer-text" data-volume=""></span>
+            </div>
+            
+    <div class="bar-container" data-volume="">
+        <div class="bar-background" data-volume="">
+            <div class="bar-fill-1 gcore-skin-main-color" data-volume="" style=""></div>
+        </div>
+        <div class="bar-scrubber" data-volume="" style="">
+            <div class="bar-scrubber-icon gcore-skin-main-color" data-volume=""></div>
+        </div>
+    </div>
+    
+        </div>
+    
+
+        <div class="media-clip-container gcore-skin-text-color" data-clipstext="">
+            <div class="media-clip-point gcore-skin-text-color" data-clipstext="">•</div>
+            <div class="media-clip-text gcore-skin-text-color" data-clipstext=""></div>
+        </div>
+    
+        </div>
+    
+    
+    
+        <div class="media-control-right-panel" data-media-control="">
+            
+        <div class="media-control-multicamera" data-multicamera=""></div>
+    
+        <div class="media-control-vr" data-vr=""></div>
+    
+        <div class="my-media-control" data-gear="">test</div></div>
+    
+</div>
+<style>:root {}</style>"
+`;
+
+exports[`MediaControl > putElement > pip > should put the element in the right panel 1`] = `
+"<div class="media-control-background" data-background=""></div>
+
+<div class="media-control-layer gcore-skin-bg-color" data-controls="">
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+    
+    
+        <div class="media-control-left-panel" data-media-control="">
+            
+        <div class="drawer-container" data-volume="">
+            <div class="drawer-icon-container" data-volume="">
+                <div class="drawer-icon media-control-icon gcore-skin-button-color" data-volume="">/assets/icons/new/volume-max.svg</div>
+                <span class="drawer-text" data-volume=""></span>
+            </div>
+            
+    <div class="bar-container" data-volume="">
+        <div class="bar-background" data-volume="">
+            <div class="bar-fill-1 gcore-skin-main-color" data-volume="" style=""></div>
+        </div>
+        <div class="bar-scrubber" data-volume="" style="">
+            <div class="bar-scrubber-icon gcore-skin-main-color" data-volume=""></div>
+        </div>
+    </div>
+    
+        </div>
+    
+
+        <div class="media-clip-container gcore-skin-text-color" data-clipstext="">
+            <div class="media-clip-point gcore-skin-text-color" data-clipstext="">•</div>
+            <div class="media-clip-text gcore-skin-text-color" data-clipstext=""></div>
+        </div>
+    
+        </div>
+    
+    
+    
+        <div class="media-control-right-panel" data-media-control="">
+            
+        <div class="media-control-multicamera" data-multicamera=""></div>
+    
+        <div class="media-control-vr" data-vr=""></div>
+    
+        <div class="my-media-control" data-pip="">test</div></div>
+    
+</div>
+<style>:root {}</style>"
+`;
+
+exports[`MediaControl > updateSettings > dvr > when disabled > should disable DVR controls 1`] = `
+"<div class="media-control-background" data-background=""></div>
+
+<div class="media-control-layer gcore-skin-bg-color" data-controls="">
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+    
+    
+        <div class="media-control-left-panel" data-media-control="">
+            
+        <button type="button" class="media-control-button media-control-icon gcore-skin-button-color paused" data-playpause="" aria-label="playpause">/assets/icons/new/play.svg</button>
+    
+        <div class="drawer-container" data-volume="">
+            <div class="drawer-icon-container" data-volume="">
+                <div class="drawer-icon media-control-icon gcore-skin-button-color" data-volume="">/assets/icons/new/volume-max.svg</div>
+                <span class="drawer-text" data-volume=""></span>
+            </div>
+            
+    <div class="bar-container" data-volume="">
+        <div class="bar-background" data-volume="">
+            <div class="bar-fill-1 gcore-skin-main-color" data-volume="" style=""></div>
+        </div>
+        <div class="bar-scrubber" data-volume="" style="">
+            <div class="bar-scrubber-icon gcore-skin-main-color" data-volume=""></div>
+        </div>
+    </div>
+    
+        </div>
+    
+        <div class="media-control-indicator gcore-skin-text-color" data-position="">00:00</div>
+    
+        <div class="media-control-indicator gcore-skin-text-color" data-duration="">00:00</div>
+    
+
+        <div class="media-clip-container gcore-skin-text-color" data-clipstext="">
+            <div class="media-clip-point gcore-skin-text-color" data-clipstext="">•</div>
+            <div class="media-clip-text gcore-skin-text-color" data-clipstext=""></div>
+        </div>
+    
+        </div>
+    
+    
+    
+        <div class="media-control-right-panel" data-media-control="">
+            
+        <div class="media-control-multicamera" data-multicamera=""></div>
+    
+        <div class="media-control-vr" data-vr=""></div>
+    
+        </div>
+    
+</div>
+<style>:root {}</style>"
+`;
+
+exports[`MediaControl > updateSettings > dvr > when enabled > should enable DVR controls 1`] = `
+"<div class="media-control-background" data-background=""></div>
+
+<div class="media-control-layer gcore-skin-bg-color" data-controls="">
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+    
+    
+        <div class="media-control-left-panel" data-media-control="">
+            
+        <button type="button" class="media-control-button media-control-icon gcore-skin-button-color paused" data-playpause="" aria-label="playpause">/assets/icons/new/play.svg</button>
+    
+        <div class="drawer-container" data-volume="">
+            <div class="drawer-icon-container" data-volume="">
+                <div class="drawer-icon media-control-icon gcore-skin-button-color" data-volume="">/assets/icons/new/volume-max.svg</div>
+                <span class="drawer-text" data-volume=""></span>
+            </div>
+            
+    <div class="bar-container" data-volume="">
+        <div class="bar-background" data-volume="">
+            <div class="bar-fill-1 gcore-skin-main-color" data-volume="" style=""></div>
+        </div>
+        <div class="bar-scrubber" data-volume="" style="">
+            <div class="bar-scrubber-icon gcore-skin-main-color" data-volume=""></div>
+        </div>
+    </div>
+    
+        </div>
+    
+        <div class="media-control-indicator gcore-skin-text-color" data-position="">00:00</div>
+    
+        <div class="media-control-indicator gcore-skin-text-color" data-duration="">00:00</div>
+    
+
+        <div class="media-clip-container gcore-skin-text-color" data-clipstext="">
+            <div class="media-clip-point gcore-skin-text-color" data-clipstext="">•</div>
+            <div class="media-clip-text gcore-skin-text-color" data-clipstext=""></div>
+        </div>
+    
+        <div class="my-dvr-controls" data-dvr="">live</div></div>
+    
+    
+    
+        <div class="media-control-right-panel" data-media-control="">
+            
+        <div class="media-control-multicamera" data-multicamera=""></div>
+    
+        <div class="media-control-vr" data-vr=""></div>
+    
+        </div>
+    
+</div>
+<style>:root {}</style>"
+`;

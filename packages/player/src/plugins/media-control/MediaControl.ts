@@ -19,6 +19,7 @@ import { reportError, trace } from '@gcorevideo/utils'
 
 import { type TimeProgress } from '../../playback.types.js'
 
+// TODO replace Kibo with mousetrap
 import { Kibo } from '../kibo/index.js'
 
 import { CLAPPR_VERSION } from '../../build.js'
@@ -26,7 +27,6 @@ import { ZeptoResult } from '../../types.js'
 import { getPageX, isFullscreen } from '../utils.js'
 
 import '../../../assets/media-control/media-control.scss'
-import '../../../assets/media-control/plugins.scss'
 
 import mediaControlHTML from '../../../assets/media-control/media-control.ejs'
 import playIcon from '../../../assets/icons/new/play.svg'
@@ -42,14 +42,30 @@ import fullscreenOnIcon from '../../../assets/icons/new/fullscreen-on.svg'
  * @beta
  */
 export type MediaControlElement =
-  | 'audioTracksSelector'
-  | 'bottomGear' // an alias of gear
+  | 'audiotracks'
+  | 'cc'
   | 'clipText'
+  | 'dvr'
+  | 'duration'
   | 'gear'
   | 'pip'
   | 'playbackRate'
+  | 'position'
   | 'seekBarContainer'
-  | 'subtitlesSelector'
+
+type MediaControlSettings = {
+  left: MediaControlElement[]
+  right: MediaControlElement[]
+  default: MediaControlElement[]
+  seekEnabled: boolean
+}
+
+const DEFAULT_SETTINGS: MediaControlSettings = {
+  left: [],
+  right: [],
+  default: [],
+  seekEnabled: true,
+}
 
 /**
  * Custom events emitted by the plugins to communicate with one another
@@ -67,7 +83,8 @@ const T = 'plugins.media_control'
 const LEFT_ORDER = [
   'playpause',
   'playstop',
-  'live',
+  // 'live',
+  'dvr',
   'volume',
   'position',
   'duration',
@@ -90,20 +107,13 @@ type DisabledClickable = {
 }
 
 /**
- * `PLUGIN` that provides a foundation for developing custom media controls UI.
+ * `PLUGIN` that provides basic playback controls UI and a foundation for developing custom UI.
  * @beta
  * @remarks
  * The methods exposed are to be used by the other plugins that extend the media control UI.
- * The plugin registration should be arranged so that MediaControl is initialized before every other `PLUGIN` that depends on it.
- * @example
- * ```ts
- * Player.registerPlugin(MediaControl) // <--- This must go first
- * Player.registerPlugin(LevelSelector) // a media control plugin
- * Player.registerPlugin(NerdStats) // another media control plugin
- * ```
  */
 export class MediaControl extends UICorePlugin {
-  private advertisementPlaying = false
+  // private advertisementPlaying = false
 
   private buttonsColor: string | null = null
 
@@ -126,8 +136,6 @@ export class MediaControl extends UICorePlugin {
 
   private intendedVolume = 100
 
-  private isHD = false
-
   private keepVisible = false
 
   private kibo: Kibo
@@ -139,7 +147,7 @@ export class MediaControl extends UICorePlugin {
 
   private rendered = false
 
-  private settings: Record<string, unknown> = {}
+  private settings: MediaControlSettings = DEFAULT_SETTINGS
 
   private userDisabled = false
 
@@ -148,8 +156,6 @@ export class MediaControl extends UICorePlugin {
   private verticalVolume = false
 
   private $audioTracksSelector: ZeptoResult | null = null
-
-  private $bottomGear: ZeptoResult | null = null
 
   private $clipText: ZeptoResult | null = null
 
@@ -181,8 +187,6 @@ export class MediaControl extends UICorePlugin {
 
   private $seekBarScrubber: ZeptoResult | null = null
 
-  private $subtitlesSelector: ZeptoResult | null = null
-
   private $volumeBarContainer: ZeptoResult | null = null
 
   private $volumeBarBackground: ZeptoResult | null = null
@@ -213,7 +217,8 @@ export class MediaControl extends UICorePlugin {
 
   private get disabled() {
     const playbackIsNOOP =
-      this.core.activeContainer && this.core.activeContainer.getPlaybackType() === Playback.NO_OP
+      this.core.activeContainer &&
+      this.core.activeContainer.getPlaybackType() === Playback.NO_OP
 
     return this.userDisabled || playbackIsNOOP
   }
@@ -306,9 +311,7 @@ export class MediaControl extends UICorePlugin {
     this.bindKeyEvents()
 
     this.userDisabled = false
-    if (
-      this.options.chromeless
-    ) {
+    if (this.options.chromeless) {
       this.disable()
     }
 
@@ -333,8 +336,6 @@ export class MediaControl extends UICorePlugin {
    * @internal
    */
   override bindEvents() {
-    // @ts-ignore
-    this.stopListening()
     this.listenTo(
       this.core,
       Events.CORE_ACTIVE_CONTAINER_CHANGED,
@@ -374,9 +375,21 @@ export class MediaControl extends UICorePlugin {
   }
 
   private bindContainerEvents() {
-    this.listenTo(this.core.activeContainer, Events.CONTAINER_PLAY, this.changeTogglePlay)
-    this.listenTo(this.core.activeContainer, Events.CONTAINER_PAUSE, this.changeTogglePlay)
-    this.listenTo(this.core.activeContainer, Events.CONTAINER_STOP, this.changeTogglePlay)
+    this.listenTo(
+      this.core.activeContainer,
+      Events.CONTAINER_PLAY,
+      this.changeTogglePlay,
+    )
+    this.listenTo(
+      this.core.activeContainer,
+      Events.CONTAINER_PAUSE,
+      this.changeTogglePlay,
+    )
+    this.listenTo(
+      this.core.activeContainer,
+      Events.CONTAINER_STOP,
+      this.changeTogglePlay,
+    )
     this.listenTo(
       this.core.activeContainer,
       Events.CONTAINER_DBLCLICK,
@@ -395,17 +408,17 @@ export class MediaControl extends UICorePlugin {
     this.listenTo(
       this.core.activeContainer,
       Events.CONTAINER_SETTINGSUPDATE,
-      this.settingsUpdate,
+      this.updateSettings,
     )
     this.listenTo(
       this.core.activeContainer,
       Events.CONTAINER_PLAYBACKDVRSTATECHANGED,
-      this.settingsUpdate,
+      this.onDvrStateChanged,
     )
     this.listenTo(
       this.core.activeContainer,
       Events.CONTAINER_HIGHDEFINITIONUPDATE,
-      this.highDefinitionUpdate,
+      this.onHdUpdate,
     )
     this.listenTo(
       this.core.activeContainer,
@@ -418,20 +431,22 @@ export class MediaControl extends UICorePlugin {
       this.enable,
     )
     this.listenTo(this.core.activeContainer, Events.CONTAINER_ENDED, this.ended)
-    this.listenTo(this.core.activeContainer, Events.CONTAINER_VOLUME, this.onVolumeChanged)
+    this.listenTo(
+      this.core.activeContainer,
+      Events.CONTAINER_VOLUME,
+      this.onVolumeChanged,
+    )
     this.listenTo(
       this.core.activeContainer,
       Events.CONTAINER_OPTIONS_CHANGE,
       this.setInitialVolume,
     )
-    if (this.core.activePlayback.el.nodeName.toLowerCase() === 'video') {
-      // wait until the metadata has loaded and then check if fullscreen on video tag is supported
-      this.listenToOnce(
-        this.core.activeContainer,
-        Events.CONTAINER_LOADEDMETADATA,
-        this.onLoadedMetadataOnVideoTag,
-      )
-    }
+    // wait until the metadata has loaded and then check if fullscreen on video tag is supported
+    this.listenToOnce(
+      this.core.activeContainer,
+      Events.CONTAINER_LOADEDMETADATA,
+      this.onLoadedMetadata,
+    )
   }
 
   /**
@@ -472,14 +487,19 @@ export class MediaControl extends UICorePlugin {
     this.updateVolumeUI()
   }
 
-  private onLoadedMetadataOnVideoTag(event: any) {
+  private onLoadedMetadata() {
     const video = this.core.activePlayback?.el
 
     // video.webkitSupportsFullscreen is deprecated but iOS appears to only use this
     // see https://github.com/clappr/clappr/issues/1127
     if (!Fullscreen.fullscreenEnabled() && video.webkitSupportsFullscreen) {
       this.fullScreenOnVideoTagSupported = true
-      this.settingsUpdate()
+    }
+    this.updateSettings()
+    if (this.core.activeContainer.getPlaybackType() === Playback.LIVE) {
+      this.$el.addClass('live')
+    } else {
+      this.$el.removeClass('live')
     }
   }
 
@@ -490,8 +510,6 @@ export class MediaControl extends UICorePlugin {
     }
 
     assert.ok(this.$volumeBarContainer, 'volume bar container must be present')
-    // update volume bar scrubber/fill on bar mode
-    // this.$volumeBarContainer.find('.bar-fill-2').css({});
     const containerWidth = this.$volumeBarContainer.width()
 
     assert.ok(
@@ -717,17 +735,18 @@ export class MediaControl extends UICorePlugin {
     // if the container is not ready etc
     this.intendedVolume = value
     this.persistConfig && !isInitialVolume && Config.persist('volume', value)
+    // TODO
     const setWhenContainerReady = () => {
-      if (this.container && this.container.isReady) {
-        this.container.setVolume(value)
+      if (this.core.activeContainer && this.core.activeContainer.isReady) {
+        this.core.activeContainer.setVolume(value)
       } else {
-        this.listenToOnce(this.container, Events.CONTAINER_READY, () => {
-          this.container.setVolume(value)
+        this.listenToOnce(this.core.activeContainer, Events.CONTAINER_READY, () => {
+          this.core.activeContainer.setVolume(value)
         })
       }
     }
 
-    if (!this.container) {
+    if (!this.core.activeContainer) {
       this.listenToOnce(this, Events.MEDIACONTROL_CONTAINERCHANGED, () =>
         setWhenContainerReady(),
       )
@@ -739,7 +758,7 @@ export class MediaControl extends UICorePlugin {
   private toggleFullscreen() {
     if (!Browser.isMobile) {
       this.trigger(Events.MEDIACONTROL_FULLSCREEN, this.name)
-      this.container.fullscreen()
+      this.core.activeContainer.fullscreen()
       this.core.toggleFullscreen()
       this.resetUserKeepVisible()
     }
@@ -751,7 +770,8 @@ export class MediaControl extends UICorePlugin {
     this.setInitialVolume()
     this.changeTogglePlay()
     this.bindContainerEvents()
-    this.settingsUpdate()
+    this.updateSettings()
+    // TODO remove
     this.core.activeContainer.trigger(
       Events.CONTAINER_PLAYBACKDVRSTATECHANGED,
       this.core.activeContainer.isDvrInUse(),
@@ -785,7 +805,9 @@ export class MediaControl extends UICorePlugin {
   }
 
   private showVolumeBar() {
-    this.hideVolumeId && clearTimeout(this.hideVolumeId)
+    if (this.hideVolumeId) {
+      clearTimeout(this.hideVolumeId)
+    }
     this.$volumeBarContainer?.removeClass('volume-bar-hide')
   }
 
@@ -846,9 +868,9 @@ export class MediaControl extends UICorePlugin {
     // default to 100%
     this.currentSeekBarPercentage = 100
     if (
-      this.container &&
-      (this.container.getPlaybackType() !== Playback.LIVE ||
-        this.container.isDvrInUse())
+      this.core.activeContainer &&
+      (this.core.activeContainer.getPlaybackType() !== Playback.LIVE ||
+        this.core.activeContainer.isDvrInUse())
     ) {
       this.currentSeekBarPercentage =
         (this.currentPositionValue / this.currentDurationValue) * 100
@@ -884,19 +906,11 @@ export class MediaControl extends UICorePlugin {
     let pos = (offsetX / this.$seekBarContainer.width()) * 100
 
     pos = Math.min(100, Math.max(pos, 0))
-    this.container && this.container.seekPercentage(pos)
+    this.core.activeContainer && this.core.activeContainer.seekPercentage(pos)
 
     this.setSeekPercentage(pos)
 
     return false
-  }
-
-  private setKeepVisible() {
-    this.keepVisible = true
-  }
-
-  private resetKeepVisible() {
-    this.keepVisible = false
   }
 
   private setUserKeepVisible() {
@@ -986,23 +1000,36 @@ export class MediaControl extends UICorePlugin {
     }
   }
 
-  private settingsUpdate() {
-    const newSettings = $.extend(true, {
-      left: [],
-      default: [],
-      right: [],
-    }, this.core.activeContainer?.settings)
+  private updateSettings() {
+    const newSettings = $.extend(
+      true,
+      {
+        left: [],
+        default: [],
+        right: [],
+      },
+      this.core.activeContainer.settings,
+    )
 
+    // TODO make order controlled via CSS
     newSettings.left = orderByOrderPattern(
       [...newSettings.left, 'clipsText', 'volume'],
       LEFT_ORDER,
     )
 
+    if (
+      this.core.activePlayback.getPlaybackType() === Playback.LIVE &&
+      this.core.activePlayback.dvrEnabled
+    ) {
+      newSettings.left.push('dvr')
+    }
+
+    // actual order of the items appear rendered is controlled by CSS
     newSettings.right = [
       'fullscreen',
       'pip',
-      'bottomgear',
-      'subtitles',
+      'gear',
+      'cc',
       'multicamera',
       'playbackrate',
       'vr',
@@ -1014,7 +1041,7 @@ export class MediaControl extends UICorePlugin {
         !Fullscreen.fullscreenEnabled()) ||
       this.options.fullscreenDisable
     ) {
-      // remove fullscreen from settings if it is present
+      // remove fullscreen from settings if it is not available
       removeArrayItem(newSettings.default, 'fullscreen')
       removeArrayItem(newSettings.left, 'fullscreen')
       removeArrayItem(newSettings.right, 'fullscreen')
@@ -1023,12 +1050,13 @@ export class MediaControl extends UICorePlugin {
     removeArrayItem(newSettings.default, 'hd-indicator')
     removeArrayItem(newSettings.left, 'hd-indicator')
 
+    // TODO get from container's settings
     if (this.core.activePlayback.name === 'html5_video') {
       newSettings.seekEnabled = this.isSeekEnabledForHtml5Playback()
     }
 
     const settingsChanged =
-      JSON.stringify(this.settings) !== JSON.stringify(newSettings)
+      serializeSettings(this.settings) !== serializeSettings(newSettings)
 
     if (settingsChanged) {
       this.settings = newSettings
@@ -1036,8 +1064,8 @@ export class MediaControl extends UICorePlugin {
     }
   }
 
-  private highDefinitionUpdate(isHD: boolean) {
-    this.isHD = isHD
+  private onHdUpdate(isHD: boolean) {
+    // TODO render?
   }
 
   private createCachedElements() {
@@ -1065,21 +1093,13 @@ export class MediaControl extends UICorePlugin {
     this.$volumeBarBackground = this.$el.find('.bar-background[data-volume]')
     this.$volumeBarFill = this.$el.find('.bar-fill-1[data-volume]')
     this.$volumeBarScrubber = this.$el.find('.bar-scrubber[data-volume]')
-    this.$bottomGear = this.$el.find('.media-control-bottomgear')
-    this.$pip = this.$el.find('.media-control-pip')
-    this.$audioTracksSelector = this.$el.find(
-      '.media-control-audio-tracks[data-audiotracks]',
-    )
-    this.$subtitlesSelector = this.$el.find(
-      '.media-control-subtitles[data-subtitles]',
-    )
     this.$playbackRate = this.$el.find(
       '.media-control-playbackrate[data-playbackrate]',
     )
     this.$multiCameraSelector = this.$el.find(
       '.media-control-multicamera[data-multicamera]',
     )
-    this.$clipText = this.$el.find('.media-clip-text[data-clipstext]')
+    this.$clipText = this.$el.find('.media-clip-text[data-clipstext]') // TODO
     this.$clipTextContainer = this.$el.find(
       '.media-clip-container[data-clipstext]',
     )
@@ -1092,6 +1112,7 @@ export class MediaControl extends UICorePlugin {
    * Get a media control element DOM node
    * @param name - The name of the media control element
    * @returns The DOM node to render to or extend
+   * @deprecated  Use {@link MediaControl.putElement} instead
    * @remarks
    * Use this method to render custom media control UI in a plugin
    * @example
@@ -1108,41 +1129,53 @@ export class MediaControl extends UICorePlugin {
    */
   getElement(name: MediaControlElement): ZeptoResult | null {
     switch (name) {
-      case 'audioTracksSelector':
-        return this.$audioTracksSelector
+      case 'audiotracks':
+        return null
       case 'clipText':
         return this.$clipText
-      case 'bottomGear':
-      case 'gear':
-        return this.$bottomGear
-      case 'pip':
-        return this.$pip
       case 'playbackRate':
         return this.$playbackRate
       case 'seekBarContainer':
         return this.$seekBarContainer
-      case 'subtitlesSelector':
-        return this.$subtitlesSelector
+    }
+  }
+
+  putElement(name: MediaControlElement, element: HTMLElement) {
+    const panel = this.getElementLocation(name)
+    trace(`${T} putElement`, { name, panel: !!panel })
+    if (panel) {
+      const current = panel.find(`[data-${name}]`)
+      element.setAttribute(`data-${name}`, '')
+      // TODO test
+      if (current.length) {
+        if (current[0] === element) {
+          return
+        }
+        current.replaceWith(element)
+      } else {
+        panel.append(element)
+      }
     }
   }
 
   /**
-   * Get the right panel area to append custom elements to
-   * @returns  ZeptoSelector of the right panel element
+   * Toggle the visibility of a media control element
+   * @param name - The name of the media control element
+   * @param show - Whether to show or hide the element
    */
-  getRightPanel() {
+  toggleElement(name: MediaControlElement, show: boolean) {
+    this.$el.find(`[data-${name}]`).toggle(show)
+  }
+
+  private getRightPanel() {
     return this.$el.find('.media-control-right-panel')
   }
 
-  /**
-   * Get the left panel area to append custom elements to
-   * @returns  ZeptoSelector of the left panel element
-   */
-  getLeftPanel() {
+  private getLeftPanel() {
     return this.$el.find('.media-control-left-panel')
   }
 
-  getCenterPanel() {
+  private getCenterPanel() {
     return this.$el.find('.media-control-center-panel')
   }
 
@@ -1316,7 +1349,6 @@ export class MediaControl extends UICorePlugin {
   }
 
   private configure() {
-    // this.advertisementPlaying ? this.disable() : this.enable()
     this.trigger(Events.MEDIACONTROL_OPTIONS_CHANGE)
   }
 
@@ -1380,7 +1412,6 @@ export class MediaControl extends UICorePlugin {
     }, 0)
 
     this.parseColors()
-    this.highDefinitionUpdate(this.isHD)
 
     this.core.$el.append(this.el)
 
@@ -1409,13 +1440,13 @@ export class MediaControl extends UICorePlugin {
 
   // TODO manage by the ads plugin
   private onStartAd() {
-    this.advertisementPlaying = true
+    // this.advertisementPlaying = true
     this.disable()
   }
 
   // TODO manage by the ads plugin
   private onFinishAd() {
-    this.advertisementPlaying = false
+    // this.advertisementPlaying = false
     this.enable()
   }
 
@@ -1472,8 +1503,39 @@ export class MediaControl extends UICorePlugin {
 
     return isFinite(this.core.activePlayback.getDuration())
   }
+
+  private getElementLocation(name: MediaControlElement) {
+    if (this.settings.right?.includes(name)) {
+      return this.getRightPanel()
+    }
+    if (this.settings.left?.includes(name)) {
+      return this.getLeftPanel()
+    }
+    if (this.settings.default?.includes(name)) {
+      return this.getCenterPanel()
+    }
+    return null
+  }
+
+  private onDvrStateChanged(dvrInUse: boolean) {
+    if (dvrInUse) {
+      this.$el.addClass('dvr')
+    } else {
+      this.$el.removeClass('dvr')
+    }
+  }
 }
 
 MediaControl.extend = function (properties) {
   return extend(MediaControl, properties)
+}
+
+function serializeSettings(s: MediaControlSettings) {
+  return s.left
+    .slice()
+    .sort()
+    .concat(s.right.slice().sort())
+    .concat(s.default.slice().sort())
+    .concat([s.seekEnabled as any])
+    .join(',')
 }

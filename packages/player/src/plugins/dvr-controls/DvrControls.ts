@@ -56,7 +56,6 @@ export class DvrControls extends UICorePlugin {
   override get attributes() {
     return {
       class: 'dvr-controls',
-      'data-dvr-controls': '',
     }
   }
 
@@ -65,7 +64,6 @@ export class DvrControls extends UICorePlugin {
    */
   override bindEvents() {
     this.listenTo(this.core, Events.CORE_READY, this.onCoreReady)
-    this.listenTo(this.core, Events.CORE_OPTIONS_CHANGE, this.render)
     this.listenTo(
       this.core,
       Events.CORE_ACTIVE_CONTAINER_CHANGED,
@@ -76,48 +74,23 @@ export class DvrControls extends UICorePlugin {
   private onCoreReady() {
     const mediaControl = this.core.getPlugin('media_control')
     assert(mediaControl, 'media_control plugin is required')
+
     this.listenTo(
       mediaControl,
       Events.MEDIACONTROL_RENDERED,
-      this.settingsUpdate,
+      this.render,
     )
-    this.settingsUpdate()
+    // MediaControl has been rendered
+    this.render()
   }
 
   private bindContainerEvents() {
+    trace(`${T} bindContainerEvents`)
     this.listenToOnce(
       this.core.activeContainer,
       Events.CONTAINER_TIMEUPDATE,
       this.render,
     )
-    this.listenTo(
-      this.core.activeContainer,
-      Events.CONTAINER_PLAYBACKDVRSTATECHANGED,
-      this.onDvrChanged,
-    )
-  }
-
-  private onDvrChanged(dvrInUse: boolean) {
-    trace(`${T} onDvrChanged`, {
-      dvrInUse,
-    })
-    if (this.core.getPlaybackType() !== Playback.LIVE) {
-      return
-    }
-    this.render()
-    const mediaControl = this.core.getPlugin('media_control')
-    mediaControl.$el.addClass('live')
-    if (dvrInUse) {
-      mediaControl.$el
-        .addClass('dvr')
-        .find(
-          // TODO add API, test
-          '.media-control-indicator[data-position], .media-control-indicator[data-duration]',
-        )
-        .hide()
-    } else {
-      mediaControl.$el.removeClass('dvr')
-    }
   }
 
   private click() {
@@ -128,15 +101,8 @@ export class DvrControls extends UICorePlugin {
     container.seek(container.getDuration())
   }
 
-  private settingsUpdate() {
-    trace(`${T} settingsUpdate`)
-    this.core.getPlugin('media_control').$el.removeClass('live')
-    this.render()
-  }
-
   private shouldRender() {
-    const useDvrControls = this.core.options.useDvrControls !== false
-    return useDvrControls && this.core.getPlaybackType() === Playback.LIVE
+    return this.core.getPlaybackType() === Playback.LIVE
   }
 
   /**
@@ -147,18 +113,23 @@ export class DvrControls extends UICorePlugin {
       dvrEnabled: this.core.activePlayback?.dvrEnabled,
       playbackType: this.core.getPlaybackType(),
     })
+    const mediaControl = this.core.getPlugin('media_control') as MediaControl
+    if (!mediaControl) {
+      return this
+    }
     if (!this.shouldRender()) {
       return this
     }
+
+    mediaControl.toggleElement('duration', false)
+    mediaControl.toggleElement('position', false)
+
     this.$el.html(
       DvrControls.template({
-        live: this.core.i18n.t('live'),
-        backToLive: this.core.i18n.t('back_to_live'),
+        i18n: this.core.i18n,
       }),
     )
-    const mediaControl = this.core.getPlugin('media_control') as MediaControl
-    mediaControl.$el.addClass('live')
-    mediaControl.getLeftPanel().append(this.$el)
+    mediaControl.putElement('dvr', this.el)
 
     return this
   }

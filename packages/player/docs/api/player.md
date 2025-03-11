@@ -10,7 +10,7 @@ Video player for the Gcore streaming platform
 
 This package provides a video player for the Gcore streaming platform. It is built on top of the [Clappr](https://github.com/clappr/clappr) library and provides a framework for building custom integrations. Start with [Player](./player.player.md) for more information.
 
-Various plugins (marked with `PLUGIN` keyword) are available to extend the player with additional features.
+Various plugins (marked with `PLUGIN` keyword) are available to extend the core functionality with additional features.
 
 ## Example
 
@@ -50,7 +50,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** `PLUGIN` that adds an audio track selector to the media control UI.
+**_(BETA)_** `PLUGIN` that makes possible to switch audio tracks via the media control UI.
 
 
 </td></tr>
@@ -117,6 +117,17 @@ Description
 </td><td>
 
 **_(BETA)_** `PLUGIN` that shows text over the seekbar to indicate the current clip.
+
+
+</td></tr>
+<tr><td>
+
+[ClosedCaptions](./player.closedcaptions.md)
+
+
+</td><td>
+
+**_(BETA)_** `PLUGIN` that provides a UI to select the subtitles when available.
 
 
 </td></tr>
@@ -204,7 +215,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** `PLUGIN` that provides a foundation for developing custom media controls UI.
+**_(BETA)_** `PLUGIN` that provides basic playback controls UI and a foundation for developing custom UI.
 
 
 </td></tr>
@@ -315,17 +326,6 @@ Description
 </td><td>
 
 **_(BETA)_** `PLUGIN` that shows a pending operation indicator when playback is buffering or in a similar state
-
-
-</td></tr>
-<tr><td>
-
-[Subtitles](./player.subtitles.md)
-
-
-</td><td>
-
-**_(BETA)_** `PLUGIN` that provides a UI to select the subtitles when available.
 
 
 </td></tr>
@@ -618,6 +618,15 @@ A level of quality within a media source.
 </td></tr>
 <tr><td>
 
+[TextTrackItem](./player.texttrackitem.md)
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
 [TimePosition](./player.timeposition.md)
 
 
@@ -654,6 +663,15 @@ Description
 
 </th></tr></thead>
 <tbody><tr><td>
+
+[ClosedCaptionsPluginSettings](./player.closedcaptionspluginsettings.md)
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
 
 [ContainerPluginConstructor](./player.containerpluginconstructor.md)
 
@@ -722,6 +740,15 @@ Levels of severity of errors. Non-fatal errors usually can be ignored.
 <tr><td>
 
 [GearItemElement](./player.gearitemelement.md)
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[GearOptionsItem](./player.gearoptionsitem.md)
 
 
 </td><td>
@@ -853,6 +880,15 @@ A media source to fetch the media data from
 
 </td><td>
 
+
+
+</td></tr>
+<tr><td>
+
+[SubtitlesPluginSettings](./player.subtitlespluginsettings.md)
+
+
+</td><td>
 
 
 </td></tr>

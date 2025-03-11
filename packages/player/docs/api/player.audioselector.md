@@ -7,7 +7,7 @@
 > This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
 > 
 
-`PLUGIN` that adds an audio track selector to the media control UI.
+`PLUGIN` that makes possible to switch audio tracks via the media control UI.
 
 **Signature:**
 
@@ -16,64 +16,9 @@ export declare class AudioSelector extends UICorePlugin
 ```
 **Extends:** UICorePlugin
 
-## Methods
+## Remarks
 
-<table><thead><tr><th>
+The plugin is activated when there are multiple audio tracks available. The plugin adds a button showing the current audio track and a dropdown to switch to another audio track. Depends on:
 
-Method
+- [MediaControl](./player.mediacontrol.md)
 
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>
-
-[highlightCurrentTrack()](./player.audioselector.highlightcurrenttrack.md)
-
-
-</td><td>
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
-[startTrackSwitch()](./player.audioselector.starttrackswitch.md)
-
-
-</td><td>
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
-[updateCurrentTrack(e, info)](./player.audioselector.updatecurrenttrack.md)
-
-
-</td><td>
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-</tbody></table>

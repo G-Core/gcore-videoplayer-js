@@ -1,0 +1,11 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`PlaybackRate > should render 1`] = `
+"<button class="gplayer-lite-btn gcore-skin-text-color gear-option" id="playback-rate-button">
+    <span class="gear-option_speed-icon">/assets/icons/new/speed.svg</span>
+    <span class="gear-option_label">playback_rate</span>
+    <span class="gear-option_arrow-right-icon">/assets/icons/new/arrow-right.svg</span>
+    <span class="gear-option_value">1x</span>
+</button>
+"
+`;

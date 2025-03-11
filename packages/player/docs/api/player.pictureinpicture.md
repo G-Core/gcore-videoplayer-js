@@ -24,3 +24,48 @@ Depends on:
 
 It renders a button to toggle picture in picture mode in the media control UI.
 
+## Properties
+
+<table><thead><tr><th>
+
+Property
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[attributes](./player.pictureinpicture.attributes.md)
+
+
+</td><td>
+
+`readonly`
+
+
+</td><td>
+
+{ class: string; }
+
+
+</td><td>
+
+**_(BETA)_**
+
+
+</td></tr>
+</tbody></table>

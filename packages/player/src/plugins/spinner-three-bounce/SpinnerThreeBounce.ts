@@ -111,27 +111,19 @@ export class SpinnerThreeBounce extends UIContainerPlugin {
 
   private onStop() {
     trace(`${T} onStop`, {
-      showOnError: this.options.spinner?.showOnError,
       hasFatalError: this.hasFatalError,
     })
-    if (!(this.hasFatalError && this.options.spinner?.showOnError)) {
-      this._hide()
-    }
+    this._hide()
   }
 
   private onError(e: PlaybackError) {
     this.hasFatalError = e.code === PlaybackErrorCode.MediaSourceUnavailable
     trace(`${T} onError`, {
       e,
-      showOnError: this.options.spinner?.showOnError,
       hasFatalError: this.hasFatalError,
       error: e.code,
     })
-    if (this.options.spinner?.showOnError) {
-      this._show()
-    } else {
-      this._hide()
-    }
+    this._hide()
   }
 
   /**
@@ -181,17 +173,15 @@ export class SpinnerThreeBounce extends UIContainerPlugin {
    * @internal
    */
   override render() {
-    const showOnStart = this.options.spinner?.showOnStart
     trace(`${T} render`, {
       buffering: this.container.buffering,
-      showOnStart,
     })
     this.$el.html(this.template())
     this.el.firstElementChild?.addEventListener('animationiteration', () => {
       this.trigger(SpinnerEvents.SYNC)
     })
     this.container.$el.append(this.$el[0])
-    if (showOnStart || this.container.buffering) {
+    if (this.container.buffering) {
       this._show()
     } else {
       this._hide()
