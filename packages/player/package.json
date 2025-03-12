@@ -1,6 +1,6 @@
 {
   "name": "@gcorevideo/player",
-  "version": "2.22.2",
+  "version": "2.22.3",
   "description": "Gcore JavaScript video player",
   "main": "dist/index.js",
   "type": "module",
