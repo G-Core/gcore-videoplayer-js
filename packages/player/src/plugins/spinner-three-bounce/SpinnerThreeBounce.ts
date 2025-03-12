@@ -1,6 +1,8 @@
+// This work is based on the original work of Globo.com
 // Copyright 2014 Globo.com Player authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
+// https://github.com/clappr/clappr-plugins/blob/ffaa9d27005fa5a8a7c243ffc47eb5655b84b371/LICENSE
 
 import {
   Container,
@@ -20,21 +22,22 @@ const T = 'plugins.spinner'
 
 /**
  * Custom events emitted by the plugin
- * @beta
+ * @public
  */
 export enum SpinnerEvents {
   /**
    * Emitted at the end of the spinner animation cycle to facilitate smooth UI updates,
-   * e.g. {@link SourceController} listens to this event to reload the source when the spinner is hidden
+   * for instance, {@link SourceController} listens to this event to reload the source when the spinner is hidden
    */
   SYNC = 'plugins:spinner:sync',
 }
 
 /**
- * `PLUGIN` that shows a pending operation indicator when playback is buffering or in a similar state
- * @beta
+ * `PLUGIN` that shows a pending operation indicator when playback is buffering or in a similar state.
+ * @public
  * @remarks
- * Events emitted- {@link SpinnerEvents}
+ * It is aliased as `Spinner` for convenience.
+ * Events emitted - {@link SpinnerEvents}
  * Other plugins can use {@link SpinnerThreeBounce.show | show} and {@link SpinnerThreeBounce.hide | hide} methods to
  * implement custom pending/progress indication scenarios.
  */
@@ -129,7 +132,9 @@ export class SpinnerThreeBounce extends UIContainerPlugin {
   /**
    * Shows the spinner.
    *
-   * When called, the spinner will not hide (due to its built-in logic) until {@link SpinnerThreeBounce.hide} is called
+   * The method call prevents spinner's built-in logic from automatically hiding it until {@link SpinnerThreeBounce.hide} is called
+   *
+   * @param delay - The delay in milliseconds before the spinner is shown.
    */
   show(delay = 300) {
     trace(`${T} show`)

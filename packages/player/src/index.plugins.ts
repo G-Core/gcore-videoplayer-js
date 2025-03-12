@@ -24,6 +24,7 @@ export * from "./plugins/seek-time/SeekTime.js";
 export * from "./plugins/share/Share.js";
 export * from "./plugins/skip-time/SkipTime.js";
 export * from "./plugins/spinner-three-bounce/SpinnerThreeBounce.js";
+export { SpinnerThreeBounce as Spinner } from "./plugins/spinner-three-bounce/SpinnerThreeBounce.js";
 export * from "./plugins/source-controller/SourceController.js";
 export * from "./plugins/subtitles/ClosedCaptions.js";
 export { ClosedCaptions as Subtitles } from "./plugins/subtitles/ClosedCaptions.js"; // TODO remove in future versions

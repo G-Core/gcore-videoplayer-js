@@ -18,7 +18,7 @@ export declare class ClosedCaptions extends UICorePlugin
 
 ## Remarks
 
-The plugin is activated when closed captions tracks are provided with the media source. It shows a familiar "CC" button with a dropdown menu to select the subtitles language.
+The plugin is activated when closed captions tracks are detected in the media source. It shows a familiar "CC" button with a dropdown menu to select the subtitles language.
 
 Depends on:
 
@@ -37,7 +37,7 @@ Player.registerPlugin(ClosedCaptions)
 new Player({
   ...
   cc: {
-    language: 'en',
+    language: 'pt-BR',
   },
 })
 ```

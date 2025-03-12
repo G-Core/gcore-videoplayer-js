@@ -131,8 +131,3 @@ export interface PlaybackError {
   }
 }
 
-export interface TextTrackItem {
-  id: number
-  name: string
-  track: TextTrack
-}

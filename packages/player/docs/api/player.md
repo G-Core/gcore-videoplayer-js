@@ -72,7 +72,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** `PLUGIN` that adds the gear button with an extra options menu on the right side of the [media control](./player.mediacontrol.md) UI
+**_(BETA)_** `PLUGIN` that adds a button to extend the media controls UI with extra options.
 
 
 </td></tr>
@@ -105,7 +105,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** `PLUGIN` that adds a behavior of toggling the playback state on click over the container
+**_(BETA)_** A small `PLUGIN` that toggles the playback state on click over the video container
 
 
 </td></tr>
@@ -160,7 +160,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** `PLUGIN` that displays errors nicely in the overlay on top of the player.
+`PLUGIN` that displays fatal errors nicely in the overlay on top of the player.
 
 
 </td></tr>
@@ -314,7 +314,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** `PLUGIN` that is responsible for managing the automatic failover between sources.
+`PLUGIN` that is managing the automatic failover between media sources.
 
 
 </td></tr>
@@ -325,7 +325,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** `PLUGIN` that shows a pending operation indicator when playback is buffering or in a similar state
+`PLUGIN` that shows a pending operation indicator when playback is buffering or in a similar state.
 
 
 </td></tr>
@@ -379,12 +379,12 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-[MediaControlEvents](./player.mediacontrolevents.md)
+[GearEvents](./player.gearevents.md)
 
 
 </td><td>
 
-**_(BETA)_** Custom events emitted by the plugins to communicate with one another
+**_(BETA)_** Events triggered by the plugin
 
 
 </td></tr>
@@ -417,7 +417,7 @@ A top-level event on the player object
 
 </td><td>
 
-**_(BETA)_** Custom events emitted by the plugin
+Custom events emitted by the plugin
 
 
 </td></tr>
@@ -618,15 +618,6 @@ A level of quality within a media source.
 </td></tr>
 <tr><td>
 
-[TextTrackItem](./player.texttrackitem.md)
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
 [TimePosition](./player.timeposition.md)
 
 
@@ -668,6 +659,8 @@ Description
 
 
 </td><td>
+
+**_(BETA)_** Configuration options for the [ClosedCaptions](./player.closedcaptions.md) plugin.
 
 
 </td></tr>
@@ -733,27 +726,18 @@ Levels of severity of errors. Non-fatal errors usually can be ignored.
 
 </td><td>
 
-**_(BETA)_** Configuration options for the [error screen](./player.errorscreen.md) plugin.
+Configuration options for the [ErrorScreen](./player.errorscreen.md) plugin.
 
 
 </td></tr>
 <tr><td>
 
-[GearItemElement](./player.gearitemelement.md)
+[ErrorScreenSettings](./player.errorscreensettings.md)
 
 
 </td><td>
 
-
-</td></tr>
-<tr><td>
-
-[GearOptionsItem](./player.gearoptionsitem.md)
-
-
-</td><td>
-
-**_(BETA)_** An element inside the gear menu
+Settings for the [ErrorScreen](./player.errorscreen.md) plugin.
 
 
 </td></tr>
@@ -787,6 +771,28 @@ An ISO 639-1 language code.
 </td><td>
 
 Module to perform the playback.
+
+
+</td></tr>
+<tr><td>
+
+[PlaybackRateOption](./player.playbackrateoption.md)
+
+
+</td><td>
+
+**_(BETA)_**
+
+
+</td></tr>
+<tr><td>
+
+[PlaybackRateSettings](./player.playbackratesettings.md)
+
+
+</td><td>
+
+**_(BETA)_**
 
 
 </td></tr>
@@ -880,15 +886,6 @@ A media source to fetch the media data from
 
 </td><td>
 
-
-
-</td></tr>
-<tr><td>
-
-[SubtitlesPluginSettings](./player.subtitlespluginsettings.md)
-
-
-</td><td>
 
 
 </td></tr>

@@ -80,18 +80,6 @@ const DEFAULT_SETTINGS: MediaControlSettings = {
   seekEnabled: true,
 }
 
-/**
- * Custom events emitted by the plugins to communicate with one another
- * @beta
- * @deprecated
- */
-export enum MediaControlEvents {
-  /**
-   * Emitted when the gear menu is rendered
-   */
-  MEDIACONTROL_GEAR_RENDERED = 'mediacontrol:gear:rendered',
-}
-
 const T = 'plugins.media_control'
 
 const LEFT_ORDER = [

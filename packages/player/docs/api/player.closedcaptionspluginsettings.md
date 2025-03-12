@@ -4,6 +4,11 @@
 
 ## ClosedCaptionsPluginSettings type
 
+> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
+> 
+
+Configuration options for the [ClosedCaptions](./player.closedcaptions.md) plugin.
+
 **Signature:**
 
 ```typescript

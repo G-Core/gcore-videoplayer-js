@@ -12,7 +12,7 @@ Toggle the visibility of a media control element
 **Signature:**
 
 ```typescript
-toggleElement(name: MediaControlElement, show: boolean): void;
+toggleElement(area: MediaControlElement, show: boolean): void;
 ```
 
 ## Parameters
@@ -35,7 +35,7 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-name
+area
 
 
 </td><td>
@@ -44,8 +44,6 @@ name
 
 
 </td><td>
-
-The name of the media control element
 
 
 </td></tr>

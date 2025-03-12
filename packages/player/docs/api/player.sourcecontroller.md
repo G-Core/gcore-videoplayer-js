@@ -4,10 +4,7 @@
 
 ## SourceController class
 
-> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
-> 
-
-`PLUGIN` that is responsible for managing the automatic failover between sources.
+`PLUGIN` that is managing the automatic failover between media sources.
 
 **Signature:**
 
@@ -18,11 +15,44 @@ export declare class SourceController extends CorePlugin
 
 ## Remarks
 
-Have a look at the [source failover diagram](https://miro.com/app/board/uXjVLiN15tY=/?share_link_id=390327585787) for the details on how sources ordering and selection works.
+Have a look at the [source failover diagram](https://miro.com/app/board/uXjVLiN15tY=/?share_link_id=390327585787) for the details on how sources ordering and selection works. Below is a simplified diagram:
 
+```markdown
+sources_list:
+      - a.mpd  |    +--------------------+
+      - b.m3u8 |--->|         init       |
+      - ...    |    |--------------------|
+                    | current_source = 0 |
+                    +--------------------+
+                           |
+                           |  source = a.mpd
+                           |  playback = dash.js
+                           v
+                     +------------------+
+                 +-->|   load source    |
+                 |   +---------|--------+
+                 |             v
+                 |   +------------------+
+                 |   |       play       |
+                 |   +---------|--------+
+                 |             |
+                 |             v
+                 |   +-----------------------+
+                 |   |  on playback_error    |
+                 |   |-----------------------|
+                 |   | current_source =      |
+                 |   |  (current_source + 1) |
+                 |   |  % len sources_list   |
+                 |   |                       |
+                 |   | delay 1..3s           |
+                 |   +---------------|-------+
+                 |                   |
+                 |   source=b.m3u8   |
+                 |   playback=hls.js |
+                 +-------------------+
+
+```
 This plugin does not expose any public methods apart from required by the Clappr plugin interface. It is supposed to work autonomously.
-
-The constructor for this class is marked as internal. Third-party code should not call the constructor directly or create subclasses that extend the `SourceController` class.
 
 ## Example
 
@@ -33,3 +63,36 @@ import { SourceController } from '@gcorevideo/player'
 Player.registerPlugin(SourceController)
 ```
 
+## Constructors
+
+<table><thead><tr><th>
+
+Constructor
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[(constructor)(core)](./player.sourcecontroller._constructor_.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Constructs a new instance of the `SourceController` class
+
+
+</td></tr>
+</tbody></table>

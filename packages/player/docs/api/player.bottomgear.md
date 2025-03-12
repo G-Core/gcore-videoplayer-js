@@ -7,7 +7,7 @@
 > This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
 > 
 
-`PLUGIN` that adds the gear button with an extra options menu on the right side of the [media control](./player.mediacontrol.md) UI
+`PLUGIN` that adds a button to extend the media controls UI with extra options.
 
 **Signature:**
 
@@ -18,11 +18,69 @@ export declare class BottomGear extends UICorePlugin
 
 ## Remarks
 
-The plugins provides a base for attaching custom settings UI in the gear menu
+The plugin renders small gear icon to the right of the media controls. It provides a base for attaching custom settings UI in the gear menu
 
 Depends on:
 
 - [MediaControl](./player.mediacontrol.md)
+
+## Example
+
+You can use bottom gear to add custom settings UI to the gear menu.
+
+```ts
+import { BottomGear } from '@gcorevideo/player/plugins/bottom-gear';
+
+class CustomOptionsPlugin extends UICorePlugin {
+  // ...
+
+  override get events() {
+    return {
+      'click #my-button': 'doMyAction',
+    }
+  }
+
+  private doMyAction() {
+    // ...
+  }
+
+  override render() {
+    const bottomGear = this.core.getPlugin('bottom_gear');
+    if (!bottomGear) {
+      return this;
+    }
+    this.$el.html('<button class="custom-option">Custom option</button>');
+    // Put rendered element into the gear menu
+    bottomGear.addItem('custom').html(this.$el)
+    return this;
+  }
+
+  // alternatively, add an option with a submenu
+  override render() {
+    this.$el.html(template(templateHtml)({
+      // ...
+    })));
+    return this;
+  }
+
+  private addGearOption() {
+    this.core.getPlugin('bottom_gear')
+      .addItem('custom', this.$el)
+      .html($('<button class="custom-option">Custom option</button>'))
+  }
+
+  override bindEvents() {
+    this.listenToOnce(this.core, ClapprEvents.CORE_READY, () => {
+      const bottomGear = this.core.getPlugin('bottom_gear');
+      assert(bottomGear, 'bottom_gear plugin is required');
+      // simple case
+      this.listenTo(bottomGear, GearEvents.RENDERED, this.render);
+      // or with a submenu
+      this.listenTo(bottomGear, GearEvents.RENDERED, this.addGearOption);
+     });
+  }
+}
+```
 
 ## Methods
 
@@ -44,7 +102,7 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-[getElement(name)](./player.bottomgear.getelement.md)
+[addItem(name, $subMenu)](./player.bottomgear.additem.md)
 
 
 </td><td>
@@ -52,7 +110,7 @@ Description
 
 </td><td>
 
-**_(BETA)_**
+**_(BETA)_** Adds a custom option to the gear menu
 
 
 </td></tr>
@@ -66,21 +124,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Re-renders the gear menu. It fires the [MEDIACONTROL\_GEAR\_RENDERED](./player.mediacontrolevents.md) event, which the plugins that attach to the gear menu can listen to to re-render themselves.
-
-
-</td></tr>
-<tr><td>
-
-[setContent(content)](./player.bottomgear.setcontent.md)
-
-
-</td><td>
-
-
-</td><td>
-
-**_(BETA)_** Replaces the content of the gear menu
+**_(BETA)_** Collapses any submenu open back to the gear menu.
 
 
 </td></tr>

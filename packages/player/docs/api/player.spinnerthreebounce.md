@@ -4,10 +4,7 @@
 
 ## SpinnerThreeBounce class
 
-> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
-> 
-
-`PLUGIN` that shows a pending operation indicator when playback is buffering or in a similar state
+`PLUGIN` that shows a pending operation indicator when playback is buffering or in a similar state.
 
 **Signature:**
 
@@ -18,7 +15,7 @@ export declare class SpinnerThreeBounce extends UIContainerPlugin
 
 ## Remarks
 
-Events emitted- [SpinnerEvents](./player.spinnerevents.md) Other plugins can use [show](./player.spinnerthreebounce.show.md) and [hide](./player.spinnerthreebounce.hide.md) methods to implement custom pending/progress indication scenarios.
+It is aliased as `Spinner` for convenience. Events emitted - [SpinnerEvents](./player.spinnerevents.md) Other plugins can use [show](./player.spinnerthreebounce.show.md) and [hide](./player.spinnerthreebounce.hide.md) methods to implement custom pending/progress indication scenarios.
 
 ## Constructors
 
@@ -48,7 +45,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Constructs a new instance of the `SpinnerThreeBounce` class
+Constructs a new instance of the `SpinnerThreeBounce` class
 
 
 </td></tr>
@@ -82,7 +79,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Hides the spinner.
+Hides the spinner.
 
 
 </td></tr>
@@ -96,9 +93,9 @@ Description
 
 </td><td>
 
-**_(BETA)_** Shows the spinner.
+Shows the spinner.
 
-When called, the spinner will not hide (due to its built-in logic) until [SpinnerThreeBounce.hide()](./player.spinnerthreebounce.hide.md) is called
+The method call prevents spinner's built-in logic from automatically hiding it until [SpinnerThreeBounce.hide()](./player.spinnerthreebounce.hide.md) is called
 
 
 </td></tr>

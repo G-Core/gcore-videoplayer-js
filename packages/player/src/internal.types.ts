@@ -143,3 +143,9 @@ export type CoreOptions = {
   watermarkLink?: string
   width?: number
 }
+
+export interface TextTrackItem {
+  id: number
+  name: string
+  track: TextTrack
+}

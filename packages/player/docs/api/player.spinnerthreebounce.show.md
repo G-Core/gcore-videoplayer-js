@@ -4,12 +4,9 @@
 
 ## SpinnerThreeBounce.show() method
 
-> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
-> 
-
 Shows the spinner.
 
-When called, the spinner will not hide (due to its built-in logic) until [SpinnerThreeBounce.hide()](./player.spinnerthreebounce.hide.md) is called
+The method call prevents spinner's built-in logic from automatically hiding it until [SpinnerThreeBounce.hide()](./player.spinnerthreebounce.hide.md) is called
 
 **Signature:**
 
@@ -47,7 +44,7 @@ number
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ The delay in milliseconds before the spinner is shown.
 
 
 </td></tr>

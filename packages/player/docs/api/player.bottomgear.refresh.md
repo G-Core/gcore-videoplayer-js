@@ -7,7 +7,7 @@
 > This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
 > 
 
-Re-renders the gear menu. It fires the [MEDIACONTROL\_GEAR\_RENDERED](./player.mediacontrolevents.md) event, which the plugins that attach to the gear menu can listen to to re-render themselves.
+Collapses any submenu open back to the gear menu.
 
 **Signature:**
 
@@ -17,4 +17,8 @@ refresh(): void;
 **Returns:**
 
 void
+
+## Remarks
+
+Should be called by the UI plugin that added a gear item with a submenu when the latter is closed (e.g., when a "back" button is clicked).
 

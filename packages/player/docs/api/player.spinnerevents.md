@@ -4,9 +4,6 @@
 
 ## SpinnerEvents enum
 
-> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
-> 
-
 Custom events emitted by the plugin
 
 **Signature:**
@@ -45,7 +42,7 @@ SYNC
 
 </td><td>
 
-**_(BETA)_** Emitted at the end of the spinner animation cycle to facilitate smooth UI updates, e.g. [SourceController](./player.sourcecontroller.md) listens to this event to reload the source when the spinner is hidden
+Emitted at the end of the spinner animation cycle to facilitate smooth UI updates, for instance, [SourceController](./player.sourcecontroller.md) listens to this event to reload the source when the spinner is hidden
 
 
 </td></tr>

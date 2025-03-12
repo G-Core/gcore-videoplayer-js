@@ -20,11 +20,30 @@ export declare class PlaybackRate extends UICorePlugin
 
 Depends on:
 
-- [media\_control](./player.mediacontrol.md)
+- [MediaControl](./player.mediacontrol.md)
 
-- [bottom\_gear](./player.bottomgear.md)
+- [BottomGear](./player.bottomgear.md)
 
-It renders a button in the gear menu, which opens a dropdown with the options to change the playback rate. Note that the playback rate change is supported only for VOD or DVR enabled live streams.
+It renders an option in the gear menu, which opens a dropdown with the options to change the playback rate. Note that the playback rate change is supported only for VOD or DVR-enabled live streams.
+
+Plugin settings - [PlaybackRateSettings](./player.playbackratesettings.md)
+
+## Example
+
+
+```ts
+import { Player, PlaybackRateSettings } from '@gcorevideo/player'
+Player.registerPlugin(PlaybackRate)
+const player = new Player({
+  playbackRate: {
+    options: [
+      { value: 0.5, label: '0.5x' },
+      { value: 1, label: '1x' },
+    ],
+    defaultValue: 1,
+  } as PlaybackRateSettings,
+})
+```
 
 ## Constructors
 

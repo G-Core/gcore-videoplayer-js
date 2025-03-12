@@ -3,7 +3,7 @@ import { reportError, trace } from '@gcorevideo/utils'
 import assert from 'assert'
 
 import { CLAPPR_VERSION } from '../../build.js'
-import type { TextTrackItem } from '../../playback.types.js'
+import type { TextTrackItem } from '../../internal.types.js'
 
 import '../../../assets/subtitles/style.scss'
 import subtitlesOffIcon from '../../../assets/icons/new/subtitles-off.svg'
@@ -20,24 +20,23 @@ const LOCAL_STORAGE_CC_ID = 'gplayer.plugins.cc.selected'
 
 const T = 'plugins.cc'
 
+/**
+ * Configuration options for the {@link ClosedCaptions} plugin.
+ * @beta
+ */
 export type ClosedCaptionsPluginSettings = {
   /**
-   * Initially selected subtitles language
+   * Initially selected subtitles language.
    */
   language?: string
 }
-
-/**
- * @deprecated Use {@link ClosedCaptionsPluginSettings} instead.
- */
-export type SubtitlesPluginSettings = ClosedCaptionsPluginSettings;
 
 /**
  * `PLUGIN` that provides a UI to select the subtitles when available.
  * @beta
  *
  * @remarks
- * The plugin is activated when closed captions tracks are provided with the media source.
+ * The plugin is activated when closed captions tracks are detected in the media source.
  * It shows a familiar "CC" button with a dropdown menu to select the subtitles language.
  *
  * Depends on:
@@ -54,7 +53,7 @@ export type SubtitlesPluginSettings = ClosedCaptionsPluginSettings;
  * new Player({
  *   ...
  *   cc: {
- *     language: 'en',
+ *     language: 'pt-BR',
  *   },
  * })
  * ```

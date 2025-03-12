@@ -16,8 +16,19 @@ type ErrorScreenDesc = {
 }
 
 /**
- * Configuration options for the {@link ErrorScreen | error screen} plugin.
- * @beta
+ * Settings for the {@link ErrorScreen} plugin.
+ * @public
+ */
+export type ErrorScreenSettings = {
+  /**
+   * Whether to hide the reload button. The reload button triggers reload of the current source.
+   */
+  noReload?: boolean
+}
+
+/**
+ * Configuration options for the {@link ErrorScreen} plugin.
+ * @public
  */
 export type ErrorScreenPluginSettings = {
   /**
@@ -29,8 +40,23 @@ export type ErrorScreenPluginSettings = {
 const T = 'plugins.error_screen'
 
 /**
- * `PLUGIN` that displays errors nicely in the overlay on top of the player.
- * @beta
+ * `PLUGIN` that displays fatal errors nicely in the overlay on top of the player.
+ * @public
+ * @remarks
+ * A fatal error is an error that prevents the player from playing the content.
+ * It's usually a network error that persists after multiple retries.
+ *
+ * The error screen should not be confused with the content stub that is shown when no media sources are available.
+ * This can happen due to the lack of the support of the given sources type or because the sources are misconfigured (e.g., omitted).
+ *
+ * Configuration options - {@link ErrorScreenPluginSettings}
+ *
+ * @example
+ * ```ts
+ * import { ErrorScreen, Player } from '@gcorevideo/player'
+ *
+ * Player.registerPlugin(ErrorScreen)
+ * ```
  */
 export class ErrorScreen extends UICorePlugin {
   private err: ErrorScreenDesc | null = null

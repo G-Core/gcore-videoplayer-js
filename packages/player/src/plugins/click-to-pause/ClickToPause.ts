@@ -1,4 +1,5 @@
-//Copyright 2014 Globo.com Player authors. All rights reserved.
+// This work is based on the original work of the following authors:
+// Copyright 2014 Globo.com Player authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found at https://github.com/clappr/clappr-plugins/blob/master/LICENSE.
 
@@ -12,7 +13,7 @@ type Timer = ReturnType<typeof setTimeout>
 const T = 'plugins.click_to_pause_custom'
 
 /**
- * `PLUGIN` that adds a behavior of toggling the playback state on click over the container
+ * A small `PLUGIN` that toggles the playback state on click over the video container
  * @beta
  */
 export class ClickToPause extends ContainerPlugin {

@@ -10,35 +10,30 @@ import '../../../assets/bottom-gear/gear-sub-menu.scss'
 import gearIcon from '../../../assets/icons/new/gear.svg'
 import gearHdIcon from '../../../assets/icons/new/gear-hd.svg'
 import { ZeptoResult } from '../../types.js'
-import { MediaControlEvents } from '../media-control/MediaControl'
 
 const VERSION = '2.19.12'
 
 const T = 'plugins.bottom_gear'
 
+/**
+ * Events triggered by the plugin
+ * @beta
+ */
 export enum GearEvents {
+  /**
+   * Use this event to accurately attach an item to the gear menu
+   */
   RENDERED = 'rendered',
 }
-
-/**
- * An element inside the gear menu
- * @beta
- * @deprecated
- */
-export type GearOptionsItem = 'quality' | 'rate' | 'nerd'
-
-/**
- * @deprecated Use {@link GearOptionsItem} instead
- */
-export type GearItemElement = GearOptionsItem
 
 // TODO disabled if no items added
 
 /**
- * `PLUGIN` that adds the gear button with an extra options menu on the right side of the {@link MediaControl | media control} UI
+ * `PLUGIN` that adds a button to extend the media controls UI with extra options.
  * @beta
  * @remarks
- * The plugins provides a base for attaching custom settings UI in the gear menu
+ * The plugin renders small gear icon to the right of the media controls.
+ * It provides a base for attaching custom settings UI in the gear menu
  *
  * Depends on:
  *
@@ -157,6 +152,28 @@ export class BottomGear extends UICorePlugin {
     )
   }
 
+  /**
+   * Adds a custom option to the gear menu
+   * @param name - A unique name of the option
+   * @param $subMenu - The submenu to attach to the option
+   * @returns The added item placeholder to attach custom markup
+   * @remarks
+   * When called with $submenu param, a click on the added item will toggle the submenu visibility.
+   *
+   * When added without submenu, it's responsibility of the caller to handle the click event however needed.
+   * @example
+   * ```ts
+   * class MyPlugin extends UICorePlugin {
+   *   override render() {
+   *     this.$el.html('<div class="my-awesome-settings">...</div>')
+   *     this.core.getPlugin('bottom_gear')
+   *       ?.addItem('custom', this.$el)
+   *       .html($('<button>Custom settings</button>'))
+   *     return this
+   *   }
+   * }
+   * ```
+   */
   addItem(name: string, $subMenu?: ZeptoResult): ZeptoResult {
     const $existingItem = this.$el.find(`#gear-options li[data-${name}`)
     if ($existingItem.length) {
@@ -228,7 +245,9 @@ export class BottomGear extends UICorePlugin {
   }
 
   /**
-   * Collapses any submenu open back to the gear menu
+   * Collapses any submenu open back to the gear menu.
+   * @remarks
+   * Should be called by the UI plugin that added a gear item with a submenu when the latter is closed (e.g., when a "back" button is clicked).
    */
   refresh() {
     this.$el.find('.gear-sub-menu-wrapper').hide()

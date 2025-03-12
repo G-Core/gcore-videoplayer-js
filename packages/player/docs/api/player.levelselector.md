@@ -75,7 +75,7 @@ Description
 
 </td><td>
 
-{ 'click .gear-sub-menu\_btn': string; 'click .gear-option': string; 'click .go-back': string; }
+{ 'click .gear-sub-menu\_btn': string; 'click .go-back': string; }
 
 
 </td><td>

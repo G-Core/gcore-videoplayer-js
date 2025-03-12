@@ -232,6 +232,20 @@ Description
 </td></tr>
 <tr><td>
 
+[handleCustomArea(handler)](./player.mediacontrol.handlecustomarea.md)
+
+
+</td><td>
+
+
+</td><td>
+
+**_(BETA)_**
+
+
+</td></tr>
+<tr><td>
+
 [putElement(name, element)](./player.mediacontrol.putelement.md)
 
 
@@ -274,7 +288,7 @@ Description
 </td></tr>
 <tr><td>
 
-[toggleElement(name, show)](./player.mediacontrol.toggleelement.md)
+[toggleElement(area, show)](./player.mediacontrol.toggleelement.md)
 
 
 </td><td>

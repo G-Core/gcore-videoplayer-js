@@ -20,8 +20,6 @@ export declare class ClapprNerdStats extends UICorePlugin
 
 Depends on:
 
-- [MediaControl](./player.mediacontrol.md)
-
 - [BottomGear](./player.bottomgear.md)
 
 - [ClapprStats](./player.clapprstats.md)

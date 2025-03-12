@@ -7,7 +7,7 @@
 > This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
 > 
 
-`PLUGIN` that adds a behavior of toggling the playback state on click over the container
+A small `PLUGIN` that toggles the playback state on click over the video container
 
 **Signature:**
 

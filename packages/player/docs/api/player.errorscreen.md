@@ -4,10 +4,7 @@
 
 ## ErrorScreen class
 
-> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
-> 
-
-`PLUGIN` that displays errors nicely in the overlay on top of the player.
+`PLUGIN` that displays fatal errors nicely in the overlay on top of the player.
 
 **Signature:**
 
@@ -15,4 +12,21 @@
 export declare class ErrorScreen extends UICorePlugin 
 ```
 **Extends:** UICorePlugin
+
+## Remarks
+
+A fatal error is an error that prevents the player from playing the content. It's usually a network error that persists after multiple retries.
+
+The error screen should not be confused with the content stub that is shown when no media sources are available. This can happen due to the lack of the support of the given sources type or because the sources are misconfigured (e.g., omitted).
+
+Configuration options - [ErrorScreenPluginSettings](./player.errorscreenpluginsettings.md)
+
+## Example
+
+
+```ts
+import { ErrorScreen, Player } from '@gcorevideo/player'
+
+Player.registerPlugin(ErrorScreen)
+```
 

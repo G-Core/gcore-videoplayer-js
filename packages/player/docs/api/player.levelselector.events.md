@@ -12,7 +12,6 @@
 ```typescript
 get events(): {
         'click .gear-sub-menu_btn': string;
-        'click .gear-option': string;
         'click .go-back': string;
     };
 ```
