@@ -47,11 +47,15 @@ export type MediaControlElement =
   | 'clipText'
   | 'dvr'
   | 'duration'
+  | 'fullscreen'
   | 'gear'
+  | 'multicamera'
   | 'pip'
   | 'playbackRate'
   | 'position'
   | 'seekBarContainer'
+  | 'vr'
+  | 'volume'
 
 type MediaControlSettings = {
   left: MediaControlElement[]
@@ -62,7 +66,16 @@ type MediaControlSettings = {
 
 const DEFAULT_SETTINGS: MediaControlSettings = {
   left: [],
-  right: [],
+  right: [
+    'fullscreen',
+    'pip',
+    'gear',
+    'cc',
+    'multicamera',
+    // 'playbackrate',
+    'vr',
+    'audiotracks',
+  ],
   default: [],
   seekEnabled: true,
 }
@@ -70,6 +83,7 @@ const DEFAULT_SETTINGS: MediaControlSettings = {
 /**
  * Custom events emitted by the plugins to communicate with one another
  * @beta
+ * @deprecated
  */
 export enum MediaControlEvents {
   /**
@@ -83,7 +97,6 @@ const T = 'plugins.media_control'
 const LEFT_ORDER = [
   'playpause',
   'playstop',
-  // 'live',
   'dvr',
   'volume',
   'position',
@@ -114,6 +127,9 @@ type DisabledClickable = {
  */
 export class MediaControl extends UICorePlugin {
   // private advertisementPlaying = false
+
+  private customAreaElements: Record<string, HTMLElement> = {}
+  private customAreaHandler?: (name: string, element: HTMLElement) => void
 
   private buttonsColor: string | null = null
 
@@ -155,8 +171,6 @@ export class MediaControl extends UICorePlugin {
 
   private verticalVolume = false
 
-  private $audioTracksSelector: ZeptoResult | null = null
-
   private $clipText: ZeptoResult | null = null
 
   private $clipTextContainer: ZeptoResult | null = null
@@ -166,8 +180,6 @@ export class MediaControl extends UICorePlugin {
   private $fullscreenToggle: ZeptoResult | null = null
 
   private $multiCameraSelector: ZeptoResult | null = null
-
-  private $pip: ZeptoResult | null = null
 
   private $playPauseToggle: ZeptoResult | null = null
 
@@ -740,9 +752,13 @@ export class MediaControl extends UICorePlugin {
       if (this.core.activeContainer && this.core.activeContainer.isReady) {
         this.core.activeContainer.setVolume(value)
       } else {
-        this.listenToOnce(this.core.activeContainer, Events.CONTAINER_READY, () => {
-          this.core.activeContainer.setVolume(value)
-        })
+        this.listenToOnce(
+          this.core.activeContainer,
+          Events.CONTAINER_READY,
+          () => {
+            this.core.activeContainer.setVolume(value)
+          },
+        )
       }
     }
 
@@ -815,10 +831,12 @@ export class MediaControl extends UICorePlugin {
     if (!this.$volumeBarContainer) {
       return
     }
+    if (this.hideVolumeId) {
+      clearTimeout(this.hideVolumeId)
+    }
     if (this.draggingVolumeBar) {
       this.hideVolumeId = setTimeout(() => this.hideVolumeBar(), timeout)
     } else {
-      this.hideVolumeId && clearTimeout(this.hideVolumeId)
       this.hideVolumeId = setTimeout(
         () => this.$volumeBarContainer?.addClass('volume-bar-hide'),
         timeout,
@@ -1025,16 +1043,7 @@ export class MediaControl extends UICorePlugin {
     }
 
     // actual order of the items appear rendered is controlled by CSS
-    newSettings.right = [
-      'fullscreen',
-      'pip',
-      'gear',
-      'cc',
-      'multicamera',
-      'playbackrate',
-      'vr',
-      'audiotracks',
-    ]
+    newSettings.right = DEFAULT_SETTINGS.right
 
     if (
       (!this.fullScreenOnVideoTagSupported &&
@@ -1140,22 +1149,31 @@ export class MediaControl extends UICorePlugin {
     }
   }
 
-  putElement(name: MediaControlElement, element: HTMLElement) {
+  putElement(name: MediaControlElement, element: ZeptoResult) {
     const panel = this.getElementLocation(name)
     trace(`${T} putElement`, { name, panel: !!panel })
     if (panel) {
       const current = panel.find(`[data-${name}]`)
-      element.setAttribute(`data-${name}`, '')
+      element.attr(`data-${name}`, '')
       // TODO test
       if (current.length) {
-        if (current[0] === element) {
+        if (current[0] === element[0]) {
           return
         }
         current.replaceWith(element)
       } else {
         panel.append(element)
       }
+      return
     }
+  }
+
+  handleCustomArea(handler: (name: string, content: HTMLElement) => void) {
+    this.customAreaHandler = handler
+    Object.entries(this.customAreaElements).forEach(([name, element]) => {
+      handler(name, element)
+    })
+    this.customAreaElements = {}
   }
 
   /**
@@ -1163,8 +1181,8 @@ export class MediaControl extends UICorePlugin {
    * @param name - The name of the media control element
    * @param show - Whether to show or hide the element
    */
-  toggleElement(name: MediaControlElement, show: boolean) {
-    this.$el.find(`[data-${name}]`).toggle(show)
+  toggleElement(area: MediaControlElement, show: boolean) {
+    this.$el.find(`[data-${area}]`).toggle(show)
   }
 
   private getRightPanel() {
@@ -1356,6 +1374,7 @@ export class MediaControl extends UICorePlugin {
    * @internal
    */
   override render() {
+    trace(`${T} render`)
     const timeout = this.options.hideMediaControlDelay || 2000
 
     const html = MediaControl.template({ settings: this.settings ?? {} })
@@ -1417,6 +1436,7 @@ export class MediaControl extends UICorePlugin {
 
     this.rendered = true
     this.updateVolumeUI()
+    // TODO setTimeout
     this.trigger(Events.MEDIACONTROL_RENDERED)
 
     return this
@@ -1505,6 +1525,12 @@ export class MediaControl extends UICorePlugin {
   }
 
   private getElementLocation(name: MediaControlElement) {
+    trace(`${T} getElementLocation`, {
+      name,
+      right: this.settings.right,
+      left: this.settings.left,
+      default: this.settings.default,
+    })
     if (this.settings.right?.includes(name)) {
       return this.getRightPanel()
     }

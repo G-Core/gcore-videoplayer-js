@@ -1,6 +1,7 @@
 import 'vitest'
 
 interface CustomMatchers<R = unknown> {
+  toMatchPlaybackRateOption: (expected: string) => R
   toMatchQualityLevelLabel: (expected: string) => R
   toMatchQualityLevelOption: (expected: string) => R
 }

@@ -50,7 +50,7 @@ describe('DvrControls', () => {
         expect(mediaControl.toggleElement).toHaveBeenCalledWith('position', false)
       })
       it('should render to the media control', () => {
-        expect(mediaControl.putElement).toHaveBeenCalledWith('dvr', dvrControls.el)
+        expect(mediaControl.putElement).toHaveBeenCalledWith('dvr', dvrControls.$el)
       })
     })
     describe('when back_to_live button is clicked', () => {

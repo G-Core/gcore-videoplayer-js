@@ -1,17 +1,16 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { $, UICorePlugin } from '@clappr/core'
-import FakeTimers from '@sinonjs/fake-timers'
-import { Logger, LogTracer, setTracer } from '@gcorevideo/utils'
+import { Events } from '@clappr/core'
 import { LevelSelector } from '../LevelSelector.js'
 import {
+  createMockBottomGear,
   createMockCore,
   createMockMediaControl,
-  createMockPlayback,
 } from '../../../testUtils.js'
-import { MediaControlEvents } from '../../media-control/MediaControl.js'
+import { GearEvents } from '../../bottom-gear/BottomGear.js'
+// import { Logger, LogTracer, setTracer } from '@gcorevideo/utils'
 
-setTracer(new LogTracer('LevelSelector.test'))
-Logger.enable('*')
+// setTracer(new LogTracer('LevelSelector.test'))
+// Logger.enable('*')
 
 const LEVELS = [
   {
@@ -33,28 +32,20 @@ const LEVELS = [
     bitrate: 250000,
   },
 ]
+
 describe('LevelSelector', () => {
-  let clock: FakeTimers.InstalledClock
   let core: any
   let levelSelector: LevelSelector
-  let activePlayback: any
-  let mediaControl: UICorePlugin
-  let bottomGear: UICorePlugin | null
-  beforeEach(() => {
-    clock = FakeTimers.install()
-  })
-  afterEach(() => {
-    clock.uninstall()
-  })
+  let mediaControl: any
+  let bottomGear: any
   describe('basically', () => {
     beforeEach(() => {
       core = createMockCore({
         levelSelector: {
           // restrictResolution: 360,
-          labels: { 360: '360p', 720: 'HD' },
+          labels: { 720: 'HD', 1080: 'Full HD' },
         },
       })
-      activePlayback = core.activePlayback
       core.getPlugin.mockImplementation((name: string) => {
         if (name === 'media_control') {
           return mediaControl
@@ -65,43 +56,45 @@ describe('LevelSelector', () => {
         return null
       })
       mediaControl = createMockMediaControl(core)
-      bottomGear = createBottomGear(core)
+      bottomGear = createMockBottomGear(core)
       levelSelector = new LevelSelector(core)
     })
     describe('initially', () => {
-      beforeEach(async () => {
-        core.emit('core:active:container:changed')
-        await clock.tickAsync(1)
-        activePlayback.emit('playback:levels:available', LEVELS)
-        await clock.tickAsync(1)
+      beforeEach(() => {
+        core.emit(Events.CORE_READY)
+        core.emit(Events.CORE_ACTIVE_CONTAINER_CHANGED)
+        bottomGear.trigger(GearEvents.RENDERED)
+        core.activePlayback.emit(Events.PLAYBACK_LEVELS_AVAILABLE, LEVELS)
       })
       it('should render proper level label', () => {
-        // @ts-ignore
-        expect(levelSelector.el.textContent).toMatchQualityLevelLabel('Auto')
+        expect(
+          bottomGear.$el.find('[data-quality]').text(),
+          // @ts-ignore
+        ).toMatchQualityLevelLabel('auto')
       })
     })
     describe.each([
-      ['auto', LEVELS, -1, 'Auto'],
+      ['auto', LEVELS, -1, 'auto'],
       ['standard label', LEVELS, 0, '360p'],
       ['custom label', LEVELS, 1, 'HD'],
     ])('%s', (_, levels, current, label) => {
-      beforeEach(async () => {
-        core.emit('core:active:container:changed')
-        await clock.tickAsync(1)
-        // activePlayback.currentLevel = current
-        activePlayback.emit('playback:levels:available', levels)
-        await clock.tickAsync(1)
-        levelSelector.$el.find('.gear-option').click()
-        await clock.tickAsync(1)
+      beforeEach(() => {
+        core.emit(Events.CORE_READY)
+        core.emit(Events.CORE_ACTIVE_CONTAINER_CHANGED)
+        bottomGear.trigger(GearEvents.RENDERED)
+        core.activePlayback.emit(Events.PLAYBACK_LEVELS_AVAILABLE, levels)
         levelSelector.$el
-          .find(`.gear-sub-menu_btn[data-id="${current}"]`)
+          .find(`#level-selector-menu [data-id="${current}"]`)
           .click()
-        await clock.tickAsync(1)
       })
-      it('should render the proper level labels', () => {
-        expect(levelSelector.el.innerHTML).toMatchSnapshot()
+      it('should render the proper level label', () => {
+        expect(
+          bottomGear.$el.find('[data-quality]').text(),
+          // @ts-ignore
+        ).toMatchQualityLevelLabel(label)
       })
       it('should render the selected level', () => {
+        expect(levelSelector.el.innerHTML).toMatchSnapshot()
         expect(
           levelSelector.$el.find('ul.gear-sub-menu .current')[0].textContent,
           // @ts-ignore
@@ -111,15 +104,14 @@ describe('LevelSelector', () => {
   })
   describe('options.restrictResolution', () => {
     beforeEach(() => {
-      let mediaControl: UICorePlugin | null = null
-      let bottomGear: UICorePlugin | null = null
       core = createMockCore({
         levelSelector: {
           restrictResolution: 360,
-          labels: { 360: '360p', 720: '720p' },
+          labels: { 360: '360p', 720: '720p', 1080: '1080p' },
         },
       })
-      activePlayback = core.activePlayback
+      mediaControl = createMockMediaControl(core)
+      bottomGear = createMockBottomGear(core)
       core.getPlugin.mockImplementation((name: string) => {
         if (name === 'media_control') {
           return mediaControl
@@ -130,30 +122,31 @@ describe('LevelSelector', () => {
         return null
       })
       mediaControl = createMockMediaControl(core)
-      bottomGear = createBottomGear(core)
+      bottomGear = createMockBottomGear(core)
       levelSelector = new LevelSelector(core)
+      core.emit(Events.CORE_READY)
+      core.emit(Events.CORE_ACTIVE_CONTAINER_CHANGED, core.activeContainer)
+      bottomGear.trigger(GearEvents.RENDERED)
     })
-    describe('basically', () => {
+    describe('initially', () => {
       beforeEach(async () => {
-        core.emit('core:active:container:changed')
-        await clock.tickAsync(1)
-        activePlayback.emit('playback:levels:available', LEVELS)
-        await clock.tickAsync(1)
+        core.activePlayback.emit(Events.PLAYBACK_LEVELS_AVAILABLE, LEVELS)
       })
       it('should render the restricted quality level label', () => {
+        expect(bottomGear.$el.find('[data-quality]').html()).toMatchSnapshot()
         expect(
-          levelSelector.el.textContent,
+          bottomGear.$el.find('[data-quality]').text(),
           // @ts-ignore
         ).toMatchQualityLevelLabel('360p')
-
-        expect(levelSelector.el.innerHTML).toMatchSnapshot()
+        expect(
+          levelSelector.$el.find('#level-selector-menu .current').text(),
+          // @ts-ignore
+        ).toMatchQualityLevelOption('360p')
       })
     })
     describe('given vertical video format levels', () => {
-      beforeEach(async () => {
-        core.emit('core:active:container:changed')
-        await clock.tickAsync(1)
-        activePlayback.emit('playback:levels:available', [
+      beforeEach(() => {
+        core.activePlayback.emit(Events.PLAYBACK_LEVELS_AVAILABLE, [
           {
             level: 0,
             width: 360,
@@ -168,22 +161,31 @@ describe('LevelSelector', () => {
           },
           {
             level: 2,
-            width: 1920,
-            height: 1080,
+            width: 1080,
+            height: 1920,
             bitrate: 250000,
           },
         ])
-        await clock.tickAsync(1)
-        levelSelector.$el.find('.gear-option').click()
-        await clock.tickAsync(1)
       })
       it('should recognize vertical orientation', () => {
         expect(levelSelector.el.innerHTML).toMatchSnapshot()
-        expect(levelSelector.el.innerHTML).toMatchSnapshot()
+        expect(
+          levelSelector.$el.find('#level-selector-menu [data-id]:eq(0)').text(),
+          // @ts-ignore
+        ).toMatchQualityLevelOption('1080p')
+        expect(
+          levelSelector.$el.find('#level-selector-menu [data-id]:eq(1)').text(),
+          // @ts-ignore
+        ).toMatchQualityLevelOption('720p')
+        expect(
+          levelSelector.$el.find('#level-selector-menu [data-id]:eq(2)').text(),
+          // @ts-ignore
+        ).toMatchQualityLevelOption('360p')
       })
       it('should properly apply the restriction', () => {
         expect(
-          levelSelector.$el.find('li:not(.level-disabled)')[0].textContent,
+          levelSelector.$el.find('#level-selector-menu li:not(.disabled)')[0]
+            .textContent,
           // @ts-ignore
         ).toMatchQualityLevelOption('360p')
       })
@@ -195,11 +197,11 @@ expect.extend({
   toMatchQualityLevelLabel(received, expected) {
     const { isNot } = this
     const rendered = received
-      .replace('/assets/icons/new/arrow-right.svg', '')
+      .replace(/\/assets\/.*\.svg/g, '')
       .replace(/\s+/g, ' ')
       .trim()
     return {
-      pass: rendered.includes(`Quality ${expected}`),
+      pass: rendered.includes(`quality ${expected}`),
       message: () =>
         `Quality label must${
           isNot ? ' not' : ''
@@ -209,7 +211,7 @@ expect.extend({
   toMatchQualityLevelOption(received, expected) {
     const { isNot } = this
     const rendered = received
-      .replace('/assets/icons/new/check.svg', '')
+      .replace(/\/assets\/.*\.svg/g, '')
       .replace(/\s+/g, ' ')
       .trim()
     return {
@@ -221,15 +223,3 @@ expect.extend({
     }
   },
 })
-
-function createBottomGear(core: any) {
-  const bottomGear = new UICorePlugin(core)
-  const elemets = {
-    quality: $(document.createElement('div')),
-  }
-  // @ts-ignore
-  bottomGear.getElement = vi.fn().mockImplementation((name) => elemets[name])
-  // @ts-ignore
-  bottomGear.setContent = vi.fn()
-  return bottomGear
-}

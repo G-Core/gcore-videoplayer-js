@@ -1,21 +1,25 @@
-<button class="gplayer-lite-btn go-back gcore-skin-text-color">
+<button class="gplayer-lite-btn go-back gcore-skin-text-color" id="level-selector-back-button">
     <span class="arrow-left-icon"><%= arrowLeftIcon %></span>
-    Quality
+    <%= i18n.t('quality') %>
 </button>
-<ul class="gear-sub-menu">
+<ul class="gear-sub-menu" id="level-selector-menu">
     <% if (!removeAuto) { %>
         <li>
             <a href="#" class='gear-sub-menu_btn gcore-skin-text-color' data-id="-1" id="level_selector_auto">
                 <span class="check-icon"><%= checkIcon %></span>
-            Auto
-        </a>
-    </li>
+                <%= i18n.t('auto') %>
+            </a>
+        </li>
     <% } %>
-    <% for (const level of levels.slice().reverse()) { %>
-        <li <% if (maxLevel >= 0 && level.level > maxLevel) { %>class="level-disabled"<% } %>>
-            <a href="#" class='gear-sub-menu_btn gcore-skin-text-color' data-id="<%= level.level %>" id="level_selector_<%= level.height %>">
+    <% for (const item of levels.slice().reverse()) { %>
+        <li class="<%= maxLevel >= 0 && item.level > maxLevel ? 'disabled ' : ''%><%=item.level === current ? 'current ' : ''%>">
+            <a href="#"
+                class="gear-sub-menu_btn gcore-skin-text-color<%= item.level === current ? ' gcore-skin-active' : '' %>"
+                data-id="<%= item.level %>"
+                id="level_selector_<%= item.width > item.height ? item.height : item.width %>"
+            >
                 <span class="check-icon"><%= checkIcon %></span>
-                <%= labels[level.level] %>
+                <%= labels[item.level] %>
             </a>
         </li>
     <% } %>

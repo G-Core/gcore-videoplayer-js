@@ -193,3 +193,17 @@ export function createMockMediaControl(core: any) {
   mediaControl.toggleElement = vi.fn()
   return mediaControl
 }
+
+export function createMockBottomGear(core: any) {
+  const plugin: any = new UICorePlugin(core)
+  plugin.getItem = vi.fn()
+  plugin.addItem = vi.fn().mockImplementation((name: string, $el: any) => {
+    const existing = plugin.$el.find(`[data-${name}]`)
+    if (existing.length) {
+      return existing
+    }
+    return $('<li></li>').attr(`data-${name}`, '').append($el).appendTo(plugin.$el)
+  })
+  plugin.refresh = vi.fn()
+  return plugin
+}

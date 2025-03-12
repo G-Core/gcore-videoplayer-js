@@ -1,11 +1,11 @@
-<button class="gplayer-lite-btn go-back gcore-skin-text-color">
+<button class="gplayer-lite-btn go-back gcore-skin-text-color" id="playback-rate-back-button">
     <span class="arrow-left-icon"><%= arrowLeftIcon %></span>
     <%= i18n.t('playback_rate') %>
 </button>
-<ul class="gear-sub-menu">
+<ul class="gear-sub-menu" id="playback-rate-menu">
     <% for (const item of playbackRates) { %>
-        <li>
-            <a href="#" class='gear-sub-menu_btn gcore-skin-text-color' data-rate="<%= item.value %>">
+        <li<%= item.value === current ? ' class="current"' : '' %>>
+            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color<%= item.value === current ? ' gcore-skin-active' : '' %>" data-rate="<%= item.value %>">
                 <span class="check-icon"><%= checkIcon %></span>
                 <%= item.label %>
             </a>

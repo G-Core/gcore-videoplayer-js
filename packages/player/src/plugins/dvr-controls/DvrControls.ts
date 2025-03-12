@@ -129,7 +129,7 @@ export class DvrControls extends UICorePlugin {
         i18n: this.core.i18n,
       }),
     )
-    mediaControl.putElement('dvr', this.el)
+    mediaControl.putElement('dvr', this.$el)
 
     return this
   }

@@ -6,6 +6,7 @@ import { CLAPPR_VERSION } from '../../build.js';
 import pipIcon from '../../../assets/icons/new/pip.svg';
 import buttonHtml from '../../../assets/picture-in-picture/button.ejs';
 import '../../../assets/picture-in-picture/button.scss';
+import assert from 'assert';
 
 const VERSION = '0.0.1';
 
@@ -68,7 +69,11 @@ export class PictureInPicture extends UICorePlugin {
    * @internal
    */
   override bindEvents() {
-    this.listenTo(this.core.mediaControl, Events.MEDIACONTROL_RENDERED, this.render);
+    this.listenToOnce(this.core, Events.CORE_READY, () => {
+      const mediaControl = this.core.getPlugin('media_control');
+      assert(mediaControl, 'media_control plugin is required');
+      this.listenTo(mediaControl, Events.MEDIACONTROL_RENDERED, this.render);
+    });
   }
 
   private isPiPSupported() {
@@ -92,7 +97,7 @@ export class PictureInPicture extends UICorePlugin {
 
     const mediaControl = this.core.getPlugin('media_control');
     if (mediaControl) {
-      mediaControl.putElement('pip', this.el);
+      mediaControl.putElement('pip', this.$el);
     }
 
     return this;

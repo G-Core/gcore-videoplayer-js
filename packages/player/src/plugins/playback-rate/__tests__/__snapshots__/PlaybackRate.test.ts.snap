@@ -1,11 +1,60 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`PlaybackRate > should render 1`] = `
-"<button class="gplayer-lite-btn gcore-skin-text-color gear-option" id="playback-rate-button">
-    <span class="gear-option_speed-icon">/assets/icons/new/speed.svg</span>
-    <span class="gear-option_label">playback_rate</span>
-    <span class="gear-option_arrow-right-icon">/assets/icons/new/arrow-right.svg</span>
-    <span class="gear-option_value">1x</span>
+"<button class="gplayer-lite-btn go-back gcore-skin-text-color" id="playback-rate-back-button">
+    <span class="arrow-left-icon">/assets/icons/new/arrow-left.svg</span>
+    playback_rate
 </button>
-"
+<ul class="gear-sub-menu" id="playback-rate-menu">
+    
+        <li>
+            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-rate="0.5">
+                <span class="check-icon">/assets/icons/new/check.svg</span>
+                0.5x
+            </a>
+        </li>
+    
+        <li>
+            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-rate="0.75">
+                <span class="check-icon">/assets/icons/new/check.svg</span>
+                0.75x
+            </a>
+        </li>
+    
+        <li class="current">
+            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color gcore-skin-active" data-rate="1">
+                <span class="check-icon">/assets/icons/new/check.svg</span>
+                1x
+            </a>
+        </li>
+    
+        <li>
+            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-rate="1.25">
+                <span class="check-icon">/assets/icons/new/check.svg</span>
+                1.25x
+            </a>
+        </li>
+    
+        <li>
+            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-rate="1.5">
+                <span class="check-icon">/assets/icons/new/check.svg</span>
+                1.5x
+            </a>
+        </li>
+    
+        <li>
+            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-rate="1.75">
+                <span class="check-icon">/assets/icons/new/check.svg</span>
+                1.75x
+            </a>
+        </li>
+    
+        <li>
+            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-rate="2">
+                <span class="check-icon">/assets/icons/new/check.svg</span>
+                2x
+            </a>
+        </li>
+    
+</ul>"
 `;

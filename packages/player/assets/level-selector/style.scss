@@ -1,4 +1,9 @@
-.level-disabled {
-    opacity: 0.5;
-    pointer-events: none;
+.gear-option_hd-icon {
+    &.disabled {
+        opacity: 0.5;
+        pointer-events: none;
+    }
+    &.hidden {
+        display: none;
+    }
 }

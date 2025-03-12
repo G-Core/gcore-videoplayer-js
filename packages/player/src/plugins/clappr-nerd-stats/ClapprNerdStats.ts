@@ -1,5 +1,5 @@
 import { UICorePlugin, Events, template, Core, Container } from '@clappr/core'
-import { reportError } from '@gcorevideo/utils'
+import { reportError, trace } from '@gcorevideo/utils'
 import Mousetrap from 'mousetrap'
 
 import { CLAPPR_VERSION } from '../../build.js'
@@ -24,8 +24,8 @@ import '../../../assets/clappr-nerd-stats/clappr-nerd-stats.scss'
 import pluginHtml from '../../../assets/clappr-nerd-stats/clappr-nerd-stats.ejs'
 import buttonHtml from '../../../assets/clappr-nerd-stats/button.ejs'
 import statsIcon from '../../../assets/icons/new/stats.svg'
-import { BottomGear } from '../bottom-gear/BottomGear.js'
-import { MediaControl, MediaControlEvents } from '../media-control/MediaControl.js'
+import { BottomGear, GearEvents } from '../bottom-gear/BottomGear.js'
+import { MediaControl } from '../media-control/MediaControl.js'
 import assert from 'assert'
 
 const qualityClasses = [
@@ -114,7 +114,7 @@ type Metrics = BaseMetrics & {
   }
 }
 
-// const T = 'plugins.clappr_nerd_stats';
+const T = 'plugins.clappr_nerd_stats'
 
 /**
  * `PLUGIN` that displays useful network-related statistics.
@@ -122,8 +122,6 @@ type Metrics = BaseMetrics & {
  *
  * @remarks
  * Depends on:
- *
- * - {@link MediaControl}
  *
  * - {@link BottomGear}
  *
@@ -150,6 +148,8 @@ export class ClapprNerdStats extends UICorePlugin {
   private shortcut: string[]
 
   private iconPosition: IconPosition
+
+  private static readonly buttonTemplate = template(buttonHtml)
 
   /**
    * @internal
@@ -224,17 +224,15 @@ export class ClapprNerdStats extends UICorePlugin {
    * @internal
    */
   override bindEvents() {
-    const mediaControl = this.core.getPlugin('media_control') as MediaControl
-    assert(mediaControl, 'media_control plugin is required')
-    this.listenToOnce(this.core, Events.CORE_READY, this.init)
-    this.listenTo(
-      mediaControl,
-      MediaControlEvents.MEDIACONTROL_GEAR_RENDERED,
-      this.addToBottomGear,
-    )
+    this.listenToOnce(this.core, Events.CORE_READY, this.onCoreReady)
   }
 
-  private init() {
+  private onCoreReady() {
+    const bottomGear = this.core.getPlugin('bottom_gear') as BottomGear
+    assert(bottomGear, 'bottom_gear plugin is required')
+
+    this.listenTo(bottomGear, GearEvents.RENDERED, this.addToBottomGear)
+
     this.container = this.core.activeContainer
     const clapprStats = this.container?.getPlugin('clappr_stats')
 
@@ -375,6 +373,7 @@ export class ClapprNerdStats extends UICorePlugin {
    * @internal
    */
   override render() {
+    trace(`${T} render`)
     // TODO append to the container
     this.core.$el.append(this.$el[0])
     this.hide()
@@ -383,17 +382,20 @@ export class ClapprNerdStats extends UICorePlugin {
   }
 
   private addToBottomGear() {
+    trace(`${T} addToBottomGear`)
     const gear = this.core.getPlugin('bottom_gear') as BottomGear
-    const $el = gear.getElement('nerd')
-    $el.html(buttonHtml)
-    const $button = $el.find('.nerd-button')
-
-    $button.find('.stats-icon').html(statsIcon)
-
-    $button.on('click', (e: MouseEvent) => {
-      e.stopPropagation()
-      this.toggle()
-    })
+    const $button = gear
+      .addItem('nerd')
+      .html(
+        ClapprNerdStats.buttonTemplate({
+          icon: statsIcon,
+          i18n: this.core.i18n,
+        }),
+      )
+      .on('click', (e: MouseEvent) => {
+        e.stopPropagation()
+        this.toggle()
+      })
   }
 
   private clearCustomMetrics() {

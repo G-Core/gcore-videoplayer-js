@@ -662,7 +662,6 @@ export default class DashPlayback extends BasePlayback {
   get audioTracks(): AudioTrack[] {
     assert.ok(this._dash, 'DASH.js MediaPlayer is not initialized')
     const tracks = this._dash.getTracksFor('audio')
-    trace(`${T} get audioTracks`, { tracks })
     return tracks.map(toClapprTrack)
   }
 

@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { MediaControl, MediaControlElement } from '../MediaControl'
 import { createMockCore } from '../../../testUtils'
 import { LogTracer, Logger, setTracer } from '@gcorevideo/utils'
-import { Events, Playback } from '@clappr/core'
+import { $, Events, Playback } from '@clappr/core'
 
 Logger.enable('*')
 setTracer(new LogTracer('MediaControl.test'))
@@ -60,7 +60,7 @@ describe('MediaControl', () => {
         const element = document.createElement('div')
         element.className = 'my-media-control'
         element.textContent = 'test'
-        mediaControl.putElement(mcName, element)
+        mediaControl.putElement(mcName, $(element))
 
         expect(mediaControl.el.innerHTML).toMatchSnapshot()
         expect(mediaControl.$el.find('.media-control-right-panel .my-media-control').length).toEqual(1)
@@ -90,7 +90,7 @@ describe('MediaControl', () => {
           const element = document.createElement('div')
           element.className = 'my-dvr-controls'
           element.textContent = 'live'
-          mediaControl.putElement('dvr', element)
+          mediaControl.putElement('dvr', $(element))
           expect(mediaControl.el.innerHTML).toMatchSnapshot()
           expect(mediaControl.$el.find('.media-control-left-panel .my-dvr-controls').length).toEqual(1)
         })
@@ -100,7 +100,7 @@ describe('MediaControl', () => {
           const element = document.createElement('div')
           element.className = 'my-dvr-controls'
           element.textContent = 'live'
-          mediaControl.putElement('dvr', element)
+          mediaControl.putElement('dvr', $(element))
           expect(mediaControl.el.innerHTML).toMatchSnapshot()
           expect(mediaControl.$el.find('.media-control-left-panel .my-dvr-controls').length).toEqual(0)
         })

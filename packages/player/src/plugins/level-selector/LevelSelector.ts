@@ -6,7 +6,7 @@ import { type QualityLevel } from '../../playback.types.js'
 import { CLAPPR_VERSION } from '../../build.js'
 import { ZeptoResult } from '../../types.js'
 import { TemplateFunction } from '../types.js'
-import { BottomGear } from '../bottom-gear/BottomGear.js'
+import { BottomGear, GearEvents } from '../bottom-gear/BottomGear.js'
 
 import buttonHtml from '../../../assets/level-selector/button.ejs'
 import listHtml from '../../../assets/level-selector/list.ejs'
@@ -15,7 +15,7 @@ import arrowRightIcon from '../../../assets/icons/new/arrow-right.svg'
 import arrowLeftIcon from '../../../assets/icons/new/arrow-left.svg'
 import checkIcon from '../../../assets/icons/new/check.svg'
 import '../../../assets/level-selector/style.scss'
-import { MediaControl, MediaControlEvents } from '../media-control/MediaControl.js'
+import { MediaControl } from '../media-control/MediaControl.js'
 
 const T = 'plugins.level_selector'
 const VERSION = '2.19.4'
@@ -73,7 +73,9 @@ export class LevelSelector extends UICorePlugin {
 
   private isHd = false
 
-  private isOpen = false
+  private currentText = ''
+
+  private selectedLevelId = -1
 
   private static readonly buttonTemplate: TemplateFunction =
     template(buttonHtml)
@@ -111,14 +113,9 @@ export class LevelSelector extends UICorePlugin {
     }
   }
 
-  private currentText = 'Auto'
-
-  private selectedLevelId = -1
-
   override get events() {
     return {
-      'click .gear-sub-menu_btn': 'onLevelSelect',
-      'click .gear-option': 'onShowLevelSelectMenu',
+      'click .gear-sub-menu_btn': 'onSelect',
       'click .go-back': 'goBack',
     }
   }
@@ -127,27 +124,29 @@ export class LevelSelector extends UICorePlugin {
    * @internal
    */
   override bindEvents() {
-    this.listenTo(this.core, Events.CORE_READY, this.onCoreReady);
+    this.listenToOnce(this.core, Events.CORE_READY, this.onCoreReady)
     this.listenTo(
       this.core,
       Events.CORE_ACTIVE_CONTAINER_CHANGED,
-      this.bindPlaybackEvents,
+      this.onActiveContainerChange,
     )
   }
 
   private onCoreReady() {
-    trace(`${T} onCoreReady`);
-    const mediaControl = this.core.getPlugin('media_control') as MediaControl
-    assert(mediaControl, 'media_control plugin is required')
-    this.listenTo(mediaControl, MediaControlEvents.MEDIACONTROL_GEAR_RENDERED, this.onGearRendered);
+    trace(`${T} onCoreReady`)
+    const gear = this.core.getPlugin('bottom_gear') as BottomGear
+    assert(gear, 'bottom_gear plugin is required')
+
+    this.currentText = this.core.i18n.t('auto')
+    this.listenTo(gear, GearEvents.RENDERED, this.onGearRendered)
   }
 
   private onGearRendered() {
-    trace(`${T} onGearRendered`);
-    this.deferRender();
+    trace(`${T} onGearRendered`)
+    this.render()
   }
 
-  private bindPlaybackEvents() {
+  private onActiveContainerChange() {
     this.removeAuto = false
     this.isHd = false
 
@@ -156,7 +155,7 @@ export class LevelSelector extends UICorePlugin {
     this.listenTo(
       activePlayback,
       Events.PLAYBACK_LEVELS_AVAILABLE,
-      this.fillLevels,
+      this.onLevelsAvailable,
     )
     this.listenTo(
       activePlayback,
@@ -168,31 +167,32 @@ export class LevelSelector extends UICorePlugin {
       Events.PLAYBACK_LEVEL_SWITCH_END,
       this.onLevelSwitchEnd,
     )
-    this.listenTo(
-      activePlayback,
-      Events.PLAYBACK_BITRATE,
-      this.updateCurrentLevel,
-    )
+    this.listenTo(activePlayback, Events.PLAYBACK_BITRATE, this.onBitrate)
     this.listenTo(activePlayback, Events.PLAYBACK_STOP, this.onStop)
     this.listenTo(
       activePlayback,
       Events.PLAYBACK_HIGHDEFINITIONUPDATE,
       (isHd: boolean) => {
         this.isHd = isHd
-        this.deferRender()
+        this.updateHd()
       },
     )
     if (activePlayback.levels?.length > 0) {
-      this.fillLevels(activePlayback.levels)
+      this.onLevelsAvailable(activePlayback.levels)
+    }
+  }
+
+  private updateHd() {
+    if (this.isHd) {
+      this.$el.find('.gear-option_hd-icon').removeClass('hidden')
+    } else {
+      this.$el.find('.gear-option_hd-icon').addClass('hidden')
     }
   }
 
   private onStop() {
     trace(`${T} onStop`)
     this.listenToOnce(this.core.activePlayback, Events.PLAYBACK_PLAY, () => {
-      trace(`${T} on PLAYBACK_PLAY after stop`, {
-        selectedLevelId: this.selectedLevelId,
-      })
       if (this.core.activePlayback.getPlaybackType() === 'live') {
         if (this.selectedLevelId !== -1) {
           this.core.activePlayback.currentLevel = this.selectedLevelId
@@ -222,56 +222,53 @@ export class LevelSelector extends UICorePlugin {
     if (!this.shouldRender()) {
       return this
     }
-
-    this.renderButton()
+    this.renderDropdown()
+    this.updateButton()
 
     return this
   }
 
-  private renderButton() {
-    if (!this.isOpen) {
-      const html = LevelSelector.buttonTemplate({
-        arrowRightIcon,
-        currentText: this.currentText,
-        isHd: this.isHd,
-        hdIcon,
-      })
-      this.$el.html(html)
-      const gear = this.core.getPlugin('bottom_gear') as BottomGear
-      if (!gear) {
-        trace(`${T} renderButton: bottom_gear plugin not found`)
-      }
-      gear?.getElement('quality')?.html(this.el)
-    }
+  private renderDropdown() {
+    this.$el.html(
+      LevelSelector.listTemplate({
+        arrowLeftIcon,
+        checkIcon,
+        current: this.selectedLevelId,
+        labels: this.levelLabels,
+        levels: this.levels,
+        maxLevel: this.maxLevel,
+        removeAuto: this.removeAuto,
+        i18n: this.core.i18n,
+      }),
+    )
   }
 
-  private renderDropdown() {
-    const html = LevelSelector.listTemplate({
-      arrowLeftIcon,
-      checkIcon,
-      labels: this.levelLabels,
-      levels: this.levels,
-      maxLevel: this.maxLevel,
-      removeAuto: this.removeAuto,
-    })
-    this.$el.html(html)
-    const gear = this.core.getPlugin('bottom_gear') as BottomGear
-    trace(`${T} renderDropdown: bottom_gear plugin not found`)
-    gear?.setContent(this.el)
+  private updateButton() {
+    ;(this.core.getPlugin('bottom_gear') as BottomGear)
+      ?.addItem('quality', this.$el)
+      .html(
+        LevelSelector.buttonTemplate({
+          arrowRightIcon,
+          currentText: this.currentText,
+          isHd: this.isHd,
+          hdIcon,
+          i18n: this.core.i18n,
+        }),
+      )
   }
 
   private get maxLevel() {
     const maxRes = this.core.options.levelSelector?.restrictResolution
     return maxRes
-      ? this.levels.findIndex(
+      ? this.levels.find(
           (level) =>
             (level.height > level.width ? level.width : level.height) ===
             maxRes,
-        )
+        )?.level ?? -1
       : -1
   }
 
-  private fillLevels(levels: QualityLevel[]) {
+  private onLevelsAvailable(levels: QualityLevel[]) {
     const maxResolution = this.core.options.levelSelector?.restrictResolution
     this.levels = levels
     this.makeLevelsLabels()
@@ -286,77 +283,54 @@ export class LevelSelector extends UICorePlugin {
         .pop()
       this.setLevel(initialLevel?.level ?? 0)
     }
-    this.deferRender()
+    this.render()
   }
 
   private makeLevelsLabels() {
     const labels = this.core.options.levelSelector?.labels ?? {}
     this.levelLabels = []
 
-    for (let i = 0; i < this.levels.length; i++) {
-      const level = this.levels[i]
+    for (const level of this.levels) {
       const ll = level.width > level.height ? level.height : level.width
       const label = labels[ll] || `${ll}p`
       this.levelLabels.push(label)
     }
   }
 
-  private onLevelSelect(event: MouseEvent) {
+  private onSelect(event: MouseEvent) {
     const selectedLevel = parseInt(
       (event.currentTarget as HTMLElement)?.dataset?.id ?? '-1',
       10,
     )
     this.setLevel(selectedLevel)
+
     event.stopPropagation()
+    event.preventDefault()
     return false
   }
 
   private goBack() {
     trace(`${T} goBack`)
-    this.isOpen = false
-    setTimeout(() => {
-      this.core.getPlugin('bottom_gear').refresh()
-    }, 0);
+    this.core.getPlugin('bottom_gear').refresh()
   }
 
   private setLevel(index: number) {
-    trace(`${T} setIndexLevel`, { index })
     this.selectedLevelId = index
-    if (!this.core.activePlayback) {
-      return
-    }
-    if (this.core.activePlayback.currentLevel === this.selectedLevelId) {
-      return
-    }
     this.core.activePlayback.currentLevel = this.selectedLevelId
-
-    try {
-      this.highlightCurrentLevel()
-    } catch (error) {
-      reportError(error)
-    }
-    this.deferRender()
-  }
-
-  private onShowLevelSelectMenu() {
-    trace(`${T} onShowLevelSelectMenu`)
-    this.isOpen = true
-    this.renderDropdown()
     this.highlightCurrentLevel()
   }
 
   private allLevelElements() {
-    return this.$('ul.gear-sub-menu li') as ZeptoResult
+    return this.$('#level-selector-menu li') as ZeptoResult
   }
 
   private levelElement(id = -1) {
     return (
-      this.$(`ul.gear-sub-menu a[data-id="${id}"]`) as ZeptoResult
+      this.$(`#level-selector-menu a[data-id="${id}"]`) as ZeptoResult
     ).parent()
   }
 
   private onLevelSwitchStart() {
-    this.core.activePlayback.trigger('playback:level:select:start')
     this.levelElement(this.selectedLevelId).addClass('changing')
   }
 
@@ -365,25 +339,22 @@ export class LevelSelector extends UICorePlugin {
   }
 
   private updateText(level: number) {
-    if (level === undefined || isNaN(level)) {
-      return
-    }
     this.currentText = this.getLevelLabel(level)
-    this.deferRender()
+    this.updateButton()
   }
 
   private getLevelLabel(id: number): string {
-    if (id === -1) {
-      return 'Auto'
+    if (id < 0) {
+      return this.core.i18n.t('auto')
     }
     const index = this.levels.findIndex((l) => l.level === id)
     if (index < 0) {
-      return 'Auto'
+      return this.core.i18n.t('auto')
     }
     return this.levelLabels[index] ?? formatLevelLabel(this.levels[index])
   }
 
-  private updateCurrentLevel(info: QualityLevel) {
+  private onBitrate(info: QualityLevel) {
     trace(`${T} updateCurrentLevel`, { info })
     this.highlightCurrentLevel()
   }
@@ -392,34 +363,23 @@ export class LevelSelector extends UICorePlugin {
     trace(`${T} highlightCurrentLevel`, {
       selectedLevelId: this.selectedLevelId,
     })
-    this.allLevelElements().removeClass('current')
-    this.allLevelElements().find('a').removeClass('gcore-skin-active')
+    this.allLevelElements()
+      .removeClass('current')
+      .find('a')
+      .removeClass('gcore-skin-active')
 
     const currentLevelElement = this.levelElement(this.selectedLevelId)
 
-    currentLevelElement.addClass('current')
-    currentLevelElement.find('a').addClass('gcore-skin-active')
+    currentLevelElement
+      .addClass('current')
+      .find('a')
+      .addClass('gcore-skin-active')
 
     this.updateText(this.selectedLevelId)
   }
-
-  private deferRender = debounce(() => this.render(), 0)
 }
 
 function formatLevelLabel(level: QualityLevel): string {
   const h = level.width > level.height ? level.height : level.width
   return `${h}p`
-}
-
-function debounce(fn: () => void, wait: number) {
-  let timerId: ReturnType<typeof setTimeout> | null = null
-  return function () {
-    if (timerId !== null) {
-      clearTimeout(timerId)
-    }
-    timerId = setTimeout(() => {
-      timerId = null
-      fn()
-    }, wait)
-  }
 }
