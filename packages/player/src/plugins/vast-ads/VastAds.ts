@@ -223,7 +223,7 @@ export class VastAds extends UICorePlugin {
           )
         } else {
           this.countRepeatableRoll = this.findCloserAdvertisement(
-            this.options.vastAds.repeatableroll,
+                this.options.vastAds.repeatableroll,
             'startTime',
             this.countRepeatableRoll,
             e,
@@ -519,8 +519,12 @@ export class VastAds extends UICorePlugin {
     this.stopListening(this.playback, Events.PLAYBACK_PAUSE)
   }
 
+  private get pluginOptions() {
+    return this.options.vastAds
+  }
+
   private _pauserollListeners() {
-    if (!this._validateData(this._options.VastAds.pauseroll)) {
+    if (!this._validateData(this.pluginOptions.pauseroll)) {
       return
     }
     this._stopPauserollListeners()
@@ -781,12 +785,12 @@ export class VastAds extends UICorePlugin {
 
     this.destroyRoll()
     if (currentRoll === 'preroll') {
-      this.options.vastAds[currentRoll] = []
+      this.pluginOptions[currentRoll] = []
     }
 
     this.currentState = ''
     this.$el.hide()
-    if (!this.options.disableClickOnPause) {
+    if (!this.options.disableClickOnPause) { // TODO sort out
       this._clickToPausePlugin?.enable()
     }
 

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { Events } from '@clappr/core'
-import { LevelSelector } from '../LevelSelector.js'
+import { QualityLevels } from '../QualityLevels.js'
 import {
   createMockBottomGear,
   createMockCore,
@@ -33,9 +33,9 @@ const LEVELS = [
   },
 ]
 
-describe('LevelSelector', () => {
+describe('QualityLevels', () => {
   let core: any
-  let levelSelector: LevelSelector
+  let levelSelector: QualityLevels
   let mediaControl: any
   let bottomGear: any
   describe('basically', () => {
@@ -57,7 +57,7 @@ describe('LevelSelector', () => {
       })
       mediaControl = createMockMediaControl(core)
       bottomGear = createMockBottomGear(core)
-      levelSelector = new LevelSelector(core)
+      levelSelector = new QualityLevels(core)
     })
     describe('initially', () => {
       beforeEach(() => {
@@ -123,13 +123,13 @@ describe('LevelSelector', () => {
       })
       mediaControl = createMockMediaControl(core)
       bottomGear = createMockBottomGear(core)
-      levelSelector = new LevelSelector(core)
+      levelSelector = new QualityLevels(core)
       core.emit(Events.CORE_READY)
       core.emit(Events.CORE_ACTIVE_CONTAINER_CHANGED, core.activeContainer)
       bottomGear.trigger(GearEvents.RENDERED)
     })
     describe('initially', () => {
-      beforeEach(async () => {
+      beforeEach(() => {
         core.activePlayback.emit(Events.PLAYBACK_LEVELS_AVAILABLE, LEVELS)
       })
       it('should render the restricted quality level label', () => {
@@ -142,6 +142,20 @@ describe('LevelSelector', () => {
           levelSelector.$el.find('#level-selector-menu .current').text(),
           // @ts-ignore
         ).toMatchQualityLevelOption('360p')
+      })
+      describe('when opened', () => {
+        beforeEach(() => {
+          bottomGear.$el.find('[data-quality]').click()
+        })
+        it('should render the restricted level items disabled', () => {
+          expect(levelSelector.el.innerHTML).toMatchSnapshot()
+          const allItems = levelSelector.$el.find('#level-selector-menu li')
+          expect(allItems.length).toBe(3)
+          const unrestrictedItems = allItems.filter(':not(.disabled)')
+          expect(unrestrictedItems.length).toBe(1)
+          // @ts-ignore
+          expect(unrestrictedItems.text()).toMatchQualityLevelOption('360p')
+        })
       })
     })
     describe('given vertical video format levels', () => {

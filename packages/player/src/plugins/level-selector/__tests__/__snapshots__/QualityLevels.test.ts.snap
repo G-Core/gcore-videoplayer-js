@@ -1,0 +1,197 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`QualityLevels > basically > auto > should render the selected level 1`] = `
+"<button class="gplayer-lite-btn go-back gcore-skin-text-color" id="level-selector-back-button">
+    <span class="arrow-left-icon">/assets/icons/new/arrow-left.svg</span>
+    quality
+</button>
+<ul class="gear-sub-menu quality-levels" id="level-selector-menu" role="menu">
+    
+        <li class="current">
+            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color gcore-skin-active" data-id="-1" id="level_selector_auto">
+                <span class="check-icon">/assets/icons/new/check.svg</span>
+                auto
+            </a>
+        </li>
+    
+    
+        <li class="">
+            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="2" data-disabled="false" data-checked="false" role="menuitemradio" id="level_selector_1080">
+                <span class="check-icon">/assets/icons/new/check.svg</span>
+                Full HD
+            </a>
+        </li>
+    
+        <li class="">
+            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="1" data-disabled="false" data-checked="false" role="menuitemradio" id="level_selector_720">
+                <span class="check-icon">/assets/icons/new/check.svg</span>
+                HD
+            </a>
+        </li>
+    
+        <li class="">
+            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="0" data-disabled="false" data-checked="false" role="menuitemradio" id="level_selector_360">
+                <span class="check-icon">/assets/icons/new/check.svg</span>
+                360p
+            </a>
+        </li>
+    
+</ul>
+"
+`;
+
+exports[`QualityLevels > basically > custom label > should render the selected level 1`] = `
+"<button class="gplayer-lite-btn go-back gcore-skin-text-color" id="level-selector-back-button">
+    <span class="arrow-left-icon">/assets/icons/new/arrow-left.svg</span>
+    quality
+</button>
+<ul class="gear-sub-menu quality-levels" id="level-selector-menu" role="menu">
+    
+        <li class="">
+            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="-1" id="level_selector_auto">
+                <span class="check-icon">/assets/icons/new/check.svg</span>
+                auto
+            </a>
+        </li>
+    
+    
+        <li class="">
+            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="2" data-disabled="false" data-checked="false" role="menuitemradio" id="level_selector_1080">
+                <span class="check-icon">/assets/icons/new/check.svg</span>
+                Full HD
+            </a>
+        </li>
+    
+        <li class="current">
+            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color gcore-skin-active" data-id="1" data-disabled="false" data-checked="false" role="menuitemradio" id="level_selector_720">
+                <span class="check-icon">/assets/icons/new/check.svg</span>
+                HD
+            </a>
+        </li>
+    
+        <li class="">
+            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="0" data-disabled="false" data-checked="false" role="menuitemradio" id="level_selector_360">
+                <span class="check-icon">/assets/icons/new/check.svg</span>
+                360p
+            </a>
+        </li>
+    
+</ul>
+"
+`;
+
+exports[`QualityLevels > basically > standard label > should render the selected level 1`] = `
+"<button class="gplayer-lite-btn go-back gcore-skin-text-color" id="level-selector-back-button">
+    <span class="arrow-left-icon">/assets/icons/new/arrow-left.svg</span>
+    quality
+</button>
+<ul class="gear-sub-menu quality-levels" id="level-selector-menu" role="menu">
+    
+        <li class="">
+            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="-1" id="level_selector_auto">
+                <span class="check-icon">/assets/icons/new/check.svg</span>
+                auto
+            </a>
+        </li>
+    
+    
+        <li class="">
+            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="2" data-disabled="false" data-checked="false" role="menuitemradio" id="level_selector_1080">
+                <span class="check-icon">/assets/icons/new/check.svg</span>
+                Full HD
+            </a>
+        </li>
+    
+        <li class="">
+            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="1" data-disabled="false" data-checked="false" role="menuitemradio" id="level_selector_720">
+                <span class="check-icon">/assets/icons/new/check.svg</span>
+                HD
+            </a>
+        </li>
+    
+        <li class="current">
+            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color gcore-skin-active" data-id="0" data-disabled="false" data-checked="false" role="menuitemradio" id="level_selector_360">
+                <span class="check-icon">/assets/icons/new/check.svg</span>
+                360p
+            </a>
+        </li>
+    
+</ul>
+"
+`;
+
+exports[`QualityLevels > options.restrictResolution > given vertical video format levels > should recognize vertical orientation 1`] = `
+"<button class="gplayer-lite-btn go-back gcore-skin-text-color" id="level-selector-back-button">
+    <span class="arrow-left-icon">/assets/icons/new/arrow-left.svg</span>
+    quality
+</button>
+<ul class="gear-sub-menu quality-levels" id="level-selector-menu" role="menu">
+    
+    
+        <li class=" disabled">
+            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="2" data-disabled="true" data-checked="false" role="menuitemradio" id="level_selector_1080">
+                <span class="check-icon">/assets/icons/new/check.svg</span>
+                1080p
+            </a>
+        </li>
+    
+        <li class=" disabled">
+            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="1" data-disabled="true" data-checked="false" role="menuitemradio" id="level_selector_720">
+                <span class="check-icon">/assets/icons/new/check.svg</span>
+                720p
+            </a>
+        </li>
+    
+        <li class=" current">
+            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color gcore-skin-active" data-id="0" data-disabled="false" data-checked="true" role="menuitemradio" id="level_selector_360">
+                <span class="check-icon">/assets/icons/new/check.svg</span>
+                360p
+            </a>
+        </li>
+    
+</ul>
+"
+`;
+
+exports[`QualityLevels > options.restrictResolution > initially > should render the restricted quality level label 1`] = `
+"<button class="gplayer-lite-btn gcore-skin-text-color gear-option" aria-haspopup="menu">
+    <span class="gear-option_hd-icon hidden">/assets/icons/new/hd.svg</span>
+    <span>quality</span>
+    <span class="gear-option_arrow-right-icon">/assets/icons/new/arrow-right.svg</span>
+    <span class="gear-option_value">360p</span>
+</button>
+"
+`;
+
+exports[`QualityLevels > options.restrictResolution > initially > when opened > should render the restricted level items disabled 1`] = `
+"<button class="gplayer-lite-btn go-back gcore-skin-text-color" id="level-selector-back-button">
+    <span class="arrow-left-icon">/assets/icons/new/arrow-left.svg</span>
+    quality
+</button>
+<ul class="gear-sub-menu quality-levels" id="level-selector-menu" role="menu">
+    
+    
+        <li class=" disabled">
+            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="2" data-disabled="true" data-checked="false" role="menuitemradio" id="level_selector_1080">
+                <span class="check-icon">/assets/icons/new/check.svg</span>
+                1080p
+            </a>
+        </li>
+    
+        <li class=" disabled">
+            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="1" data-disabled="true" data-checked="false" role="menuitemradio" id="level_selector_720">
+                <span class="check-icon">/assets/icons/new/check.svg</span>
+                720p
+            </a>
+        </li>
+    
+        <li class=" current">
+            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color gcore-skin-active" data-id="0" data-disabled="false" data-checked="true" role="menuitemradio" id="level_selector_360">
+                <span class="check-icon">/assets/icons/new/check.svg</span>
+                360p
+            </a>
+        </li>
+    
+</ul>
+"
+`;

@@ -2,7 +2,7 @@
     <span class="arrow-left-icon"><%= arrowLeftIcon %></span>
     <%= i18n.t('quality') %>
 </button>
-<ul class="gear-sub-menu" id="level-selector-menu">
+<ul class="gear-sub-menu quality-levels" id="level-selector-menu" role="menu">
     <% if (!removeAuto) { %>
         <li>
             <a href="#" class='gear-sub-menu_btn gcore-skin-text-color' data-id="-1" id="level_selector_auto">
@@ -11,11 +11,17 @@
             </a>
         </li>
     <% } %>
-    <% for (const item of levels.slice().reverse()) { %>
-        <li class="<%= maxLevel >= 0 && item.level > maxLevel ? 'disabled ' : ''%><%=item.level === current ? 'current ' : ''%>">
+    <% for (const item of levels.slice().reverse()) {
+        var disabled = maxLevel >= 0 && item.level > maxLevel
+        var checked = item.level === current
+    %>
+        <li class="<%= disabled ? ' disabled' : ''%><%=checked ? ' current' : ''%>">
             <a href="#"
-                class="gear-sub-menu_btn gcore-skin-text-color<%= item.level === current ? ' gcore-skin-active' : '' %>"
+                class="gear-sub-menu_btn gcore-skin-text-color<%= checked ? ' gcore-skin-active' : '' %>"
                 data-id="<%= item.level %>"
+                data-disabled="<%= disabled %>"
+                data-checked="<%= checked %>"
+                role="menuitemradio"
                 id="level_selector_<%= item.width > item.height ? item.height : item.width %>"
             >
                 <span class="check-icon"><%= checkIcon %></span>

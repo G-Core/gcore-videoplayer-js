@@ -1,6 +1,5 @@
 import { Events, UICorePlugin, template } from '@clappr/core'
 import { AudioTrack } from '@clappr/core/types/base/playback/playback.js'
-import { trace } from '@gcorevideo/utils'
 import assert from 'assert'
 
 import { CLAPPR_VERSION } from '../../build.js'
@@ -11,9 +10,9 @@ import audioArrow from '../../../assets/icons/old/quality-arrow.svg'
 import { ZeptoResult } from '../../types.js'
 import { MediaControl } from '../media-control/MediaControl.js'
 
-const VERSION: string = '0.0.1'
+const VERSION: string = '2.22.4'
 
-const T = 'plugins.audio_selector'
+// const T = 'plugins.audiotracks'
 
 /**
  * `PLUGIN` that makes possible to switch audio tracks via the media control UI.
@@ -25,7 +24,7 @@ const T = 'plugins.audio_selector'
  *
  * - {@link MediaControl}
  */
-export class AudioSelector extends UICorePlugin {
+export class AudioTracks extends UICorePlugin {
   private currentTrack: AudioTrack | null = null
 
   private tracks: AudioTrack[] = []
@@ -34,7 +33,7 @@ export class AudioSelector extends UICorePlugin {
    * @internal
    */
   get name() {
-    return 'audio_selector'
+    return 'audio_selector' // TODO rename to audiotracks
   }
 
   /**
@@ -59,7 +58,6 @@ export class AudioSelector extends UICorePlugin {
   override get attributes() {
     return {
       class: 'media-control-audiotracks',
-
     }
   }
 
@@ -69,7 +67,7 @@ export class AudioSelector extends UICorePlugin {
   override get events() {
     return {
       'click [data-audiotracks-select]': 'onTrackSelect',
-      'click [data-audiotracks-button]': 'onShowLevelSelectMenu',
+      'click #audiotracks-button': 'toggleContextMenu',
     }
   }
 
@@ -77,7 +75,7 @@ export class AudioSelector extends UICorePlugin {
    * @internal
    */
   override bindEvents() {
-    this.listenTo(this.core, Events.CORE_READY, this.onCoreReady)
+    this.listenToOnce(this.core, Events.CORE_READY, this.onCoreReady)
     this.listenTo(
       this.core,
       Events.CORE_ACTIVE_CONTAINER_CHANGED,
@@ -86,41 +84,30 @@ export class AudioSelector extends UICorePlugin {
   }
 
   private onCoreReady() {
-    trace(`${T} onCoreReady`)
     const mediaControl = this.core.getPlugin('media_control')
     assert(mediaControl, 'media_control plugin is required')
-    this.listenTo(mediaControl, Events.MEDIACONTROL_RENDERED, this.render)
-    this.listenTo(
-      mediaControl,
-      Events.MEDIACONTROL_HIDE,
-      this.hideSelectTrackMenu,
-    )
+    this.listenTo(mediaControl, Events.MEDIACONTROL_RENDERED, () => {
+      mediaControl.putElement('audiotracks', this.$el)
+    })
+    this.listenTo(mediaControl, Events.MEDIACONTROL_HIDE, this.hideMenu)
   }
 
-  private bindPlaybackEvents() {
-    trace(`${T} bindPlaybackEvents`)
+  private onActiveContainerChanged() {
     this.currentTrack = null
-    this.listenTo(this.core.activePlayback, Events.PLAYBACK_STOP, this.onStop)
-    this.setupAudioTrackListeners()
-  }
-
-  private setupAudioTrackListeners() {
     this.listenTo(
-      this.core.activePlayback,
-      Events.PLAYBACK_AUDIO_AVAILABLE,
+      this.core.activeContainer,
+      Events.CONTAINER_AUDIO_AVAILABLE,
       (tracks: AudioTrack[]) => {
-        trace(`${T} on PLAYBACK_AUDIO_AVAILABLE`, { audioTracks: tracks })
         this.currentTrack =
-          tracks.find((track) => track.kind === 'main') ?? null
-        this.fillTracks(tracks)
+          tracks.find((track) => track.kind === 'main') ?? null // TODO test
+        this.tracks = tracks
+        this.render()
       },
     )
-
     this.listenTo(
-      this.core.activePlayback,
-      Events.PLAYBACK_AUDIO_CHANGED,
+      this.core.activeContainer,
+      Events.CONTAINER_AUDIO_CHANGED,
       (track: AudioTrack) => {
-        trace(`${T} PLAYBACK_AUDIO_CHANGED`, { audioTrack: track })
         this.currentTrack = track
         this.highlightCurrentTrack()
         this.buttonElement().removeClass('changing')
@@ -129,24 +116,10 @@ export class AudioSelector extends UICorePlugin {
     )
   }
 
-  private onStop() {
-    trace(`${T} onStop`)
-  }
-
-  private onActiveContainerChanged() {
-    trace(`${T} onActiveContainerChanged`)
-    this.bindPlaybackEvents()
-  }
-
   private shouldRender() {
-    if (!this.core.activePlayback) {
-      return false
-    }
-
-    this.tracks = this.core.activePlayback.audioTracks
-
+    // Render is called from the parent class constructor so tracks aren't available
     // Only care if we have at least 2 to choose from
-    return this.tracks && this.tracks.length > 1
+    return this.tracks?.length > 1
   }
 
   /**
@@ -159,24 +132,16 @@ export class AudioSelector extends UICorePlugin {
 
     const mediaControl = this.core.getPlugin('media_control') as MediaControl
     this.$el.html(
-      AudioSelector.template({ tracks: this.tracks, title: this.getTitle() }),
+      AudioTracks.template({
+        tracks: this.tracks,
+        title: this.getTitle(),
+        icon: audioArrow,
+      }),
     )
-    this.$('.audio-arrow').append(audioArrow)
-    mediaControl.putElement('audiotracks', this.el)
-
     this.updateText()
     this.highlightCurrentTrack()
 
     return this
-  }
-
-  private fillTracks(tracks: AudioTrack[]) {
-    this.tracks = tracks
-    this.render()
-  }
-
-  private findTrackBy(id: string) {
-    return this.tracks.find((track) => track.id === id)
   }
 
   private onTrackSelect(event: MouseEvent) {
@@ -184,27 +149,23 @@ export class AudioSelector extends UICorePlugin {
     if (id) {
       this.selectAudioTrack(id)
     }
-    this.toggleContextMenu()
+    this.hideMenu()
     event.stopPropagation()
     return false
   }
 
   private selectAudioTrack(id: string) {
     this.startTrackSwitch()
-    this.core.activePlayback.switchAudioTrack(id)
+    this.core.activeContainer.switchAudioTrack(id)
     this.updateText()
   }
 
-  private onShowLevelSelectMenu() {
-    this.toggleContextMenu()
-  }
-
-  private hideSelectTrackMenu() {
-    ;(this.$('ul') as ZeptoResult).hide()
+  private hideMenu() {
+    this.$el.find('#audiotracks-select').addClass('hidden')
   }
 
   private toggleContextMenu() {
-    ;(this.$('ul') as ZeptoResult).toggle()
+    this.$el.find('#audiotracks-select').toggleClass('hidden')
   }
 
   private buttonElement(): ZeptoResult {
@@ -218,14 +179,17 @@ export class AudioSelector extends UICorePlugin {
   private trackElement(id?: string): ZeptoResult {
     return (
       this.$(
-        'ul a' +
-          (id !== undefined ? '[data-audiotracks-select="' + id + '"]' : ''),
+        '#audiotracks-select a' +
+          (id !== undefined ? `[data-audiotracks-select="${id}"]` : ''),
       ) as ZeptoResult
     ).parent()
   }
 
   private getTitle(): string {
-    return this.currentTrack?.label || ''
+    if (!this.currentTrack) {
+      return ''
+    }
+    return this.currentTrack.label || this.currentTrack.language
   }
 
   private startTrackSwitch() {

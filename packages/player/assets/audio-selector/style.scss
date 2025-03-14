@@ -44,17 +44,19 @@
     }
   }
 
-  &>ul {
+  .menu {
     max-width: 114px;
     list-style-type: none;
     position: absolute;
-    display: none;
     background-color: rgb(74 74 74 / 60%);
     border: none;
     min-width: 60px;
     border-radius: 4px;
     bottom: 40px;
     right: -2px;
+    &.hidden {
+      display: none;
+    }
   }
 
   li {

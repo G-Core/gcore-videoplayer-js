@@ -1,5 +1,5 @@
 import { Events, template, UICorePlugin } from '@clappr/core'
-import { reportError, trace } from '@gcorevideo/utils'
+import { trace } from '@gcorevideo/utils'
 import assert from 'assert'
 
 import { type QualityLevel } from '../../playback.types.js'
@@ -17,14 +17,14 @@ import checkIcon from '../../../assets/icons/new/check.svg'
 import '../../../assets/level-selector/style.scss'
 import { MediaControl } from '../media-control/MediaControl.js'
 
-const T = 'plugins.level_selector'
-const VERSION = '2.19.4'
+const T = 'plugins.quality_levels'
+const VERSION = 'v2.22.5'
 
 /**
- * Configuration options for the {@link LevelSelector | level selector} plugin.
+ * Configuration options for the {@link QualityLevels} plugin.
  * @beta
  */
-export interface LevelSelectorPluginSettings {
+export interface QualityLevelsPluginSettings {
   /**
    * The maximum resolution to allow in the level selector.
    */
@@ -52,19 +52,19 @@ export interface LevelSelectorPluginSettings {
  *
  * The plugin is rendered as an item in the gear menu, which, when clicked, shows a list of quality levels to choose from.
  *
- * Configuration options - {@link LevelSelectorPluginSettings}
+ * Configuration options - {@link QualityLevelsPluginSettings}
  *
  * @example
  * ```ts
  * new Player({
- *   levelSelector: {
+ *   qualityLevels: {
  *     restrictResolution: 360,
  *     labels: { 360: 'SD', 720: 'HD' },
  *   },
  * })
  * ```
  */
-export class LevelSelector extends UICorePlugin {
+export class QualityLevels extends UICorePlugin {
   private levels: QualityLevel[] = []
 
   private levelLabels: string[] = []
@@ -230,7 +230,7 @@ export class LevelSelector extends UICorePlugin {
 
   private renderDropdown() {
     this.$el.html(
-      LevelSelector.listTemplate({
+      QualityLevels.listTemplate({
         arrowLeftIcon,
         checkIcon,
         current: this.selectedLevelId,
@@ -247,7 +247,7 @@ export class LevelSelector extends UICorePlugin {
     ;(this.core.getPlugin('bottom_gear') as BottomGear)
       ?.addItem('quality', this.$el)
       .html(
-        LevelSelector.buttonTemplate({
+        QualityLevels.buttonTemplate({
           arrowRightIcon,
           currentText: this.currentText,
           isHd: this.isHd,
@@ -257,8 +257,14 @@ export class LevelSelector extends UICorePlugin {
       )
   }
 
+  private get pluginOptions(): QualityLevelsPluginSettings {
+    return (
+      this.core.options.qualityLevels || this.core.options.levelSelector || {}
+    )
+  }
+
   private get maxLevel() {
-    const maxRes = this.core.options.levelSelector?.restrictResolution
+    const maxRes = this.pluginOptions.restrictResolution
     return maxRes
       ? this.levels.find(
           (level) =>
@@ -269,7 +275,7 @@ export class LevelSelector extends UICorePlugin {
   }
 
   private onLevelsAvailable(levels: QualityLevel[]) {
-    const maxResolution = this.core.options.levelSelector?.restrictResolution
+    const maxResolution = this.pluginOptions.restrictResolution
     this.levels = levels
     this.makeLevelsLabels()
     if (maxResolution) {
@@ -287,7 +293,7 @@ export class LevelSelector extends UICorePlugin {
   }
 
   private makeLevelsLabels() {
-    const labels = this.core.options.levelSelector?.labels ?? {}
+    const labels = this.pluginOptions.labels ?? {}
     this.levelLabels = []
 
     for (const level of this.levels) {

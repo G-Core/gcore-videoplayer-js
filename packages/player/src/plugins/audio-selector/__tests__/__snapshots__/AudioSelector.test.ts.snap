@@ -1,0 +1,67 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`AudioSelector > when audio tracks are available > should render the menu hidden 1`] = `
+"<button data-audiotracks-button="" class="gcore-skin-button-color" id="audiotracks-button">
+    <span class="audio-text"></span> <span class="audio-arrow">/assets/icons/old/quality-arrow.svg</span>
+</button>
+<ul class="gcore-skin-bg-color menu hidden" id="audiotracks-select">
+    
+        <li class="">
+            <a href="#" class="gcore-skin-text-color" data-audiotracks-select="1">
+                English
+            </a>
+        </li>
+    
+        <li class="">
+            <a href="#" class="gcore-skin-text-color" data-audiotracks-select="2">
+                Spanish
+            </a>
+        </li>
+    
+</ul>
+"
+`;
+
+exports[`AudioSelector > when audio tracks are available > when the button is clicked > should show the menu 1`] = `
+"<button data-audiotracks-button="" class="gcore-skin-button-color" id="audiotracks-button">
+    <span class="audio-text"></span> <span class="audio-arrow">/assets/icons/old/quality-arrow.svg</span>
+</button>
+<ul class="gcore-skin-bg-color menu" id="audiotracks-select">
+    
+        <li class="">
+            <a href="#" class="gcore-skin-text-color" data-audiotracks-select="1">
+                English
+            </a>
+        </li>
+    
+        <li class="">
+            <a href="#" class="gcore-skin-text-color" data-audiotracks-select="2">
+                Spanish
+            </a>
+        </li>
+    
+</ul>
+"
+`;
+
+exports[`AudioSelector > when audio tracks are available > when the button is clicked > when an audio track is selected > should hide the menu 1`] = `
+"<button data-audiotracks-button="" class="gcore-skin-button-color changing" id="audiotracks-button">
+    <span class="audio-text"></span> <span class="audio-arrow">/assets/icons/old/quality-arrow.svg</span>
+</button>
+<ul class="gcore-skin-bg-color menu hidden" id="audiotracks-select">
+    
+        <li class="">
+            <a href="#" class="gcore-skin-text-color" data-audiotracks-select="1">
+                English
+            </a>
+        </li>
+    
+        <li class="">
+            <a href="#" class="gcore-skin-text-color" data-audiotracks-select="2">
+                Spanish
+            </a>
+        </li>
+    
+</ul>
+"
+`;

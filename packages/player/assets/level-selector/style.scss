@@ -1,9 +1,14 @@
 .gear-option_hd-icon {
+    &.hidden {
+        display: none;
+    }
+}
+.quality-levels li {
     &.disabled {
         opacity: 0.5;
         pointer-events: none;
     }
-    &.hidden {
-        display: none;
+    &.current {
+        background-color: #000;
     }
 }

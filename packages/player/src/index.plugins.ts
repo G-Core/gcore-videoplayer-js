@@ -1,6 +1,7 @@
 import '../assets/style/main.scss';
 
 export * from "./plugins/audio-selector/AudioSelector.js";
+export { AudioTracks as AudioSelector } from "./plugins/audio-selector/AudioSelector.js";
 export * from "./plugins/big-mute-button/BigMuteButton.js";
 export * from "./plugins/bottom-gear/BottomGear.js";
 export * from "./plugins/clappr-nerd-stats/ClapprNerdStats.js";
@@ -13,13 +14,14 @@ export * from "./plugins/error-screen/ErrorScreen.js";
 export * from "./plugins/favicon/Favicon.js";
 // _ ga-events
 export * from "./plugins/google-analytics/GoogleAnalytics.js";
-export * from "./plugins/level-selector/LevelSelector.js";
 export * from "./plugins/logo/Logo.js";
 export * from "./plugins/media-control/MediaControl.js";
 export * from "./plugins/multi-camera/MultiCamera.js";
 export * from "./plugins/picture-in-picture/PictureInPicture.js";
 export * from "./plugins/playback-rate/PlaybackRate.js";
 export * from "./plugins/poster/Poster.js";
+export * from "./plugins/level-selector/QualityLevels.js";
+export { QualityLevels as LevelSelector } from "./plugins/level-selector/QualityLevels.js";
 export * from "./plugins/seek-time/SeekTime.js";
 export * from "./plugins/share/Share.js";
 export * from "./plugins/skip-time/SkipTime.js";

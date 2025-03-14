@@ -152,6 +152,7 @@ export function createMockPlayback(name = 'mock') {
     canAutoPlay: vi.fn().mockImplementation(() => true),
     onResize: vi.fn().mockImplementation(() => true),
     setPlaybackRate: vi.fn(),
+    switchAudioTrack: vi.fn(),
     trigger: emitter.emit,
   })
 }
@@ -171,6 +172,7 @@ export function createMockContainer(playback: any = createMockPlayback()) {
     isPlaying: vi.fn().mockReturnValue(false),
     play: vi.fn(),
     seek: vi.fn(),
+    switchAudioTrack: vi.fn(),
     trigger: emitter.emit,
   })
 }
