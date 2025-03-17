@@ -21,6 +21,6 @@
   "devDependencies": {
     "husky": "^9.1.7",
     "license-checker": "^25.0.1",
-    "oxlint": "^0.15.13"
+    "oxlint": "^0.16.0"
   }
 }
