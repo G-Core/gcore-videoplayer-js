@@ -1,5 +1,64 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`MediaControl > putElement > audiotracks > should put the element in the right panel 1`] = `
+"<div class="media-control-background" data-background=""></div>
+
+<div class="media-control-layer gcore-skin-bg-color" data-controls="">
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+    
+    
+        <div class="media-control-left-panel" data-media-control="">
+            
+        <div class="drawer-container" data-volume="">
+            <div class="drawer-icon-container" data-volume="">
+                <div class="drawer-icon media-control-icon gcore-skin-button-color" data-volume="">/assets/icons/new/volume-max.svg</div>
+                <span class="drawer-text" data-volume=""></span>
+            </div>
+            
+    <div class="bar-container" data-volume="">
+        <div class="bar-background" data-volume="">
+            <div class="bar-fill-1 gcore-skin-main-color" data-volume="" style=""></div>
+        </div>
+        <div class="bar-scrubber" data-volume="" style="">
+            <div class="bar-scrubber-icon gcore-skin-main-color" data-volume=""></div>
+        </div>
+    </div>
+    
+        </div>
+    
+        <div class="media-clip-container gcore-skin-text-color" data-clipstext="">
+            <div class="media-clip-point gcore-skin-text-color" data-clipstext="">•</div>
+            <div class="media-clip-text gcore-skin-text-color" data-clipstext=""></div>
+        </div>
+    
+        </div>
+    
+    
+    
+        <div class="media-control-right-panel" data-media-control="">
+            
+        <button type="button" class="media-control-button media-control-icon gcore-skin-button-color" data-fullscreen="" aria-label="fullscreen">/assets/icons/new/fullscreen-off.svg</button>
+    
+        <div class="media-control-multicamera" data-multicamera=""></div>
+    
+        <div class="media-control-vr" data-vr=""></div>
+    
+        <div class="my-media-control" data-audiotracks="">test</div></div>
+    
+</div>
+<style>:root {}</style>"
+`;
+
 exports[`MediaControl > putElement > cc > should put the element in the right panel 1`] = `
 "<div class="media-control-background" data-background=""></div>
 
@@ -36,7 +95,6 @@ exports[`MediaControl > putElement > cc > should put the element in the right pa
     
         </div>
     
-
         <div class="media-clip-container gcore-skin-text-color" data-clipstext="">
             <div class="media-clip-point gcore-skin-text-color" data-clipstext="">•</div>
             <div class="media-clip-text gcore-skin-text-color" data-clipstext=""></div>
@@ -48,6 +106,8 @@ exports[`MediaControl > putElement > cc > should put the element in the right pa
     
         <div class="media-control-right-panel" data-media-control="">
             
+        <button type="button" class="media-control-button media-control-icon gcore-skin-button-color" data-fullscreen="" aria-label="fullscreen">/assets/icons/new/fullscreen-off.svg</button>
+    
         <div class="media-control-multicamera" data-multicamera=""></div>
     
         <div class="media-control-vr" data-vr=""></div>
@@ -94,7 +154,6 @@ exports[`MediaControl > putElement > gear > should put the element in the right 
     
         </div>
     
-
         <div class="media-clip-container gcore-skin-text-color" data-clipstext="">
             <div class="media-clip-point gcore-skin-text-color" data-clipstext="">•</div>
             <div class="media-clip-text gcore-skin-text-color" data-clipstext=""></div>
@@ -106,6 +165,8 @@ exports[`MediaControl > putElement > gear > should put the element in the right 
     
         <div class="media-control-right-panel" data-media-control="">
             
+        <button type="button" class="media-control-button media-control-icon gcore-skin-button-color" data-fullscreen="" aria-label="fullscreen">/assets/icons/new/fullscreen-off.svg</button>
+    
         <div class="media-control-multicamera" data-multicamera=""></div>
     
         <div class="media-control-vr" data-vr=""></div>
@@ -152,7 +213,6 @@ exports[`MediaControl > putElement > pip > should put the element in the right p
     
         </div>
     
-
         <div class="media-clip-container gcore-skin-text-color" data-clipstext="">
             <div class="media-clip-point gcore-skin-text-color" data-clipstext="">•</div>
             <div class="media-clip-text gcore-skin-text-color" data-clipstext=""></div>
@@ -164,6 +224,8 @@ exports[`MediaControl > putElement > pip > should put the element in the right p
     
         <div class="media-control-right-panel" data-media-control="">
             
+        <button type="button" class="media-control-button media-control-icon gcore-skin-button-color" data-fullscreen="" aria-label="fullscreen">/assets/icons/new/fullscreen-off.svg</button>
+    
         <div class="media-control-multicamera" data-multicamera=""></div>
     
         <div class="media-control-vr" data-vr=""></div>
@@ -216,7 +278,6 @@ exports[`MediaControl > updateSettings > dvr > when disabled > should disable DV
     
         <div class="media-control-indicator gcore-skin-text-color" data-duration="">00:00</div>
     
-
         <div class="media-clip-container gcore-skin-text-color" data-clipstext="">
             <div class="media-clip-point gcore-skin-text-color" data-clipstext="">•</div>
             <div class="media-clip-text gcore-skin-text-color" data-clipstext=""></div>
@@ -228,6 +289,8 @@ exports[`MediaControl > updateSettings > dvr > when disabled > should disable DV
     
         <div class="media-control-right-panel" data-media-control="">
             
+        <button type="button" class="media-control-button media-control-icon gcore-skin-button-color" data-fullscreen="" aria-label="fullscreen">/assets/icons/new/fullscreen-off.svg</button>
+    
         <div class="media-control-multicamera" data-multicamera=""></div>
     
         <div class="media-control-vr" data-vr=""></div>
@@ -280,7 +343,6 @@ exports[`MediaControl > updateSettings > dvr > when enabled > should enable DVR 
     
         <div class="media-control-indicator gcore-skin-text-color" data-duration="">00:00</div>
     
-
         <div class="media-clip-container gcore-skin-text-color" data-clipstext="">
             <div class="media-clip-point gcore-skin-text-color" data-clipstext="">•</div>
             <div class="media-clip-text gcore-skin-text-color" data-clipstext=""></div>
@@ -292,6 +354,88 @@ exports[`MediaControl > updateSettings > dvr > when enabled > should enable DVR 
     
         <div class="media-control-right-panel" data-media-control="">
             
+        <button type="button" class="media-control-button media-control-icon gcore-skin-button-color" data-fullscreen="" aria-label="fullscreen">/assets/icons/new/fullscreen-off.svg</button>
+    
+        <div class="media-control-multicamera" data-multicamera=""></div>
+    
+        <div class="media-control-vr" data-vr=""></div>
+    
+        </div>
+    
+</div>
+<style>:root {}</style>"
+`;
+
+exports[`MediaControl > when container settings update > vod > should render 1`] = `
+"<div class="media-control-background" data-background=""></div>
+
+<div class="media-control-layer gcore-skin-bg-color" data-controls="">
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+    
+    
+        <div class="media-control-left-panel" data-media-control="">
+            
+        <button type="button" class="media-control-button media-control-icon gcore-skin-button-color paused" data-playpause="" aria-label="playpause">/assets/icons/new/play.svg</button>
+    
+        <div class="drawer-container" data-volume="">
+            <div class="drawer-icon-container" data-volume="">
+                <div class="drawer-icon media-control-icon gcore-skin-button-color" data-volume="">/assets/icons/new/volume-max.svg</div>
+                <span class="drawer-text" data-volume=""></span>
+            </div>
+            
+    <div class="bar-container" data-volume="">
+        <div class="bar-background" data-volume="">
+            <div class="bar-fill-1 gcore-skin-main-color" data-volume="" style=""></div>
+        </div>
+        <div class="bar-scrubber" data-volume="" style="">
+            <div class="bar-scrubber-icon gcore-skin-main-color" data-volume=""></div>
+        </div>
+    </div>
+    
+        </div>
+    
+        <div class="media-control-indicator gcore-skin-text-color" data-position="">00:00</div>
+    
+        <div class="media-control-indicator gcore-skin-text-color" data-duration="">00:00</div>
+    
+        <div class="media-clip-container gcore-skin-text-color" data-clipstext="">
+            <div class="media-clip-point gcore-skin-text-color" data-clipstext="">•</div>
+            <div class="media-clip-text gcore-skin-text-color" data-clipstext=""></div>
+        </div>
+    
+        </div>
+    
+    
+        <div class="media-control-center-panel" data-media-control="">
+            
+        <div class="bar-container" data-seekbar="">
+            <div class="bar-background" data-seekbar="">
+                <div class="bar-fill-1" data-seekbar=""></div>
+                <div class="bar-fill-2 gcore-skin-main-color" data-seekbar="" style=""></div>
+                <div class="bar-hover" data-seekbar=""></div>
+            </div>
+        </div>
+        <div class="bar-scrubber" data-seekbar="" style="">
+            <div class="bar-scrubber-icon gcore-skin-main-color" data-seekbar=""></div>
+        </div>
+    
+        </div>
+    
+    
+        <div class="media-control-right-panel" data-media-control="">
+            
+        <button type="button" class="media-control-button media-control-icon gcore-skin-button-color" data-fullscreen="" aria-label="fullscreen">/assets/icons/new/fullscreen-off.svg</button>
+    
         <div class="media-control-multicamera" data-multicamera=""></div>
     
         <div class="media-control-vr" data-vr=""></div>

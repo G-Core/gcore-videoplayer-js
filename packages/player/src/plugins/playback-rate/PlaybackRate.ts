@@ -72,13 +72,11 @@ const T = 'plugins.playback_rate'
  *       { value: 1, label: '1x' },
  *     ],
  *     defaultValue: 1,
- *   } as PlaybackRateSettings,
+ *   },
  * })
  * ```
  */
 export class PlaybackRate extends UICorePlugin {
-  private playbackRates: PlaybackRateOption[] = DEFAULT_PLAYBACK_RATES
-
   // Saved when an ad starts to restore after it finishes
   // private prevSelectedRate: string | undefined
 
@@ -104,10 +102,13 @@ export class PlaybackRate extends UICorePlugin {
 
   constructor(core: Core) {
     super(core)
-    this.playbackRates =
-      core.options.playbackRate?.options || DEFAULT_PLAYBACK_RATES
-    this.selectedRate =
-      core.options.playbackRate?.defaultValue || DEFAULT_PLAYBACK_RATE
+    if (this.core.options.playbackRate?.defaultValue) {
+      this.setSelectedRate(this.core.options.playbackRate.defaultValue)
+    }
+  }
+
+  private get playbackRates() {
+    return this.core.options.playbackRate?.options || DEFAULT_PLAYBACK_RATES
   }
 
   /**
@@ -179,11 +180,16 @@ export class PlaybackRate extends UICorePlugin {
 
   private onGearRendered() {
     trace(`${T} onGearRendered`)
-    this.addGearItem()
+    this.mount()
   }
 
-  private addGearItem() {
-    trace(`${T} addGearItem`)
+  private mount() {
+    trace(`${T} mount`, {
+      shouldMount: this.shouldMount(),
+    })
+    if (!this.shouldMount()) {
+      return
+    }
     this.core
       .getPlugin('bottom_gear')
       ?.addItem('rate', this.$el)
@@ -229,7 +235,7 @@ export class PlaybackRate extends UICorePlugin {
     }
   }
 
-  private shouldRender() {
+  private shouldMount() {
     if (!this.core.activePlayback) {
       return false
     }
@@ -249,12 +255,8 @@ export class PlaybackRate extends UICorePlugin {
    */
   override render() {
     trace(`${T} render`, {
-      shouldRender: this.shouldRender(),
+      shouldMount: this.shouldMount(),
     })
-
-    if (!this.shouldRender()) {
-      return this
-    }
 
     this.$el.html(
       PlaybackRate.listTemplate({
@@ -266,7 +268,7 @@ export class PlaybackRate extends UICorePlugin {
       }),
     )
 
-    this.addGearItem()
+    this.mount()
 
     return this
   }
@@ -294,12 +296,23 @@ export class PlaybackRate extends UICorePlugin {
     ) {
       this.resetPlaybackRate()
     } else {
-      this.setSelectedRate(this.selectedRate)
+      this.syncRate()
     }
   }
 
+  private syncRate() {
+    trace(`${T} syncRate`, {
+      selectedRate: this.selectedRate,
+    })
+    this.core.activePlayback?.setPlaybackRate(this.selectedRate)
+  }
+
   private resetPlaybackRate() {
-    this.setSelectedRate(DEFAULT_PLAYBACK_RATE)
+    trace(`${T} resetPlaybackRate`, {
+      selectedRate: this.selectedRate,
+    })
+    this.core.activePlayback?.setPlaybackRate(DEFAULT_PLAYBACK_RATE)
+    this.selectedRate = DEFAULT_PLAYBACK_RATE
   }
 
   private onStop() {}
@@ -311,8 +324,6 @@ export class PlaybackRate extends UICorePlugin {
     )
     if (rate) {
       this.setSelectedRate(rate)
-      this.highlightCurrentRate()
-      this.updateGearOptionLabel()
     }
 
     return false
@@ -325,18 +336,27 @@ export class PlaybackRate extends UICorePlugin {
   }
 
   private setSelectedRate(rate: number) {
-    this.core.activePlayback?.setPlaybackRate(rate)
+    if (rate === this.selectedRate) {
+      return
+    }
     this.selectedRate = rate
+    this.syncRate()
+    this.highlightCurrentRate()
+    this.updateGearOptionLabel()
   }
 
   private getTitle() {
+    const rate = this.selectedRate
     return (
-      this.playbackRates.find((r) => r.value === this.selectedRate)?.label ||
-      `x${this.selectedRate}`
+      this.playbackRates.find((r: PlaybackRateOption) => r.value === rate)?.label ||
+      `x${rate}`
     )
   }
 
   private highlightCurrentRate() {
+    trace(`${T} highlightCurrentRate`, {
+      selectedRate: this.selectedRate,
+    })
     this.allRateElements().removeClass('current')
     this.allRateElements().find('a').removeClass('gcore-skin-active')
 
@@ -347,7 +367,9 @@ export class PlaybackRate extends UICorePlugin {
   }
 
   private updateGearOptionLabel() {
-    trace(`${T} updateGearOptionLabel`)
-    this.addGearItem()
+    trace(`${T} updateGearOptionLabel`, {
+      selectedRate: this.selectedRate,
+    })
+    this.mount()
   }
 }

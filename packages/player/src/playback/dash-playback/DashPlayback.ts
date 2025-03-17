@@ -604,11 +604,8 @@ export default class DashPlayback extends BasePlayback {
   }
 
   _updatePlaybackType() {
-    assert.ok(
-      this._dash,
-      'An instance of dashjs MediaPlayer is required to update the playback type',
-    )
     const prevPlaybackType = this._playbackType
+    // @ts-ignore
     this._playbackType = this._dash.isDynamic() ? Playback.LIVE : Playback.VOD
     if (prevPlaybackType !== this._playbackType) {
       this._updateSettings()

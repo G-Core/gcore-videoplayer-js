@@ -1,8 +1,17 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { MediaControl, MediaControlElement } from '../MediaControl'
+import {
+  MediaControl,
+  MediaControlElement,
+  MediaControlSettings,
+} from '../MediaControl'
 import { createMockCore } from '../../../testUtils'
 import { LogTracer, Logger, setTracer } from '@gcorevideo/utils'
 import { $, Events, Playback } from '@clappr/core'
+
+vi.mock('../../utils/fullscreen', () => ({
+  fullscreenEnabled: vi.fn().mockReturnValue(true),
+  isFullscreen: vi.fn().mockReturnValue(false),
+}))
 
 Logger.enable('*')
 setTracer(new LogTracer('MediaControl.test'))
@@ -14,16 +23,96 @@ describe('MediaControl', () => {
   beforeEach(() => {
     core = createMockCore()
   })
+  describe('initially', () => {
+    beforeEach(() => {
+      mediaControl = new MediaControl(core)
+      core.emit(Events.CORE_READY)
+    })
+    it('should not render', () => {
+      expect(mediaControl.el.innerHTML).toBe('')
+    })
+  })
+  describe('when container settings update', () => {
+    beforeEach(() => {
+      mediaControl = new MediaControl(core)
+      core.emit(Events.CORE_READY)
+      core.emit(Events.CORE_ACTIVE_CONTAINER_CHANGED, core.activeContainer)
+      core.activePlayback.emit(Events.PLAYBACK_LOADEDMETADATA)
+      core.activeContainer.emit(Events.CONTAINER_LOADEDMETADATA)
+    })
+    describe.each([
+      [
+        'vod',
+        {
+          left: ['playpause', 'position', 'duration'],
+          default: ['seekbar'],
+          right: ['fullscreen', 'volume', 'hd-indicator'],
+          seekEnabled: true,
+        } as MediaControlSettings,
+      ],
+    ])('%s', (_, settings: MediaControlSettings) => {
+      beforeEach(() => {
+        core.activeContainer.settings = settings
+        core.activePlayback.emit(Events.PLAYBACK_SETTINGSUPDATE)
+        core.activeContainer.emit(Events.CONTAINER_SETTINGSUPDATE)
+      })
+      it('should render', () => {
+        expect(mediaControl.el.innerHTML).toMatchSnapshot()
+      })
+      it.each(
+        settings.left
+      )("should render %s control", (element) => {
+        const el = mediaControl.$el.find(`.media-control-left-panel [data-${element}]`)
+        expect(el.length).toEqual(1)
+      })
+      it.each(
+        arraySubtract(['playpause', 'playstop', 'position', 'duration'], settings.left)
+      )("should not render %s control", (element) => {
+        const el = mediaControl.$el.find(`.media-control-left-panel [data-${element}]`)
+        expect(el.length).toEqual(0)
+      })
+      it(`should ${settings.seekEnabled ? '' : 'not '}render the seek bar`, () => {
+        const seekbar = mediaControl.$el.find('.media-control-center-panel [data-seekbar]')
+        expect(seekbar.length).toBeGreaterThan(1)
+        if (settings.seekEnabled) {
+          expect(seekbar.hasClass('seek-disabled')).toBe(false)
+        } else {
+          expect(seekbar.hasClass('seek-disabled')).toBe(true)
+        }
+      })
+      it(`should ${settings.right.includes('volume') ? '' : 'not '}render the volume control`, () => {
+        const volume = mediaControl.$el.find('.drawer-container[data-volume]')
+        if (settings.right.includes('volume')) {
+          expect(volume.length).toEqual(1)
+        } else {
+          expect(volume.length).toEqual(0)
+        }
+      })
+      it(`should ${settings.right.includes('fullscreen') ? '' : 'not '}render the fullscreen control`, () => {
+        const fullscreen = mediaControl.$el.find('.media-control-right-panel [data-fullscreen]')
+        if (settings.right.includes('fullscreen')) {
+          expect(fullscreen.length).toEqual(1)
+        } else {
+          expect(fullscreen.length).toEqual(0)
+        }
+      })
+    })
+  })
   describe('playback type', () => {
     beforeEach(() => {
       mediaControl = new MediaControl(core)
-      core.emit('core:ready')
+      core.emit(Events.CORE_READY)
       core.emit(Events.CORE_ACTIVE_CONTAINER_CHANGED, core.activeContainer)
     })
     describe('when live', () => {
       beforeEach(() => {
         core.activeContainer.getPlaybackType.mockReturnValue(Playback.LIVE)
+        core.activePlayback.getPlaybackType.mockReturnValue(Playback.LIVE)
+        core.getPlaybackType.mockReturnValue(Playback.LIVE)
         core.activeContainer.emit(Events.CONTAINER_LOADEDMETADATA)
+        core.activePlayback.emit(Events.PLAYBACK_LOADEDMETADATA)
+        // TODO playback.settings
+        core.activePlayback.emit(Events.PLAYBACK_SETTINGSUPDATE)
       })
       it('should apply live style class', () => {
         expect(mediaControl.$el.hasClass('live')).toBe(true)
@@ -32,6 +121,8 @@ describe('MediaControl', () => {
     describe('when vod', () => {
       beforeEach(() => {
         core.activeContainer.getPlaybackType.mockReturnValue(Playback.VOD)
+        core.activePlayback.getPlaybackType.mockReturnValue(Playback.VOD)
+        core.getPlaybackType.mockReturnValue(Playback.VOD)
         core.activeContainer.emit(Events.CONTAINER_LOADEDMETADATA)
       })
       it('should not apply live style class', () => {
@@ -53,7 +144,7 @@ describe('MediaControl', () => {
       // ['multicamera' as MediaControlElement],
       // ['playbackrate' as MediaControlElement],
       // ['vr' as MediaControlElement],
-      // ['audiotracks' as MediaControlElement],
+      ['audiotracks' as MediaControlElement],
       // dvr controls
     ])('%s', (mcName) => {
       it('should put the element in the right panel', () => {
@@ -63,14 +154,17 @@ describe('MediaControl', () => {
         mediaControl.putElement(mcName, $(element))
 
         expect(mediaControl.el.innerHTML).toMatchSnapshot()
-        expect(mediaControl.$el.find('.media-control-right-panel .my-media-control').length).toEqual(1)
+        expect(
+          mediaControl.$el.find('.media-control-right-panel .my-media-control')
+            .length,
+        ).toEqual(1)
       })
     })
   })
   describe('updateSettings', () => {
     beforeEach(() => {
       mediaControl = new MediaControl(core)
-      core.emit('core:ready')
+      core.emit(Events.CORE_READY)
     })
     describe('dvr', () => {
       beforeEach(() => {
@@ -92,7 +186,10 @@ describe('MediaControl', () => {
           element.textContent = 'live'
           mediaControl.putElement('dvr', $(element))
           expect(mediaControl.el.innerHTML).toMatchSnapshot()
-          expect(mediaControl.$el.find('.media-control-left-panel .my-dvr-controls').length).toEqual(1)
+          expect(
+            mediaControl.$el.find('.media-control-left-panel .my-dvr-controls')
+              .length,
+          ).toEqual(1)
         })
       })
       describe('when disabled', () => {
@@ -102,7 +199,10 @@ describe('MediaControl', () => {
           element.textContent = 'live'
           mediaControl.putElement('dvr', $(element))
           expect(mediaControl.el.innerHTML).toMatchSnapshot()
-          expect(mediaControl.$el.find('.media-control-left-panel .my-dvr-controls').length).toEqual(0)
+          expect(
+            mediaControl.$el.find('.media-control-left-panel .my-dvr-controls')
+              .length,
+          ).toEqual(0)
         })
       })
     })
@@ -122,7 +222,10 @@ describe('MediaControl', () => {
       beforeEach(() => {
         core.activeContainer.isDvrInUse.mockReturnValue(true)
         core.activePlayback.dvrInUse = true
-        core.activeContainer.emit(Events.CONTAINER_PLAYBACKDVRSTATECHANGED, true)
+        core.activeContainer.emit(
+          Events.CONTAINER_PLAYBACKDVRSTATECHANGED,
+          true,
+        )
       })
       it('should apply DVR style class', () => {
         expect(mediaControl.$el.hasClass('dvr')).toBe(true)
@@ -130,3 +233,10 @@ describe('MediaControl', () => {
     })
   })
 })
+
+function arraySubtract<T extends string>(arr1: T[], arr2: T[]) {
+  // const ret = arr1.filter((item) => !arr2.includes(item))
+  return arr1.filter((item) => !arr2.includes(item))
+  // console.log('arraySubtract %s - %s: %s', arr1, arr2, ret)
+  // return ret
+}

@@ -235,7 +235,6 @@ export class BottomGear extends UICorePlugin {
       .hide()
 
     // TODO make non-clickable when there are no items
-    mediaControl.putElement('gear', this.$el)
 
     setTimeout(() => {
       this.trigger(GearEvents.RENDERED)
@@ -276,6 +275,7 @@ export class BottomGear extends UICorePlugin {
 
   private onMediaControlRendered() {
     trace(`${T} onMediaControlRendered`)
-    this.render()
+    const mediaControl = this.core.getPlugin('media_control')
+    mediaControl.putElement('gear', this.$el)
   }
 }
