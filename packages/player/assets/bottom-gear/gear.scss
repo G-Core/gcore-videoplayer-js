@@ -16,11 +16,6 @@
       .gear-options-list {
         padding: 8px 0;
 
-        svg {
-          float: left;
-          margin-right: 10px;
-        }
-
         .gear-option {
           margin: 0;
           text-align: left;
@@ -28,19 +23,31 @@
           padding: 5px 14px;
           width: 250px;
           font-size: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: flex-start;
+          gap: 8px;
 
-          .gear-option_arrow-right-icon {
-            float: right;
-            margin-right: -14px;
+          &_icon {
+            flex: 24px 0 0;
+            height: 24px;
+            &.hidden {
+              visibility: hidden;
+              display: inline-block;
+            }
           }
 
-          .gear-option_value {
-            float: right;
-            margin-right: 8px;
+          &_label {
+            flex: 0 1 100%;
           }
 
-          svg {
-            height: 20px;
+          &_arrow-right-icon {
+            flex: 0 0 14px;
+            height: 24px;
+          }
+
+          &_value {
+            flex: 1 0 auto;
           }
         }
       }

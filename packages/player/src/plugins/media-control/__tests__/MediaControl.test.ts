@@ -32,21 +32,67 @@ describe('MediaControl', () => {
       expect(mediaControl.el.innerHTML).toBe('')
     })
   })
-  describe('when container settings update', () => {
+  describe('rendering timing', () => {
     beforeEach(() => {
       mediaControl = new MediaControl(core)
       core.emit(Events.CORE_READY)
       core.emit(Events.CORE_ACTIVE_CONTAINER_CHANGED, core.activeContainer)
-      core.activePlayback.emit(Events.PLAYBACK_LOADEDMETADATA)
-      core.activeContainer.emit(Events.CONTAINER_LOADEDMETADATA)
+      core.activeContainer.settings = {
+        left: ['playpause', 'position', 'duration', 'volume'],
+        default: ['seekbar'],
+        right: ['fullscreen', 'hd-indicator'],
+        seekEnabled: true,
+      } as MediaControlSettings
+      core.activePlayback.emit(Events.PLAYBACK_SETTINGSUPDATE)
+      core.activeContainer.emit(Events.CONTAINER_SETTINGSUPDATE)
+    })
+    describe('until metadata is loaded', () => {
+      it('should not render', () => {
+        expect(mediaControl.el.innerHTML).toBe('')
+      })
+    })
+    describe('once metadata is loaded', () => {
+      beforeEach(() => {
+        core.activePlayback.emit(Events.PLAYBACK_LOADEDMETADATA)
+        core.activeContainer.emit(Events.CONTAINER_LOADEDMETADATA)
+      })
+      it('should wait a delay before rendering anything', async () => {
+        expect(mediaControl.el.innerHTML).toBe('')
+        await new Promise((resolve) => setTimeout(resolve, 35))
+        expect(mediaControl.el.innerHTML).toMatchSnapshot()
+        expect(
+          mediaControl.$el.find('.media-control-left-panel [data-playpause]')
+            .length,
+        ).toBeGreaterThan(0)
+        expect(
+          mediaControl.$el.find('.media-control-left-panel [data-volume]')
+            .length,
+        ).toBeGreaterThan(0)
+        expect(
+          mediaControl.$el.find('.media-control-center-panel [data-seekbar]')
+            .length,
+        ).toBeGreaterThan(0)
+        expect(
+          mediaControl.$el.find('.media-control-right-panel [data-fullscreen]')
+            .length,
+        ).toBeGreaterThan(0)
+      })
+    })
+  })
+  describe('when container settings update', () => {
+    beforeEach(async () => {
+      mediaControl = new MediaControl(core)
+      core.emit(Events.CORE_READY)
+      core.emit(Events.CORE_ACTIVE_CONTAINER_CHANGED, core.activeContainer)
+      await runMetadataLoaded(core)
     })
     describe.each([
       [
         'vod',
         {
-          left: ['playpause', 'position', 'duration'],
+          left: ['playpause', 'position', 'duration', 'volume'],
           default: ['seekbar'],
-          right: ['fullscreen', 'volume', 'hd-indicator'],
+          right: ['fullscreen', 'hd-indicator'],
           seekEnabled: true,
         } as MediaControlSettings,
       ],
@@ -56,23 +102,29 @@ describe('MediaControl', () => {
         core.activePlayback.emit(Events.PLAYBACK_SETTINGSUPDATE)
         core.activeContainer.emit(Events.CONTAINER_SETTINGSUPDATE)
       })
-      it('should render', () => {
-        expect(mediaControl.el.innerHTML).toMatchSnapshot()
+      it.each(settings.left)('should render %s control', (element) => {
+        const el = mediaControl.$el.find(
+          `.media-control-left-panel [data-${element}]`,
+        )
+        expect(el.length).toBeGreaterThan(0)
       })
       it.each(
-        settings.left
-      )("should render %s control", (element) => {
-        const el = mediaControl.$el.find(`.media-control-left-panel [data-${element}]`)
-        expect(el.length).toEqual(1)
-      })
-      it.each(
-        arraySubtract(['playpause', 'playstop', 'position', 'duration'], settings.left)
-      )("should not render %s control", (element) => {
-        const el = mediaControl.$el.find(`.media-control-left-panel [data-${element}]`)
+        arraySubtract(
+          ['playpause', 'playstop', 'position', 'duration', 'volume'],
+          settings.left,
+        ),
+      )('should not render %s control', (element) => {
+        const el = mediaControl.$el.find(
+          `.media-control-left-panel [data-${element}]`,
+        )
         expect(el.length).toEqual(0)
       })
-      it(`should ${settings.seekEnabled ? '' : 'not '}render the seek bar`, () => {
-        const seekbar = mediaControl.$el.find('.media-control-center-panel [data-seekbar]')
+      it(`should ${
+        settings.seekEnabled ? '' : 'not '
+      }render the seek bar`, () => {
+        const seekbar = mediaControl.$el.find(
+          '.media-control-center-panel [data-seekbar]',
+        )
         expect(seekbar.length).toBeGreaterThan(1)
         if (settings.seekEnabled) {
           expect(seekbar.hasClass('seek-disabled')).toBe(false)
@@ -80,16 +132,22 @@ describe('MediaControl', () => {
           expect(seekbar.hasClass('seek-disabled')).toBe(true)
         }
       })
-      it(`should ${settings.right.includes('volume') ? '' : 'not '}render the volume control`, () => {
+      it(`should ${
+        settings.left.includes('volume') ? '' : 'not '
+      }render the volume control`, () => {
         const volume = mediaControl.$el.find('.drawer-container[data-volume]')
-        if (settings.right.includes('volume')) {
+        if (settings.left.includes('volume')) {
           expect(volume.length).toEqual(1)
         } else {
           expect(volume.length).toEqual(0)
         }
       })
-      it(`should ${settings.right.includes('fullscreen') ? '' : 'not '}render the fullscreen control`, () => {
-        const fullscreen = mediaControl.$el.find('.media-control-right-panel [data-fullscreen]')
+      it(`should ${
+        settings.right.includes('fullscreen') ? '' : 'not '
+      }render the fullscreen control`, () => {
+        const fullscreen = mediaControl.$el.find(
+          '.media-control-right-panel [data-fullscreen]',
+        )
         if (settings.right.includes('fullscreen')) {
           expect(fullscreen.length).toEqual(1)
         } else {
@@ -105,12 +163,13 @@ describe('MediaControl', () => {
       core.emit(Events.CORE_ACTIVE_CONTAINER_CHANGED, core.activeContainer)
     })
     describe('when live', () => {
-      beforeEach(() => {
+      beforeEach(async () => {
         core.activeContainer.getPlaybackType.mockReturnValue(Playback.LIVE)
         core.activePlayback.getPlaybackType.mockReturnValue(Playback.LIVE)
         core.getPlaybackType.mockReturnValue(Playback.LIVE)
-        core.activeContainer.emit(Events.CONTAINER_LOADEDMETADATA)
-        core.activePlayback.emit(Events.PLAYBACK_LOADEDMETADATA)
+        // This is not strictly necessary as the CSS class is applied on the root element and does not require rendering.
+        // However, it makes the scenario more realistic
+        await runMetadataLoaded(core)
         // TODO playback.settings
         core.activePlayback.emit(Events.PLAYBACK_SETTINGSUPDATE)
       })
@@ -119,11 +178,11 @@ describe('MediaControl', () => {
       })
     })
     describe('when vod', () => {
-      beforeEach(() => {
+      beforeEach(async () => {
         core.activeContainer.getPlaybackType.mockReturnValue(Playback.VOD)
         core.activePlayback.getPlaybackType.mockReturnValue(Playback.VOD)
         core.getPlaybackType.mockReturnValue(Playback.VOD)
-        core.activeContainer.emit(Events.CONTAINER_LOADEDMETADATA)
+        await runMetadataLoaded(core)
       })
       it('should not apply live style class', () => {
         expect(mediaControl.$el.hasClass('live')).toBe(false)
@@ -131,11 +190,13 @@ describe('MediaControl', () => {
     })
   })
   describe('putElement', () => {
-    beforeEach(() => {
+    beforeEach(async () => {
       mediaControl = new MediaControl(core)
-      core.emit('core:ready')
+      core.emit(Events.CORE_READY)
+      core.emit(Events.CORE_ACTIVE_CONTAINER_CHANGED, core.activeContainer)
       core.activeContainer.settings = {}
-      core.emit('core:active:container:changed', core.activeContainer)
+      core.emit(Events.CONTAINER_SETTINGSUPDATE)
+      await runMetadataLoaded(core)
     })
     describe.each([
       ['pip' as MediaControlElement],
@@ -167,12 +228,13 @@ describe('MediaControl', () => {
       core.emit(Events.CORE_READY)
     })
     describe('dvr', () => {
-      beforeEach(() => {
+      beforeEach(async () => {
         core.activeContainer.settings = {
           left: ['playpause', 'position', 'duration'],
           seekEnabled: true,
         }
         core.emit(Events.CORE_ACTIVE_CONTAINER_CHANGED, core.activeContainer)
+        await runMetadataLoaded(core)
       })
       describe('when enabled', () => {
         beforeEach(() => {
@@ -208,10 +270,11 @@ describe('MediaControl', () => {
     })
   })
   describe('dvr mode', () => {
-    beforeEach(() => {
+    beforeEach(async () => {
       mediaControl = new MediaControl(core)
       core.emit(Events.CORE_READY)
       core.emit(Events.CORE_ACTIVE_CONTAINER_CHANGED, core.activeContainer)
+      await runMetadataLoaded(core)
     })
     describe('by default', () => {
       it('should not apply DVR style class', () => {
@@ -235,8 +298,11 @@ describe('MediaControl', () => {
 })
 
 function arraySubtract<T extends string>(arr1: T[], arr2: T[]) {
-  // const ret = arr1.filter((item) => !arr2.includes(item))
   return arr1.filter((item) => !arr2.includes(item))
-  // console.log('arraySubtract %s - %s: %s', arr1, arr2, ret)
-  // return ret
+}
+
+function runMetadataLoaded(core: any) {
+  core.activePlayback.emit(Events.PLAYBACK_LOADEDMETADATA)
+  core.activeContainer.emit(Events.CONTAINER_LOADEDMETADATA)
+  return new Promise((resolve) => setTimeout(resolve, 25))
 }

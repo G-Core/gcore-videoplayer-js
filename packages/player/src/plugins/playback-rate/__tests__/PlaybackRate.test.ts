@@ -7,6 +7,7 @@ import {
 } from '../../../testUtils'
 import { Events } from '@clappr/core'
 import { GearEvents } from '../../bottom-gear/BottomGear'
+import { PlaybackType } from '../../../types'
 // import { Logger, LogTracer, setTracer } from '@gcorevideo/utils'
 
 // Logger.enable('*')
@@ -19,6 +20,7 @@ describe('PlaybackRate', () => {
   let playbackRate: PlaybackRate
   beforeEach(() => {
     core = createMockCore()
+    setupPlaybackType(core, 'vod')
     mediaControl = createMockMediaControl(core)
     bottomGear = createMockBottomGear(core)
     core.getPlugin.mockImplementation((name: string) => {
@@ -36,11 +38,9 @@ describe('PlaybackRate', () => {
       playbackRate = new PlaybackRate(core)
       core.emit(Events.CORE_READY)
       mediaControl.trigger(Events.MEDIACONTROL_RENDERED)
-      core.activePlayback.getPlaybackType.mockReturnValue('live')
-      core.activeContainer.getPlaybackType.mockReturnValue('live')
-      core.getPlaybackType.mockReturnValue('live')
-      core.emit(Events.CORE_ACTIVE_CONTAINER_CHANGED)
       bottomGear.trigger(GearEvents.RENDERED)
+      setupPlaybackType(core, 'live')
+      core.emit(Events.CORE_ACTIVE_CONTAINER_CHANGED)
     })
     it('should render', () => {
       expect(playbackRate.el.innerHTML).toMatchSnapshot()
@@ -66,7 +66,11 @@ describe('PlaybackRate', () => {
           core.activePlayback.emit(Events.PLAYBACK_LOADEDMETADATA)
           core.activeContainer.emit(Events.CONTAINER_LOADEDMETADATA)
         })
-        it('should attach to the media control', () => {
+        it('should not attach to the media control immediately', () => {
+          expect(bottomGear.addItem).not.toHaveBeenCalledWith('rate', expect.anything())
+        })
+        it('should attach to the media control after a short delay', async () => {
+          await new Promise((resolve) => setTimeout(resolve, 25))
           expect(bottomGear.addItem).toHaveBeenCalledWith('rate', playbackRate.$el)
           expect(
             bottomGear.$el.find('li[data-rate]').text(),
@@ -85,11 +89,12 @@ describe('PlaybackRate', () => {
       })
     });
     describe('on playback rate select', () => {
-      beforeEach(() => {
+      beforeEach(async () => {
         core.activePlayback.dvrEnabled = true
         core.activeContainer.isDvrEnabled.mockReturnValue(true)
         core.activePlayback.emit(Events.PLAYBACK_LOADEDMETADATA)
         core.activeContainer.emit(Events.CONTAINER_LOADEDMETADATA)
+        await new Promise((resolve) => setTimeout(resolve, 25))
       })
       describe.each([[2], [1.5], [1.25], [0.75], [0.5]])('%s', (rate) => {
         beforeEach(() => {
@@ -130,22 +135,21 @@ describe('PlaybackRate', () => {
     })
   })
   describe('options.defaultValue', () => {
-    beforeEach(() => {
+    beforeEach(async () => {
       core.options.playbackRate = {
         defaultValue: 1.5,
       }
       playbackRate = new PlaybackRate(core)
       core.emit(Events.CORE_READY)
       mediaControl.trigger(Events.MEDIACONTROL_RENDERED)
-      core.activePlayback.getPlaybackType.mockReturnValue('live')
-      core.activeContainer.getPlaybackType.mockReturnValue('live')
-      core.getPlaybackType.mockReturnValue('live')
+      setupPlaybackType(core, 'live')
       core.emit(Events.CORE_ACTIVE_CONTAINER_CHANGED)
       bottomGear.trigger(GearEvents.RENDERED)
       core.activePlayback.dvrEnabled = true
       core.activeContainer.isDvrEnabled.mockReturnValue(true)
       core.activePlayback.emit(Events.PLAYBACK_LOADEDMETADATA)
       core.activeContainer.emit(Events.CONTAINER_LOADEDMETADATA)
+      await new Promise((resolve) => setTimeout(resolve, 25))
     })
     it('should set the selected rate to the defaultValue', () => {
       expect(core.activePlayback.setPlaybackRate).toHaveBeenCalledWith(1.5)
@@ -180,3 +184,9 @@ expect.extend({
     }
   },
 })
+
+function setupPlaybackType(core: any, type: PlaybackType) {
+  core.activePlayback.getPlaybackType.mockReturnValue(type)
+  core.activeContainer.getPlaybackType.mockReturnValue(type)
+  core.getPlaybackType.mockReturnValue(type)
+}

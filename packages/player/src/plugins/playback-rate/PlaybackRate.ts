@@ -14,6 +14,7 @@ import checkIcon from '../../../assets/icons/new/check.svg'
 import { BottomGear, GearEvents } from '../bottom-gear/BottomGear.js'
 import { PlaybackEvents } from '../../playback/types.js'
 import { MediaControl } from '../media-control/MediaControl.js'
+import { TimerId } from '../../utils/types.js'
 
 /**
  * @beta
@@ -81,6 +82,10 @@ export class PlaybackRate extends UICorePlugin {
   // private prevSelectedRate: string | undefined
 
   private selectedRate = DEFAULT_PLAYBACK_RATE
+
+  private metadataLoaded = false
+
+  private mountTimerId: TimerId | null = null
 
   /**
    * @internal
@@ -159,6 +164,7 @@ export class PlaybackRate extends UICorePlugin {
 
   private onActiveContainerChange() {
     trace(`${T} onActiveContainerChange`)
+    this.metadataLoaded = false
     this.listenTo(this.core.activePlayback, Events.PLAYBACK_STOP, this.onStop)
     this.listenTo(this.core.activePlayback, Events.PLAYBACK_PLAY, this.onPlay)
     this.listenTo(
@@ -206,8 +212,15 @@ export class PlaybackRate extends UICorePlugin {
   }
 
   private onMetaDataLoaded() {
-    trace(`${T} onMetaDataLoaded`)
-    this.render()
+    trace(`${T} onMetaDataLoaded`, {
+      playbackType: this.core.activePlayback.getPlaybackType(),
+      dvrEnabled: this.core.activePlayback.dvrEnabled,
+    })
+    this.mountTimerId = setTimeout(() => {
+      this.metadataLoaded = true
+      this.mountTimerId = null
+      this.mount()
+    }, 25)
   }
 
   private allRateElements(): ZeptoResult {
@@ -236,7 +249,12 @@ export class PlaybackRate extends UICorePlugin {
   }
 
   private shouldMount() {
-    if (!this.core.activePlayback) {
+    trace(`${T} shouldMount`, {
+      playbackType: this.core.activePlayback?.getPlaybackType(),
+      dvrEnabled: this.core.activePlayback?.dvrEnabled,
+    })
+
+    if (!this.core.activePlayback || !this.metadataLoaded) {
       return false
     }
 
@@ -268,9 +286,18 @@ export class PlaybackRate extends UICorePlugin {
       }),
     )
 
-    this.mount()
-
     return this
+  }
+
+  /**
+   * @internal
+   */
+  override destroy() {
+    if (this.mountTimerId) {
+      clearTimeout(this.mountTimerId)
+      this.mountTimerId = null
+    }
+    return super.destroy()
   }
 
   // private onStartAd() {
@@ -348,8 +375,8 @@ export class PlaybackRate extends UICorePlugin {
   private getTitle() {
     const rate = this.selectedRate
     return (
-      this.playbackRates.find((r: PlaybackRateOption) => r.value === rate)?.label ||
-      `x${rate}`
+      this.playbackRates.find((r: PlaybackRateOption) => r.value === rate)
+        ?.label || `x${rate}`
     )
   }
 

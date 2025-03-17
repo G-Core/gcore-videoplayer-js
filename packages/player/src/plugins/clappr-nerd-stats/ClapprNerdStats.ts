@@ -25,7 +25,6 @@ import pluginHtml from '../../../assets/clappr-nerd-stats/clappr-nerd-stats.ejs'
 import buttonHtml from '../../../assets/clappr-nerd-stats/button.ejs'
 import statsIcon from '../../../assets/icons/new/stats.svg'
 import { BottomGear, GearEvents } from '../bottom-gear/BottomGear.js'
-import { MediaControl } from '../media-control/MediaControl.js'
 import assert from 'assert'
 
 const qualityClasses = [

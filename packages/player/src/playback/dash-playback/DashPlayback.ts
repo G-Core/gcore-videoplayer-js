@@ -531,6 +531,11 @@ export default class DashPlayback extends BasePlayback {
       trace(`${T} dvrEnable no dash player instance`)
       return false
     }
+    trace(`${T} get.dvrEnabled`, {
+      dvrWindowSize: this._dash?.getDVRWindowSize(),
+      minDvrSize: this._minDvrSize,
+      playbackType: this.getPlaybackType(),
+    })
     return (
       this._dash?.getDVRWindowSize() >= this._minDvrSize &&
       this.getPlaybackType() === Playback.LIVE

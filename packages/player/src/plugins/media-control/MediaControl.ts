@@ -50,8 +50,6 @@ export type MediaControlLeftElement =
   | 'playstop'
   | 'position'
   | 'volume'
-  // | 'seekbar'
-  // | 'seekBarContainer' // TODO rename seekbar
 
 /**
  * Media control elements that appear in main layer, spanning the entire width of the player.
@@ -197,9 +195,13 @@ export class MediaControl extends UICorePlugin {
   private lastMouseX = 0
   private lastMouseY = 0
 
-  private needsUpdate = false
+  private metadataLoaded = false
+
+  private hasUpdate = false
 
   private persistConfig: boolean
+
+  private renderTimerId: ReturnType<typeof setTimeout> | null = null
 
   private rendered = false
 
@@ -492,11 +494,17 @@ export class MediaControl extends UICorePlugin {
       Events.CONTAINER_OPTIONS_CHANGE,
       this.setInitialVolume,
     )
-    // wait until the metadata has loaded and then check if fullscreen on video tag is supported
-    this.listenToOnce(
+    this.listenTo(
       this.core.activeContainer,
       Events.CONTAINER_LOADEDMETADATA,
       this.onLoadedMetadata,
+    )
+    this.listenTo(
+      this.core,
+      Events.CONTAINER_DESTROYED,
+      () => {
+        this.cancelRenderTimer()
+      },
     )
   }
 
@@ -547,12 +555,16 @@ export class MediaControl extends UICorePlugin {
       // TODO sort out, use single utility function
       this.fullScreenOnVideoTagSupported = true
     }
-    this.updateSettings()
-    if (this.core.activeContainer.getPlaybackType() === Playback.LIVE) {
-      this.$el.addClass('live')
-    } else {
-      this.$el.removeClass('live')
-    }
+    this.renderTimerId = setTimeout(() => {
+      this.renderTimerId = null
+      this.metadataLoaded = true
+      this.render()
+      if (this.core.activeContainer.getPlaybackType() === Playback.LIVE) {
+        this.$el.addClass('live')
+      } else {
+        this.$el.removeClass('live')
+      }
+    }, 25)
   }
 
   private updateVolumeUI() {
@@ -822,6 +834,7 @@ export class MediaControl extends UICorePlugin {
 
   private onActiveContainerChanged() {
     this.fullScreenOnVideoTagSupported = false
+    this.metadataLoaded = false
     // set the new container to match the volume of the last one
     this.setInitialVolume()
     this.changeTogglePlay()
@@ -1113,7 +1126,7 @@ export class MediaControl extends UICorePlugin {
 
     if (settingsChanged) {
       this.settings = newSettings
-      this.needsUpdate = true
+      this.hasUpdate = true
       this.render()
     }
   }
@@ -1390,12 +1403,20 @@ export class MediaControl extends UICorePlugin {
    * @internal
    */
   override destroy() {
+    this.cancelRenderTimer()
     $(document).unbind('mouseup', this.stopDrag)
     $(document).unbind('mousemove', this.updateDrag)
     $(document).unbind('touchend', this.stopDrag)
     $(document).unbind('touchmove', this.updateDrag)
     this.unbindKeyEvents()
     return super.destroy()
+  }
+
+  private cancelRenderTimer() {
+    if (this.renderTimerId) {
+      clearTimeout(this.renderTimerId)
+      this.renderTimerId = null
+    }
   }
 
   private configure() {
@@ -1406,8 +1427,8 @@ export class MediaControl extends UICorePlugin {
    * @internal
    */
   override render() {
-    trace(`${T} render`, { needsUpdate: this.needsUpdate })
-    if (!this.needsUpdate) {
+    trace(`${T} render`, { needsUpdate: this.hasUpdate, metadataLoaded: this.metadataLoaded })
+    if (!this.hasUpdate || !this.metadataLoaded) {
       return this
     }
     const timeout = this.options.hideMediaControlDelay || 2000
@@ -1471,7 +1492,7 @@ export class MediaControl extends UICorePlugin {
     this.rendered = true
     this.updateVolumeUI()
     
-    this.needsUpdate = false
+    this.hasUpdate = false
     // TODO setTimeout?
     this.trigger(Events.MEDIACONTROL_RENDERED)
 

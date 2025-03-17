@@ -155,10 +155,10 @@ exports[`QualityLevels > options.restrictResolution > given vertical video forma
 
 exports[`QualityLevels > options.restrictResolution > initially > should render the restricted quality level label 1`] = `
 "<button class="gplayer-lite-btn gcore-skin-text-color gear-option" aria-haspopup="menu">
-    <span class="gear-option_hd-icon hidden">/assets/icons/new/hd.svg</span>
-    <span>quality</span>
-    <span class="gear-option_arrow-right-icon">/assets/icons/new/arrow-right.svg</span>
+    <span class="gear-option_icon hidden">/assets/icons/new/hd.svg</span>
+    <span class="gear-option_label">quality</span>
     <span class="gear-option_value">360p</span>
+    <span class="gear-option_arrow-right-icon">/assets/icons/new/arrow-right.svg</span>
 </button>
 "
 `;
