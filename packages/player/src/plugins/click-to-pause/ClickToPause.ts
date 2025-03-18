@@ -10,7 +10,7 @@ import { CLAPPR_VERSION } from '../../build.js'
 
 type Timer = ReturnType<typeof setTimeout>
 
-const T = 'plugins.click_to_pause_custom'
+const T = 'plugins.click_to_pause'
 
 /**
  * A small `PLUGIN` that toggles the playback state on click over the video container

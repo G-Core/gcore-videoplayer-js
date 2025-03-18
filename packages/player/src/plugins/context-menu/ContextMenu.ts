@@ -1,20 +1,34 @@
-import {
-  Events,
-  template,
-  $,
-  Container,
-  UIContainerPlugin,
-} from '@clappr/core'
+import { Events, template, $, Container, UIContainerPlugin } from '@clappr/core'
 
 import { CLAPPR_VERSION } from '../../build.js'
 
 import '../../../assets/context-menu/context_menu.scss'
 import templateHtml from '../../../assets/context-menu/context_menu.ejs'
-import { version } from '../../version.js'
 
-type MenuOption = {
-  label: string
+/**
+ * @beta
+ */
+export type MenuOption = {
+  /**
+   * Menu item label text. One of `label` or `labelKey` must be specified.
+   */
+  label?: string
+  /**
+   * Menu item label localisation key, if specified, the `label` will be ignored
+   */
+  labelKey?: string
+  /**
+   * Menu item name. Must be unique.
+   */
   name: string
+  /**
+   * Menu item handler function
+   */
+  handler?: () => void
+  /**
+   * Menu item icon, plain HTML string
+   */
+  icon?: string
 }
 
 /**
@@ -22,23 +36,21 @@ type MenuOption = {
  * @beta
  */
 export interface ContextMenuPluginSettings {
-  label?: string
-  url?: string
-  preventShowContextMenu?: boolean
+  options?: MenuOption[]
 }
+
+const T = 'plugins.context_menu'
 
 /**
  * `PLUGIN` that displays a small context menu when clicked on the player container.
  * @beta
  * @remarks
  * Configuration options - {@link ContextMenuPluginSettings}
+ *
+ * Should not be used together with {@link ClickToPause} plugin
  */
 export class ContextMenu extends UIContainerPlugin {
-  private _label: string = ''
-
-  private _url: string = ''
-
-  private menuOptions: MenuOption[] = []
+  private open = false
 
   /**
    * @internal
@@ -63,38 +75,17 @@ export class ContextMenu extends UIContainerPlugin {
 
   private static readonly template = template(templateHtml)
 
-  private get label() {
-    return this._label || 'Gcore player ver. ' + version().gplayer
-  }
-
-  private get url() {
-    return this._url || 'https://gcore.com/'
-  }
-
-  private get exposeVersion() {
-    return {
-      label: this.label,
-      name: 'version',
-    }
-  }
-
   /**
    * @internal
    */
   override get events() {
     return {
-      'click [data-version]': 'onOpenMainPage',
+      'click [role="menuitem"]': 'runAction',
     }
   }
 
   constructor(container: Container) {
     super(container)
-    if (this.options.contextMenu && this.options.contextMenu.label) {
-      this._label = this.options.contextMenu.label
-    }
-    if (this.options.contextMenu && this.options.contextMenu.url) {
-      this._url = this.options.contextMenu.url
-    }
     this.render()
     $('body').on('click', this.hideOnBodyClick)
   }
@@ -106,9 +97,9 @@ export class ContextMenu extends UIContainerPlugin {
     this.listenTo(
       this.container,
       Events.CONTAINER_CONTEXTMENU,
-      this.toggleContextMenu,
+      this.onContextMenu,
     )
-    this.listenTo(this.container, Events.CONTAINER_CLICK, this.hide)
+    this.listenTo(this.container, Events.CONTAINER_CLICK, this.onContainerClick)
   }
 
   /**
@@ -119,41 +110,66 @@ export class ContextMenu extends UIContainerPlugin {
     return super.destroy()
   }
 
-  private toggleContextMenu(event: MouseEvent) {
-    event.preventDefault()
-    const offset = this.container?.$el.offset()
+  private onContainerClick() {
+    this.hide()
+  }
 
+  private onContextMenu(event: MouseEvent) {
+    if (!this.options.contextMenu?.options?.length) {
+      return
+    }
+    event.preventDefault()
+    event.stopPropagation()
+
+    const offset = this.container?.$el.offset()
     this.show(event.pageY - offset.top, event.pageX - offset.left)
   }
 
   private show(top: number, left: number) {
-    this.hide()
-    if (
-      this.options.contextMenu &&
-      this.options.contextMenu.preventShowContextMenu
-    ) {
-      return
-    }
+    this.open = true
     this.$el.css({ top, left })
     this.$el.show()
   }
 
   private hide() {
+    this.open = false
     this.$el.hide()
   }
 
-  private onOpenMainPage() {
-    window.open(this.url, '_blank')
+  private runAction(event: MouseEvent) {
+    event.preventDefault()
+    event.stopPropagation()
+
+    const itemName = (event.currentTarget as HTMLButtonElement).dataset.name
+    if (!itemName) {
+      return
+    }
+    const item = this.options.contextMenu?.options.find(
+      (option: MenuOption) => option.name === itemName,
+    )
+    if (item?.handler) {
+      item.handler()
+    }
+    this.hide()
   }
 
   /**
    * @internal
    */
   override render() {
-    this.menuOptions = [this.exposeVersion]
-    this.$el.html(ContextMenu.template({ options: this.menuOptions }))
+    if (!this.options.contextMenu?.options?.length) {
+      return this
+    }
+    const options = this.options.contextMenu.options
+    this.$el.html(
+      ContextMenu.template({
+        options,
+        i18n: this.container.i18n,
+        iconic: options.some((option: MenuOption) => option.icon),
+      }),
+    )
     this.container.$el.append(this.$el) // TODO append to the container, turn into a container plugin
-    this.hide()
+    this.$el.hide()
 
     return this
   }

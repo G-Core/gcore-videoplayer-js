@@ -1,8 +1,16 @@
-<ul class="context-menu-list">
-    <% if(options) { %>
-        <% for (var i = 0; i < options.length; i++) { %>
-        <li class="context-menu-list-item <%= options[i].class %>"
-            data-<%= options[i].name %>><%= options[i].label %></li>
-        <% } %>
+<ul class="context-menu-list" role="menu" id="context-menu-options">
+    <% for (const item of options) { %>
+    <li class="context-menu-list-item <%= item.class %>">
+        <button role="menuitem" data-name="<%= item.name %>">
+            <% if (iconic) { %>
+            <span class="context-menu-list-item_icon"><%= item.icon || '' %></span>
+            <% } %>
+            <% if (item.labelKey) { %>
+                <%= i18n.t(item.labelKey) %>
+            <% } else { %>
+                <%= item.label %>
+            <% } %>
+        </button>
+    </li>
     <% } %>
 </ul>

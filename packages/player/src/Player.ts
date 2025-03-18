@@ -159,6 +159,9 @@ export class Player {
    * ```
    */
   attachTo(playerElement: HTMLElement): void {
+    trace(`${T} attachTo`, {
+      player: !!this.player,
+    })
     assert.ok(!this.player, 'Player already initialized')
     assert.ok(playerElement, 'Player container element is required')
     if (this.config.debug === 'all' || this.config.debug === 'clappr') {
@@ -398,11 +401,9 @@ export class Player {
     trace(`${T} initPlayer`, {
       autoPlay: coreOptions.autoPlay,
       sources: coreOptions.sources,
+      player: !!this.player,
       // TODO selected options
     })
-
-    assert.ok(!this.player, 'Player already initialized')
-
     const player = new PlayerClappr(coreOptions)
     this.player = player
     this.bindCoreListeners()
