@@ -5,7 +5,13 @@
 <ul class="gear-sub-menu quality-levels" id="level-selector-menu" role="menu">
     <% if (!removeAuto) { %>
         <li>
-            <a href="#" class='gear-sub-menu_btn gcore-skin-text-color' data-id="-1" id="level_selector_auto">
+            <a href="#"
+                class="gear-sub-menu_btn gcore-skin-text-color"
+                data-id="-1"
+                id="level_selector_auto"
+               aria-checked="<%= current === -1 %>"
+               role="menuitemradio"
+            >
                 <span class="check-icon"><%= checkIcon %></span>
                 <%= i18n.t('auto') %>
             </a>
@@ -19,8 +25,8 @@
             <a href="#"
                 class="gear-sub-menu_btn gcore-skin-text-color<%= checked ? ' gcore-skin-active' : '' %>"
                 data-id="<%= item.level %>"
-                data-disabled="<%= disabled %>"
-                data-checked="<%= checked %>"
+                aria-disabled="<%= disabled %>"
+                aria-checked="<%= checked %>"
                 role="menuitemradio"
                 id="level_selector_<%= item.width > item.height ? item.height : item.width %>"
             >

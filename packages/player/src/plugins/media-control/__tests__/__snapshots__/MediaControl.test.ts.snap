@@ -13,7 +13,6 @@ exports[`MediaControl > putElement > audiotracks > should put the element in the
     
     
     
-    
 
     
     
@@ -36,10 +35,7 @@ exports[`MediaControl > putElement > audiotracks > should put the element in the
     
         </div>
     
-        <div class="media-clip-container gcore-skin-text-color" data-clipstext="">
-            <div class="media-clip-point gcore-skin-text-color" data-clipstext="">•</div>
-            <div class="media-clip-text gcore-skin-text-color" data-clipstext=""></div>
-        </div>
+        <div class="media-control-indicator gcore-skin-text-color" data-clips=""></div>
     
         </div>
     
@@ -72,7 +68,6 @@ exports[`MediaControl > putElement > cc > should put the element in the right pa
     
     
     
-    
 
     
     
@@ -95,10 +90,7 @@ exports[`MediaControl > putElement > cc > should put the element in the right pa
     
         </div>
     
-        <div class="media-clip-container gcore-skin-text-color" data-clipstext="">
-            <div class="media-clip-point gcore-skin-text-color" data-clipstext="">•</div>
-            <div class="media-clip-text gcore-skin-text-color" data-clipstext=""></div>
-        </div>
+        <div class="media-control-indicator gcore-skin-text-color" data-clips=""></div>
     
         </div>
     
@@ -131,7 +123,6 @@ exports[`MediaControl > putElement > gear > should put the element in the right 
     
     
     
-    
 
     
     
@@ -154,10 +145,7 @@ exports[`MediaControl > putElement > gear > should put the element in the right 
     
         </div>
     
-        <div class="media-clip-container gcore-skin-text-color" data-clipstext="">
-            <div class="media-clip-point gcore-skin-text-color" data-clipstext="">•</div>
-            <div class="media-clip-text gcore-skin-text-color" data-clipstext=""></div>
-        </div>
+        <div class="media-control-indicator gcore-skin-text-color" data-clips=""></div>
     
         </div>
     
@@ -190,7 +178,6 @@ exports[`MediaControl > putElement > pip > should put the element in the right p
     
     
     
-    
 
     
     
@@ -213,10 +200,7 @@ exports[`MediaControl > putElement > pip > should put the element in the right p
     
         </div>
     
-        <div class="media-clip-container gcore-skin-text-color" data-clipstext="">
-            <div class="media-clip-point gcore-skin-text-color" data-clipstext="">•</div>
-            <div class="media-clip-text gcore-skin-text-color" data-clipstext=""></div>
-        </div>
+        <div class="media-control-indicator gcore-skin-text-color" data-clips=""></div>
     
         </div>
     
@@ -240,7 +224,6 @@ exports[`MediaControl > rendering timing > once metadata is loaded > should wait
 "<div class="media-control-background" data-background=""></div>
 
 <div class="media-control-layer gcore-skin-bg-color" data-controls="">
-    
     
     
     
@@ -278,10 +261,7 @@ exports[`MediaControl > rendering timing > once metadata is loaded > should wait
     
         <div class="media-control-indicator gcore-skin-text-color" data-duration="">00:00</div>
     
-        <div class="media-clip-container gcore-skin-text-color" data-clipstext="">
-            <div class="media-clip-point gcore-skin-text-color" data-clipstext="">•</div>
-            <div class="media-clip-text gcore-skin-text-color" data-clipstext=""></div>
-        </div>
+        <div class="media-control-indicator gcore-skin-text-color" data-clips=""></div>
     
         </div>
     
@@ -329,7 +309,6 @@ exports[`MediaControl > updateSettings > dvr > when disabled > should disable DV
     
     
     
-    
 
     
     
@@ -358,10 +337,7 @@ exports[`MediaControl > updateSettings > dvr > when disabled > should disable DV
     
         <div class="media-control-indicator gcore-skin-text-color" data-duration="">00:00</div>
     
-        <div class="media-clip-container gcore-skin-text-color" data-clipstext="">
-            <div class="media-clip-point gcore-skin-text-color" data-clipstext="">•</div>
-            <div class="media-clip-text gcore-skin-text-color" data-clipstext=""></div>
-        </div>
+        <div class="media-control-indicator gcore-skin-text-color" data-clips=""></div>
     
         </div>
     
@@ -394,7 +370,6 @@ exports[`MediaControl > updateSettings > dvr > when enabled > should enable DVR 
     
     
     
-    
 
     
     
@@ -423,10 +398,7 @@ exports[`MediaControl > updateSettings > dvr > when enabled > should enable DVR 
     
         <div class="media-control-indicator gcore-skin-text-color" data-duration="">00:00</div>
     
-        <div class="media-clip-container gcore-skin-text-color" data-clipstext="">
-            <div class="media-clip-point gcore-skin-text-color" data-clipstext="">•</div>
-            <div class="media-clip-text gcore-skin-text-color" data-clipstext=""></div>
-        </div>
+        <div class="media-control-indicator gcore-skin-text-color" data-clips=""></div>
     
         <div class="my-dvr-controls" data-dvr="">live</div></div>
     

@@ -45,12 +45,6 @@
     <% var renderMultiCamera = function(name) { %>
         <div class="media-control-multicamera" data-<%= name %>></div>
     <% }; %>
-    <% var renderClipsText = function(name) { %>
-        <div class="media-clip-container gcore-skin-text-color" data-<%= name %>>
-            <div class="media-clip-point gcore-skin-text-color" data-<%= name %>>•</div>
-            <div class="media-clip-text gcore-skin-text-color" data-<%= name %>></div>
-        </div>
-    <% }; %>
     <% var renderVR = function(name) { %>
         <div class="media-control-vr" data-<%= name %>></div>
     <% }; %>
@@ -72,7 +66,7 @@
                 renderDrawer(setting, settings.volumeBarTemplate ? templates[settings.volumeBarTemplate] : function (name) {
                     return renderSegmentedBar(name);
                 });
-            } else if (setting === "duration" || setting === "position") {
+            } else if (setting === "duration" || setting === "position" || setting === "clips") {
                 renderIndicator(setting);
             } else if (setting === "quality") {
                 renderQuality(setting)
@@ -82,8 +76,6 @@
                 renderMultiCamera(setting)
             } else if (setting === "vr") {
                 renderVR(setting)
-            } else if (setting === "clipsText") {
-                renderClipsText(setting)
             } else if (["playpause", "playstop", "fullscreen"].includes(setting)) {
                 renderButton(setting);
             }

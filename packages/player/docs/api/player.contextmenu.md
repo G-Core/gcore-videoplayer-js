@@ -20,6 +20,8 @@ export declare class ContextMenu extends UIContainerPlugin
 
 Configuration options - [ContextMenuPluginSettings](./player.contextmenupluginsettings.md)
 
+Should not be used together with [ClickToPause](./player.clicktopause.md) plugin
+
 ## Constructors
 
 <table><thead><tr><th>

@@ -184,13 +184,10 @@ export function createMockMediaControl(core: any) {
     <div class="media-control-right-panel" data-media-control></div>
     <div class="media-control-center-panel" data-media-control></div>`,
   )
-  const elements = {
-    gear: $(document.createElement('div')),
-  }
-  // @ts-ignore
-  mediaControl.getElement = vi.fn().mockImplementation((name) => elements[name])
   // @ts-ignore
   mediaControl.putElement = vi.fn()
+  // @ts-ignore
+  mediaControl.mount = vi.fn()
   // @ts-ignore
   mediaControl.toggleElement = vi.fn()
   return mediaControl

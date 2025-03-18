@@ -1,3 +1,23 @@
-    .clips.bar-container[data-seekbar] {
-        clip-path: url("#myClip");
+.media-control-clips {
+  display: flex;
+  gap: 6px;
+  .media-clip-text {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    display: inline-block;
+    text-overflow: ellipsis;
+    color: white;
+    cursor: default;
+    line-height: var(--bottom-panel);
+    position: relative;
+
+    &::before {
+      content: '•';
+      padding-right: 6px;
     }
+  }
+  .media-clip-text {
+    max-width: 100px;
+  }
+}

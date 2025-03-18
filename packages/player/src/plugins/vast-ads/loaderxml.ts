@@ -2,7 +2,7 @@ import { reportError } from '@gcorevideo/utils';
 import assert from 'assert';
 import URLHandler from './urlhandler.js';
 import MergeVast from './xmlmerge.js';
-import { strtimeToMiliseconds } from '../utils.js';
+import { parseClipTime } from '../utils.js';
 
 export default class LoaderXML {
   private config: string = '';
@@ -104,7 +104,7 @@ export default class LoaderXML {
     }
 
     if (linearSkipOffset && linearSkipOffset.length > 1) {
-      timeOffset = strtimeToMiliseconds(linearSkipOffset[1]);
+      timeOffset = parseClipTime(linearSkipOffset[1]);
       this.config = this.config.replace(/<Linear skipoffset="(\d+:\d+:\d+)".*?>/g, '<Linear>');
     }
 

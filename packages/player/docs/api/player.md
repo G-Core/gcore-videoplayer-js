@@ -809,6 +809,17 @@ An ISO 639-1 language code.
 </td></tr>
 <tr><td>
 
+[MenuOption](./player.menuoption.md)
+
+
+</td><td>
+
+**_(BETA)_**
+
+
+</td></tr>
+<tr><td>
+
 [PlaybackModule](./player.playbackmodule.md)
 
 

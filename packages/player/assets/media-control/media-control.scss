@@ -178,31 +178,6 @@
       }
     }
 
-    .media-clip-container {
-      display: none;
-
-      .media-clip-text,
-      .media-clip-point {
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        overflow: hidden;
-        display: inline-block;
-        float: left;
-        color: white;
-        cursor: default;
-        line-height: var(--bottom-panel);
-        position: relative;
-      }
-
-      .media-clip-point {
-        margin-right: 6px;
-      }
-
-      .media-clip-text {
-        max-width: calc(80% - 240px);
-      }
-    }
-
     .bar-container[data-seekbar] {
       position: absolute;
       top: -11px;

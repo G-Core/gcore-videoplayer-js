@@ -6,7 +6,15 @@ export function getLocation(href: string) {
   return l;
 }
 
-export function strtimeToMiliseconds(str: string): number {
+/**
+ * Parse a time string in the format "hh:mm:ss" or "mm:ss" or "ss" to seconds.
+ * @param str - The time string to parse.
+ * @returns The time in seconds.
+ * @example "01:01:00" -> 3660
+ * @example "01:00" -> 60
+ * @example "33" -> 33
+ */
+export function parseClipTime(str: string): number {
   if (!str) {
     return 0;
   }
@@ -15,19 +23,13 @@ export function strtimeToMiliseconds(str: string): number {
 
   if (arr.length >= 3) {
     h = parseInt(arr[arr.length - 3]) * 60 * 60;
-  } else {
-    h = 0;
   }
   if (arr.length >= 2) {
     m = parseInt(arr[arr.length - 2]) * 60;
-  } else {
-    m = 0;
   }
 
   if (arr.length >= 1) {
     s = parseInt(arr[arr.length - 1]);
-  } else {
-    s = 0;
   }
 
   return (h + m + s);
