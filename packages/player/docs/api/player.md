@@ -78,23 +78,12 @@ Description
 </td></tr>
 <tr><td>
 
-[ClapprNerdStats](./player.clapprnerdstats.md)
-
-
-</td><td>
-
-**_(BETA)_** `PLUGIN` that displays useful network-related statistics.
-
-
-</td></tr>
-<tr><td>
-
 [ClapprStats](./player.clapprstats.md)
 
 
 </td><td>
 
-**_(BETA)_** `PLUGIN` that collects useful statistics about playback performance.
+**_(BETA)_** `PLUGIN` that measures data about playback, which can be useful for analyzing performance and UX.
 
 
 </td></tr>
@@ -111,12 +100,12 @@ Description
 </td></tr>
 <tr><td>
 
-[ClipsPlugin](./player.clipsplugin.md)
+[Clips](./player.clips.md)
 
 
 </td><td>
 
-**_(BETA)_** `PLUGIN` that shows text over the seekbar to indicate the current clip.
+**_(BETA)_** `PLUGIN` that allows marking up the timeline of the video
 
 
 </td></tr>
@@ -216,6 +205,17 @@ Description
 </td><td>
 
 **_(BETA)_** `PLUGIN` that adds support for loading multiple streams and switching between them using the media control UI.
+
+
+</td></tr>
+<tr><td>
+
+[NerdStats](./player.nerdstats.md)
+
+
+</td><td>
+
+**_(BETA)_** `PLUGIN` that displays useful network-related statistics.
 
 
 </td></tr>
@@ -491,7 +491,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Configuration options for the [clips](./player.clipsplugin.md) plugin.
+**_(BETA)_** Configuration options for the  plugin.
 
 
 </td></tr>
@@ -568,7 +568,7 @@ Describes a media source with its MIME type and URL.
 
 </td><td>
 
-A level of quality within a media source.
+A level of quality within a media source/representation.
 
 
 </td></tr>
@@ -654,6 +654,15 @@ Description
 
 </th></tr></thead>
 <tbody><tr><td>
+
+[ClapprStatsSettings](./player.clapprstatssettings.md)
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
 
 [ClosedCaptionsPluginSettings](./player.closedcaptionspluginsettings.md)
 
@@ -995,7 +1004,7 @@ A media source to fetch the media data from
 
 </td><td>
 
-**_(BETA)_** For the plugin development
+**_(BETA)_** Time progress information indicated by Clappr CONTAINER\_PROGRESS and PLAYBACK\_PROGRESS events.
 
 
 </td></tr>
@@ -1017,7 +1026,7 @@ A media source to fetch the media data from
 
 </td><td>
 
-Playback time in seconds since the beginning of the stream (or a segment for the live streams)
+Playback time position in seconds since the beginning of the stream. For the live streams this is limited to the length of a segment. When DVR is enabled, this refers to the
 
 
 </td></tr>

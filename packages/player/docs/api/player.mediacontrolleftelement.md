@@ -12,5 +12,5 @@ Media control elements that appear in the left area.
 **Signature:**
 
 ```typescript
-export type MediaControlLeftElement = 'clipText' | 'duration' | 'dvr' | 'playpause' | 'playstop' | 'position' | 'volume';
+export type MediaControlLeftElement = 'clipText' | 'duration' | 'dvr' | 'playpause' | 'playstop' | 'position' | 'volume' | 'clips';
 ```

@@ -4,7 +4,7 @@
 
 ## TimePosition.current property
 
-Current playback time, 0..duration, seconds.
+Current playback time, 0..duration
 
 **Signature:**
 

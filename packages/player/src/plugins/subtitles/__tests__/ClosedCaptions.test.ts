@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+
 import { ClosedCaptions } from '../ClosedCaptions.js'
 import { createMockCore, createMockMediaControl } from '../../../testUtils.js';
 

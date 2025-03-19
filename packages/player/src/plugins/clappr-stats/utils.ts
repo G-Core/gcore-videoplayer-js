@@ -15,13 +15,12 @@ export function newMetrics(): Metrics {
       fullscreen: 0,
       dvrUsage: 0,
     },
-    timers: {
+    chrono: {
       startup: 0,
       watch: 0,
       pause: 0,
       buffering: 0,
       session: 0,
-      latency: 0,
     },
     extra: {
       playbackName: '',

@@ -1,28 +1,74 @@
+/**
+ * @beta
+ */
+export enum Chronograph {
+  Startup = 'startup',
+  Watch = 'watch',
+  Pause = 'pause',
+  Buffering = 'buffering',
+  Session = 'session',
+  // Latency = 'latency',
+}
+
+/**
+ * @beta
+ */
+export enum Counter {
+  Play = 'play',
+  Pause = 'pause',
+  Error = 'error',
+  Buffering = 'buffering',
+  DecodedFrames = 'decodedFrames',
+  DroppedFrames = 'droppedFrames',
+  Fps = 'fps',
+  ChangeLevel = 'changeLevel',
+  Seek = 'seek',
+  Fullscreen = 'fullscreen',
+  DvrUsage = 'dvrUsage',
+}
 
 /**
  * @beta
  */
 export type Metrics = {
+  /**
+   * Events count counters
+   */
   counters: {
-    play: number;
-    pause: number;
-    error: number;
-    buffering: number;
-    decodedFrames: number;
-    droppedFrames: number;
-    fps: number;
-    changeLevel: number;
-    seek: number;
-    fullscreen: number;
-    dvrUsage: number;
+    /**
+     * 
+     */
+    [Counter.Play]: number;
+    [Counter.Pause]: number;
+    [Counter.Error]: number;
+    [Counter.Buffering]: number;
+    [Counter.DecodedFrames]: number;
+    [Counter.DroppedFrames]: number;
+    [Counter.Fps]: number;
+    [Counter.ChangeLevel]: number;
+    [Counter.Seek]: number;
+    [Counter.Fullscreen]: number;
+    [Counter.DvrUsage]: number;
   };
-  timers: {
-    startup: number;
-    watch: number;
-    pause: number;
-    buffering: number;
-    session: number;
-    latency: number;
+  /**
+   * Time measurements - accumulated duration of time-based activities
+   */
+  chrono: {
+    /**
+     * Time spent in the startup phase
+     */
+    [Chronograph.Startup]: number;
+    /**
+     * Total time spent in the watch phase
+     */
+    [Chronograph.Watch]: number;
+    /**
+     * 
+     */
+    [Chronograph.Pause]: number;
+    [Chronograph.Buffering]: number;
+    [Chronograph.Session]: number;
+    // [Chronograph.Latency]: number;
   };
   extra: {
     playbackName: string;
@@ -54,12 +100,13 @@ export type BitrateTrackRecord = {
 /**
  * @beta
  */
-export type MetricsUpdateFn = (metrics: Metrics) => void;
-
-/**
- * @beta
- */
 export enum ClapprStatsEvents {
-  REPORT_EVENT = 'clappr:stats:report',
-  PERCENTAGE_EVENT = 'clappr:stats:percentage',
+  /**
+   * Emitted periodically with current measurements.
+   */
+  REPORT = 'clappr:stats:report',
+  /**
+   * Emitted when the playback reaches a certain percentage of the total duration.
+   */
+  // PERCENTAGE = 'clappr:stats:percentage',
 }

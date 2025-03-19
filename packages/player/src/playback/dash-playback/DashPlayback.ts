@@ -543,15 +543,12 @@ export default class DashPlayback extends BasePlayback {
   }
 
   override _onProgress() {
-    if (!this._dash) {
-      return
-    }
+    const buffer =
+      // @ts-expect-error
+      this._dash.getDashMetrics().getCurrentBufferLevel('video') ||
+      // @ts-expect-error
+      this._dash.getDashMetrics().getCurrentBufferLevel('audio')
 
-    let buffer = this._dash.getDashMetrics().getCurrentBufferLevel('video')
-
-    if (!buffer) {
-      buffer = this._dash.getDashMetrics().getCurrentBufferLevel('audio')
-    }
     const progress = {
       start: this.getCurrentTime(),
       current: this.getCurrentTime() + buffer,

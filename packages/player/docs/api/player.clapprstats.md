@@ -7,7 +7,7 @@
 > This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
 > 
 
-`PLUGIN` that collects useful statistics about playback performance.
+`PLUGIN` that measures data about playback, which can be useful for analyzing performance and UX.
 
 **Signature:**
 
@@ -19,6 +19,10 @@ export declare class ClapprStats extends ContainerPlugin
 ## Remarks
 
 This plugin does not render anything and is supposed to be extended or used together with other plugins that actually render something.
+
+Configuration options - [ClapprStatsSettings](./player.clapprstatssettings.md)
+
+Events - 
 
 ## Constructors
 
@@ -83,20 +87,6 @@ Description
 </td><td>
 
 **_(BETA)_** Returns the collected metrics.
-
-
-</td></tr>
-<tr><td>
-
-[setUpdateMetrics(updateMetricsFn)](./player.clapprstats.setupdatemetrics.md)
-
-
-</td><td>
-
-
-</td><td>
-
-**_(BETA)_** Registers a callback to receive the metrics.
 
 
 </td></tr>

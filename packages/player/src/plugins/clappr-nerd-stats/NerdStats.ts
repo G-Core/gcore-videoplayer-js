@@ -1,6 +1,7 @@
 import { UICorePlugin, Events, template, Core, Container } from '@clappr/core'
 import { reportError, trace } from '@gcorevideo/utils'
 import Mousetrap from 'mousetrap'
+import assert from 'assert'
 
 import { CLAPPR_VERSION } from '../../build.js'
 import {
@@ -25,7 +26,6 @@ import pluginHtml from '../../../assets/clappr-nerd-stats/clappr-nerd-stats.ejs'
 import buttonHtml from '../../../assets/clappr-nerd-stats/button.ejs'
 import statsIcon from '../../../assets/icons/new/stats.svg'
 import { BottomGear, GearEvents } from '../bottom-gear/BottomGear.js'
-import assert from 'assert'
 
 const qualityClasses = [
   'speedtest-quality-value-1',
@@ -113,7 +113,7 @@ type Metrics = BaseMetrics & {
   }
 }
 
-const T = 'plugins.clappr_nerd_stats'
+const T = 'plugins.nerd_stats'
 
 /**
  * `PLUGIN` that displays useful network-related statistics.
@@ -131,7 +131,7 @@ const T = 'plugins.clappr_nerd_stats'
  * When clicked, it shows an overlay window with the information about the network speed, latency, etc,
  * and recommended quality level.
  */
-export class ClapprNerdStats extends UICorePlugin {
+export class NerdStats extends UICorePlugin {
   private container: Container | null = null
 
   private customMetrics: CustomMetrics = {
@@ -234,32 +234,27 @@ export class ClapprNerdStats extends UICorePlugin {
 
     this.container = this.core.activeContainer
     const clapprStats = this.container?.getPlugin('clappr_stats')
-
-    if (!clapprStats) {
-      reportError({
-        message: 'clappr_stats plugin is not available',
-      })
-      console.error(
-        'clappr-stats not available. Please, include it as a plugin of your Clappr instance.\n' +
-          'For more info, visit: https://github.com/clappr/clappr-stats.',
-      )
-      this.disable()
-    } else {
-      Mousetrap.bind(this.shortcut, () => this.toggle())
-      this.listenTo(this.core, Events.CORE_RESIZE, this.onPlayerResize)
-      // TODO: fix
-      this.listenTo(
-        clapprStats,
-        ClapprStatsEvents.REPORT_EVENT,
-        this.updateMetrics,
-      )
-      clapprStats.setUpdateMetrics(this.updateMetrics.bind(this))
-      this.updateMetrics(clapprStats.exportMetrics())
-      this.render()
-    }
+    assert(
+      clapprStats,
+      'clappr-stats not available. Please, include it as a plugin of your Clappr instance.\n' +
+        'For more info, visit: https://github.com/clappr/clappr-stats.',
+    )
+    Mousetrap.bind(this.shortcut, this.toggle)
+    this.listenTo(this.core, Events.CORE_RESIZE, this.onPlayerResize)
+    this.listenTo(clapprStats, ClapprStatsEvents.REPORT, this.updateMetrics)
+    this.updateMetrics(clapprStats.exportMetrics())
+    this.render()
   }
 
-  private toggle() {
+  /**
+   * @internal
+   */
+  override destroy() {
+    Mousetrap.unbind(this.shortcut)
+    return super.destroy()
+  }
+
+  private toggle = () => {
     if (this.showing) {
       this.hide()
     } else {
@@ -338,7 +333,7 @@ export class ClapprNerdStats extends UICorePlugin {
     const scrollTop = this.core.$el.find(this.statsBoxElem).scrollTop()
 
     this.$el.html(
-      ClapprNerdStats.template({
+      NerdStats.template({
         metrics: Formatter.format(this.metrics),
         iconPosition: this.iconPosition,
       }),
@@ -383,10 +378,10 @@ export class ClapprNerdStats extends UICorePlugin {
   private addToBottomGear() {
     trace(`${T} addToBottomGear`)
     const gear = this.core.getPlugin('bottom_gear') as BottomGear
-    const $button = gear
-      .addItem('nerd')
+    gear
+      .addItem('nerd_stats')
       .html(
-        ClapprNerdStats.buttonTemplate({
+        NerdStats.buttonTemplate({
           icon: statsIcon,
           i18n: this.core.i18n,
         }),

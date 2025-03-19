@@ -84,7 +84,7 @@ export class _MockPlayback extends Events {
 
 export function createMockCore(
   options: Record<string, unknown> = {},
-  container: any = createMockContainer(),
+  container: any = createMockContainer(options),
 ) {
   const el = document.createElement('div')
   const emitter = new Events()
@@ -157,12 +157,13 @@ export function createMockPlayback(name = 'mock') {
   })
 }
 
-export function createMockContainer(playback: any = createMockPlayback()) {
+export function createMockContainer(options: Record<string, unknown> = {}, playback: any = createMockPlayback()) {
   const el = playback.el
   const emitter = new Events()
   return Object.assign(emitter, {
     el,
     playback,
+    options,
     $el: $(el),
     getDuration: vi.fn().mockReturnValue(0),
     getPlugin: vi.fn(),

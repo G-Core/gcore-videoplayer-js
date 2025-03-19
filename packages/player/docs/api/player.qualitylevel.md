@@ -4,7 +4,7 @@
 
 ## QualityLevel interface
 
-A level of quality within a media source.
+A level of quality within a media source/representation.
 
 **Signature:**
 
@@ -69,7 +69,7 @@ number
 
 </td><td>
 
-Height of the video, pixels.
+Height of the video frame, pixels.
 
 
 </td></tr>
@@ -88,7 +88,7 @@ number
 
 </td><td>
 
-Zero-based index of the quality level.
+Zero-based index of the quality level. Quality levels go from low to high
 
 
 </td></tr>
@@ -107,7 +107,7 @@ number
 
 </td><td>
 
-Width of the video, pixels.
+Width of the video frame, pixels.
 
 
 </td></tr>

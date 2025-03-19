@@ -226,7 +226,7 @@ Description
 </td></tr>
 <tr><td>
 
-[getElement(name)](./player.mediacontrol.getelement.md)
+[mount(name, element)](./player.mediacontrol.mount.md)
 
 
 </td><td>

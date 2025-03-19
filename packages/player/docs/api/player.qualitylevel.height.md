@@ -4,7 +4,7 @@
 
 ## QualityLevel.height property
 
-Height of the video, pixels.
+Height of the video frame, pixels.
 
 **Signature:**
 
