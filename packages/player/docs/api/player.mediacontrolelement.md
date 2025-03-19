@@ -7,10 +7,12 @@
 > This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
 > 
 
-Media control elements, mount points for additional plugins
+Built-in media control elements.
 
 **Signature:**
 
 ```typescript
-export type MediaControlElement = 'audiotracks' | 'cc' | 'clipText' | 'dvr' | 'duration' | 'fullscreen' | 'gear' | 'multicamera' | 'pip' | 'playbackRate' | 'position' | 'seekBarContainer' | 'vr' | 'volume';
+export type MediaControlElement = MediaControlLeftElement | MediaControlLayerElement | MediaControlRightElement;
 ```
+**References:** [MediaControlLeftElement](./player.mediacontrolleftelement.md)<!-- -->, [MediaControlLayerElement](./player.mediacontrollayerelement.md)<!-- -->, [MediaControlRightElement](./player.mediacontrolrightelement.md)
+
