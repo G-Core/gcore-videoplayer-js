@@ -42,10 +42,9 @@ export type TimeProgress = {
 /**
  * For the plugin development
  * @beta
+ * @deprecated  Use TimePosition instead
  */
-export type TimeUpdate = TimePosition & {
-  firstFragDateTime: number
-}
+export type TimeUpdate = TimePosition
 
 /**
  * A level of quality within a media source/representation.

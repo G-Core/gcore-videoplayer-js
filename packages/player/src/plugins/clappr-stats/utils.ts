@@ -1,4 +1,4 @@
-import type { Metrics } from "./types";
+import type { Metrics } from './types'
 
 export function newMetrics(): Metrics {
   return {
@@ -36,6 +36,5 @@ export function newMetrics(): Metrics {
       duration: 0,
       currentTime: 0,
     },
-    custom: {},
-  };
+  }
 }

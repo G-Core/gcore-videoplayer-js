@@ -3,7 +3,7 @@
 // license that can be found at https://github.com/clappr/clappr-plugins/blob/master/LICENSE
 
 import { Events, Playback, UICorePlugin, Utils, template } from '@clappr/core';
-import { TimeUpdate } from '../../playback.types.js';
+import { TimePosition } from '../../playback.types.js';
 
 import { CLAPPR_VERSION } from '../../build.js';
 
@@ -79,7 +79,7 @@ export class SeekTime extends UICorePlugin {
     this.listenTo(this.mediaControl, Events.MEDIACONTROL_CONTAINERCHANGED, this.onContainerChanged);
     if (this.mediaControlContainer) {
       this.listenTo(this.mediaControlContainer, Events.CONTAINER_PLAYBACKDVRSTATECHANGED, this.update);
-      this.listenTo(this.mediaControlContainer, Events.CONTAINER_TIMEUPDATE, this.updateDuration);
+      this.listenTo(this.mediaControlContainer, Events.CONTAINER_TIMEUPDATE, this.onTimeUpdate);
     }
   }
 
@@ -89,9 +89,8 @@ export class SeekTime extends UICorePlugin {
     this.bindEvents();
   }
 
-  private updateDuration(timeProgress: TimeUpdate) {
-    this.duration = timeProgress.total;
-    // this.firstFragDateTime = timeProgress.firstFragDateTime;
+  private onTimeUpdate({ total }: TimePosition) {
+    this.duration = total;
     this.update();
   }
 

@@ -1,4 +1,11 @@
-import { UICorePlugin, Events, template, Core, Container } from '@clappr/core'
+import {
+  UICorePlugin,
+  Events,
+  template,
+  Core,
+  Container,
+  Playback,
+} from '@clappr/core'
 import { reportError, trace } from '@gcorevideo/utils'
 import Mousetrap from 'mousetrap'
 import assert from 'assert'
@@ -6,7 +13,7 @@ import assert from 'assert'
 import { CLAPPR_VERSION } from '../../build.js'
 import {
   ClapprStatsEvents,
-  Metrics as BaseMetrics,
+  Metrics as PerfMetrics,
 } from '../clappr-stats/types.js'
 import { newMetrics as newBaseMetrics } from '../clappr-stats/utils.js'
 import Formatter from './formatter.js'
@@ -18,96 +25,35 @@ import {
   startSpeedtest,
   stopSpeedtest,
 } from './speedtest/index.js'
-import { CustomMetrics } from './speedtest/types.js'
-import { ZeptoResult } from '../../types.js'
+import { SpeedtestMetrics } from './speedtest/types.js'
+import { PlaybackType } from '../../types.js'
 
 import '../../../assets/clappr-nerd-stats/clappr-nerd-stats.scss'
 import pluginHtml from '../../../assets/clappr-nerd-stats/clappr-nerd-stats.ejs'
 import buttonHtml from '../../../assets/clappr-nerd-stats/button.ejs'
 import statsIcon from '../../../assets/icons/new/stats.svg'
 import { BottomGear, GearEvents } from '../bottom-gear/BottomGear.js'
+import { drawSummary, getPingQuality } from './utils.js'
+import { getDownloadQuality } from './utils.js'
 
-const qualityClasses = [
-  'speedtest-quality-value-1',
-  'speedtest-quality-value-2',
-  'speedtest-quality-value-3',
-  'speedtest-quality-value-4',
-  'speedtest-quality-value-5',
-]
-
-const getDownloadQuality = (speedValue: number): number => {
-  if (speedValue < 3) {
-    return 1
-  } else if (speedValue < 7) {
-    return 2
-  } else if (speedValue < 13) {
-    return 3
-  } else if (speedValue < 25) {
-    return 4
-  } else {
-    return 5
-  }
-}
-
-const getPingQuality = (pingValue: number): number => {
-  if (pingValue < 20) {
-    return 5
-  } else if (pingValue < 50) {
-    return 4
-  } else if (pingValue < 100) {
-    return 3
-  } else if (pingValue < 150) {
-    return 2
-  } else {
-    return 1
-  }
-}
-
-const generateQualityHtml = (quality: number): string => {
-  const html = []
-  const qualityClassName = qualityClasses[quality - 1]
-
-  for (let i = 0; i < qualityClasses.length; i++) {
-    if (i < quality) {
-      html.push(
-        `<div class="speedtest-quality-content-item ${qualityClassName}"></div>`,
-      )
-    } else {
-      html.push('<div class="speedtest-quality-content-item"></div>')
-    }
-  }
-
-  return html.join('')
-}
-
-const drawSummary = (
-  customMetrics: CustomMetrics,
-  vodContainer: ZeptoResult,
-  liveContainer: ZeptoResult,
-) => {
-  const { connectionSpeed, ping } = customMetrics
-
-  if (!connectionSpeed || !ping) {
-    return
-  }
-  const downloadQuality = getDownloadQuality(connectionSpeed)
-  const pingQuality = getPingQuality(ping)
-  const liveQuality = Math.min(downloadQuality, pingQuality)
-  const vodHtml = generateQualityHtml(downloadQuality)
-  const liveHtml = generateQualityHtml(liveQuality)
-
-  vodContainer.html(vodHtml)
-  liveContainer.html(liveHtml)
+const PLAYBACK_NAMES: Record<string, string> = {
+  dash: 'DASH.js',
+  hls: 'HLS.js',
+  html5_video: 'Native',
 }
 
 type IconPosition = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'
 
-type Metrics = BaseMetrics & {
+type Metrics = PerfMetrics & {
   general: {
     displayResolution?: string
-    volume?: number
+    resolution: {
+      width: number
+      height: number
+    }
+    volume: number
   }
-  custom: CustomMetrics & {
+  custom: SpeedtestMetrics & {
     vodQuality?: string
     liveQuality?: string
   }
@@ -134,7 +80,7 @@ const T = 'plugins.nerd_stats'
 export class NerdStats extends UICorePlugin {
   private container: Container | null = null
 
-  private customMetrics: CustomMetrics = {
+  private speedtestMetrics: SpeedtestMetrics = {
     connectionSpeed: 0,
     ping: 0,
     jitter: 0,
@@ -142,7 +88,7 @@ export class NerdStats extends UICorePlugin {
 
   private metrics: Metrics = newMetrics()
 
-  private showing = false
+  private open = false
 
   private shortcut: string[]
 
@@ -171,7 +117,6 @@ export class NerdStats extends UICorePlugin {
    */
   override get attributes() {
     return {
-      'data-clappr-nerd-stats': '',
       class: 'clappr-nerd-stats',
     }
   }
@@ -181,14 +126,19 @@ export class NerdStats extends UICorePlugin {
    */
   override get events() {
     return {
-      'click [data-show-stats-button]': 'showOrHide',
-      'click [data-close-button]': 'hide',
-      'click [data-refresh-button]': 'refreshSpeedTest',
+      click: 'clicked',
+      'click #nerd-stats-close': 'hide',
+      'click #nerd-stats-refresh': 'refreshSpeedTest',
     }
   }
 
+  private clicked(e: MouseEvent) {
+    e.stopPropagation()
+    e.preventDefault()
+  }
+
   private get statsBoxElem() {
-    return '.clappr-nerd-stats[data-clappr-nerd-stats] .stats-box'
+    return this.$el.find('#nerd-stats-box')
   }
 
   private get statsBoxWidthThreshold() {
@@ -211,7 +161,7 @@ export class NerdStats extends UICorePlugin {
     ]
     this.iconPosition =
       core.options.clapprNerdStats?.iconPosition ?? 'bottom-right'
-    this.customMetrics = {
+    this.speedtestMetrics = {
       connectionSpeed: 0,
       ping: 0,
       jitter: 0,
@@ -224,14 +174,24 @@ export class NerdStats extends UICorePlugin {
    */
   override bindEvents() {
     this.listenToOnce(this.core, Events.CORE_READY, this.onCoreReady)
+    this.listenTo(this.core, Events.CORE_RESIZE, this.onPlayerResize)
+    this.listenTo(
+      this.core,
+      Events.CORE_ACTIVE_CONTAINER_CHANGED,
+      this.onActiveContainerChanged,
+    )
   }
 
   private onCoreReady() {
     const bottomGear = this.core.getPlugin('bottom_gear') as BottomGear
     assert(bottomGear, 'bottom_gear plugin is required')
+    this.listenTo(bottomGear, GearEvents.RENDERED, this.attach)
 
-    this.listenTo(bottomGear, GearEvents.RENDERED, this.addToBottomGear)
+    Mousetrap.bind(this.shortcut, this.toggle)
+    this.updateResolution()
+  }
 
+  private onActiveContainerChanged() {
     this.container = this.core.activeContainer
     const clapprStats = this.container?.getPlugin('clappr_stats')
     assert(
@@ -239,11 +199,29 @@ export class NerdStats extends UICorePlugin {
       'clappr-stats not available. Please, include it as a plugin of your Clappr instance.\n' +
         'For more info, visit: https://github.com/clappr/clappr-stats.',
     )
-    Mousetrap.bind(this.shortcut, this.toggle)
-    this.listenTo(this.core, Events.CORE_RESIZE, this.onPlayerResize)
     this.listenTo(clapprStats, ClapprStatsEvents.REPORT, this.updateMetrics)
+    this.listenTo(this.core.activeContainer, Events.CONTAINER_VOLUME, () => {
+      this.metrics.general.volume = this.container?.volume ?? 0
+      this.$el
+        .find('#nerd-stats-volume')
+        .text(Formatter.formatVolume(this.metrics.general.volume))
+    })
+    this.listenTo(
+      this.core.activePlayback,
+      Events.PLAYBACK_LOADEDMETADATA,
+      () => {
+        this.$el
+          .find('#nerd-stats-playback-type')
+          .text(
+            this.formatPlaybackName(this.core.activePlayback.getPlaybackType()),
+          )
+      },
+    )
     this.updateMetrics(clapprStats.exportMetrics())
-    this.render()
+    this.$el
+      .find('#nerd-stats-playback-name')
+      .text(PLAYBACK_NAMES[this.core.activePlayback.name] ?? '-')
+    this.core.activeContainer.$el.append(this.$el)
   }
 
   /**
@@ -255,7 +233,7 @@ export class NerdStats extends UICorePlugin {
   }
 
   private toggle = () => {
-    if (this.showing) {
+    if (this.open) {
       this.hide()
     } else {
       this.show()
@@ -263,11 +241,12 @@ export class NerdStats extends UICorePlugin {
   }
 
   private show() {
-    this.core.$el.find(this.statsBoxElem).show()
-    this.showing = true
+    this.$el.show()
+    this.statsBoxElem.scrollTop(this.statsBoxElem.scrollTop())
+    this.open = true
 
     this.refreshSpeedTest()
-    initSpeedTest(this.customMetrics)
+    initSpeedTest(this.speedtestMetrics)
       .then(() => {
         startSpeedtest()
       })
@@ -278,24 +257,31 @@ export class NerdStats extends UICorePlugin {
   }
 
   private hide() {
-    this.core.$el.find(this.statsBoxElem).hide()
-    this.showing = false
+    this.$el.hide()
+    this.open = false
     stopSpeedtest()
   }
 
   private onPlayerResize() {
     this.setStatsBoxSize()
+    this.updateResolution()
   }
 
-  private addGeneralMetrics() {
-    this.metrics.general = {
-      displayResolution: this.playerWidth + 'x' + this.playerHeight,
-      volume: this.container?.volume,
+  private updateResolution() {
+    this.metrics.general.resolution = {
+      width: this.playerWidth,
+      height: this.playerHeight,
     }
+    this.$el
+      .find('#nerd-stats-resolution-width')
+      .text(this.metrics.general.resolution.width)
+    this.$el
+      .find('#nerd-stats-resolution-height')
+      .text(this.metrics.general.resolution.height)
   }
 
-  private addCustomMetrics() {
-    this.metrics.custom = this.customMetrics
+  private estimateQuality() {
+    trace(`${T} estimateQuality`)
     const videoQualityNames = [
       'SD (480p)',
       'HD (720p)',
@@ -303,16 +289,15 @@ export class NerdStats extends UICorePlugin {
       '2K (1440p)',
       '4K (2160p)',
     ]
-    const { connectionSpeed, ping } = this.customMetrics
+    const { connectionSpeed, ping } = this.speedtestMetrics
 
     if (!connectionSpeed || !ping) {
-      const calculatingText = 'Calculating... Please wait.'
-
+      const calculatingText = this.core.i18n.t('stats.calculating')
       this.metrics.custom.vodQuality = calculatingText
       this.metrics.custom.liveQuality = calculatingText
-
       return
     }
+
     const downloadQuality = getDownloadQuality(connectionSpeed)
     const pingQuality = getPingQuality(ping)
     const liveQuality = Math.min(downloadQuality, pingQuality)
@@ -325,41 +310,106 @@ export class NerdStats extends UICorePlugin {
       prefix + videoQualityNames[liveQuality - 1]
   }
 
-  private updateMetrics(metrics: BaseMetrics) {
+  private updateMetrics(metrics: PerfMetrics) {
+    trace(`${T} updateMetrics`, { custom: this.speedtestMetrics })
     Object.assign(this.metrics, metrics)
-    this.addGeneralMetrics()
-    this.addCustomMetrics()
+    this.updateEstimatedQuality()
 
-    const scrollTop = this.core.$el.find(this.statsBoxElem).scrollTop()
+    this.$el
+      .find('#nerd-stats-current-time')
+      .text(Formatter.formatTime(this.metrics.extra.currentTime))
+    this.$el
+      .find('#nerd-stats-video-duration')
+      .text(Formatter.formatTime(this.metrics.extra.duration))
+    this.$el
+      .find('#nerd-stats-buffer-size')
+      .text(Formatter.formatTime(this.metrics.extra.buffersize))
 
-    this.$el.html(
-      NerdStats.template({
-        metrics: Formatter.format(this.metrics),
-        iconPosition: this.iconPosition,
-      }),
-    )
+    this.$el
+      .find('#nerd-stats-bitrate-weighted-mean')
+      .text(Formatter.formatBitrate(this.metrics.extra.bitrateWeightedMean))
+    this.$el
+      .find('#nerd-stats-bitrate-most-used')
+      .text(Formatter.formatBitrate(this.metrics.extra.bitrateMostUsed))
+    this.$el
+      .find('#nerd-stats-watched-percentage')
+      .text(Formatter.formatPercentage(this.metrics.extra.watchedPercentage))
+    this.$el
+      .find('#nerd-stats-buffering-percentage')
+      .text(Formatter.formatPercentage(this.metrics.extra.bufferingPercentage))
+
+    this.$el
+      .find('#nerd-stats-startup-time')
+      .text(Formatter.formatTime(this.metrics.chrono.startup))
+    this.$el
+      .find('#nerd-stats-watch-time')
+      .text(Formatter.formatTime(this.metrics.chrono.watch))
+    this.$el
+      .find('#nerd-stats-pause-time')
+      .text(Formatter.formatTime(this.metrics.chrono.pause))
+    this.$el
+      .find('#nerd-stats-buffering-time')
+      .text(Formatter.formatTime(this.metrics.chrono.buffering))
+    this.$el
+      .find('#nerd-stats-session-time')
+      .text(Formatter.formatTime(this.metrics.chrono.session))
+
+    this.$el.find('#nerd-stats-plays').text(this.metrics.counters.play)
+    this.$el.find('#nerd-stats-pauses').text(this.metrics.counters.pause)
+    this.$el.find('#nerd-stats-errors').text(this.metrics.counters.error)
+    this.$el
+      .find('#nerd-stats-bufferings')
+      .text(this.metrics.counters.buffering)
+    this.$el
+      .find('#nerd-stats-decoded-frames')
+      .text(this.metrics.counters.decodedFrames)
+    this.$el
+      .find('#nerd-stats-dropped-frames')
+      .text(this.metrics.counters.droppedFrames)
+
+    this.$el
+      .find('#nerd-stats-bitrate-changes')
+      .text(this.metrics.counters.changeLevel)
+    this.$el.find('#nerd-stats-seeks').text(this.metrics.counters.seek)
+    this.$el
+      .find('#nerd-stats-fullscreen')
+      .text(this.metrics.counters.fullscreen)
+    this.$el.find('#nerd-stats-dvr-usage').text(this.metrics.counters.dvrUsage)
+
+    this.$el
+      .find('#nerd-stats-fps')
+      .text(Formatter.formatFps(this.metrics.counters.fps))
+
     this.setStatsBoxSize()
     drawSpeedTestResults()
     drawSummary(
-      this.metrics?.custom,
-      this.$el.find('.speedtest-quality-content[data-streaming-type="vod"]'),
-      this.$el.find('.speedtest-quality-content[data-streaming-type="live"]'),
+      this.speedtestMetrics,
+      this.$el.find('#nerd-stats-quality-vod'),
+      this.$el.find('#nerd-stats-quality-live'),
     )
 
-    this.core.$el.find(this.statsBoxElem).scrollTop(scrollTop)
-
-    if (!this.showing) {
+    if (!this.open) {
       this.hide()
     }
   }
 
+  private updateEstimatedQuality() {
+    this.estimateQuality()
+    this.$el
+      .find('#nerd-stats-quality-vod-text')
+      .html(this.metrics.custom.vodQuality)
+    this.$el
+      .find('#nerd-stats-quality-live-text')
+      .html(this.metrics.custom.liveQuality)
+  }
+
   private setStatsBoxSize() {
     if (this.playerWidth >= this.statsBoxWidthThreshold) {
-      this.$el.find(this.statsBoxElem).addClass('wide')
-      this.$el.find(this.statsBoxElem).removeClass('narrow')
+      this.statsBoxElem.addClass('wide')
+      this.statsBoxElem.removeClass('narrow')
     } else {
-      this.$el.find(this.statsBoxElem).removeClass('wide')
-      this.$el.find(this.statsBoxElem).addClass('narrow')
+      this.statsBoxElem.removeClass('wide')
+      this.statsBoxElem.addClass('narrow')
     }
   }
 
@@ -367,16 +417,21 @@ export class NerdStats extends UICorePlugin {
    * @internal
    */
   override render() {
-    trace(`${T} render`)
-    // TODO append to the container
-    this.core.$el.append(this.$el[0])
-    this.hide()
+    this.$el
+      .html(
+        NerdStats.template({
+          metrics: Formatter.format(this.metrics ?? newMetrics()),
+          iconPosition: this.iconPosition,
+          i18n: this.core.i18n,
+        }),
+      )
+      .hide()
 
     return this
   }
 
-  private addToBottomGear() {
-    trace(`${T} addToBottomGear`)
+  private attach() {
+    trace(`${T} attach`)
     const gear = this.core.getPlugin('bottom_gear') as BottomGear
     gear
       .addItem('nerd_stats')
@@ -392,12 +447,12 @@ export class NerdStats extends UICorePlugin {
       })
   }
 
-  private clearCustomMetrics() {
+  private clearSpeedtestMetrics() {
     const clapprStats = this.container?.getPlugin('clappr_stats')
 
-    this.customMetrics.connectionSpeed = 0
-    this.customMetrics.ping = 0
-    this.customMetrics.jitter = 0
+    this.speedtestMetrics.connectionSpeed = 0
+    this.speedtestMetrics.ping = 0
+    this.speedtestMetrics.jitter = 0
 
     if (clapprStats) {
       this.updateMetrics(clapprStats.exportMetrics())
@@ -407,7 +462,7 @@ export class NerdStats extends UICorePlugin {
   private refreshSpeedTest() {
     stopSpeedtest()
     setTimeout(() => {
-      this.clearCustomMetrics()
+      this.clearSpeedtestMetrics()
       clearSpeedTestResults()
       drawSpeedTestResults()
     }, 200)
@@ -415,12 +470,30 @@ export class NerdStats extends UICorePlugin {
       startSpeedtest()
     }, 800)
   }
+
+  private formatPlaybackName(playbackType: PlaybackType): string {
+    switch (playbackType) {
+      case Playback.VOD:
+        return this.core.i18n.t('vod')
+      case Playback.LIVE:
+        return this.core.i18n.t('live')
+      default:
+        return '-'
+    }
+  }
 }
 
 function newMetrics(): Metrics {
   return {
     ...newBaseMetrics(),
-    general: {},
+    general: {
+      displayResolution: '',
+      resolution: {
+        width: 0,
+        height: 0,
+      },
+      volume: 0,
+    },
     custom: {
       connectionSpeed: 0,
       ping: 0,

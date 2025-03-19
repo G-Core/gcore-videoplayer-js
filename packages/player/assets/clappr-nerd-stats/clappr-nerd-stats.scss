@@ -11,12 +11,15 @@
   --speedtest-green: #73df4d;
 }
 
-.clappr-nerd-stats[data-clappr-nerd-stats] {
+.clappr-nerd-stats {
   .stats-box {
     position: absolute;
     display: inline-block;
     bottom: 52px;
-    right: 16px;
+    right: 0;
+    top: 0;
+    left: 0;
+    bottom: 0;
     padding: 0 10px 12px;
     margin: 0;
     line-height: 20px;
@@ -26,8 +29,8 @@
     color: #fff;
     z-index: 20000;
     overflow: auto;
-    max-height: calc(100vh - 60px);
-    max-width: calc(100vw - 10px);
+    // max-height: calc(100vh - 60px);
+    // max-width: calc(100vw - 10px);
 
     &-top {
       position: absolute;
@@ -129,7 +132,7 @@
 }
 
 .desktop {
-  .clappr-nerd-stats[data-clappr-nerd-stats] .stats-box.narrow {
+  .clappr-nerd-stats .stats-box.narrow {
     width: 250px;
 
     ul {
@@ -365,7 +368,7 @@
 }
 
 .mobile {
-  .clappr-nerd-stats[data-clappr-nerd-stats] {
+  .clappr-nerd-stats {
     .stats-box {
       position: fixed;
       height: auto;
@@ -433,7 +436,7 @@
 
 @media only screen and (orientation: landscape) {
   .mobile {
-    .clappr-nerd-stats[data-clappr-nerd-stats] {
+    .clappr-nerd-stats {
       .stats-box {
         ul {
           width: 25%;
