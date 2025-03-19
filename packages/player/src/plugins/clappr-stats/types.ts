@@ -1,7 +1,7 @@
 /**
  * @beta
  */
-export enum Chronograph {
+export enum ClapprStatsChronograph {
   Startup = 'startup',
   Watch = 'watch',
   Pause = 'pause',
@@ -13,7 +13,7 @@ export enum Chronograph {
 /**
  * @beta
  */
-export enum Counter {
+export enum ClapprStatsCounter {
   Play = 'play',
   Pause = 'pause',
   Error = 'error',
@@ -30,7 +30,7 @@ export enum Counter {
 /**
  * @beta
  */
-export type Metrics = {
+export type ClapprStatsMetrics = {
   /**
    * Events count counters
    */
@@ -38,17 +38,17 @@ export type Metrics = {
     /**
      *
      */
-    [Counter.Play]: number
-    [Counter.Pause]: number
-    [Counter.Error]: number
-    [Counter.Buffering]: number
-    [Counter.DecodedFrames]: number
-    [Counter.DroppedFrames]: number
-    [Counter.Fps]: number
-    [Counter.ChangeLevel]: number
-    [Counter.Seek]: number
-    [Counter.Fullscreen]: number
-    [Counter.DvrUsage]: number
+    [ClapprStatsCounter.Play]: number
+    [ClapprStatsCounter.Pause]: number
+    [ClapprStatsCounter.Error]: number
+    [ClapprStatsCounter.Buffering]: number
+    [ClapprStatsCounter.DecodedFrames]: number
+    [ClapprStatsCounter.DroppedFrames]: number
+    [ClapprStatsCounter.Fps]: number
+    [ClapprStatsCounter.ChangeLevel]: number
+    [ClapprStatsCounter.Seek]: number
+    [ClapprStatsCounter.Fullscreen]: number
+    [ClapprStatsCounter.DvrUsage]: number
   }
   /**
    * Time measurements - accumulated duration of time-based activities
@@ -57,17 +57,17 @@ export type Metrics = {
     /**
      * Time spent in the startup phase
      */
-    [Chronograph.Startup]: number
+    [ClapprStatsChronograph.Startup]: number
     /**
      * Total time spent in the watch phase
      */
-    [Chronograph.Watch]: number
+    [ClapprStatsChronograph.Watch]: number
     /**
      *
      */
-    [Chronograph.Pause]: number
-    [Chronograph.Buffering]: number
-    [Chronograph.Session]: number
+    [ClapprStatsChronograph.Pause]: number
+    [ClapprStatsChronograph.Buffering]: number
+    [ClapprStatsChronograph.Session]: number
     // [Chronograph.Latency]: number;
   }
   extra: {

@@ -8,7 +8,7 @@ import { Events } from '@clappr/core'
 // Logger.enable('*')
 // setTracer(new LogTracer('Clips.text'))
 
-describe('ClipsPlugin', () => {
+describe('Clips', () => {
   let core: any
   let mediaControl: any
   let clips: Clips

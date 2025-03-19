@@ -20,10 +20,6 @@ export declare class ClapprStats extends ContainerPlugin
 
 This plugin does not render anything and is supposed to be extended or used together with other plugins that actually render something.
 
-Configuration options - [ClapprStatsSettings](./player.clapprstatssettings.md)
-
-Events - 
-
 ## Constructors
 
 <table><thead><tr><th>

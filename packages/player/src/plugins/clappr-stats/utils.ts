@@ -1,6 +1,6 @@
-import type { Metrics } from './types'
+import type { ClapprStatsMetrics } from './types'
 
-export function newMetrics(): Metrics {
+export function newMetrics(): ClapprStatsMetrics {
   return {
     counters: {
       play: 0,

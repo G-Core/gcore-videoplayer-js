@@ -12,7 +12,7 @@ import clipsHTML from '../../../assets/clips/clips.ejs'
 const T = 'plugins.clips'
 
 /**
- * Configuration options for the {@link ClipsPlugin} plugin.
+ * Configuration options for the {@link Clips} plugin.
  * @beta
  */
 export interface ClipsPluginSettings {

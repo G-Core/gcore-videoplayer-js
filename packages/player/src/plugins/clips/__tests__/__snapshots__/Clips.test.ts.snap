@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`ClipsPlugin > should render indicator 1`] = `
+exports[`Clips > should render indicator 1`] = `
 "<div class="media-clip-text" id="clips-text">Introduction</div><svg width="0" height="0">
 <defs>
 <clipPath id="myClip">

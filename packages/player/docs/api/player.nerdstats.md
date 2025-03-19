@@ -7,7 +7,7 @@
 > This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
 > 
 
-`PLUGIN` that displays useful network-related statistics.
+`PLUGIN` that displays useful statistics regarding the playback as well as the network quality estimation.
 
 **Signature:**
 
@@ -20,9 +20,9 @@ export declare class NerdStats extends UICorePlugin
 
 Depends on:
 
-- [BottomGear](./player.bottomgear.md)
+- [BottomGear](./player.bottomgear.md) - where the button is attached
 
-- [ClapprStats](./player.clapprstats.md)
+- [ClapprStats](./player.clapprstats.md) - to get the metrics from
 
 The plugin is rendered as an item in the gear menu.
 

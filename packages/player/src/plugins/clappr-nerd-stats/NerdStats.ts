@@ -13,7 +13,7 @@ import assert from 'assert'
 import { CLAPPR_VERSION } from '../../build.js'
 import {
   ClapprStatsEvents,
-  Metrics as PerfMetrics,
+  ClapprStatsMetrics as PerfMetrics,
 } from '../clappr-stats/types.js'
 import { newMetrics as newBaseMetrics } from '../clappr-stats/utils.js'
 import Formatter from './formatter.js'
@@ -62,16 +62,16 @@ type Metrics = PerfMetrics & {
 const T = 'plugins.nerd_stats'
 
 /**
- * `PLUGIN` that displays useful network-related statistics.
+ * `PLUGIN` that displays useful statistics regarding the playback as well as the network quality estimation.
  * @beta
  *
  * @remarks
  * Depends on:
  *
- * - {@link BottomGear}
+ * - {@link BottomGear} - where the button is attached
  *
- * - {@link ClapprStats}
- *
+ * - {@link ClapprStats} - to get the metrics from
+*
  * The plugin is rendered as an item in the gear menu.
  *
  * When clicked, it shows an overlay window with the information about the network speed, latency, etc,

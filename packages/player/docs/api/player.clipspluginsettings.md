@@ -7,7 +7,7 @@
 > This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
 > 
 
-Configuration options for the  plugin.
+Configuration options for the [Clips](./player.clips.md) plugin.
 
 **Signature:**
 

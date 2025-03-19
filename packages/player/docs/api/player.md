@@ -215,7 +215,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** `PLUGIN` that displays useful network-related statistics.
+**_(BETA)_** `PLUGIN` that displays useful statistics regarding the playback as well as the network quality estimation.
 
 
 </td></tr>
@@ -379,6 +379,39 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
+[ClapprStatsChronograph](./player.clapprstatschronograph.md)
+
+
+</td><td>
+
+**_(BETA)_**
+
+
+</td></tr>
+<tr><td>
+
+[ClapprStatsCounter](./player.clapprstatscounter.md)
+
+
+</td><td>
+
+**_(BETA)_**
+
+
+</td></tr>
+<tr><td>
+
+[ClapprStatsEvents](./player.clapprstatsevents.md)
+
+
+</td><td>
+
+**_(BETA)_**
+
+
+</td></tr>
+<tr><td>
+
 [GearEvents](./player.gearevents.md)
 
 
@@ -491,7 +524,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Configuration options for the  plugin.
+**_(BETA)_** Configuration options for the [Clips](./player.clips.md) plugin.
 
 
 </td></tr>
@@ -654,6 +687,28 @@ Description
 
 </th></tr></thead>
 <tbody><tr><td>
+
+[BitrateTrackRecord](./player.bitratetrackrecord.md)
+
+
+</td><td>
+
+**_(BETA)_**
+
+
+</td></tr>
+<tr><td>
+
+[ClapprStatsMetrics](./player.clapprstatsmetrics.md)
+
+
+</td><td>
+
+**_(BETA)_**
+
+
+</td></tr>
+<tr><td>
 
 [ClapprStatsSettings](./player.clapprstatssettings.md)
 

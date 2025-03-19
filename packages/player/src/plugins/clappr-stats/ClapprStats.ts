@@ -8,8 +8,13 @@ import type {
 
 import { CLAPPR_VERSION } from '../../build.js'
 import { TimerId } from '../../utils/types.js'
-import type { Metrics } from './types.js'
-import { ClapprStatsEvents, Chronograph, Counter } from './types.js'
+import type { ClapprStatsMetrics } from './types.js'
+import {
+  ClapprStatsEvents,
+  ClapprStatsChronograph,
+  ClapprStatsCounter,
+} from './types.js'
+export * from './types.js'
 import { newMetrics } from './utils.js'
 
 export type ClapprStatsSettings = {
@@ -26,6 +31,8 @@ export type ClapprStatsSettings = {
  * @remarks
  * This plugin does not render anything and is supposed to be extended or used together with other plugins that actually render something.
  *
+ * @see {@link NerdStats} - a plugin that visualises the playback metrics
+ *
  * Configuration options - {@link ClapprStatsSettings}
  *
  * Events - {@link ClapprStatsEvents}
@@ -35,14 +42,14 @@ export class ClapprStats extends ContainerPlugin {
 
   private lastDecodedFramesCount = 0
 
-  private metrics: Metrics = newMetrics()
+  private metrics: ClapprStatsMetrics = newMetrics()
 
-  private timers: Record<Chronograph, number> = {
-    [Chronograph.Startup]: 0,
-    [Chronograph.Watch]: 0,
-    [Chronograph.Pause]: 0,
-    [Chronograph.Buffering]: 0,
-    [Chronograph.Session]: 0,
+  private timers: Record<ClapprStatsChronograph, number> = {
+    [ClapprStatsChronograph.Startup]: 0,
+    [ClapprStatsChronograph.Watch]: 0,
+    [ClapprStatsChronograph.Pause]: 0,
+    [ClapprStatsChronograph.Buffering]: 0,
+    [ClapprStatsChronograph.Session]: 0,
   }
 
   private runEach: number
@@ -78,21 +85,15 @@ export class ClapprStats extends ContainerPlugin {
       : new Date().getTime()
   }
 
-  private inc(counter: Counter) {
+  private inc(counter: ClapprStatsCounter) {
     this.metrics.counters[counter] += 1
   }
 
-  // _timerHasStarted(timer) {
-  //   return this[`_start${timer}`] !== undefined;
-  // }
-
-  private start(timer: Chronograph) {
-    // this[`_start${timer}`] = this._now();
+  private start(timer: ClapprStatsChronograph) {
     this.timers[timer] = this.now()
   }
 
-  private stop(timer: Chronograph) {
-    // this._metrics.timers[timer] += this._now() - this[`_start${timer}`];
+  private stop(timer: ClapprStatsChronograph) {
     this.metrics.chrono[timer] += this.now() - this.timers[timer]
   }
 
@@ -131,16 +132,16 @@ export class ClapprStats extends ContainerPlugin {
     )
     this.listenTo(this.container, CoreEvents.CONTAINER_SEEK, this.onSeek)
     this.listenTo(this.container, CoreEvents.CONTAINER_ERROR, () =>
-      this.inc(Counter.Error),
+      this.inc(ClapprStatsCounter.Error),
     )
     this.listenTo(this.container, CoreEvents.CONTAINER_FULLSCREEN, () =>
-      this.inc(Counter.Fullscreen),
+      this.inc(ClapprStatsCounter.Fullscreen),
     )
     this.listenTo(
       this.container,
       CoreEvents.CONTAINER_PLAYBACKDVRSTATECHANGED,
       (dvrInUse: boolean) => {
-        dvrInUse && this.inc(Counter.DvrUsage)
+        dvrInUse && this.inc(ClapprStatsCounter.DvrUsage)
       },
     )
     this.listenTo(
@@ -186,7 +187,7 @@ export class ClapprStats extends ContainerPlugin {
 
     this.metrics.extra.bitratesHistory.push({ start: this.now(), bitrate })
 
-    this.inc(Counter.ChangeLevel)
+    this.inc(ClapprStatsCounter.ChangeLevel)
   }
 
   private stopReporting() {
@@ -200,8 +201,8 @@ export class ClapprStats extends ContainerPlugin {
 
   private startTimers() {
     this.timerId = setInterval(this.buildReport.bind(this), this.runEach)
-    this.start(Chronograph.Session)
-    this.start(Chronograph.Startup)
+    this.start(ClapprStatsChronograph.Session)
+    this.start(ClapprStatsChronograph.Startup)
   }
 
   private onFirstPlaying() {
@@ -211,8 +212,8 @@ export class ClapprStats extends ContainerPlugin {
       this.onContainerUpdateWhilePlaying,
     )
 
-    this.start(Chronograph.Watch)
-    this.stop(Chronograph.Startup)
+    this.start(ClapprStatsChronograph.Watch)
+    this.stop(ClapprStatsChronograph.Startup)
   }
 
   private playAfterPause() {
@@ -221,18 +222,18 @@ export class ClapprStats extends ContainerPlugin {
       CoreEvents.CONTAINER_TIMEUPDATE,
       this.onContainerUpdateWhilePlaying,
     )
-    this.stop(Chronograph.Pause)
-    this.start(Chronograph.Watch)
+    this.stop(ClapprStatsChronograph.Pause)
+    this.start(ClapprStatsChronograph.Watch)
   }
 
   private onPlay() {
-    this.inc(Counter.Play)
+    this.inc(ClapprStatsCounter.Play)
   }
 
   private onPause() {
-    this.stop(Chronograph.Watch)
-    this.start(Chronograph.Pause)
-    this.inc(Counter.Pause)
+    this.stop(ClapprStatsChronograph.Watch)
+    this.start(ClapprStatsChronograph.Pause)
+    this.inc(ClapprStatsCounter.Pause)
     this.listenToOnce(
       this.container,
       CoreEvents.CONTAINER_PLAY,
@@ -246,7 +247,7 @@ export class ClapprStats extends ContainerPlugin {
   }
 
   private onSeek(e: number) {
-    this.inc(Counter.Seek)
+    this.inc(ClapprStatsCounter.Seek)
     this.metrics.extra.watchHistory.push([e * 1000, e * 1000])
   }
 
@@ -282,14 +283,14 @@ export class ClapprStats extends ContainerPlugin {
 
   private onContainerUpdateWhilePlaying() {
     if (this.container.playback.isPlaying()) {
-      this.stop(Chronograph.Watch)
-      this.start(Chronograph.Watch)
+      this.stop(ClapprStatsChronograph.Watch)
+      this.start(ClapprStatsChronograph.Watch)
     }
   }
 
   private onBuffering() {
-    this.inc(Counter.Buffering)
-    this.start(Chronograph.Buffering)
+    this.inc(ClapprStatsCounter.Buffering)
+    this.start(ClapprStatsChronograph.Buffering)
     this.listenToOnce(
       this.container,
       CoreEvents.CONTAINER_STATE_BUFFERFULL,
@@ -298,7 +299,7 @@ export class ClapprStats extends ContainerPlugin {
   }
 
   private onBufferfull() {
-    this.stop(Chronograph.Buffering)
+    this.stop(ClapprStatsChronograph.Buffering)
     this.listenToOnce(
       this.container,
       CoreEvents.CONTAINER_STATE_BUFFERING,
@@ -317,8 +318,8 @@ export class ClapprStats extends ContainerPlugin {
   }
 
   private buildReport() {
-    this.stop(Chronograph.Session)
-    this.start(Chronograph.Session)
+    this.stop(ClapprStatsChronograph.Session)
+    this.start(ClapprStatsChronograph.Session)
 
     this.metrics.extra.playbackName = this.playbackName
     this.metrics.extra.playbackType = this.playbackType

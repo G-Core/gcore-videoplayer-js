@@ -163,7 +163,7 @@ export interface PlayerConfig extends Record<string, unknown> {
 
   /**
    * Stream type.
-   * @remark
+   * @remarks
    * Should only be set if known in advance, as it should not change once determined.
    * Otherwise it might cause inconsistencies in the UI plugins behavior, for instance, glitches with rendering of the DVR controls or seek bar.
    */

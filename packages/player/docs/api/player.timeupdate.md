@@ -7,14 +7,17 @@
 > This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
 > 
 
+> Warning: This API is now obsolete.
+> 
+> Use TimePosition instead
+> 
+
 For the plugin development
 
 **Signature:**
 
 ```typescript
-export type TimeUpdate = TimePosition & {
-    firstFragDateTime: number;
-};
+export type TimeUpdate = TimePosition;
 ```
 **References:** [TimePosition](./player.timeposition.md)
 
