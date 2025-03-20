@@ -41,7 +41,7 @@ const player = new Player({
       { value: 1, label: '1x' },
     ],
     defaultValue: 1,
-  } as PlaybackRateSettings,
+  },
 })
 ```
 
