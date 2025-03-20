@@ -25,7 +25,7 @@ export class ClickToPause extends ContainerPlugin {
    * @internal
    */
   get name() {
-    return 'click_to_pause_custom'
+    return 'click_to_pause'
   }
 
   /**

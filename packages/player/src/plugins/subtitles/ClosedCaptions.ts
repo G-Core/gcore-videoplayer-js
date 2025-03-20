@@ -337,7 +337,7 @@ export class ClosedCaptions extends UICorePlugin {
     this.resizeFont()
 
     this.core.activeContainer.$el.append(this.$line)
-    mediaControl.putElement('cc', this.$el)
+    mediaControl.mount('cc', this.$el)
 
     this.updateSelection()
 

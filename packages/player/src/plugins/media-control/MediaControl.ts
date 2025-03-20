@@ -81,6 +81,16 @@ export type MediaControlElement =
   | MediaControlLayerElement
   | MediaControlRightElement
 
+const MANAGED_ELEMENTS: MediaControlElement[] = [
+  'dvr',
+  'duration',
+  'fullscreen',
+  'hd-indicator',
+  'position',
+  'seekbar',
+  'volume',
+]
+
 /**
  * Specifies the allowed media control elements in each area.
  * Can be used to restrict rendered media control elements.
@@ -99,8 +109,6 @@ const DEFAULT_SETTINGS: MediaControlSettings = {
   right: [
     'audiotracks',
     'cc',
-    // 'dvr',
-    // 'duration',
     'fullscreen',
     'gear',
     'multicamera',
@@ -122,10 +130,10 @@ const T = 'plugins.media_control'
 const LEFT_ORDER = [
   'playpause',
   'playstop',
-  'dvr',
   'volume',
   'position',
   'duration',
+  'dvr',
 ]
 
 const { Config, Fullscreen, formatTime, extend, removeArrayItem } = Utils
@@ -996,8 +1004,7 @@ export class MediaControl extends UICorePlugin {
       }
       this.$el.show()
       this.trigger(Events.MEDIACONTROL_SHOW, this.name)
-      this.container &&
-        this.container.trigger(Events.CONTAINER_MEDIACONTROL_SHOW, this.name)
+      this.core.activeContainer?.trigger(Events.CONTAINER_MEDIACONTROL_SHOW, this.name)
       this.$el.removeClass('media-control-hide')
       this.hideId = setTimeout(() => this.hide(), timeout)
       if (event) {
@@ -1066,7 +1073,7 @@ export class MediaControl extends UICorePlugin {
     )
     trace(`${T} updateSettings`, { newSettings })
 
-    newSettings.left.push('clips') // TODO
+    newSettings.left.push('clips') // TODO settings
     // TODO make order controlled via CSS
     newSettings.left = orderByOrderPattern(
       [...newSettings.left, 'volume', 'clips'],
@@ -1155,7 +1162,6 @@ export class MediaControl extends UICorePlugin {
    * Get a media control element DOM node
    * @param name - The name of the media control element
    * @returns The DOM node to render to or extend
-   * @deprecated  Use {@link MediaControl.putElement} instead
    * @remarks
    * Use this method to render custom media control UI in a plugin
    * @example
@@ -1171,7 +1177,7 @@ export class MediaControl extends UICorePlugin {
    */
   mount(name: MediaControlElement, element: ZeptoResult) {
     const panel = this.getElementLocation(name)
-    trace(`${T} putElement`, { name, panel: !!panel })
+    trace(`${T} mount`, { name, panel: !!panel })
     if (panel) {
       const current = panel.find(`[data-${name}]`)
       element.attr(`data-${name}`, '')
@@ -1188,6 +1194,11 @@ export class MediaControl extends UICorePlugin {
     }
   }
 
+  /**
+   * @deprecated  Use {@link MediaControl.mount} instead
+   * @param name
+   * @param element
+   */
   putElement(name: MediaControlElement, element: ZeptoResult) {
     this.mount(name, element)
   }
@@ -1195,7 +1206,7 @@ export class MediaControl extends UICorePlugin {
   /**
    * Toggle the visibility of a media control element
    * @param name - The name of the media control element
-   * @param show - Whether to show or hide the element
+   * @param show - Visibility state
    */
   toggleElement(area: MediaControlElement, show: boolean) {
     this.$el.find(`[data-${area}]`).toggle(show)
@@ -1456,6 +1467,7 @@ export class MediaControl extends UICorePlugin {
         width: this.options.width,
         height: this.options.height,
       })
+      // TODO check out
       this.hideVolumeBar(0)
     }, 0)
 

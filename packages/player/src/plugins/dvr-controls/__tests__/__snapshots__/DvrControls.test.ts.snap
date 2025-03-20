@@ -5,15 +5,3 @@ exports[`DvrControls > basically > should render 1`] = `
 <button type="button" class="live-button" aria-label="back_to_live" id="media-control-back-to-live">back_to_live</button>
 "
 `;
-
-exports[`DvrControls > live stream > DVR at live edge > should render 1`] = `
-"<div class="live-info" id="media-control-live">live</div>
-<button type="button" class="live-button" aria-label="back_to_live" id="media-control-back-to-live">back_to_live</button>
-"
-`;
-
-exports[`DvrControls > live stream > no DVR > should render 1`] = `
-"<div class="live-info" id="media-control-live">live</div>
-<button type="button" class="live-button" aria-label="back_to_live" id="media-control-back-to-live">back_to_live</button>
-"
-`;

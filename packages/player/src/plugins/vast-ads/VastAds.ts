@@ -627,7 +627,7 @@ export class VastAds extends UICorePlugin {
 
     // Attempt to get click-to-pause plugin. (May interfere with advert click handling)
     this._clickToPausePlugin = this._container?.getPlugin(
-      'click_to_pause_custom',
+      'click_to_pause',
     )
 
     assert(this.playback, 'playback is not defined')

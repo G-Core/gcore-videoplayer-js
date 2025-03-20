@@ -34,7 +34,7 @@ describe('AudioSelector', () => {
       emitTracksAvailable(core, TRACKS)
     })
     it('should not attach to the media control', () => {
-      expect(mediaControl.putElement).not.toHaveBeenCalledWith(
+      expect(mediaControl.mount).not.toHaveBeenCalledWith(
         'audiotracks',
         expect.anything(),
       )
@@ -45,20 +45,20 @@ describe('AudioSelector', () => {
       mediaControl.trigger(Events.MEDIACONTROL_RENDERED)
     })
     it('should attach to the media control', () => {
-      expect(mediaControl.putElement).toHaveBeenCalledWith(
+      expect(mediaControl.mount).toHaveBeenCalledWith(
         'audiotracks',
         audioSelector.$el,
       )
     })
   })
-  describe('when audio tracks are available', () => {
+  describe('given that audio tracks are available', () => {
     beforeEach(() => {
       emitTracksAvailable(core, TRACKS)
     })
-    it('should render the button', () => {
+    it('should render button', () => {
       expect(audioSelector.$el.find('#audiotracks-button').length).toBe(1)
     })
-    it('should render the menu hidden', () => {
+    it('should render menu hidden', () => {
       expect(audioSelector.el.innerHTML).toMatchSnapshot()
       expect(
         audioSelector.$el.find('#audiotracks-select').hasClass('hidden'),
@@ -68,17 +68,17 @@ describe('AudioSelector', () => {
       expect(trackItems.eq(0).text().trim()).toBe('English')
       expect(trackItems.eq(1).text().trim()).toBe('Spanish')
     })
-    describe('when the button is clicked', () => {
+    describe('when button is clicked', () => {
       beforeEach(() => {
         audioSelector.$el.find('#audiotracks-button').click()
       })
-      it('should show the menu', () => {
+      it('should show menu', () => {
         expect(audioSelector.$el.html()).toMatchSnapshot()
         expect(
           audioSelector.$el.find('#audiotracks-select').hasClass('hidden'),
         ).toBe(false)
       })
-      describe('when an audio track is selected', () => {
+      describe('when audio track is selected', () => {
         beforeEach(() => {
           audioSelector.$el
             .find('#audiotracks-select [data-audiotracks-select="2"]')

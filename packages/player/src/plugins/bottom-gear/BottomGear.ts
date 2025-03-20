@@ -21,7 +21,7 @@ const T = 'plugins.bottom_gear'
  */
 export enum GearEvents {
   /**
-   * Use this event to accurately attach an item to the gear menu
+   * Subscribe to this event to accurately attach an item to the gear menu
    */
   RENDERED = 'rendered',
 }
@@ -276,6 +276,6 @@ export class BottomGear extends UICorePlugin {
   private onMediaControlRendered() {
     trace(`${T} onMediaControlRendered`)
     const mediaControl = this.core.getPlugin('media_control')
-    mediaControl.putElement('gear', this.$el)
+    mediaControl.mount('gear', this.$el)
   }
 }

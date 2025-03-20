@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`MediaControl > putElement > audiotracks > should put the element in the right panel 1`] = `
+exports[`MediaControl > mount > audiotracks > should put the element in the right panel 1`] = `
 "<div class="media-control-background" data-background=""></div>
 
 <div class="media-control-layer gcore-skin-bg-color" data-controls="">
@@ -26,9 +26,9 @@ exports[`MediaControl > putElement > audiotracks > should put the element in the
             
     <div class="bar-container" data-volume="">
         <div class="bar-background" data-volume="">
-            <div class="bar-fill-1 gcore-skin-main-color" data-volume="" style=""></div>
+            <div class="bar-fill-1 gcore-skin-main-color" data-volume="" style="width: 100%;"></div>
         </div>
-        <div class="bar-scrubber" data-volume="" style="">
+        <div class="bar-scrubber" data-volume="" style="left: 100%;">
             <div class="bar-scrubber-icon gcore-skin-main-color" data-volume=""></div>
         </div>
     </div>
@@ -55,7 +55,7 @@ exports[`MediaControl > putElement > audiotracks > should put the element in the
 <style>:root {}</style>"
 `;
 
-exports[`MediaControl > putElement > cc > should put the element in the right panel 1`] = `
+exports[`MediaControl > mount > cc > should put the element in the right panel 1`] = `
 "<div class="media-control-background" data-background=""></div>
 
 <div class="media-control-layer gcore-skin-bg-color" data-controls="">
@@ -81,9 +81,9 @@ exports[`MediaControl > putElement > cc > should put the element in the right pa
             
     <div class="bar-container" data-volume="">
         <div class="bar-background" data-volume="">
-            <div class="bar-fill-1 gcore-skin-main-color" data-volume="" style=""></div>
+            <div class="bar-fill-1 gcore-skin-main-color" data-volume="" style="width: 100%;"></div>
         </div>
-        <div class="bar-scrubber" data-volume="" style="">
+        <div class="bar-scrubber" data-volume="" style="left: 100%;">
             <div class="bar-scrubber-icon gcore-skin-main-color" data-volume=""></div>
         </div>
     </div>
@@ -110,7 +110,7 @@ exports[`MediaControl > putElement > cc > should put the element in the right pa
 <style>:root {}</style>"
 `;
 
-exports[`MediaControl > putElement > gear > should put the element in the right panel 1`] = `
+exports[`MediaControl > mount > gear > should put the element in the right panel 1`] = `
 "<div class="media-control-background" data-background=""></div>
 
 <div class="media-control-layer gcore-skin-bg-color" data-controls="">
@@ -136,9 +136,9 @@ exports[`MediaControl > putElement > gear > should put the element in the right 
             
     <div class="bar-container" data-volume="">
         <div class="bar-background" data-volume="">
-            <div class="bar-fill-1 gcore-skin-main-color" data-volume="" style=""></div>
+            <div class="bar-fill-1 gcore-skin-main-color" data-volume="" style="width: 100%;"></div>
         </div>
-        <div class="bar-scrubber" data-volume="" style="">
+        <div class="bar-scrubber" data-volume="" style="left: 100%;">
             <div class="bar-scrubber-icon gcore-skin-main-color" data-volume=""></div>
         </div>
     </div>
@@ -165,7 +165,7 @@ exports[`MediaControl > putElement > gear > should put the element in the right 
 <style>:root {}</style>"
 `;
 
-exports[`MediaControl > putElement > pip > should put the element in the right panel 1`] = `
+exports[`MediaControl > mount > pip > should put the element in the right panel 1`] = `
 "<div class="media-control-background" data-background=""></div>
 
 <div class="media-control-layer gcore-skin-bg-color" data-controls="">
@@ -191,9 +191,9 @@ exports[`MediaControl > putElement > pip > should put the element in the right p
             
     <div class="bar-container" data-volume="">
         <div class="bar-background" data-volume="">
-            <div class="bar-fill-1 gcore-skin-main-color" data-volume="" style=""></div>
+            <div class="bar-fill-1 gcore-skin-main-color" data-volume="" style="width: 100%;"></div>
         </div>
-        <div class="bar-scrubber" data-volume="" style="">
+        <div class="bar-scrubber" data-volume="" style="left: 100%;">
             <div class="bar-scrubber-icon gcore-skin-main-color" data-volume=""></div>
         </div>
     </div>
@@ -248,9 +248,9 @@ exports[`MediaControl > rendering timing > once metadata is loaded > should wait
             
     <div class="bar-container" data-volume="">
         <div class="bar-background" data-volume="">
-            <div class="bar-fill-1 gcore-skin-main-color" data-volume="" style=""></div>
+            <div class="bar-fill-1 gcore-skin-main-color" data-volume="" style="width: 100%;"></div>
         </div>
-        <div class="bar-scrubber" data-volume="" style="">
+        <div class="bar-scrubber" data-volume="" style="left: 100%;">
             <div class="bar-scrubber-icon gcore-skin-main-color" data-volume=""></div>
         </div>
     </div>
@@ -271,11 +271,11 @@ exports[`MediaControl > rendering timing > once metadata is loaded > should wait
         <div class="bar-container" data-seekbar="">
             <div class="bar-background" data-seekbar="">
                 <div class="bar-fill-1" data-seekbar=""></div>
-                <div class="bar-fill-2 gcore-skin-main-color" data-seekbar="" style=""></div>
+                <div class="bar-fill-2 gcore-skin-main-color" data-seekbar="" style="width: 0%;"></div>
                 <div class="bar-hover" data-seekbar=""></div>
             </div>
         </div>
-        <div class="bar-scrubber" data-seekbar="" style="">
+        <div class="bar-scrubber" data-seekbar="" style="left: 0%;">
             <div class="bar-scrubber-icon gcore-skin-main-color" data-seekbar=""></div>
         </div>
     
@@ -324,9 +324,9 @@ exports[`MediaControl > updateSettings > dvr > when disabled > should disable DV
             
     <div class="bar-container" data-volume="">
         <div class="bar-background" data-volume="">
-            <div class="bar-fill-1 gcore-skin-main-color" data-volume="" style=""></div>
+            <div class="bar-fill-1 gcore-skin-main-color" data-volume="" style="width: 100%;"></div>
         </div>
-        <div class="bar-scrubber" data-volume="" style="">
+        <div class="bar-scrubber" data-volume="" style="left: 100%;">
             <div class="bar-scrubber-icon gcore-skin-main-color" data-volume=""></div>
         </div>
     </div>
@@ -385,9 +385,9 @@ exports[`MediaControl > updateSettings > dvr > when enabled > should enable DVR 
             
     <div class="bar-container" data-volume="">
         <div class="bar-background" data-volume="">
-            <div class="bar-fill-1 gcore-skin-main-color" data-volume="" style=""></div>
+            <div class="bar-fill-1 gcore-skin-main-color" data-volume="" style="width: 100%;"></div>
         </div>
-        <div class="bar-scrubber" data-volume="" style="">
+        <div class="bar-scrubber" data-volume="" style="left: 100%;">
             <div class="bar-scrubber-icon gcore-skin-main-color" data-volume=""></div>
         </div>
     </div>

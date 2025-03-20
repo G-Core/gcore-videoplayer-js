@@ -9,6 +9,7 @@ import '../../../assets/audio-selector/style.scss'
 import audioArrow from '../../../assets/icons/old/quality-arrow.svg'
 import { ZeptoResult } from '../../types.js'
 import { MediaControl } from '../media-control/MediaControl.js'
+// import { trace } from '@gcorevideo/utils'
 
 const VERSION: string = '2.22.4'
 
@@ -87,7 +88,7 @@ export class AudioTracks extends UICorePlugin {
     const mediaControl = this.core.getPlugin('media_control')
     assert(mediaControl, 'media_control plugin is required')
     this.listenTo(mediaControl, Events.MEDIACONTROL_RENDERED, () => {
-      mediaControl.putElement('audiotracks', this.$el)
+      mediaControl.mount('audiotracks', this.$el)
     })
     this.listenTo(mediaControl, Events.MEDIACONTROL_HIDE, this.hideMenu)
   }
@@ -130,12 +131,12 @@ export class AudioTracks extends UICorePlugin {
       return this
     }
 
-    const mediaControl = this.core.getPlugin('media_control') as MediaControl
     this.$el.html(
       AudioTracks.template({
         tracks: this.tracks,
         title: this.getTitle(),
         icon: audioArrow,
+        current: this.currentTrack?.id,
       }),
     )
     this.updateText()
@@ -145,7 +146,7 @@ export class AudioTracks extends UICorePlugin {
   }
 
   private onTrackSelect(event: MouseEvent) {
-    const id = (event.target as HTMLElement)?.dataset?.audiotracksSelect
+    const id = (event.currentTarget as HTMLElement)?.dataset?.audiotracksSelect
     if (id) {
       this.selectAudioTrack(id)
     }
@@ -155,7 +156,7 @@ export class AudioTracks extends UICorePlugin {
   }
 
   private selectAudioTrack(id: string) {
-    this.startTrackSwitch()
+    this.startTrackSwitching()
     this.core.activeContainer.switchAudioTrack(id)
     this.updateText()
   }
@@ -165,7 +166,9 @@ export class AudioTracks extends UICorePlugin {
   }
 
   private toggleContextMenu() {
-    this.$el.find('#audiotracks-select').toggleClass('hidden')
+    this.$el.find('#audiotracks-select').toggleClass('hidden') // TODO use plain CSS display: none
+    const open = !this.$el.find('#audiotracks-select').hasClass('hidden') // TODO hold state
+    this.$el.find('#audiotracks-button').attr('aria-expanded', open)
   }
 
   private buttonElement(): ZeptoResult {
@@ -192,7 +195,7 @@ export class AudioTracks extends UICorePlugin {
     return this.currentTrack.label || this.currentTrack.language
   }
 
-  private startTrackSwitch() {
+  private startTrackSwitching() {
     this.buttonElement().addClass('changing')
   }
 
@@ -205,13 +208,17 @@ export class AudioTracks extends UICorePlugin {
 
   private highlightCurrentTrack() {
     this.trackElement().removeClass('current')
-    this.trackElement().find('a').removeClass('gcore-skin-active')
+    this.trackElement()
+      .find('a')
+      .removeClass('gcore-skin-active')
+      .attr('aria-checked', 'false')
 
     if (this.currentTrack) {
       this.trackElement(this.currentTrack.id)
         .addClass('current')
         .find('a')
         .addClass('gcore-skin-active')
+        .attr('aria-checked', 'true')
     }
   }
 }

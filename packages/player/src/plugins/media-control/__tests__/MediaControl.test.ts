@@ -189,7 +189,7 @@ describe('MediaControl', () => {
       })
     })
   })
-  describe('putElement', () => {
+  describe('mount', () => {
     beforeEach(async () => {
       mediaControl = new MediaControl(core)
       core.emit(Events.CORE_READY)
@@ -212,7 +212,7 @@ describe('MediaControl', () => {
         const element = document.createElement('div')
         element.className = 'my-media-control'
         element.textContent = 'test'
-        mediaControl.putElement(mcName, $(element))
+        mediaControl.mount(mcName, $(element))
 
         expect(mediaControl.el.innerHTML).toMatchSnapshot()
         expect(
@@ -234,19 +234,22 @@ describe('MediaControl', () => {
           seekEnabled: true,
         }
         core.emit(Events.CORE_ACTIVE_CONTAINER_CHANGED, core.activeContainer)
+        core.activePlayback.getPlaybackType.mockReturnValue(Playback.LIVE)
+        core.activeContainer.getPlaybackType.mockReturnValue(Playback.LIVE)
+        core.getPlaybackType.mockReturnValue(Playback.LIVE)
         await runMetadataLoaded(core)
       })
       describe('when enabled', () => {
         beforeEach(() => {
           core.activePlayback.dvrEnabled = true
           core.activeContainer.isDvrEnabled.mockReturnValue(true)
-          core.activeContainer.emit(Events.CONTAINER_SETTINGSUPDATE, true)
+          core.activeContainer.emit(Events.CONTAINER_SETTINGSUPDATE)
         })
         it('should enable DVR controls', () => {
           const element = document.createElement('div')
           element.className = 'my-dvr-controls'
           element.textContent = 'live'
-          mediaControl.putElement('dvr', $(element))
+          mediaControl.mount('dvr', $(element))
           expect(mediaControl.el.innerHTML).toMatchSnapshot()
           expect(
             mediaControl.$el.find('.media-control-left-panel .my-dvr-controls')
@@ -259,7 +262,7 @@ describe('MediaControl', () => {
           const element = document.createElement('div')
           element.className = 'my-dvr-controls'
           element.textContent = 'live'
-          mediaControl.putElement('dvr', $(element))
+          mediaControl.mount('dvr', $(element))
           expect(mediaControl.el.innerHTML).toMatchSnapshot()
           expect(
             mediaControl.$el.find('.media-control-left-panel .my-dvr-controls')

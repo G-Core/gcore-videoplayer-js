@@ -1,14 +1,14 @@
-import { Core, Events, Playback, UICorePlugin, template } from '@clappr/core'
+import { Events, Playback, UICorePlugin, template } from '@clappr/core'
 import assert from 'assert'
 
 import { CLAPPR_VERSION } from '../../build.js'
 
 import dvrHTML from '../../../assets/dvr-controls/index.ejs'
 import '../../../assets/dvr-controls/dvr_controls.scss'
-import { trace } from '@gcorevideo/utils'
+// import { trace } from '@gcorevideo/utils'
 import { MediaControl } from '../media-control/MediaControl.js'
 
-const T = 'plugins.dvr_controls'
+// const T = 'plugins.dvr_controls'
 
 /**
  * `PLUGIN` that adds the DVR controls to the media control UI
@@ -63,11 +63,11 @@ export class DvrControls extends UICorePlugin {
    * @internal
    */
   override bindEvents() {
-    this.listenTo(this.core, Events.CORE_READY, this.onCoreReady)
+    this.listenToOnce(this.core, Events.CORE_READY, this.onCoreReady)
     this.listenTo(
       this.core,
       Events.CORE_ACTIVE_CONTAINER_CHANGED,
-      this.bindContainerEvents,
+      this.onActiveContainerChanged,
     )
   }
 
@@ -75,21 +75,19 @@ export class DvrControls extends UICorePlugin {
     const mediaControl = this.core.getPlugin('media_control')
     assert(mediaControl, 'media_control plugin is required')
 
-    this.listenTo(
-      mediaControl,
-      Events.MEDIACONTROL_RENDERED,
-      this.render,
-    )
-    // MediaControl has been rendered
-    this.render()
+    this.listenTo(mediaControl, Events.MEDIACONTROL_RENDERED, this.mount)
   }
 
-  private bindContainerEvents() {
-    trace(`${T} bindContainerEvents`)
-    this.listenToOnce(
+  private onActiveContainerChanged() {
+    this.listenTo(
       this.core.activeContainer,
-      Events.CONTAINER_TIMEUPDATE,
-      this.render,
+      Events.CONTAINER_LOADEDMETADATA,
+      this.onMetadataLoaded,
+    )
+    this.listenTo(
+      this.core.activeContainer,
+      Events.CONTAINER_PLAYBACKDVRSTATECHANGED,
+      this.onDvrStateChanged,
     )
   }
 
@@ -101,36 +99,52 @@ export class DvrControls extends UICorePlugin {
     container.seek(container.getDuration())
   }
 
-  private shouldRender() {
-    return this.core.getPlaybackType() === Playback.LIVE
-  }
-
   /**
    * @internal
    */
   override render() {
-    trace(`${T} render`, {
-      dvrEnabled: this.core.activePlayback?.dvrEnabled,
-      playbackType: this.core.getPlaybackType(),
-    })
-    const mediaControl = this.core.getPlugin('media_control') as MediaControl
-    if (!mediaControl) {
-      return this
-    }
-    if (!this.shouldRender()) {
-      return this
-    }
-
-    mediaControl.toggleElement('duration', false)
-    mediaControl.toggleElement('position', false)
-
     this.$el.html(
       DvrControls.template({
         i18n: this.core.i18n,
       }),
     )
-    mediaControl.putElement('dvr', this.$el)
 
     return this
+  }
+
+  private onMediacontrolRendered() {
+    this.render()
+  }
+
+  private onMetadataLoaded() {
+    this.mount()
+    this.toggleState(this.core.activeContainer.isDvrInUse())
+  }
+
+  private mount() {
+    // TODO move mount point management logic to MediaControl
+    if (this.core.getPlaybackType() !== Playback.LIVE) {
+      return
+    }
+    const mediaControl = this.core.getPlugin('media_control') as MediaControl
+    assert(mediaControl, 'media_control plugin is required')
+    // TODO -> to MediaControl
+    mediaControl.toggleElement('duration', false)
+    mediaControl.toggleElement('position', false)
+    mediaControl.mount('dvr', this.$el)
+  }
+
+  private onDvrStateChanged(dvrInUse: boolean) {
+    this.toggleState(dvrInUse)
+  }
+
+  private toggleState(dvrInUse: boolean) {
+    if (dvrInUse) {
+      this.$el.find('#media-control-back-to-live').show()
+      this.$el.find('#media-control-live').hide()
+    } else {
+      this.$el.find('#media-control-back-to-live').hide()
+      this.$el.find('#media-control-live').show()
+    }
   }
 }

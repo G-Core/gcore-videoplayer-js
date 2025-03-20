@@ -97,7 +97,7 @@ export class PictureInPicture extends UICorePlugin {
 
     const mediaControl = this.core.getPlugin('media_control');
     if (mediaControl) {
-      mediaControl.putElement('pip', this.$el);
+      mediaControl.mount('pip', this.$el);
     }
 
     return this;

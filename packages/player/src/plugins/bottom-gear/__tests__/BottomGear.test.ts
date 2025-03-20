@@ -38,7 +38,10 @@ describe('BottomGear', () => {
   })
   describe('until media control is rendered', () => {
     it('should not attach to media control', () => {
-      expect(mediaControl.putElement).not.toHaveBeenCalledWith('gear', expect.anything())
+      expect(mediaControl.mount).not.toHaveBeenCalledWith(
+        'gear',
+        expect.anything(),
+      )
     })
   })
   describe('when media control is rendered', () => {
@@ -46,7 +49,7 @@ describe('BottomGear', () => {
       mediaControl.trigger(Events.MEDIACONTROL_RENDERED)
     })
     it('should attach to media control', () => {
-      expect(mediaControl.putElement).toHaveBeenCalledWith('gear', bottomGear.$el)
+      expect(mediaControl.mount).toHaveBeenCalledWith('gear', bottomGear.$el)
     })
   })
   describe('when clicked', () => {
@@ -54,9 +57,9 @@ describe('BottomGear', () => {
       bottomGear.$el.find('#gear-button').click()
     })
     it('should toggle the gear menu', () => {
-      expect(bottomGear.$el.find('#gear-options-wrapper').css('display')).toBe(
-        'block',
-      )
+      expect(
+        bottomGear.$el.find('#gear-options-wrapper').css('display'),
+      ).not.toBe('none')
     })
   })
 })

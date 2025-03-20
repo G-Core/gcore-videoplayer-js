@@ -100,7 +100,7 @@ export function createMockCore(
       ...options,
     },
     configure: vi.fn(),
-    getPlaybackType: vi.fn().mockReturnValue(Playback.LIVE),
+    getPlaybackType: vi.fn(),
     getPlugin: vi.fn(),
     load: vi.fn(),
     trigger: emitter.emit,
@@ -140,7 +140,7 @@ export function createMockPlayback(name = 'mock') {
     getDuration: vi.fn().mockImplementation(() => 100),
     enterPiP: vi.fn(),
     exitPiP: vi.fn(),
-    getPlaybackType: vi.fn().mockImplementation(() => Playback.LIVE),
+    getPlaybackType: vi.fn(),
     getStartTimeOffset: vi.fn().mockImplementation(() => 0),
     getCurrentTime: vi.fn().mockImplementation(() => 0),
     isHighDefinitionInUse: vi.fn().mockImplementation(() => false),
@@ -157,7 +157,10 @@ export function createMockPlayback(name = 'mock') {
   })
 }
 
-export function createMockContainer(options: Record<string, unknown> = {}, playback: any = createMockPlayback()) {
+export function createMockContainer(
+  options: Record<string, unknown> = {},
+  playback: any = createMockPlayback(),
+) {
   const el = playback.el
   const emitter = new Events()
   return Object.assign(emitter, {
@@ -167,7 +170,7 @@ export function createMockContainer(options: Record<string, unknown> = {}, playb
     $el: $(el),
     getDuration: vi.fn().mockReturnValue(0),
     getPlugin: vi.fn(),
-    getPlaybackType: vi.fn().mockReturnValue(Playback.LIVE),
+    getPlaybackType: vi.fn(),
     isDvrInUse: vi.fn().mockReturnValue(false),
     isDvrEnabled: vi.fn().mockReturnValue(false),
     isPlaying: vi.fn().mockReturnValue(false),
@@ -202,7 +205,10 @@ export function createMockBottomGear(core: any) {
     if (existing.length) {
       return existing
     }
-    return $('<li></li>').attr(`data-${name}`, '').append($el).appendTo(plugin.$el)
+    return $('<li></li>')
+      .attr(`data-${name}`, '')
+      .append($el)
+      .appendTo(plugin.$el)
   })
   plugin.refresh = vi.fn()
   return plugin

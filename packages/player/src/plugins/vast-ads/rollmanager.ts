@@ -72,7 +72,7 @@ export default class RollManager extends Events {
     this._playback = this.core.activePlayback;
     this._contentElement = this._playback.el as HTMLMediaElement;
     this._posterPlugin = this._container.getPlugin('poster');
-    this._clickToPausePlugin = this._container.getPlugin('click_to_pause_custom');
+    this._clickToPausePlugin = this._container.getPlugin('click_to_pause');
     this._adContainer = _adContainer;
     this._events = {};
     this._pr = Math.floor(Math.random() * 1000000);

@@ -73,7 +73,7 @@ export type ClapprStatsMetrics = {
   extra: {
     playbackName: string
     playbackType: string
-    bitratesHistory: BitrateTrackRecord[]
+    bitratesHistory: ClapprStatsBitrateTrack[]
     bitrateWeightedMean: number
     bitrateMostUsed: number
     buffersize: number
@@ -89,7 +89,7 @@ export type ClapprStatsMetrics = {
 /**
  * @beta
  */
-export type BitrateTrackRecord = {
+export type ClapprStatsBitrateTrack = {
   start: number
   end?: number
   time?: number

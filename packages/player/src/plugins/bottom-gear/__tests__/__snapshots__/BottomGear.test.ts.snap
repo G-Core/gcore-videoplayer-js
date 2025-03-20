@@ -1,11 +1,11 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`BottomGear > should render 1`] = `
-"<button type="button" class="media-control-button gplayer-lite-btn gcore-skin-button-color gear-icon" id="gear-button">
+"<button class="media-control-button gplayer-lite-btn gcore-skin-button-color gear-icon" id="gear-button">
     /assets/icons/new/gear.svg
 </button>
-<div class="gear-wrapper gcore-skin-bg-color" id="gear-options-wrapper" style="display: none;">
-    <ul class="gear-options-list" id="gear-options"></ul>
+<div class="gear-wrapper gcore-skin-bg-color" id="gear-options-wrapper" style="display:none">
+    <ul class="gear-options-list" id="gear-options" role="menu"></ul>
 </div>
 "
 `;

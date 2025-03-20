@@ -53,7 +53,7 @@ describe('ClosedCaptions', () => {
     it('should render', () => {
       expect(cc.el.innerHTML).toMatchSnapshot()
       expect(cc.$el.find('[data-cc-button]').length).toEqual(1)
-      expect(mediaControl.putElement).toHaveBeenCalledWith('cc', cc.$el)
+      expect(mediaControl.mount).toHaveBeenCalledWith('cc', cc.$el)
     })
   })
 })
