@@ -20,6 +20,14 @@ export declare class MediaControl extends UICorePlugin
 
 The methods exposed are to be used by the other plugins that extend the media control UI.
 
+Configuration options:
+
+- `mediaControl`<!-- -->: [MediaControlSettings](./player.mediacontrolsettings.md) - specifies the allowed media control elements in each area
+
+- `persistConfig`<!-- -->: boolean - `common` option, makes the plugin persist the media control settings
+
+- `chromeless`<!-- -->: boolean
+
 ## Constructors
 
 <table><thead><tr><th>
@@ -227,20 +235,6 @@ Description
 </td><td>
 
 **_(BETA)_** Get a media control element DOM node
-
-
-</td></tr>
-<tr><td>
-
-[handleCustomArea(handler)](./player.mediacontrol.handlecustomarea.md)
-
-
-</td><td>
-
-
-</td><td>
-
-**_(BETA)_**
 
 
 </td></tr>
