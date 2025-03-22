@@ -199,7 +199,7 @@ _(Optional)_ Mute the audio output in order to comply with browsers' autoplay po
 
 </td><td>
 
-_(Optional)_ The type of playback (live stream or video on demand).
+_(Optional)_ Stream type.  Should only be set if known in advance, as it should not change once determined. Otherwise it might cause inconsistencies in the UI plugins behavior, for instance, glitches with rendering of the DVR controls or seek bar.
 
 
 </td></tr>
