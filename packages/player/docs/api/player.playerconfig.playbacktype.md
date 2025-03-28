@@ -4,7 +4,7 @@
 
 ## PlayerConfig.playbackType property
 
-The type of playback (live stream or video on demand).
+Stream type.  Should only be set if known in advance, as it should not change once determined. Otherwise it might cause inconsistencies in the UI plugins behavior, for instance, glitches with rendering of the DVR controls or seek bar.
 
 **Signature:**
 

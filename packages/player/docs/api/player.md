@@ -45,7 +45,7 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-[AudioSelector](./player.audioselector.md)
+[AudioTracks](./player.audiotracks.md)
 
 
 </td><td>
@@ -188,17 +188,6 @@ Description
 </td></tr>
 <tr><td>
 
-[LevelSelector](./player.levelselector.md)
-
-
-</td><td>
-
-**_(BETA)_** `PLUGIN` that provides a UI to select the desired quality level of the playback.
-
-
-</td></tr>
-<tr><td>
-
 [Logo](./player.logo.md)
 
 
@@ -271,6 +260,17 @@ Description
 </td><td>
 
 **_(BETA)_** `PLUGIN` that displays a poster image in the background and a big play button on top when playback is stopped
+
+
+</td></tr>
+<tr><td>
+
+[QualityLevels](./player.qualitylevels.md)
+
+
+</td><td>
+
+**_(BETA)_** `PLUGIN` that provides a UI to select the desired quality level of the playback.
 
 
 </td></tr>
@@ -530,17 +530,6 @@ Description
 </td></tr>
 <tr><td>
 
-[LevelSelectorPluginSettings](./player.levelselectorpluginsettings.md)
-
-
-</td><td>
-
-**_(BETA)_** Configuration options for the [level selector](./player.levelselector.md) plugin.
-
-
-</td></tr>
-<tr><td>
-
 [PlaybackError](./player.playbackerror.md)
 
 
@@ -580,6 +569,17 @@ Describes a media source with its MIME type and URL.
 </td><td>
 
 A level of quality within a media source.
+
+
+</td></tr>
+<tr><td>
+
+[QualityLevelsPluginSettings](./player.qualitylevelspluginsettings.md)
+
+
+</td><td>
+
+**_(BETA)_** Configuration options for the [QualityLevels](./player.qualitylevels.md) plugin.
 
 
 </td></tr>
@@ -759,7 +759,51 @@ An ISO 639-1 language code.
 
 </td><td>
 
-**_(BETA)_** Media control elements, mount points for additional plugins
+**_(BETA)_** Built-in media control elements.
+
+
+</td></tr>
+<tr><td>
+
+[MediaControlLayerElement](./player.mediacontrollayerelement.md)
+
+
+</td><td>
+
+**_(BETA)_** Media control elements that appear in main layer, spanning the entire width of the player.
+
+
+</td></tr>
+<tr><td>
+
+[MediaControlLeftElement](./player.mediacontrolleftelement.md)
+
+
+</td><td>
+
+**_(BETA)_** Media control elements that appear in the left area.
+
+
+</td></tr>
+<tr><td>
+
+[MediaControlRightElement](./player.mediacontrolrightelement.md)
+
+
+</td><td>
+
+**_(BETA)_** Media control elements that appear in the right area.
+
+
+</td></tr>
+<tr><td>
+
+[MediaControlSettings](./player.mediacontrolsettings.md)
+
+
+</td><td>
+
+**_(BETA)_** Specifies the allowed media control elements in each area. Can be used to restrict rendered media control elements.
 
 
 </td></tr>
