@@ -37,7 +37,7 @@ const getColor = (speedValue: number): string => {
 };
 
 export function drawSpeedTestResults() {
-  const canvas = document.getElementById('speedTestCanvas');
+  const canvas = document.getElementById('nerd-stats-speed-test-canvas');
   if (!canvas) {
     return;
   }

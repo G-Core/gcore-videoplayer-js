@@ -58,13 +58,13 @@ export class ClickToPause extends ContainerPlugin {
 
     if (isLivePlayback && !isDvrEnabled) {
       this.togglePlay(true)
-    } else if (!isLivePlayback || isDvrEnabled) {
-      this.clearTimer()
-      this.timer = setTimeout(() => {
-        this.timer = null
-        this.togglePlay(false)
-      }, 300)
+      return
     }
+    this.clearTimer()
+    this.timer = setTimeout(() => {
+      this.timer = null
+      this.togglePlay(false)
+    }, 300)
   }
 
   private settingsUpdate() {

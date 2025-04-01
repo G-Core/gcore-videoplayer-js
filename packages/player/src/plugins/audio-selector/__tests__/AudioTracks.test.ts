@@ -1,20 +1,20 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { Events } from '@clappr/core'
 
-import { AudioTracks } from '../AudioSelector'
+import { AudioTracks } from '../AudioTracks'
 
 import { createMockCore, createMockMediaControl } from '../../../testUtils'
 // import { LogTracer, Logger, setTracer } from '@gcorevideo/utils'
 
 // Logger.enable('*')
-// setTracer(new LogTracer('AudioSelector.test'))
+// setTracer(new LogTracer('AudioTracks.test'))
 
 const TRACKS = [
   { id: '1', label: 'English', language: 'en', track: {} },
   { id: '2', label: 'Spanish', language: 'es', track: {} },
 ]
 
-describe('AudioSelector', () => {
+describe('AudioTracks', () => {
   let core: any
   let mediaControl: any
   let audioSelector: AudioTracks

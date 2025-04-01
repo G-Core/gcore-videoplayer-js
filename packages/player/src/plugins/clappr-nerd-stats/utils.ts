@@ -10,31 +10,41 @@ const qualityClasses = [
 ]
 
 export const getDownloadQuality = (speedValue: number): number => {
+  if (!speedValue) {
+    return 0
+  }
   if (speedValue < 3) {
     return 1
-  } else if (speedValue < 7) {
-    return 2
-  } else if (speedValue < 13) {
-    return 3
-  } else if (speedValue < 25) {
-    return 4
-  } else {
-    return 5
   }
+  if (speedValue < 7) {
+    return 2
+  }
+  if (speedValue < 13) {
+    return 3
+  }
+  if (speedValue < 25) {
+    return 4
+  }
+  return 5
 }
 
 export const getPingQuality = (pingValue: number): number => {
+  if (!pingValue) {
+    return 0
+  }
   if (pingValue < 20) {
     return 5
-  } else if (pingValue < 50) {
-    return 4
-  } else if (pingValue < 100) {
-    return 3
-  } else if (pingValue < 150) {
-    return 2
-  } else {
-    return 1
   }
+  if (pingValue < 50) {
+    return 4
+  }
+  if (pingValue < 100) {
+    return 3
+  }
+  if (pingValue < 150) {
+    return 2
+  }
+  return 1
 }
 
 export const generateQualityHtml = (quality: number): string => {
@@ -61,9 +71,6 @@ export const drawSummary = (
 ) => {
   const { connectionSpeed, ping } = customMetrics
 
-  if (!connectionSpeed || !ping) {
-    return
-  }
   const downloadQuality = getDownloadQuality(connectionSpeed)
   const pingQuality = getPingQuality(ping)
   const liveQuality = Math.min(downloadQuality, pingQuality)

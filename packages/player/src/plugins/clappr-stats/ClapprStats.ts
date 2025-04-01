@@ -172,6 +172,10 @@ export class ClapprStats extends ContainerPlugin {
     return structuredClone(this.metrics)
   }
 
+  clearMetrics() {
+    this.metrics = newMetrics()
+  }
+
   private onBitrate(newBitrate: QualityLevel) {
     const bitrate = newBitrate.bitrate
     const now = this.now()

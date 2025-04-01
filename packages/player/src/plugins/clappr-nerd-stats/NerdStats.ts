@@ -71,7 +71,7 @@ const T = 'plugins.nerd_stats'
  * - {@link BottomGear} - where the button is attached
  *
  * - {@link ClapprStats} - to get the metrics from
-*
+ *
  * The plugin is rendered as an item in the gear menu.
  *
  * When clicked, it shows an overlay window with the information about the network speed, latency, etc,
@@ -313,7 +313,11 @@ export class NerdStats extends UICorePlugin {
   private updateMetrics(metrics: PerfMetrics) {
     trace(`${T} updateMetrics`, { custom: this.speedtestMetrics })
     Object.assign(this.metrics, metrics)
-    this.updateEstimatedQuality()
+    this.metrics.custom = {
+      ...this.speedtestMetrics,
+    }
+
+    this.updateCustomMetrics()
 
     this.$el
       .find('#nerd-stats-current-time')
@@ -382,15 +386,23 @@ export class NerdStats extends UICorePlugin {
 
     this.setStatsBoxSize()
     drawSpeedTestResults()
-    drawSummary(
-      this.speedtestMetrics,
-      this.$el.find('#nerd-stats-quality-vod'),
-      this.$el.find('#nerd-stats-quality-live'),
-    )
+    this.updateEstimatedQuality()
 
     if (!this.open) {
       this.hide()
     }
+  }
+
+  private updateCustomMetrics() {
+    this.$el
+      .find('#nerd-stats-dl-text')
+      .text(this.metrics.custom.connectionSpeed.toFixed(2))
+    this.$el
+      .find('#nerd-stats-ping-text')
+      .text(this.metrics.custom.ping.toFixed(2))
+    this.$el
+      .find('#nerd-stats-jitter-text')
+      .text(this.metrics.custom.jitter.toFixed(2))
   }
 
   private updateEstimatedQuality() {
@@ -401,6 +413,12 @@ export class NerdStats extends UICorePlugin {
     this.$el
       .find('#nerd-stats-quality-live-text')
       .html(this.metrics.custom.liveQuality)
+
+    drawSummary(
+      this.speedtestMetrics,
+      this.$el.find('#nerd-stats-quality-vod'),
+      this.$el.find('#nerd-stats-quality-live'),
+    )
   }
 
   private setStatsBoxSize() {
@@ -455,6 +473,7 @@ export class NerdStats extends UICorePlugin {
     this.speedtestMetrics.jitter = 0
 
     if (clapprStats) {
+      clapprStats.clearMetrics()
       this.updateMetrics(clapprStats.exportMetrics())
     }
   }
