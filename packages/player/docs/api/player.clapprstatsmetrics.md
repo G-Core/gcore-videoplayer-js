@@ -35,7 +35,7 @@ export type ClapprStatsMetrics = {
     extra: {
         playbackName: string;
         playbackType: string;
-        bitratesHistory: BitrateTrackRecord[];
+        bitratesHistory: ClapprStatsBitrateTrack[];
         bitrateWeightedMean: number;
         bitrateMostUsed: number;
         buffersize: number;
@@ -48,5 +48,5 @@ export type ClapprStatsMetrics = {
     };
 };
 ```
-**References:** [ClapprStatsCounter.Play](./player.clapprstatscounter.md)<!-- -->, [ClapprStatsCounter.Pause](./player.clapprstatscounter.md)<!-- -->, [ClapprStatsCounter.Error](./player.clapprstatscounter.md)<!-- -->, [ClapprStatsCounter.Buffering](./player.clapprstatscounter.md)<!-- -->, [ClapprStatsCounter.DecodedFrames](./player.clapprstatscounter.md)<!-- -->, [ClapprStatsCounter.DroppedFrames](./player.clapprstatscounter.md)<!-- -->, [ClapprStatsCounter.Fps](./player.clapprstatscounter.md)<!-- -->, [ClapprStatsCounter.ChangeLevel](./player.clapprstatscounter.md)<!-- -->, [ClapprStatsCounter.Seek](./player.clapprstatscounter.md)<!-- -->, [ClapprStatsCounter.Fullscreen](./player.clapprstatscounter.md)<!-- -->, [ClapprStatsCounter.DvrUsage](./player.clapprstatscounter.md)<!-- -->, [ClapprStatsChronograph.Startup](./player.clapprstatschronograph.md)<!-- -->, [ClapprStatsChronograph.Watch](./player.clapprstatschronograph.md)<!-- -->, [ClapprStatsChronograph.Pause](./player.clapprstatschronograph.md)<!-- -->, [ClapprStatsChronograph.Buffering](./player.clapprstatschronograph.md)<!-- -->, [ClapprStatsChronograph.Session](./player.clapprstatschronograph.md)<!-- -->, [BitrateTrackRecord](./player.bitratetrackrecord.md)
+**References:** [ClapprStatsCounter.Play](./player.clapprstatscounter.md)<!-- -->, [ClapprStatsCounter.Pause](./player.clapprstatscounter.md)<!-- -->, [ClapprStatsCounter.Error](./player.clapprstatscounter.md)<!-- -->, [ClapprStatsCounter.Buffering](./player.clapprstatscounter.md)<!-- -->, [ClapprStatsCounter.DecodedFrames](./player.clapprstatscounter.md)<!-- -->, [ClapprStatsCounter.DroppedFrames](./player.clapprstatscounter.md)<!-- -->, [ClapprStatsCounter.Fps](./player.clapprstatscounter.md)<!-- -->, [ClapprStatsCounter.ChangeLevel](./player.clapprstatscounter.md)<!-- -->, [ClapprStatsCounter.Seek](./player.clapprstatscounter.md)<!-- -->, [ClapprStatsCounter.Fullscreen](./player.clapprstatscounter.md)<!-- -->, [ClapprStatsCounter.DvrUsage](./player.clapprstatscounter.md)<!-- -->, [ClapprStatsChronograph.Startup](./player.clapprstatschronograph.md)<!-- -->, [ClapprStatsChronograph.Watch](./player.clapprstatschronograph.md)<!-- -->, [ClapprStatsChronograph.Pause](./player.clapprstatschronograph.md)<!-- -->, [ClapprStatsChronograph.Buffering](./player.clapprstatschronograph.md)<!-- -->, [ClapprStatsChronograph.Session](./player.clapprstatschronograph.md)<!-- -->, [ClapprStatsBitrateTrack](./player.clapprstatsbitratetrack.md)
 

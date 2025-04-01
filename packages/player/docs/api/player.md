@@ -688,7 +688,7 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-[BitrateTrackRecord](./player.bitratetrackrecord.md)
+[ClapprStatsBitrateTrack](./player.clapprstatsbitratetrack.md)
 
 
 </td><td>
