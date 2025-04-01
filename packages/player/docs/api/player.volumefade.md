@@ -7,7 +7,7 @@
 > This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
 > 
 
-`PLUGIN` that applies fade effect to the player's volume change.
+`PLUGIN` that mutes the sound and fades it in when the mouse is over the player.
 
 **Signature:**
 
@@ -16,3 +16,42 @@ export declare class VolumeFade extends UICorePlugin
 ```
 **Extends:** UICorePlugin
 
+## Remarks
+
+When the user moves the mouse over and away from the player, the sound is unmuted and unmuted with a fade effect.
+
+Depends on [MediaControl](./player.mediacontrol.md) plugin. Configuration options - [VolumeFadeSettings](./player.volumefadesettings.md)
+
+## Constructors
+
+<table><thead><tr><th>
+
+Constructor
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[(constructor)(core)](./player.volumefade._constructor_.md)
+
+
+</td><td>
+
+
+</td><td>
+
+**_(BETA)_** Constructs a new instance of the `VolumeFade` class
+
+
+</td></tr>
+</tbody></table>

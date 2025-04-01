@@ -136,6 +136,10 @@ const LEFT_ORDER = [
   'dvr',
 ]
 
+export enum ExtendedEvents {
+  MEDIACONTROL_VOLUME = 'mediacontrol:volume',
+}
+
 const { Config, Fullscreen, formatTime, extend, removeArrayItem } = Utils
 
 function orderByOrderPattern(arr: string[], order: string[]): string[] {
@@ -793,16 +797,17 @@ export class MediaControl extends UICorePlugin {
     // if the container is not ready etc
     this.intendedVolume = value
     this.persistConfig && !isInitialVolume && Config.persist('volume', value)
-    // TODO
     const setWhenContainerReady = () => {
       if (this.core.activeContainer && this.core.activeContainer.isReady) {
         this.core.activeContainer.setVolume(value)
+        this.trigger(ExtendedEvents.MEDIACONTROL_VOLUME, value)
       } else {
         this.listenToOnce(
           this.core.activeContainer,
           Events.CONTAINER_READY,
           () => {
             this.core.activeContainer.setVolume(value)
+            this.trigger(ExtendedEvents.MEDIACONTROL_VOLUME, value)
           },
         )
       }

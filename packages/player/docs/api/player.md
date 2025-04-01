@@ -358,7 +358,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** `PLUGIN` that applies fade effect to the player's volume change.
+**_(BETA)_** `PLUGIN` that mutes the sound and fades it in when the mouse is over the player.
 
 
 </td></tr>
@@ -407,6 +407,15 @@ Description
 </td><td>
 
 **_(BETA)_**
+
+
+</td></tr>
+<tr><td>
+
+[ExtendedEvents](./player.extendedevents.md)
+
+
+</td><td>
 
 
 </td></tr>
@@ -1114,6 +1123,17 @@ Localization strings for the player UI.
 </td><td>
 
 Preferred streaming media delivery protocol
+
+
+</td></tr>
+<tr><td>
+
+[VolumeFadeSettings](./player.volumefadesettings.md)
+
+
+</td><td>
+
+**_(BETA)_**
 
 
 </td></tr>
