@@ -13,6 +13,7 @@ import stringHTML from '../../../assets/subtitles/string.ejs'
 
 import { isFullscreen } from '../utils/fullscreen.js'
 import type { ZeptoResult } from '../../types.js'
+import { ExtendedEvents } from '../media-control/MediaControl.js'
 
 const VERSION: string = '2.19.14'
 
@@ -114,7 +115,11 @@ export class ClosedCaptions extends UICorePlugin {
   }
 
   private get preselectedLanguage(): string {
-    return this.core.options.cc?.language ?? this.core.options.subtitles?.language ?? ''
+    return (
+      this.core.options.cc?.language ??
+      this.core.options.subtitles?.language ??
+      ''
+    )
   }
 
   /**
@@ -135,9 +140,10 @@ export class ClosedCaptions extends UICorePlugin {
     const mediaControl = this.core.getPlugin('media_control')
     assert(mediaControl, 'media_control plugin is required')
     this.listenTo(mediaControl, Events.MEDIACONTROL_RENDERED, this.render)
+    this.listenTo(mediaControl, Events.MEDIACONTROL_HIDE, this.hideMenu)
     this.listenTo(
       mediaControl,
-      Events.MEDIACONTROL_HIDE,
+      ExtendedEvents.MEDIACONTROL_MENU_COLLAPSE,
       this.hideMenu,
     )
   }
@@ -386,18 +392,20 @@ export class ClosedCaptions extends UICorePlugin {
   }
 
   private hideMenu() {
+    trace(`${T} hideMenu`)
     ;(this.$('[data-cc] ul') as ZeptoResult).hide()
   }
 
   private toggleMenu() {
     trace(`${T} toggleMenu`)
-    ;(this.$('[data-cc] ul') as ZeptoResult).toggle()
+    this.core
+      .getPlugin('media_control')
+      .trigger(ExtendedEvents.MEDIACONTROL_MENU_COLLAPSE)
+    this.$el.find('[data-cc] ul').toggle()
   }
 
   private itemElement(id: number): ZeptoResult {
-    return (
-      this.$(`ul li a[data-cc-select="${id}"]`) as ZeptoResult
-    ).parent()
+    return (this.$(`ul li a[data-cc-select="${id}"]`) as ZeptoResult).parent()
   }
 
   private allItemElements(): ZeptoResult {
@@ -453,7 +461,9 @@ export class ClosedCaptions extends UICorePlugin {
     trace(`${T} highlightCurrentSubtitles`, {
       track: this.track?.id,
     })
-    const currentLevelElement = this.itemElement(this.track ? this.track.id : -1)
+    const currentLevelElement = this.itemElement(
+      this.track ? this.track.id : -1,
+    )
     currentLevelElement
       .addClass('current')
       .find('a')

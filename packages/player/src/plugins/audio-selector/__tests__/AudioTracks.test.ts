@@ -17,7 +17,7 @@ const TRACKS = [
 describe('AudioTracks', () => {
   let core: any
   let mediaControl: any
-  let audioSelector: AudioTracks
+  let audioTracks: AudioTracks
   beforeEach(() => {
     core = createMockCore()
     mediaControl = createMockMediaControl(core)
@@ -25,7 +25,7 @@ describe('AudioTracks', () => {
       if (name === 'media_control') return mediaControl
       return null
     })
-    audioSelector = new AudioTracks(core)
+    audioTracks = new AudioTracks(core)
     core.emit(Events.CORE_READY)
     core.emit(Events.CORE_ACTIVE_CONTAINER_CHANGED, core.activeContainer)
   })
@@ -47,7 +47,7 @@ describe('AudioTracks', () => {
     it('should attach to the media control', () => {
       expect(mediaControl.mount).toHaveBeenCalledWith(
         'audiotracks',
-        audioSelector.$el,
+        audioTracks.$el,
       )
     })
   })
@@ -56,31 +56,31 @@ describe('AudioTracks', () => {
       emitTracksAvailable(core, TRACKS)
     })
     it('should render button', () => {
-      expect(audioSelector.$el.find('#audiotracks-button').length).toBe(1)
+      expect(audioTracks.$el.find('#audiotracks-button').length).toBe(1)
     })
     it('should render menu hidden', () => {
-      expect(audioSelector.el.innerHTML).toMatchSnapshot()
+      expect(audioTracks.el.innerHTML).toMatchSnapshot()
       expect(
-        audioSelector.$el.find('#audiotracks-select').hasClass('hidden'),
+        audioTracks.$el.find('#audiotracks-select').hasClass('hidden'),
       ).toBe(true)
-      const trackItems = audioSelector.$el.find('#audiotracks-select li')
+      const trackItems = audioTracks.$el.find('#audiotracks-select li')
       expect(trackItems.length).toBe(2)
       expect(trackItems.eq(0).text().trim()).toBe('English')
       expect(trackItems.eq(1).text().trim()).toBe('Spanish')
     })
     describe('when button is clicked', () => {
       beforeEach(() => {
-        audioSelector.$el.find('#audiotracks-button').click()
+        audioTracks.$el.find('#audiotracks-button').click()
       })
       it('should show menu', () => {
-        expect(audioSelector.$el.html()).toMatchSnapshot()
+        expect(audioTracks.$el.html()).toMatchSnapshot()
         expect(
-          audioSelector.$el.find('#audiotracks-select').hasClass('hidden'),
+          audioTracks.$el.find('#audiotracks-select').hasClass('hidden'),
         ).toBe(false)
       })
       describe('when audio track is selected', () => {
         beforeEach(() => {
-          audioSelector.$el
+          audioTracks.$el
             .find('#audiotracks-select [data-audiotracks-select="2"]')
             .click()
         })
@@ -90,14 +90,14 @@ describe('AudioTracks', () => {
           )
         })
         it('should hide the menu', () => {
-          expect(audioSelector.$el.html()).toMatchSnapshot()
+          expect(audioTracks.$el.html()).toMatchSnapshot()
           expect(
-            audioSelector.$el.find('#audiotracks-select').hasClass('hidden'),
+            audioTracks.$el.find('#audiotracks-select').hasClass('hidden'),
           ).toBe(true)
         })
         it('should add changing class to the button', () => {
           expect(
-            audioSelector.$el.find('#audiotracks-button').hasClass('changing'),
+            audioTracks.$el.find('#audiotracks-button').hasClass('changing'),
           ).toBe(true)
         })
         describe('when current audio track changes', () => {
@@ -115,14 +115,14 @@ describe('AudioTracks', () => {
           })
           it('should update button class', () => {
             expect(
-              audioSelector.$el
+              audioTracks.$el
                 .find('#audiotracks-button')
                 .hasClass('changing'),
             ).toBe(false)
           })
           it('should update button label', () => {
             expect(
-              audioSelector.$el
+              audioTracks.$el
                 .find('#audiotracks-button')
                 .text()
                 .replace(/\/assets.*\.svg/g, '')
@@ -130,7 +130,7 @@ describe('AudioTracks', () => {
             ).toBe('Spanish')
           })
           it('should highlight the selected menu item', () => {
-            const selectedItem = audioSelector.$el.find(
+            const selectedItem = audioTracks.$el.find(
               '#audiotracks-select .current',
             )
             expect(selectedItem.text().trim()).toBe('Spanish')
@@ -142,10 +142,10 @@ describe('AudioTracks', () => {
           })
           it('should unhighlight any previously highlighted menu item', () => {
             expect(
-              audioSelector.$el.find('#audiotracks-select li.current').length,
+              audioTracks.$el.find('#audiotracks-select li.current').length,
             ).toBe(1)
             expect(
-              audioSelector.$el.find(
+              audioTracks.$el.find(
                 '#audiotracks-select a.gcore-skin-active[data-audiotracks-select]',
               ).length,
             ).toBe(1)
@@ -156,8 +156,8 @@ describe('AudioTracks', () => {
   })
   describe('when audio tracks are not available', () => {
     it('should not render the button', () => {
-      expect(audioSelector.$el.find('#audiotracks-button').length).toBe(0)
-      expect(audioSelector.$el.find('#audiotracks-select').length).toBe(0)
+      expect(audioTracks.$el.find('#audiotracks-button').length).toBe(0)
+      expect(audioTracks.$el.find('#audiotracks-select').length).toBe(0)
     })
   })
 })

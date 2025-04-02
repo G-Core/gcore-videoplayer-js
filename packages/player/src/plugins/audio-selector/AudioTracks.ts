@@ -8,12 +8,12 @@ import pluginHtml from '../../../assets/audio-selector/track-selector.ejs'
 import '../../../assets/audio-selector/style.scss'
 import audioArrow from '../../../assets/icons/old/quality-arrow.svg'
 import { ZeptoResult } from '../../types.js'
-import { MediaControl } from '../media-control/MediaControl.js'
-// import { trace } from '@gcorevideo/utils'
+import { ExtendedEvents, MediaControl } from '../media-control/MediaControl.js'
+import { trace } from '@gcorevideo/utils'
 
 const VERSION: string = '2.22.4'
 
-// const T = 'plugins.audiotracks'
+const T = 'plugins.audiotracks'
 
 /**
  * `PLUGIN` that makes possible to switch audio tracks via the media control UI.
@@ -91,6 +91,7 @@ export class AudioTracks extends UICorePlugin {
       mediaControl.mount('audiotracks', this.$el)
     })
     this.listenTo(mediaControl, Events.MEDIACONTROL_HIDE, this.hideMenu)
+    this.listenTo(mediaControl, ExtendedEvents.MEDIACONTROL_MENU_COLLAPSE, this.hideMenu)
   }
 
   private onActiveContainerChanged() {
@@ -162,10 +163,12 @@ export class AudioTracks extends UICorePlugin {
   }
 
   private hideMenu() {
+    trace(`${T} hideMenu`)
     this.$el.find('#audiotracks-select').addClass('hidden')
   }
 
   private toggleContextMenu() {
+    this.core.getPlugin('media_control').trigger(ExtendedEvents.MEDIACONTROL_MENU_COLLAPSE)
     this.$el.find('#audiotracks-select').toggleClass('hidden') // TODO use plain CSS display: none
     const open = !this.$el.find('#audiotracks-select').hasClass('hidden') // TODO hold state
     this.$el.find('#audiotracks-button').attr('aria-expanded', open)

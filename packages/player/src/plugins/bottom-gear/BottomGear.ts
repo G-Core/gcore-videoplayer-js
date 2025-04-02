@@ -10,6 +10,7 @@ import '../../../assets/bottom-gear/gear-sub-menu.scss'
 import gearIcon from '../../../assets/icons/new/gear.svg'
 import gearHdIcon from '../../../assets/icons/new/gear-hd.svg'
 import { ZeptoResult } from '../../types.js'
+import { ExtendedEvents } from '../media-control/MediaControl.js'
 
 const VERSION = '2.19.12'
 
@@ -254,10 +255,14 @@ export class BottomGear extends UICorePlugin {
   }
 
   private toggleGearMenu() {
+    this.core
+      .getPlugin('media_control')
+      .trigger(ExtendedEvents.MEDIACONTROL_MENU_COLLAPSE)
     this.$el.find('#gear-options-wrapper').toggle()
   }
 
   private hide() {
+    trace(`${T} hide`)
     this.$el.find('#gear-options-wrapper').hide()
   }
 
@@ -271,6 +276,11 @@ export class BottomGear extends UICorePlugin {
       this.onMediaControlRendered,
     )
     this.listenTo(mediaControl, ClapprEvents.MEDIACONTROL_HIDE, this.hide)
+    this.listenTo(
+      mediaControl,
+      ExtendedEvents.MEDIACONTROL_MENU_COLLAPSE,
+      this.hide,
+    )
   }
 
   private onMediaControlRendered() {

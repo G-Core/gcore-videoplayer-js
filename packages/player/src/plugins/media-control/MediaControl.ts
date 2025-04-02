@@ -138,6 +138,7 @@ const LEFT_ORDER = [
 
 export enum ExtendedEvents {
   MEDIACONTROL_VOLUME = 'mediacontrol:volume',
+  MEDIACONTROL_MENU_COLLAPSE = 'mediacontrol:menu:collapse',
 }
 
 const { Config, Fullscreen, formatTime, extend, removeArrayItem } = Utils
