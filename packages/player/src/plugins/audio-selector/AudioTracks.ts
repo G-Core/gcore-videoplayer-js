@@ -4,8 +4,8 @@ import assert from 'assert'
 
 import { CLAPPR_VERSION } from '../../build.js'
 
-import pluginHtml from '../../../assets/audio-selector/track-selector.ejs'
-import '../../../assets/audio-selector/style.scss'
+import pluginHtml from '../../../assets/audio-tracks/template.ejs'
+import '../../../assets/audio-tracks/style.scss'
 import audioArrow from '../../../assets/icons/old/quality-arrow.svg'
 import { ZeptoResult } from '../../types.js'
 import { ExtendedEvents, MediaControl } from '../media-control/MediaControl.js'
@@ -34,7 +34,7 @@ export class AudioTracks extends UICorePlugin {
    * @internal
    */
   get name() {
-    return 'audio_selector' // TODO rename to audiotracks
+    return 'audio_tracks'
   }
 
   /**
@@ -68,7 +68,7 @@ export class AudioTracks extends UICorePlugin {
   override get events() {
     return {
       'click [data-audiotracks-select]': 'onTrackSelect',
-      'click #audiotracks-button': 'toggleContextMenu',
+      'click #audiotracks-button': 'toggleMenu',
     }
   }
 
@@ -91,7 +91,11 @@ export class AudioTracks extends UICorePlugin {
       mediaControl.mount('audiotracks', this.$el)
     })
     this.listenTo(mediaControl, Events.MEDIACONTROL_HIDE, this.hideMenu)
-    this.listenTo(mediaControl, ExtendedEvents.MEDIACONTROL_MENU_COLLAPSE, this.hideMenu)
+    this.listenTo(mediaControl, ExtendedEvents.MEDIACONTROL_MENU_COLLAPSE, (from: string) => {
+      if (from !== this.name) {
+        this.hideMenu()
+      }
+    })
   }
 
   private onActiveContainerChanged() {
@@ -165,10 +169,11 @@ export class AudioTracks extends UICorePlugin {
   private hideMenu() {
     trace(`${T} hideMenu`)
     this.$el.find('#audiotracks-select').addClass('hidden')
+    this.$el.find('#audiotracks-button').attr('aria-expanded', 'false')
   }
 
-  private toggleContextMenu() {
-    this.core.getPlugin('media_control').trigger(ExtendedEvents.MEDIACONTROL_MENU_COLLAPSE)
+  private toggleMenu() {
+    this.core.getPlugin('media_control').trigger(ExtendedEvents.MEDIACONTROL_MENU_COLLAPSE, this.name)
     this.$el.find('#audiotracks-select').toggleClass('hidden') // TODO use plain CSS display: none
     const open = !this.$el.find('#audiotracks-select').hasClass('hidden') // TODO hold state
     this.$el.find('#audiotracks-button').attr('aria-expanded', open)

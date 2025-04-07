@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { Events } from '@clappr/core'
-
+import { ExtendedEvents } from '../../media-control/MediaControl'
 import { AudioTracks } from '../AudioTracks'
 
 import { createMockCore, createMockMediaControl } from '../../../testUtils'
@@ -78,6 +78,12 @@ describe('AudioTracks', () => {
           audioTracks.$el.find('#audiotracks-select').hasClass('hidden'),
         ).toBe(false)
       })
+      it('should collapse all other menus', () => {
+        expect(mediaControl.trigger).toHaveBeenCalledWith(
+          ExtendedEvents.MEDIACONTROL_MENU_COLLAPSE,
+          'audio_tracks',
+        )
+      })
       describe('when audio track is selected', () => {
         beforeEach(() => {
           audioTracks.$el
@@ -94,6 +100,7 @@ describe('AudioTracks', () => {
           expect(
             audioTracks.$el.find('#audiotracks-select').hasClass('hidden'),
           ).toBe(true)
+          expect(audioTracks.$el.find('#audiotracks-button').attr('aria-expanded')).toBe('false')
         })
         it('should add changing class to the button', () => {
           expect(
@@ -151,6 +158,16 @@ describe('AudioTracks', () => {
             ).toBe(1)
           })
         })
+      })
+    })
+    describe('when button is clicked twice', () => {
+      beforeEach(() => {
+        audioTracks.$el.find('#audiotracks-button').click()
+        audioTracks.$el.find('#audiotracks-button').click()
+      })
+      it('should collapse the menu', () => {
+        expect(audioTracks.$el.find('#audiotracks-select').hasClass('hidden')).toBe(true)
+        expect(audioTracks.$el.find('#audiotracks-button').attr('aria-expanded')).toBe('false')
       })
     })
   })

@@ -98,7 +98,7 @@ export enum GearEvents {
  * ```
  */
 export class BottomGear extends UICorePlugin {
-  private isHd = false
+  private hd = false
 
   /**
    * @internal
@@ -216,7 +216,7 @@ export class BottomGear extends UICorePlugin {
 
   private highDefinitionUpdate(isHd: boolean) {
     trace(`${T} highDefinitionUpdate`, { isHd })
-    this.isHd = isHd
+    this.hd = isHd
     this.$el.find('.gear-icon').html(isHd ? gearHdIcon : gearIcon)
   }
 
@@ -229,7 +229,7 @@ export class BottomGear extends UICorePlugin {
     if (!mediaControl) {
       return this // TODO test
     }
-    const icon = this.isHd ? gearHdIcon : gearIcon
+    const icon = this.hd ? gearHdIcon : gearIcon
     this.$el
       .html(BottomGear.template({ icon }))
       .find('#gear-sub-menu-wrapper')
@@ -257,7 +257,7 @@ export class BottomGear extends UICorePlugin {
   private toggleGearMenu() {
     this.core
       .getPlugin('media_control')
-      .trigger(ExtendedEvents.MEDIACONTROL_MENU_COLLAPSE)
+      .trigger(ExtendedEvents.MEDIACONTROL_MENU_COLLAPSE, this.name)
     this.$el.find('#gear-options-wrapper').toggle()
   }
 
@@ -279,7 +279,11 @@ export class BottomGear extends UICorePlugin {
     this.listenTo(
       mediaControl,
       ExtendedEvents.MEDIACONTROL_MENU_COLLAPSE,
-      this.hide,
+      (from: string) => {
+        if (from !== this.name) {
+          this.hide()
+        }
+      },
     )
   }
 

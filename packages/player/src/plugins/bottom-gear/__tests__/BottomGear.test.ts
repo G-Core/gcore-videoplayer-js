@@ -3,6 +3,7 @@ import { MockedFunction, beforeEach, describe, expect, it, vi } from 'vitest'
 import { BottomGear, GearEvents } from '../BottomGear'
 import { createMockCore, createMockMediaControl } from '../../../testUtils'
 import { Events } from '@clappr/core'
+import { ExtendedEvents } from '../../media-control/MediaControl'
 
 describe('BottomGear', () => {
   let mediaControl: any
@@ -56,10 +57,27 @@ describe('BottomGear', () => {
     beforeEach(() => {
       bottomGear.$el.find('#gear-button').click()
     })
-    it('should toggle the gear menu', () => {
+    it('should open the gear menu', () => {
       expect(
         bottomGear.$el.find('#gear-options-wrapper').css('display'),
       ).not.toBe('none')
+    })
+    it('should trigger media control menu collapse', () => {
+      expect(mediaControl.trigger).toHaveBeenCalledWith(
+        ExtendedEvents.MEDIACONTROL_MENU_COLLAPSE,
+        'bottom_gear',
+      )
+    })
+  })
+  describe('when clicked twice', () => {
+    beforeEach(() => {
+      bottomGear.$el.find('#gear-button').click()
+      bottomGear.$el.find('#gear-button').click()
+    })
+    it('should collapse the gear menu', () => {
+      expect(bottomGear.$el.find('#gear-options-wrapper').css('display')).toBe(
+        'none',
+      )
     })
   })
 })

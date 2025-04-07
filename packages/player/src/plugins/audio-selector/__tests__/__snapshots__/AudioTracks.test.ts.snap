@@ -45,7 +45,7 @@ exports[`AudioTracks > given that audio tracks are available > when button is cl
 `;
 
 exports[`AudioTracks > given that audio tracks are available > when button is clicked > when audio track is selected > should hide the menu 1`] = `
-"<button data-audiotracks-button="" class="gcore-skin-button-color changing" id="audiotracks-button" aria-haspopup="menu" aria-expanded="true">
+"<button data-audiotracks-button="" class="gcore-skin-button-color changing" id="audiotracks-button" aria-haspopup="menu" aria-expanded="false">
     <span class="audio-text"></span> <span class="audio-arrow">/assets/icons/old/quality-arrow.svg</span>
 </button>
 <ul class="gcore-skin-bg-color menu hidden" id="audiotracks-select" role="menu">
