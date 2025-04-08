@@ -176,6 +176,7 @@ export function createMockContainer(
     isPlaying: vi.fn().mockReturnValue(false),
     play: vi.fn(),
     seek: vi.fn(),
+    seekPercentage: vi.fn(),
     switchAudioTrack: vi.fn(),
     trigger: emitter.emit,
   })

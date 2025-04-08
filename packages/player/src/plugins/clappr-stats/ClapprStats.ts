@@ -16,6 +16,9 @@ import {
 } from './types.js'
 export * from './types.js'
 import { newMetrics } from './utils.js'
+import { isFullscreen } from '../utils/fullscreen.js'
+
+// const T = 'plugins.clappr_stats'
 
 export type ClapprStatsSettings = {
   /**
@@ -134,9 +137,11 @@ export class ClapprStats extends ContainerPlugin {
     this.listenTo(this.container, CoreEvents.CONTAINER_ERROR, () =>
       this.inc(ClapprStatsCounter.Error),
     )
-    this.listenTo(this.container, CoreEvents.CONTAINER_FULLSCREEN, () =>
-      this.inc(ClapprStatsCounter.Fullscreen),
-    )
+    this.listenTo(this.container, CoreEvents.CONTAINER_FULLSCREEN, () => {
+      if (isFullscreen(this.container.el)) {
+        this.inc(ClapprStatsCounter.Fullscreen)
+      }
+    })
     this.listenTo(
       this.container,
       CoreEvents.CONTAINER_PLAYBACKDVRSTATECHANGED,
@@ -251,8 +256,9 @@ export class ClapprStats extends ContainerPlugin {
   }
 
   private onSeek(e: number) {
+    const ms = e * 1000
     this.inc(ClapprStatsCounter.Seek)
-    this.metrics.extra.watchHistory.push([e * 1000, e * 1000])
+    this.metrics.extra.watchHistory.push([ms, ms])
   }
 
   private onTimeUpdate(e: TimePosition) {

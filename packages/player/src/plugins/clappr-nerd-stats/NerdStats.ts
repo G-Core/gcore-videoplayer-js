@@ -245,7 +245,6 @@ export class NerdStats extends UICorePlugin {
     this.statsBoxElem.scrollTop(this.statsBoxElem.scrollTop())
     this.open = true
 
-    this.refreshSpeedTest()
     initSpeedTest(this.speedtestMetrics)
       .then(() => {
         startSpeedtest()
@@ -281,7 +280,6 @@ export class NerdStats extends UICorePlugin {
   }
 
   private estimateQuality() {
-    trace(`${T} estimateQuality`)
     const videoQualityNames = [
       'SD (480p)',
       'HD (720p)',
@@ -311,7 +309,6 @@ export class NerdStats extends UICorePlugin {
   }
 
   private updateMetrics(metrics: PerfMetrics) {
-    trace(`${T} updateMetrics`, { custom: this.speedtestMetrics })
     Object.assign(this.metrics, metrics)
     this.metrics.custom = {
       ...this.speedtestMetrics,
@@ -466,6 +463,7 @@ export class NerdStats extends UICorePlugin {
   }
 
   private clearSpeedtestMetrics() {
+    trace(`${T} clearSpeedtestMetrics`);
     const clapprStats = this.container?.getPlugin('clappr_stats')
 
     this.speedtestMetrics.connectionSpeed = 0

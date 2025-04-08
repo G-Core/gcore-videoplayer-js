@@ -298,6 +298,22 @@ describe('MediaControl', () => {
       })
     })
   })
+  describe('seekbar', () => {
+    beforeEach(async () => {
+      mediaControl = new MediaControl(core)
+      core.emit(Events.CORE_READY)
+      core.activeContainer.settings = {
+        seekEnabled: true,
+        default: ['seekbar'],
+      }
+      core.emit(Events.CORE_ACTIVE_CONTAINER_CHANGED, core.activeContainer)
+      await runMetadataLoaded(core)
+      core.activeContainer.emit(Events.CONTAINER_SETTINGSUPDATE)
+    })
+    it('should render', () => {
+      expect(mediaControl.el.innerHTML).toMatchSnapshot()
+    })
+  })
 })
 
 function arraySubtract<T extends string>(arr1: T[], arr2: T[]) {
