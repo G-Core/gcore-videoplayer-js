@@ -427,7 +427,7 @@
     }
   }
 
-  .seek-time[data-seek-time] {
+  .seek-time {
     height: 26px;
     line-height: 26px;
     bottom: 52px;
@@ -440,13 +440,9 @@
       font-family: Roboto, "Open Sans", Arial, sans-serif;
     }
 
-    span[data-seek-time] {
+    .seek-time__pos {
       padding-left: 8px;
       padding-right: 8px;
-    }
-
-    span[data-duration] {
-      display: none !important;
     }
   }
 }

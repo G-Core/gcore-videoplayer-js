@@ -3,16 +3,21 @@
 // license that can be found at https://github.com/clappr/clappr-plugins/blob/master/LICENSE
 
 import { Events, Playback, UICorePlugin, Utils, template } from '@clappr/core'
-import { TimePosition } from '../../playback.types.js'
+import assert from 'assert'
 
+import { TimePosition } from '../../playback.types.js'
 import { CLAPPR_VERSION } from '../../build.js'
 
 import seekTimeHTML from '../../../assets/seek-time/seek-time.html'
 import '../../../assets/seek-time/seek-time.scss'
-import { ZeptoResult } from '../../types.js'
-import assert from 'assert'
+
+export type SeekTimeSettings = {
+  duration?: boolean
+}
 
 const { formatTime } = Utils
+
+// const T = 'plugins.seek_time'
 
 /**
  * `PLUGIN` that adds a seek time indicator to the media control UI.
@@ -32,7 +37,6 @@ export class SeekTime extends UICorePlugin {
   override get attributes() {
     return {
       class: 'seek-time',
-      'data-seek-time': '',
     }
   }
 
@@ -44,8 +48,11 @@ export class SeekTime extends UICorePlugin {
     )
   }
 
-  private get durationShown() {
-    return !this.isLiveStreamWithDvr
+  private get showDuration() {
+    return (
+      this.core.options.seekTime?.duration === true &&
+      this.core.activeContainer?.getPlaybackType() !== Playback.LIVE
+    )
   }
 
   private hoveringOverSeekBar = false
@@ -57,19 +64,17 @@ export class SeekTime extends UICorePlugin {
   private displayedSeekTime: string | null = null
 
   private duration = 0
-  // private firstFragDateTime = 0;
-
-  private rendered = false
-
-  private $durationEl: ZeptoResult | null = null
-
-  private $seekTimeEl: ZeptoResult | null = null
 
   /**
    * @internal
    */
   override bindEvents() {
     this.listenTo(this.core, Events.CORE_READY, this.onCoreReady)
+    this.listenTo(
+      this.core,
+      Events.CORE_ACTIVE_CONTAINER_CHANGED,
+      this.onContainerChanged,
+    )
   }
 
   private onCoreReady() {
@@ -89,23 +94,6 @@ export class SeekTime extends UICorePlugin {
       Events.MEDIACONTROL_MOUSELEAVE_SEEKBAR,
       this.hideTime,
     )
-    this.listenTo(
-      mediaControl,
-      Events.MEDIACONTROL_CONTAINERCHANGED,
-      this.onContainerChanged,
-    )
-    if (this.core.activeContainer) {
-      this.listenTo(
-        this.core.activeContainer,
-        Events.CONTAINER_PLAYBACKDVRSTATECHANGED,
-        this.update,
-      )
-      this.listenTo(
-        this.core.activeContainer,
-        Events.CONTAINER_TIMEUPDATE,
-        this.onTimeUpdate,
-      )
-    }
   }
 
   private onContainerChanged() {
@@ -149,18 +137,12 @@ export class SeekTime extends UICorePlugin {
   }
 
   private getSeekTime() {
-    const seekTime = this.isLiveStreamWithDvr
+    return this.isLiveStreamWithDvr
       ? this.duration - this.hoverPosition * this.duration
       : this.hoverPosition * this.duration
-
-    return { seekTime }
   }
 
   private update() {
-    if (!this.rendered) {
-      // update() is always called after a render
-      return
-    }
     if (!this.shouldBeVisible()) {
       this.$el.hide()
       this.$el.css('left', '-100%')
@@ -168,7 +150,7 @@ export class SeekTime extends UICorePlugin {
     }
 
     const seekTime = this.getSeekTime()
-    let currentSeekTime = formatTime(seekTime.seekTime, false)
+    let currentSeekTime = formatTime(seekTime, false)
 
     if (this.isLiveStreamWithDvr) {
       currentSeekTime = `-${currentSeekTime}`
@@ -176,20 +158,21 @@ export class SeekTime extends UICorePlugin {
 
     // only update dom if necessary, ie time actually changed
     if (currentSeekTime !== this.displayedSeekTime) {
-      this.$seekTimeEl.text(currentSeekTime)
+      this.$el.find('#mc-seek-time').text(currentSeekTime)
       this.displayedSeekTime = currentSeekTime
     }
 
-    if (this.durationShown) {
-      this.$durationEl.show()
+    const $durationEl = this.$el.find('#mc-duration')
+    if (this.showDuration) {
+      $durationEl.show()
       const currentDuration = formatTime(this.duration, false)
 
       if (currentDuration !== this.displayedDuration) {
-        this.$durationEl.text(currentDuration)
+        $durationEl.text(currentDuration)
         this.displayedDuration = currentDuration
       }
     } else {
-      this.$durationEl.hide()
+      $durationEl.hide()
     }
 
     // the element must be unhidden before its width is requested, otherwise it's width will be reported as 0
@@ -218,16 +201,10 @@ export class SeekTime extends UICorePlugin {
    * @internal
    */
   override render() {
-    this.rendered = true
     this.displayedDuration = null
     this.displayedSeekTime = null
     this.$el.html(SeekTime.template())
     this.$el.hide()
-    // this.mediaControl.$el.append(this.el);
-    this.$seekTimeEl = this.$el.find('#mc-seek-time')
-    this.$durationEl = this.$el.find('#mc-duration')
-    this.$durationEl.hide()
-    this.update()
     return this
   }
 
