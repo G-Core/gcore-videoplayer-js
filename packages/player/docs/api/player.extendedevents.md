@@ -30,6 +30,20 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
+MEDIACONTROL\_MENU\_COLLAPSE
+
+
+</td><td>
+
+`"mediacontrol:menu:collapse"`
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
 MEDIACONTROL\_VOLUME
 
 

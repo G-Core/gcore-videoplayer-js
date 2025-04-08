@@ -281,7 +281,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** `PLUGIN` that adds a seek time indicator to the media control UI.
+**_(BETA)_** `PLUGIN` that adds a seek time indicator when the mouse pointer is over the seek bar.
 
 
 </td></tr>
@@ -303,7 +303,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** `PLUGIN` that adds skip controls to the media control UI.
+**_(BETA)_** `PLUGIN` that allows skipping time by tapping on the left or right side of the video.
 
 
 </td></tr>
@@ -1014,6 +1014,17 @@ A media source to fetch the media data from
 
 </td><td>
 
+
+
+</td></tr>
+<tr><td>
+
+[SeekTimeSettings](./player.seektimesettings.md)
+
+
+</td><td>
+
+**_(BETA)_** Configuration options for the SeekTime plugin.
 
 
 </td></tr>

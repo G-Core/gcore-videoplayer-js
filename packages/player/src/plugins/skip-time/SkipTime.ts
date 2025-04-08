@@ -1,4 +1,5 @@
 import { UICorePlugin, Browser, Playback, Events, template } from '@clappr/core'
+import { trace } from '@gcorevideo/utils'
 
 import { CLAPPR_VERSION } from '../../build.js'
 
@@ -7,8 +8,10 @@ import '../../../assets/skip-time/style.scss'
 
 type Position = 'mid' | 'left' | 'right'
 
+const T = 'plugins.skip_time'
+
 /**
- * `PLUGIN` that adds skip controls to the media control UI.
+ * `PLUGIN` that allows skipping time by tapping on the left or right side of the video.
  * @beta
  */
 export class SkipTime extends UICorePlugin {
@@ -24,52 +27,70 @@ export class SkipTime extends UICorePlugin {
     return this.core && this.core.activeContainer
   }
 
-  get template() {
-    return template(pluginHtml)
-  }
+  private static readonly template = template(pluginHtml)
 
+  /**
+   * @internal
+   */
   override get attributes() {
     return {
-      class: this.name + '_plugin',
-      'data-skip-time': '',
+      class: 'mc-skip-time',
     }
   }
 
   private position: Position = 'mid'
 
+  /**
+   * @internal
+   */
   override get events() {
     return {
-      'click [data-skip-left]': 'setBack',
-      'click [data-skip-mid]': 'setMidClick',
-      'click [data-skip-right]': 'setForward',
+      'click #mc-skip-left': 'setBack',
+      'click #mc-skip-mid': 'setMidClick',
+      'click #mc-skip-right': 'setForward',
     }
   }
 
+  /**
+   * @internal
+   */
   override bindEvents() {
     this.listenTo(this.core, Events.CORE_READY, this.render)
-    if (!this.container) {
-      return
-    }
+    this.listenTo(this.core, Events.CORE_ACTIVE_CONTAINER_CHANGED, this.onContainerChanged)
+  }
+
+  private onContainerChanged() {
     this.listenTo(
       this.container,
       Events.CONTAINER_DBLCLICK,
       this.handleRewindClicks,
     )
+    this.mount()
   }
 
-  setBack() {
+  private setBack() {
+    trace(`${T} setBack`)
     this.position = 'left'
   }
 
-  handleRewindClicks() {
+  private handleRewindClicks() {
+    trace(`${T} handleRewindClicks`, {
+      position: this.position,
+    })
     if (
       this.core.getPlaybackType() === Playback.LIVE &&
       !this.container.isDvrEnabled()
     ) {
       this.toggleFullscreen()
-
       return
     }
+    this.handleSkip()
+  }
+
+  private handleSkip() {
+    trace(`${T} handleSkip`, {
+      position: this.position,
+    })
     if (Browser.isMobile) {
       if (this.position === 'left') {
         const seekPos = this.container.getCurrentTime() - 10
@@ -92,29 +113,35 @@ export class SkipTime extends UICorePlugin {
     }
   }
 
-  setMidClick() {
+  private setMidClick() {
+    trace(`${T} setMidClick`)
     this.position = 'mid'
   }
 
-  setForward() {
+  private setForward() {
+    trace(`${T} setForward`)
     this.position = 'right'
   }
 
-  toggleFullscreen() {
+  private toggleFullscreen() {
+    trace(`${T} toggleFullscreen`)
     this.trigger(Events.MEDIACONTROL_FULLSCREEN, this.name)
     this.container.fullscreen()
     this.core.toggleFullscreen()
   }
 
+  /**
+   * @internal
+   */
   override render() {
-    this.$el.html(template(pluginHtml))
-
-    if (this.core.activeContainer) {
-      this.core.activeContainer.$el.append(this.el)
-    }
-
-    this.bindEvents()
+    trace(`${T} render`)
+    this.$el.html(SkipTime.template())
 
     return this
+  }
+
+  private mount() {
+    trace(`${T} mount`)
+    this.core.activeContainer.$el.append(this.el)
   }
 }

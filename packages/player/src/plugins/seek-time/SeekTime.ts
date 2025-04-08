@@ -11,7 +11,15 @@ import { CLAPPR_VERSION } from '../../build.js'
 import seekTimeHTML from '../../../assets/seek-time/seek-time.html'
 import '../../../assets/seek-time/seek-time.scss'
 
+/**
+ * Configuration options for the SeekTime plugin.
+ * @beta
+ */
 export type SeekTimeSettings = {
+  /**
+   * Whether to show the duration of the video. Applies only to the VOD streams.
+   * @beta
+   */
   duration?: boolean
 }
 
@@ -20,8 +28,10 @@ const { formatTime } = Utils
 // const T = 'plugins.seek_time'
 
 /**
- * `PLUGIN` that adds a seek time indicator to the media control UI.
+ * `PLUGIN` that adds a seek time indicator when the mouse pointer is over the seek bar.
  * @beta
+ * @remarks
+ * Configuration options - {@link SeekTimeSettings}
  */
 export class SeekTime extends UICorePlugin {
   get name() {

@@ -1,8 +1,8 @@
-.container-with-poster-clickable .skip_time_plugin[data-skip-time] {
+.container-with-poster-clickable .mc-skip-time {
   height: 0;
 }
 
-.skip_time_plugin[data-skip-time] {
+.mc-skip-time {
   position: absolute;
   width: 100%;
   height: calc(100% - 50px);
@@ -10,14 +10,14 @@
   background-color: transparent;
   font-family: Roboto, "Open Sans", Arial, sans-serif;
 
-  .skip-container[data-skip-container] {
+  .skip-container {
     width: 100%;
     height: 100%;
     display: flex;
     justify-content: space-between;
 
     .skip-item {
-      width: 33.3%;
+      flex: 1 0 0px;
       height: 100%;
     }
   }

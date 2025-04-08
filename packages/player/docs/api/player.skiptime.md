@@ -7,14 +7,14 @@
 > This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
 > 
 
-`PLUGIN` that adds skip controls to the media control UI.
+`PLUGIN` that allows skipping time by tapping on the left or right side of the video.
 
 **Signature:**
 
 ```typescript
-export declare class SkipTime extends UICorePluginOriginal 
+export declare class SkipTime extends UICorePlugin 
 ```
-**Extends:** UICorePluginOriginal
+**Extends:** UICorePlugin
 
 ## Properties
 
@@ -41,27 +41,6 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-[attributes](./player.skiptime.attributes.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-{ class: string; 'data-skip-time': string; }
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
 [container](./player.skiptime.container.md)
 
 
@@ -73,27 +52,6 @@ Description
 </td><td>
 
 any
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
-[events](./player.skiptime.events.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-{ 'click \[data-skip-left\]': string; 'click \[data-skip-mid\]': string; 'click \[data-skip-right\]': string; }
 
 
 </td><td>
@@ -136,145 +94,6 @@ string
 </td><td>
 
 { min: string; }
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
-[template](./player.skiptime.template.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-any
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-</tbody></table>
-
-## Methods
-
-<table><thead><tr><th>
-
-Method
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>
-
-[bindEvents()](./player.skiptime.bindevents.md)
-
-
-</td><td>
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
-[handleRewindClicks()](./player.skiptime.handlerewindclicks.md)
-
-
-</td><td>
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
-[render()](./player.skiptime.render.md)
-
-
-</td><td>
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
-[setBack()](./player.skiptime.setback.md)
-
-
-</td><td>
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
-[setForward()](./player.skiptime.setforward.md)
-
-
-</td><td>
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
-[setMidClick()](./player.skiptime.setmidclick.md)
-
-
-</td><td>
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
-[toggleFullscreen()](./player.skiptime.togglefullscreen.md)
-
-
-</td><td>
 
 
 </td><td>

@@ -74,6 +74,20 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
+[clearMetrics()](./player.clapprstats.clearmetrics.md)
+
+
+</td><td>
+
+
+</td><td>
+
+**_(BETA)_**
+
+
+</td></tr>
+<tr><td>
+
 [exportMetrics()](./player.clapprstats.exportmetrics.md)
 
 

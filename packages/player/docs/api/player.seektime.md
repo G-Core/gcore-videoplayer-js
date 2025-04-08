@@ -7,7 +7,7 @@
 > This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
 > 
 
-`PLUGIN` that adds a seek time indicator to the media control UI.
+`PLUGIN` that adds a seek time indicator when the mouse pointer is over the seek bar.
 
 **Signature:**
 
@@ -15,6 +15,10 @@
 export declare class SeekTime extends UICorePlugin 
 ```
 **Extends:** UICorePlugin
+
+## Remarks
+
+Configuration options - [SeekTimeSettings](./player.seektimesettings.md)
 
 ## Properties
 
@@ -51,91 +55,7 @@ Description
 
 </td><td>
 
-{ class: string; 'data-seek-time': string; }
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
-[durationShown](./player.seektime.durationshown.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-boolean
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
-[isLiveStreamWithDvr](./player.seektime.islivestreamwithdvr.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-any
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
-[mediaControl](./player.seektime.mediacontrol.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-any
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
-[mediaControlContainer](./player.seektime.mediacontrolcontainer.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-any
+{ class: string; }
 
 
 </td><td>
@@ -178,117 +98,6 @@ string
 </td><td>
 
 { min: string; }
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
-[template](./player.seektime.template.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-any
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-</tbody></table>
-
-## Methods
-
-<table><thead><tr><th>
-
-Method
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>
-
-[bindEvents()](./player.seektime.bindevents.md)
-
-
-</td><td>
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
-[getSeekTime()](./player.seektime.getseektime.md)
-
-
-</td><td>
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
-[render()](./player.seektime.render.md)
-
-
-</td><td>
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
-[shouldBeVisible()](./player.seektime.shouldbevisible.md)
-
-
-</td><td>
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
-[update()](./player.seektime.update.md)
-
-
-</td><td>
 
 
 </td><td>
