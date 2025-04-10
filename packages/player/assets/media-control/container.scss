@@ -6,7 +6,7 @@
     transition: none !important;
   }
 
-  .player-poster[data-poster] .play-wrapper[data-poster] {
+  .player-poster .play-wrapper {
     opacity: 1;
   }
 
@@ -29,7 +29,7 @@
     }
   }
 
-  .circle-poster[data-poster] {
+  .player-poster .circle-poster {
     top: 50%;
     margin-top: -60px;
     left: 50%;
@@ -47,7 +47,6 @@
     svg {
       margin-left: 5px;
       width: 80px;
-      height: 80px;
     }
   }
 

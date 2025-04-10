@@ -1,86 +1,6 @@
-import { $, Playback, UICorePlugin } from '@clappr/core'
+import { $, UICorePlugin } from '@clappr/core'
 import Events from 'eventemitter3'
 import { vi } from 'vitest'
-/**
- * @internal
- * @deprecated
- * TODO use createMockPlayback() instead
- */
-export class _MockPlayback extends Events {
-  constructor(
-    protected options: any,
-    readonly i18n: any,
-    protected playerError?: any,
-  ) {
-    super()
-  }
-
-  get name() {
-    return 'mock'
-  }
-
-  consent() {}
-
-  play() {}
-
-  pause() {}
-
-  stop() {}
-
-  destroy() {}
-
-  seek() {}
-
-  seekPercentage() {}
-
-  getDuration() {
-    return 100
-  }
-
-  enterPiP() {}
-
-  exitPiP() {}
-
-  getPlaybackType() {
-    return Playback.LIVE
-  }
-
-  getStartTimeOffset() {
-    return 0
-  }
-
-  getCurrentTime() {
-    return 0
-  }
-
-  isHighDefinitionInUse() {
-    return false
-  }
-
-  mute() {}
-
-  unmute() {}
-
-  volume() {}
-
-  configure() {}
-
-  attemptAutoPlay() {
-    return true
-  }
-
-  canAutoPlay() {
-    return true
-  }
-
-  onResize() {
-    return true
-  }
-
-  trigger(event: string, ...args: any[]) {
-    this.emit(event, ...args)
-  }
-}
 
 export function createMockCore(
   options: Record<string, unknown> = {},
@@ -129,11 +49,12 @@ export function createMockPlayback(name = 'mock') {
     el: document.createElement('video'),
     dvrEnabled: false,
     dvrInUse: false,
+    isAudioOnly: false,
     levels: [],
-    consent() {},
-    play() {},
-    pause() {},
-    stop() {},
+    consent: vi.fn(),
+    play: vi.fn(),
+    pause: vi.fn(),
+    stop: vi.fn(),
     destroy: vi.fn(),
     seek: vi.fn(),
     seekPercentage: vi.fn(),
@@ -166,13 +87,20 @@ export function createMockContainer(
   return Object.assign(emitter, {
     el,
     playback,
-    options,
+    options: {
+      ...options,
+    },
     $el: $(el),
+    disableMediaControl: vi.fn(),
+    enableMediaControl: vi.fn(),
+    enterPiP: vi.fn(),
+    exitPiP: vi.fn(),
     getDuration: vi.fn().mockReturnValue(0),
     getPlugin: vi.fn(),
     getPlaybackType: vi.fn(),
     isDvrInUse: vi.fn().mockReturnValue(false),
     isDvrEnabled: vi.fn().mockReturnValue(false),
+    isHighDefinitionInUse: vi.fn().mockReturnValue(false),
     isPlaying: vi.fn().mockReturnValue(false),
     play: vi.fn(),
     seek: vi.fn(),

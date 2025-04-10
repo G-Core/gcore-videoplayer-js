@@ -1,0 +1,8 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Poster > basically > should render 1`] = `
+"<div class="play-wrapper" id="gplayer-poster">
+    <div class="circle-poster gcore-skin-button-color gcore-skin-border-color" id="poster-play">/assets/icons/new/play.svg</div>
+</div>
+"
+`;

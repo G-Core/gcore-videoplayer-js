@@ -8,7 +8,6 @@ import {
   PlayerError,
   UIContainerPlugin,
   template,
-  $,
 } from '@clappr/core'
 import { trace } from '@gcorevideo/utils'
 
@@ -20,25 +19,38 @@ import posterHTML from '../../../assets/poster/poster.ejs'
 import playIcon from '../../../assets/icons/new/play.svg'
 import { PlaybackError } from '../../playback.types.js'
 
+export type PosterPluginSettings = {
+  /**
+   * Custom CSS background
+   */
+  custom?: string
+  /**
+   * Whether to show the poster image when the playback is noop (i.e., when there is no appropriate video playback engine for current media sources set or the media sources are not set at all)
+   */
+  showForNoOp?: boolean
+  /**
+   * Poster image URL
+   */
+  url?: string
+  /**
+   * Whether to show the poster after playback has ended @default true
+   */
+  showOnVideoEnd?: boolean
+}
+
 const T = 'plugins.poster'
 
 /**
  * `PLUGIN` that displays a poster image in the background and a big play button on top when playback is stopped
  * @beta
  * @remarks
- * When the playback is stopped, media control UI is disabled.
+ * When the playback is stopped or not yet started, the media control UI is disabled and hidden.
+ * Media control gets activated once the metadata is loaded after playback is initiated.
+ * This plugin displays a big play button on top of the poster image to allow user to start playback.
  * Note that the poster image, if specified via the player config, will be used to update video element's poster attribute by the
  * HTML5-video-based playback module.
  *
- * Configuration options:
- *
- * - `poster.custom` - custom CSS background
- *
- * - `poster.showForNoOp` - whether to show the poster when the playback is not started
- *
- * - `poster.url` - the URL of the poster image
- *
- * - `poster.showOnVideoEnd` - whether to show the poster when the playback is ended
+ * Configuration options - {@link PosterPluginSettings}
  *
  * @example
  * ```ts
@@ -56,13 +68,11 @@ export class Poster extends UIContainerPlugin {
 
   private hasFatalError = false
 
-  private hasStartedPlaying = false
+  private playing = false
 
   private playRequested = false
 
   private $playButton: ZeptoResult | null = null
-
-  private $playWrapper: ZeptoResult | null = null
 
   /**
    * @internal
@@ -87,9 +97,12 @@ export class Poster extends UIContainerPlugin {
     const showForNoOp = !!this.options.poster?.showForNoOp
     return (
       this.container.playback.name !== 'html_img' &&
-      (this.container.playback.getPlaybackType() !== Playback.NO_OP ||
-        showForNoOp)
+      (!this.isNoOp || showForNoOp)
     )
+  }
+
+  private get isNoOp() {
+    return this.container.playback.getPlaybackType() === Playback.NO_OP
   }
 
   /**
@@ -98,7 +111,6 @@ export class Poster extends UIContainerPlugin {
   override get attributes() {
     return {
       class: 'player-poster',
-      'data-poster': '',
     }
   }
 
@@ -109,10 +121,6 @@ export class Poster extends UIContainerPlugin {
     return {
       click: 'clicked',
     }
-  }
-
-  private get showOnVideoEnd() {
-    return this.options.poster?.showOnVideoEnd !== false
   }
 
   /**
@@ -127,20 +135,27 @@ export class Poster extends UIContainerPlugin {
       Events.CONTAINER_STATE_BUFFERFULL,
       this.update,
     )
-    this.listenTo(this.container, Events.CONTAINER_OPTIONS_CHANGE, this.render)
+    this.listenTo(this.container, Events.CONTAINER_OPTIONS_CHANGE, this.update)
     this.listenTo(this.container, Events.CONTAINER_ERROR, this.onError)
-    this.showOnVideoEnd &&
+    // TODO check if this event is always accompanied with the CONTAINER_STOP
+    if (this.options.poster?.showOnVideoEnd !== false) {
       this.listenTo(this.container, Events.CONTAINER_ENDED, this.onStop)
+    }
     this.listenTo(this.container, Events.CONTAINER_READY, this.render)
-    this.listenTo(this.container, Events.PLAYBACK_PLAY_INTENT, this.onPlayIntent)
+    this.listenTo(
+      this.container.playback,
+      Events.PLAYBACK_PLAY_INTENT,
+      this.onPlayIntent,
+    )
   }
 
   /**
    * Reenables earlier disabled plugin
    */
   override enable() {
+    trace(`${T} enable`)
     super.enable()
-    this.hasStartedPlaying = this.container.playback.isPlaying()
+    this.playing = this.container.playback.isPlaying()
     this.update()
   }
 
@@ -149,7 +164,7 @@ export class Poster extends UIContainerPlugin {
    */
   override disable() {
     trace(`${T} disable`)
-    this.hasStartedPlaying = false
+    this.playing = false
     this.playRequested = false
     super.disable()
   }
@@ -159,19 +174,16 @@ export class Poster extends UIContainerPlugin {
       error,
       enabled: this.enabled,
     })
-    this.hasFatalError = error.level === PlayerError.Levels.FATAL
-
     if (this.hasFatalError) {
-      this.hasStartedPlaying = false
-      if (!this.playRequested) {
-        this.showPlayButton()
-      }
+      return
     }
+    this.hasFatalError = error.level === PlayerError.Levels.FATAL
+    // this.hasFatalError is reset on container recreate
   }
 
   private onPlay() {
     trace(`${T} onPlay`)
-    this.hasStartedPlaying = true
+    this.playing = true
     this.playRequested = false
     this.update()
   }
@@ -183,24 +195,23 @@ export class Poster extends UIContainerPlugin {
   }
 
   private onStop() {
-    trace(`${T} onStop`, {
-      enabled: this.enabled,
-    })
-    this.hasStartedPlaying = false
+    trace(`${T} onStop`)
+    this.playing = false
     this.playRequested = false
     this.update()
   }
 
-  private updatePlayButton(show: boolean) {
-    trace(`${T} updatePlayButton`, {
-      show,
-      chromeless: this.options.chromeless,
-      allowUserInteraction: this.options.allowUserInteraction,
-    })
-    if (
-      show &&
-      (!this.options.chromeless || this.options.allowUserInteraction)
-    ) {
+  private updatePlayButton() {
+    trace(`${T} updatePlayButton`)
+    const show =
+      !this.isNoOp &&
+      !(this.options.chromeless && !this.options.allowUserInteraction) &&
+      !this.playRequested &&
+      !this.playing &&
+      !this.container.buffering &&
+      !this.hasFatalError &&
+      !this.options.disableMediaControl
+    if (show) {
       this.showPlayButton()
     } else {
       this.hidePlayButton()
@@ -208,40 +219,31 @@ export class Poster extends UIContainerPlugin {
   }
 
   private showPlayButton() {
-    if (this.options.disableMediaControl) {
-      return
-    }
-    if (this.hasFatalError && !this.options.disableErrorScreen) {
-      return
-    }
-
-    this.$playButton?.show()
+    trace(`${T} showPlayButton`)
+    this.$el.find('#poster-play').show()
     this.$el.addClass('clickable')
     this.container.$el.addClass('container-with-poster-clickable')
   }
 
   private hidePlayButton() {
-    this.$playButton.hide()
+    trace(`${T} hidePlayButton`)
+    this.$el.find('#poster-play').hide()
     this.$el.removeClass('clickable')
   }
 
-  private clicked() {
-    trace(`${T} clicked`, {
-      hasStartedPlaying: this.hasStartedPlaying,
-      chromeless: this.options.chromeless,
-      allowUserInteraction: this.options.allowUserInteraction,
-    })
-    // Let "click_to_pause" plugin handle click event if media has started playing
-    if (!this.hasStartedPlaying) {
-      if (!this.options.chromeless || this.options.allowUserInteraction) {
-        this.playRequested = true
-        this.update()
-        this.container.playback.consent()
-        this.container.playback.play()
-      }
+  private clicked(e: MouseEvent) {
+    trace(`${T} clicked`)
+    e.preventDefault()
+    e.stopPropagation()
+    if (this.options.chromeless && !this.options.allowUserInteraction) {
+      return
     }
-
-    return false
+    // Let "click_to_pause" plugin handle click event if media has started playing
+    if (!this.playing) {
+      this.playRequested = true
+      this.update()
+      this.container.play()
+    }
   }
 
   private shouldHideOnPlay() {
@@ -250,27 +252,15 @@ export class Poster extends UIContainerPlugin {
   }
 
   private update() {
-    trace(`${T} update`, {
-      shouldRender: this.shouldRender,
-    })
-    if (!this.shouldRender) {
-      return
-    }
+    trace(`${T} update`)
 
-    const showPlayButton =
-      !this.playRequested &&
-      !this.hasStartedPlaying &&
-      !this.container.buffering
-
-    this.updatePlayButton(showPlayButton)
+    this.updatePlayButton()
     this.updatePoster()
   }
 
   private updatePoster() {
-    trace(`${T} updatePoster`, {
-      hasStartedPlaying: this.hasStartedPlaying,
-    })
-    if (!this.hasStartedPlaying) {
+    trace(`${T} updatePoster`)
+    if (!this.playing) {
       this.showPoster()
     } else {
       this.hidePoster()
@@ -283,9 +273,7 @@ export class Poster extends UIContainerPlugin {
   }
 
   private hidePoster() {
-    trace(`${T} hidePoster`, {
-      shouldHideOnPlay: this.shouldHideOnPlay(),
-    })
+    trace(`${T} hidePoster`)
     if (!this.options.disableMediaControl) {
       this.container.enableMediaControl()
     }
@@ -304,34 +292,27 @@ export class Poster extends UIContainerPlugin {
 
     this.$el.html(Poster.template())
 
-    const isRegularPoster =
-      this.options.poster && this.options.poster.custom === undefined
+    const isCustomPoster = this.options.poster?.custom !== undefined
 
-    if (isRegularPoster) {
-      const posterUrl = this.options.poster.url || this.options.poster
-
-      this.$el.css({ 'background-image': 'url(' + posterUrl + ')' })
-    } else if (this.options.poster) {
+    if (isCustomPoster) {
       this.$el.css({ background: this.options.poster.custom })
+    } else {
+      const posterUrl =
+        typeof this.options.poster === 'string'
+          ? this.options.poster
+          : this.options.poster?.url
+      if (posterUrl) {
+        this.$el.css({ 'background-image': 'url(' + posterUrl + ')' })
+      }
     }
 
     this.container.$el.removeClass('container-with-poster-clickable')
     this.container.$el.append(this.el)
-    this.$playWrapper = this.$el.find('.play-wrapper')
-    this.$playWrapper.addClass('control-need-disable')
-    this.$playButton = $(
-      "<div class='circle-poster gcore-skin-button-color gcore-skin-border-color'></div>",
-    )
-    this.$playWrapper.append(this.$playButton)
-    this.$playButton.append(playIcon)
+    this.$el.find('#poster-play').append(playIcon)
 
-    if (this.options.autoPlay) {
-      this.$playButton.hide()
+    if (this.options.autoPlay || this.isNoOp) {
+      this.$el.find('#poster-play').hide()
     }
-    this.$playButton.addClass('poster-icon')
-    this.$playButton.attr('data-poster', '')
-
-    this.update()
 
     return this
   }
