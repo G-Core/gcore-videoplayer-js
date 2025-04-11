@@ -16,6 +16,12 @@ export declare class Thumbnails extends UICorePlugin
 ```
 **Extends:** UICorePlugin
 
+## Remarks
+
+The plugin needs specially crafted VTT file with a thumbnail sprite sheet to work. The VTT consist of timestamp records followed by a thumbnail area
+
+Configuration options - [ThumbnailsPluginSettings](./player.thumbnailspluginsettings.md)
+
 ## Example
 
 
@@ -37,3 +43,70 @@ new Player({
 })
 ```
 
+## Constructors
+
+<table><thead><tr><th>
+
+Constructor
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[(constructor)(core)](./player.thumbnails._constructor_.md)
+
+
+</td><td>
+
+
+</td><td>
+
+**_(BETA)_** Constructs a new instance of the `Thumbnails` class
+
+
+</td></tr>
+</tbody></table>
+
+## Methods
+
+<table><thead><tr><th>
+
+Method
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[render()](./player.thumbnails.render.md)
+
+
+</td><td>
+
+
+</td><td>
+
+**_(BETA)_**
+
+
+</td></tr>
+</tbody></table>

@@ -13,10 +13,10 @@ Plugin configuration options for the thumbnails plugin.
 
 ```typescript
 export type ThumbnailsPluginSettings = {
-    backdropHeight: number;
-    backdropMaxOpacity: number;
-    backdropMinOpacity: number;
-    spotlightHeight: number;
+    backdropHeight?: number;
+    backdropMaxOpacity?: number;
+    backdropMinOpacity?: number;
+    spotlightHeight?: number;
     sprite: string;
     vtt: string;
 };

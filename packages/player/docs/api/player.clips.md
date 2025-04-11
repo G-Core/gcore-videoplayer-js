@@ -155,6 +155,20 @@ Description
 </td></tr>
 <tr><td>
 
+[getText(time)](./player.clips.gettext.md)
+
+
+</td><td>
+
+
+</td><td>
+
+**_(BETA)_** Get the text of the clip at the given time
+
+
+</td></tr>
+<tr><td>
+
 [render()](./player.clips.render.md)
 
 

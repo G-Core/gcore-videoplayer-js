@@ -240,20 +240,6 @@ Description
 </td></tr>
 <tr><td>
 
-[putElement(name, element)](./player.mediacontrol.putelement.md)
-
-
-</td><td>
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
 [setInitialVolume()](./player.mediacontrol.setinitialvolume.md)
 
 

@@ -18,17 +18,9 @@ export declare class Poster extends UIContainerPlugin
 
 ## Remarks
 
-When the playback is stopped, media control UI is disabled. Note that the poster image, if specified via the player config, will be used to update video element's poster attribute by the HTML5-video-based playback module.
+When the playback is stopped or not yet started, the media control UI is disabled and hidden. Media control gets activated once the metadata is loaded after playback is initiated. This plugin displays a big play button on top of the poster image to allow user to start playback. Note that the poster image, if specified via the player config, will be used to update video element's poster attribute by the HTML5-video-based playback module.
 
-Configuration options:
-
-- `poster.custom` - custom CSS background
-
-- `poster.showForNoOp` - whether to show the poster when the playback is not started
-
-- `poster.url` - the URL of the poster image
-
-- `poster.showOnVideoEnd` - whether to show the poster when the playback is ended
+Configuration options - [PosterPluginSettings](./player.posterpluginsettings.md)
 
 ## Example
 

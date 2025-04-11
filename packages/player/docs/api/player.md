@@ -1019,6 +1019,15 @@ A media source to fetch the media data from
 </td></tr>
 <tr><td>
 
+[PosterPluginSettings](./player.posterpluginsettings.md)
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
 [SeekTimeSettings](./player.seektimesettings.md)
 
 
