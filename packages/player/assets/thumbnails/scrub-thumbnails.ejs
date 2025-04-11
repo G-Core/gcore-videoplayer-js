@@ -1,10 +1,5 @@
-<div class="thumbnails-text"></div>
-<% if (backdropHeight) { %>
-    <div class="backdrop" style="height: <%= backdropHeight %>px;">
-        <div class="carousel"></div>
-    </div>
-<% }; %>
-<% if (spotlightHeight) { %>
-    <div class="spotlight" style="height: <%= spotlightHeight %>px;">
-    </div>
-<% }; %>
+<div class="thumbnails-text" id="thumbnails-text"></div>
+<div class="backdrop" id="thumbnails-backdrop">
+    <div class="carousel" id="thumbnails-carousel"></div>
+</div>
+<div class="spotlight" id="thumbnails-spotlight"></div>

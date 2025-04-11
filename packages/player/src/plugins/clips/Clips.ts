@@ -2,7 +2,7 @@ import { Container, Events, UICorePlugin, $, template } from '@clappr/core'
 import { trace } from '@gcorevideo/utils'
 import assert from 'assert'
 
-import { TimeProgress } from '../../playback.types.js'
+import { TimeProgress, TimeValue } from '../../playback.types.js'
 import type { ZeptoResult } from '../../types.js'
 import '../../../assets/clips/clips.scss'
 import { ClipDesc } from './types.js'
@@ -115,6 +115,15 @@ export class Clips extends UICorePlugin {
   override enable() {
     this.render()
     return super.enable()
+  }
+
+  /**
+   * Get the text of the clip at the given time
+   * @param time - The time to get the text for
+   * @returns The text of the clip at the given time
+   */
+  getText(time: TimeValue): string | undefined {
+    return this.clips.find((clip) => clip.start <= time && clip.end >= time)?.text
   }
 
   private onCoreReady() {

@@ -279,8 +279,8 @@ export class MediaControl extends UICorePlugin {
   }
 
   /**
+   * Use in mediacontrol-based plugins to access the active container
    * @internal
-   * @deprecated Use core.activeContainer directly
    */
   get container() {
     return this.core.activeContainer
@@ -645,18 +645,17 @@ export class MediaControl extends UICorePlugin {
   }
 
   private mousemoveOnSeekBar(event: MouseEvent) {
+    const offset = MediaControl.getPageX(event) -
+      (this.$seekBarContainer.offset().left ?? 0) // TODO check if the result can be negative
+    const hoverOffset =
+      offset -
+      (this.$seekBarHover.width() ?? 0) / 2
+    const pos = offset ? Math.min(1, Math.max(offset / this.$seekBarContainer.width(), 0)) : 0
     if (this.settings.seekEnabled) {
-      // assert.ok(this.$seekBarHover && this.$seekBarContainer, 'seek bar elements must be present');
-      if (this.$seekBarHover && this.$seekBarContainer) {
-        const offsetX =
-          MediaControl.getPageX(event) -
-          this.$seekBarContainer.offset().left -
-          this.$seekBarHover.width() / 2
-
-        this.$seekBarHover.css({ left: offsetX })
-      }
+      // TODO test that it works when the element does not exist
+      this.$seekBarHover.css({ left: hoverOffset })
     }
-    this.trigger(Events.MEDIACONTROL_MOUSEMOVE_SEEKBAR, event)
+    this.trigger(Events.MEDIACONTROL_MOUSEMOVE_SEEKBAR, event, pos)
   }
 
   private mouseleaveOnSeekBar(event: MouseEvent) {
@@ -1194,17 +1193,7 @@ export class MediaControl extends UICorePlugin {
       } else {
         panel.append(element)
       }
-      return
     }
-  }
-
-  /**
-   * @deprecated  Use {@link MediaControl.mount} instead
-   * @param name
-   * @param element
-   */
-  putElement(name: MediaControlElement, element: ZeptoResult) {
-    this.mount(name, element)
   }
 
   /**

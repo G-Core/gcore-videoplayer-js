@@ -112,13 +112,12 @@ export function createMockContainer(
 
 export function createMockMediaControl(core: any) {
   const mediaControl = new UICorePlugin(core)
+  // TODO <div class="media-control-layer">
   mediaControl.$el.html(
     `<div class="media-control-left-panel" data-media-control></div>
     <div class="media-control-right-panel" data-media-control></div>
     <div class="media-control-center-panel" data-media-control></div>`,
   )
-  // @ts-ignore
-  mediaControl.putElement = vi.fn()
   // @ts-ignore
   mediaControl.mount = vi.fn()
   // @ts-ignore
