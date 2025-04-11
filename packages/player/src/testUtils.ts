@@ -123,6 +123,7 @@ export function createMockMediaControl(core: any) {
   // @ts-ignore
   mediaControl.toggleElement = vi.fn()
   vi.spyOn(mediaControl, 'trigger')
+  core.$el.append(mediaControl.$el)
   return mediaControl
 }
 

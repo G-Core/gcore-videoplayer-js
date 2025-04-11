@@ -255,17 +255,17 @@ export class Thumbnails extends UICorePlugin {
   }
 
   private mount() {
-    // insert after the background TODO figure out why
     const mediaControl = this.core.getPlugin('media_control') as MediaControl
-    mediaControl.$el.find('.seek-time').css('bottom', 56) // TODO check
-    // TODO use mediaControl.mount? into the `layer`
-    mediaControl.$el.append(this.$el)
+    mediaControl.$el.find('.seek-time').css('bottom', 56) // TODO check the offset
+    mediaControl.$el.first().after(this.$el);
   }
 
   private onMouseMoveSeekbar(_: MouseEvent, pos: number) {
-    this.hoverPosition = pos
-    this.showing = true
-    this.update()
+    if (Math.abs(pos - this.hoverPosition) >= 0.01) {
+      this.hoverPosition = pos
+      this.showing = true
+      this.update()
+    }
   }
 
   private onMouseLeave() {
@@ -275,9 +275,13 @@ export class Thumbnails extends UICorePlugin {
 
   // builds a dom element which represents the thumbnail
   // scaled to the given height
-  private buildThumbImage(thumb: ThumbnailDesc, height: number) {
+  private buildThumbImage(
+    thumb: ThumbnailDesc,
+    height: number,
+    $ref?: ZeptoResult,
+  ) {
     const scaleFactor = height / thumb.h
-    const $container = $('<div />').addClass('thumbnail-container')
+    const $container = $ref && $ref.length ? $ref : $('<div />').addClass('thumbnail-container')
 
     $container.css('width', thumb.w * scaleFactor)
     $container.css('height', height)
@@ -414,8 +418,11 @@ export class Thumbnails extends UICorePlugin {
     // update thumbnail
     const $spotlight = this.$el.find('#thumbnails-spotlight')
 
-    $spotlight.empty()
-    $spotlight.append(this.buildThumbImage(thumb, this.spotlightHeight))
+    this.buildThumbImage(
+      thumb,
+      this.spotlightHeight,
+      $spotlight.find('.thumbnail-container'),
+    ).appendTo($spotlight)
 
     const elWidth = this.$el.width()
     const thumbWidth = $spotlight.width()

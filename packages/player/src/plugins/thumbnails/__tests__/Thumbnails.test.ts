@@ -55,14 +55,14 @@ sprite.png#xywh=200,200,100,100
     it('should render', () => {
       expect(thumbnails.$el.html()).toMatchSnapshot()
     })
-    it('should mount to media controls', () => {
-      expect(mediaControl.$el.find('.scrub-thumbnails')).toHaveLength(1)
+    it('should mount along with media controls', () => {
+      expect(core.$el.find('.scrub-thumbnails')).toHaveLength(1)
     })
     it('should load image dimensions', () => {
       expect(loadImageDimensions).toHaveBeenCalledWith('https://example.com/sprite.png')
     })
     it('should parse sprite sheet and create thumbnails', () => {
-      const thumbs = mediaControl.$el.find('#thumbnails-carousel .thumbnail-container')
+      const thumbs = thumbnails.$el.find('#thumbnails-carousel .thumbnail-container')
       expect(thumbs).toHaveLength(2)
     })
     it('should hide', () => {
