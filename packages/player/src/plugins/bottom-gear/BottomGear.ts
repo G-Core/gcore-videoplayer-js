@@ -100,6 +100,10 @@ export enum GearEvents {
 export class BottomGear extends UICorePlugin {
   private hd = false
 
+  private numItems = 0;
+
+  private collapsed = true;
+
   /**
    * @internal
    */
@@ -137,7 +141,7 @@ export class BottomGear extends UICorePlugin {
    */
   override get events() {
     return {
-      'click #gear-button': 'toggleGearMenu',
+      'click #gear-button': 'toggleMenu',
     }
   }
 
@@ -197,6 +201,10 @@ export class BottomGear extends UICorePlugin {
         this.$el.find('#gear-options').hide()
       })
     }
+    this.numItems++;
+    if (this.numItems > 0) {
+      this.$el.show()
+    }
     return $item
   }
 
@@ -217,7 +225,7 @@ export class BottomGear extends UICorePlugin {
   private highDefinitionUpdate(isHd: boolean) {
     trace(`${T} highDefinitionUpdate`, { isHd })
     this.hd = isHd
-    this.$el.find('.gear-icon').html(isHd ? gearHdIcon : gearIcon)
+    this.$el.find('#gear-button').html(isHd ? gearHdIcon : gearIcon)
   }
 
   /**
@@ -230,12 +238,13 @@ export class BottomGear extends UICorePlugin {
       return this // TODO test
     }
     const icon = this.hd ? gearHdIcon : gearIcon
+    this.collapsed = true;
+    this.numItems = 0;
     this.$el
       .html(BottomGear.template({ icon }))
-      .find('#gear-sub-menu-wrapper')
+      .hide() // until numItems > 0
+      .find('#gear-options-wrapper')
       .hide()
-
-    // TODO make non-clickable when there are no items
 
     setTimeout(() => {
       this.trigger(GearEvents.RENDERED)
@@ -254,16 +263,25 @@ export class BottomGear extends UICorePlugin {
     this.$el.find('#gear-options').show()
   }
 
-  private toggleGearMenu() {
+  private toggleMenu() {
     this.core
       .getPlugin('media_control')
       .trigger(ExtendedEvents.MEDIACONTROL_MENU_COLLAPSE, this.name)
-    this.$el.find('#gear-options-wrapper').toggle()
+    this.collapsed = !this.collapsed;
+    if (this.collapsed) {
+      this.$el.find('#gear-options-wrapper').hide()
+    } else {
+      this.$el.find('#gear-options-wrapper').show()
+    }
+    this.$el.find('#gear-button').attr('aria-expanded', (!this.collapsed).toString())
+    trace(`${T} toggleMenu`, { hidden: this.collapsed })
   }
 
-  private hide() {
+  private collapse() {
     trace(`${T} hide`)
+    this.collapsed = true;
     this.$el.find('#gear-options-wrapper').hide()
+    this.$el.find('#gear-button').attr('aria-expanded', 'false')
   }
 
   private onCoreReady() {
@@ -275,13 +293,13 @@ export class BottomGear extends UICorePlugin {
       ClapprEvents.MEDIACONTROL_RENDERED,
       this.onMediaControlRendered,
     )
-    this.listenTo(mediaControl, ClapprEvents.MEDIACONTROL_HIDE, this.hide)
+    this.listenTo(mediaControl, ClapprEvents.MEDIACONTROL_HIDE, this.collapse)
     this.listenTo(
       mediaControl,
       ExtendedEvents.MEDIACONTROL_MENU_COLLAPSE,
       (from: string) => {
         if (from !== this.name) {
-          this.hide()
+          this.collapse()
         }
       },
     )
@@ -289,6 +307,13 @@ export class BottomGear extends UICorePlugin {
 
   private onMediaControlRendered() {
     trace(`${T} onMediaControlRendered`)
+    this.mount()
+  }
+
+  private mount() {
+    trace(`${T} mount`, {
+      numItems: this.numItems,
+    })
     const mediaControl = this.core.getPlugin('media_control')
     mediaControl.mount('gear', this.$el)
   }
