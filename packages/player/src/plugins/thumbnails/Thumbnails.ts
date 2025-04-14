@@ -261,11 +261,9 @@ export class Thumbnails extends UICorePlugin {
   }
 
   private onMouseMoveSeekbar(_: MouseEvent, pos: number) {
-    if (Math.abs(pos - this.hoverPosition) >= 0.01) {
-      this.hoverPosition = pos
-      this.showing = true
-      this.update()
-    }
+    this.hoverPosition = pos
+    this.showing = true
+    this.update()
   }
 
   private onMouseLeave() {
@@ -415,7 +413,6 @@ export class Thumbnails extends UICorePlugin {
     const thumbIndex = this.getThumbIndexForTime(hoverTime)
     const thumb = this.thumbs[thumbIndex]
 
-    // update thumbnail
     const $spotlight = this.$el.find('#thumbnails-spotlight')
 
     this.buildThumbImage(

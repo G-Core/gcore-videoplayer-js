@@ -98,6 +98,7 @@ export function createMockContainer(
     getDuration: vi.fn().mockReturnValue(0),
     getPlugin: vi.fn(),
     getPlaybackType: vi.fn(),
+    getStartTimeOffset: vi.fn().mockReturnValue(0),
     isDvrInUse: vi.fn().mockReturnValue(false),
     isDvrEnabled: vi.fn().mockReturnValue(false),
     isHighDefinitionInUse: vi.fn().mockReturnValue(false),
@@ -120,6 +121,8 @@ export function createMockMediaControl(core: any) {
   )
   // @ts-ignore
   mediaControl.mount = vi.fn()
+  // @ts-ignore
+  mediaControl.container = core.activeContainer
   // @ts-ignore
   mediaControl.toggleElement = vi.fn()
   vi.spyOn(mediaControl, 'trigger')

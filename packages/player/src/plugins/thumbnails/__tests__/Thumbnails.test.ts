@@ -8,7 +8,7 @@ import { createMockCore, createMockMediaControl } from '../../../testUtils'
 import { Thumbnails } from '../Thumbnails'
 import { loadImageDimensions } from '../utils'
 
-import { Logger, LogTracer, setTracer } from '@gcorevideo/utils'
+// import { Logger, LogTracer, setTracer } from '@gcorevideo/utils'
 
 // Logger.enable('*')
 // setTracer(new LogTracer('Thumbnails.test'))
@@ -30,11 +30,11 @@ describe('Thumbnails', () => {
         vtt: `
 1
 00:00:00.000 --> 00:00:01.000
-sprite.png#xywh=100,100,100,100
+sprite.png#xywh=0,0,100,100
 
 2
 00:00:01.000 --> 00:00:02.000
-sprite.png#xywh=200,200,100,100
+sprite.png#xywh=100,0,100,100
 `,
       },
     })
@@ -67,6 +67,23 @@ sprite.png#xywh=200,200,100,100
     })
     it('should hide', () => {
       expect(thumbnails.$el.hasClass('hidden')).toBe(true)
+    })
+  })
+  describe('update', () => {
+    describe('when mouse pointer is over the scrubber', () => {
+      beforeEach(async () => {
+        core.emit(Events.CORE_READY)
+        await new Promise(resolve => setTimeout(resolve, 1))
+        mediaControl.container.getDuration.mockReturnValue(5)
+        vi.spyOn(thumbnails.$el, 'width').mockReturnValue(300)
+        mediaControl.trigger(Events.MEDIACONTROL_MOUSEMOVE_SEEKBAR, {}, 0.5)
+      })
+      it('should show thumbnails', () => {
+        expect(thumbnails.$el.hasClass('hidden')).toBe(false)
+      })
+      it('should show the matching spotlight thumbnail', () => {
+        expect(thumbnails.$el.find('#thumbnails-spotlight .thumbnail-container').css('background-position')).toBe('-100px 0px')
+      })
     })
   })
 })

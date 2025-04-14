@@ -3,7 +3,7 @@
 exports[`Thumbnails > loading > should render 1`] = `
 "<div class="thumbnails-text" id="thumbnails-text"></div>
 <div class="backdrop" id="thumbnails-backdrop" style="height: 100px;">
-    <div class="carousel" id="thumbnails-carousel"><div class="thumbnail-container" style="width: 100px; height: 100px; background-image: url(&quot;https://example.com/sprite.png&quot;); background-size: 600px 900px; background-position: -100px -100px;"></div><div class="thumbnail-container" style="width: 100px; height: 100px; background-image: url(&quot;https://example.com/sprite.png&quot;); background-size: 600px 900px; background-position: -200px -200px;"></div></div>
+    <div class="carousel" id="thumbnails-carousel"><div class="thumbnail-container" style="width: 100px; height: 100px; background-image: url(&quot;https://example.com/sprite.png&quot;); background-size: 600px 900px; background-position: 0px 0px;"></div><div class="thumbnail-container" style="width: 100px; height: 100px; background-image: url(&quot;https://example.com/sprite.png&quot;); background-size: 600px 900px; background-position: -100px 0px;"></div></div>
 </div>
 <div class="spotlight" id="thumbnails-spotlight" style="height: 100px;"></div>
 "
