@@ -2,7 +2,7 @@ import { MockedFunction, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { BottomGear, GearEvents } from '../BottomGear'
 import { createMockCore, createMockMediaControl } from '../../../testUtils'
-import { Events } from '@clappr/core'
+import { $, Events } from '@clappr/core'
 import { ExtendedEvents } from '../../media-control/MediaControl'
 
 // import { LogTracer, Logger, setTracer } from '@gcorevideo/utils'
@@ -17,19 +17,18 @@ describe('BottomGear', () => {
   let onGearRendered: MockedFunction<() => void>
   beforeEach(() => {
     core = createMockCore()
-      mediaControl = createMockMediaControl(core)
-      core.getPlugin = vi
-        .fn()
-        .mockImplementation((name) =>
-          name === 'media_control' ? mediaControl : null,
-        )
+    mediaControl = createMockMediaControl(core)
+    core.getPlugin = vi
+      .fn()
+      .mockImplementation((name) =>
+        name === 'media_control' ? mediaControl : null,
+      )
   })
   describe('basically', () => {
     beforeEach(() => {
       bottomGear = new BottomGear(core)
       onGearRendered = vi.fn()
       bottomGear.on(GearEvents.RENDERED, onGearRendered, null)
-      bottomGear.render()
       core.emit(Events.CORE_READY)
       bottomGear.addItem('test', null).html('<button>test</button>')
     })
@@ -92,9 +91,9 @@ describe('BottomGear', () => {
         bottomGear.$el.find('#gear-button').click()
       })
       it('should collapse the gear menu', () => {
-        expect(bottomGear.$el.find('#gear-options-wrapper').css('display')).toBe(
-          'none',
-        )
+        expect(
+          bottomGear.$el.find('#gear-options-wrapper').css('display'),
+        ).toBe('none')
         expect(bottomGear.$el.find('#gear-button').attr('aria-expanded')).toBe(
           'false',
         )
@@ -104,9 +103,6 @@ describe('BottomGear', () => {
   describe('when there are no items', () => {
     beforeEach(() => {
       bottomGear = new BottomGear(core)
-      onGearRendered = vi.fn()
-      bottomGear.on(GearEvents.RENDERED, onGearRendered, null)
-      bottomGear.render()
       core.emit(Events.CORE_READY)
     })
     it('should render hidden', () => {
@@ -115,6 +111,47 @@ describe('BottomGear', () => {
     it('should show button after item is added', () => {
       bottomGear.addItem('test', null).html('<button>test</button>')
       expect(bottomGear.$el.css('display')).not.toBe('none')
+    })
+  })
+  describe('when container is clicked', () => {
+    beforeEach(async () => {
+      bottomGear = new BottomGear(core)
+      core.emit(Events.CORE_READY)
+      bottomGear
+        .addItem('test', $('<ul id="test-options"><li>Item</li></ul>'))
+        .html('<button id="test-button">test</button>')
+      bottomGear.$el.find('#gear-button').click()
+    })
+    describe('basically', () => {
+      beforeEach(async () => {
+        mediaControl.container.trigger(Events.CONTAINER_CLICK)
+        await new Promise((resolve) => setTimeout(resolve, 0))
+      })
+      it('should collapse the gear menu', () => {
+        expect(bottomGear.$el.find('#gear-options-wrapper').css('display')).toBe(
+          'none',
+        )
+        expect(bottomGear.$el.find('#gear-button').attr('aria-expanded')).toBe(
+          'false',
+        )
+        expect(bottomGear.$el.find('#test-options').css('display')).toBe('none')
+      })
+    })
+    describe('when submenu is open', () => {
+      beforeEach(async () => {
+        // bottomGear.$el.find('#test-submenu').click()
+        bottomGear.$el.find('#test-options').show(); // as if it was clicked
+        await new Promise((resolve) => setTimeout(resolve, 0))
+        mediaControl.container.trigger(Events.CONTAINER_CLICK)
+      })
+      it('should collapse it as well', () => {
+        expect(bottomGear.$el.find('#test-options').css('display')).toBe(
+          'none',
+        )
+        expect(bottomGear.$el.find('#gear-options').css('display')).not.toBe(
+          'none',
+        )
+      })
     })
   })
 })

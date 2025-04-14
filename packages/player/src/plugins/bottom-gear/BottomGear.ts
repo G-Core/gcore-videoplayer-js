@@ -1,4 +1,4 @@
-import { UICorePlugin, template, Events as ClapprEvents, $ } from '@clappr/core'
+import { UICorePlugin, template, Events as ClapprEvents, $, Container } from '@clappr/core'
 import { trace } from '@gcorevideo/utils'
 import assert from 'assert'
 
@@ -150,11 +150,6 @@ export class BottomGear extends UICorePlugin {
    */
   override bindEvents() {
     this.listenToOnce(this.core, ClapprEvents.CORE_READY, this.onCoreReady)
-    this.listenTo(
-      this.core,
-      ClapprEvents.CORE_ACTIVE_CONTAINER_CHANGED,
-      this.onActiveContainerChanged,
-    )
   }
 
   /**
@@ -208,18 +203,16 @@ export class BottomGear extends UICorePlugin {
     return $item
   }
 
-  private onActiveContainerChanged() {
-    trace(`${T} onActiveContainerChanged`)
-    this.bindContainerEvents()
-  }
-
-  private bindContainerEvents() {
+  private bindContainerEvents(container: Container) {
     trace(`${T} bindContainerEvents`)
     this.listenTo(
-      this.core.activeContainer,
+      container,
       ClapprEvents.CONTAINER_HIGHDEFINITIONUPDATE,
       this.highDefinitionUpdate,
     )
+    this.listenTo(container, ClapprEvents.CONTAINER_CLICK, () => {
+      this.collapse()
+    })
   }
 
   private highDefinitionUpdate(isHd: boolean) {
@@ -259,6 +252,10 @@ export class BottomGear extends UICorePlugin {
    * Should be called by the UI plugin that added a gear item with a submenu when the latter is closed (e.g., when a "back" button is clicked).
    */
   refresh() {
+    this.collapseSubmenus()
+  }
+
+  private collapseSubmenus() {
     this.$el.find('.gear-sub-menu-wrapper').hide()
     this.$el.find('#gear-options').show()
   }
@@ -278,10 +275,12 @@ export class BottomGear extends UICorePlugin {
   }
 
   private collapse() {
-    trace(`${T} hide`)
+    trace(`${T} collapse`)
     this.collapsed = true;
     this.$el.find('#gear-options-wrapper').hide()
     this.$el.find('#gear-button').attr('aria-expanded', 'false')
+    // TODO hide submenus
+    this.collapseSubmenus()
   }
 
   private onCoreReady() {
@@ -294,6 +293,9 @@ export class BottomGear extends UICorePlugin {
       this.onMediaControlRendered,
     )
     this.listenTo(mediaControl, ClapprEvents.MEDIACONTROL_HIDE, this.collapse)
+    this.listenTo(mediaControl, ClapprEvents.MEDIACONTROL_CONTAINERCHANGED, () => {
+      this.bindContainerEvents(mediaControl.container)
+    })
     this.listenTo(
       mediaControl,
       ExtendedEvents.MEDIACONTROL_MENU_COLLAPSE,
@@ -303,6 +305,7 @@ export class BottomGear extends UICorePlugin {
         }
       },
     )
+    this.bindContainerEvents(mediaControl.container)
   }
 
   private onMediaControlRendered() {
