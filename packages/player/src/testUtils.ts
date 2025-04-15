@@ -13,6 +13,7 @@ export function createMockCore(
     $el: $(el),
     activePlayback: container.playback,
     activeContainer: container,
+    containers: [container],
     i18n: {
       t: vi.fn().mockImplementation((key: string) => key),
     },

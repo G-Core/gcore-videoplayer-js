@@ -1,10 +1,10 @@
-import {
-  Core,
-  CorePlugin,
-  Events,
-} from '@clappr/core'
+import { $, Container, Core, CorePlugin, Events } from '@clappr/core'
 
-import { generateContentId, generateSessionId } from './utils'
+// import { trace } from '@gcorevideo/utils'
+
+import { generateSessionId } from './utils'
+import { CLAPPR_VERSION } from '../../build.js'
+import { CoreOptions } from 'src/internal.types'
 
 const CMCD_KEYS = [
   'br',
@@ -36,11 +36,13 @@ export type CmcdConfigPluginSettings = {
    */
   sessionId: string
   /**
-   * Content ID, either constant or derived from current source.
-   * If ommitted, a SHA-1 hash of current source URL will be used
+   * Content ID,
+   * If ommitted, the pathname part of the first source URL will be used
    */
-  contentId?: string | ((sourceUrl: string, mimeType?: string) => (string | Promise<string>))
+  contentId?: string
 }
+
+// const T = 'plugins.cmcd'
 
 /**
  * A `PLUGIN` that configures CMCD for playback
@@ -61,63 +63,73 @@ export class CmcdConfig extends CorePlugin {
     return 'cmcd'
   }
 
+  get version() {
+    return '0.1.0'
+  }
+
+  get supportedVersion() {
+    return CLAPPR_VERSION
+  }
+
   constructor(core: Core) {
     super(core)
     this.sid = this.options.cmcd?.sessionId ?? generateSessionId()
+    this.cid = this.options.cmcd?.contentId ?? this.generateContentId()
   }
 
   /**
    * @inheritdocs
    */
   override bindEvents() {
-    this.listenTo(this.core, Events.CORE_ACTIVE_CONTAINER_CHANGED, () =>
-      this.updateSettings(),
+    this.listenTo(this.core, Events.CORE_CONTAINERS_CREATED, () =>
+      this.updateSettings(this.core.containers[0]),
     )
   }
 
-  async getIds(): Promise<{ sid: string; cid: string }> {
+  exportIds(): { sid: string; cid: string } {
     return {
       sid: this.sid,
-      cid: await this.ensureContentId(),
+      cid: this.cid,
     }
   }
 
-  private updateSettings() {
-    switch (this.core.activeContainer.playback.name) {
+  private async updateSettings(container: Container) {
+    switch (container.playback.name) {
       case 'dash':
-        this.updateDashjsSettings()
+        $.extend(true, container.playback.options, {
+          dash: {
+            cmcd: {
+              enabled: true,
+              enabledKeys: CMCD_KEYS,
+              sid: this.sid,
+              cid: this.cid,
+            },
+          },
+        })
         break
       case 'hls':
-        this.updateHlsjsSettings()
+        $.extend(true, container.playback.options, {
+          playback: {
+            hlsjsConfig: {
+              cmcd: {
+                includeKeys: CMCD_KEYS,
+                sessionId: this.sid,
+                contentId: this.cid,
+              },
+            },
+          },
+        })
         break
     }
   }
 
-  private async updateDashjsSettings() {
-    const {cid, sid} = await this.getIds()
-    const options = this.core.activePlayback.options
-    this.core.activePlayback.options = {
-      ...options,
-      dash: {
-        ...(options.dash ?? {}),
-        cmcd: {
-          enabled: true,
-          enabledKeys: CMCD_KEYS,
-          sid,
-          cid,
-        },
-      },
-    }
-  }
-
-  private async updateHlsjsSettings() {
-    const { cid, sid } = await this.getIds()
-    const options = this.core.activePlayback.options
-    this.core.activePlayback.options = {
-      ...options,
+  private updateHlsjsSettings(
+    options: CoreOptions,
+    { cid, sid }: { cid: string; sid: string },
+  ) {
+    $.extend(true, options, {
       playback: {
         hlsjsConfig: {
-          ...(options.playback?.hlsjsConfig ?? {}),
           cmcd: {
             includeKeys: CMCD_KEYS,
             sessionId: sid,
@@ -125,24 +137,12 @@ export class CmcdConfig extends CorePlugin {
           },
         },
       },
-    }
+    })
   }
 
-  private async ensureContentId(): Promise<string> {
-    if (!this.cid) {
-      this.cid = await this.evalContentId()
-    }
-    return this.cid
-  }
-
-  private async evalContentId(): Promise<string> {
-    if (!this.core.activeContainer.options.cmcd?.contentId) {
-      return generateContentId(this.core.activePlayback.options.src)
-    }
-    const contentId = this.core.activeContainer.options.cmcd.contentId
-    if (typeof contentId === 'string') {
-      return contentId
-    }
-    return Promise.resolve(contentId(this.core.activePlayback.options.src))
+  private generateContentId() {
+    return new URL(
+      this.core.options.source ?? this.core.options.sources[0].source,
+    ).pathname.slice(0, 64)
   }
 }

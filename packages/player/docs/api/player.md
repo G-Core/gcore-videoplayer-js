@@ -122,6 +122,17 @@ Description
 </td></tr>
 <tr><td>
 
+[CmcdConfig](./player.cmcdconfig.md)
+
+
+</td><td>
+
+**_(BETA)_** A `PLUGIN` that configures CMCD for playback
+
+
+</td></tr>
+<tr><td>
+
 [ContextMenu](./player.contextmenu.md)
 
 
@@ -734,6 +745,17 @@ Description
 </td><td>
 
 **_(BETA)_** Configuration options for the [ClosedCaptions](./player.closedcaptions.md) plugin.
+
+
+</td></tr>
+<tr><td>
+
+[CmcdConfigPluginSettings](./player.cmcdconfigpluginsettings.md)
+
+
+</td><td>
+
+**_(BETA)_**
 
 
 </td></tr>
