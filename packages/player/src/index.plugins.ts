@@ -5,6 +5,7 @@ export { AudioTracks as AudioSelector } from "./plugins/audio-selector/AudioTrac
 export * from "./plugins/big-mute-button/BigMuteButton.js";
 export * from "./plugins/bottom-gear/BottomGear.js";
 export * from "./plugins/clappr-stats/ClapprStats.js";
+export * from "./plugins/cmcd-config/CmcdConfig.js";
 export * from "./plugins/clappr-nerd-stats/NerdStats.js";
 export { NerdStats as ClapprNerdStats } from "./plugins/clappr-nerd-stats/NerdStats.js";
 export * from "./plugins/click-to-pause/ClickToPause.js";

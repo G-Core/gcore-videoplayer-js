@@ -5,7 +5,6 @@ import {
   MediaControlSettings,
 } from '../MediaControl'
 import { createMockCore } from '../../../testUtils'
-import { LogTracer, Logger, setTracer } from '@gcorevideo/utils'
 import { $, Events, Playback } from '@clappr/core'
 
 vi.mock('../../utils/fullscreen', () => ({
@@ -13,8 +12,10 @@ vi.mock('../../utils/fullscreen', () => ({
   isFullscreen: vi.fn().mockReturnValue(false),
 }))
 
-Logger.enable('*')
-setTracer(new LogTracer('MediaControl.test'))
+// import { LogTracer, Logger, setTracer } from '@gcorevideo/utils'
+
+// Logger.enable('*')
+// setTracer(new LogTracer('MediaControl.test'))
 
 describe('MediaControl', () => {
   let core: any

@@ -47,7 +47,7 @@ export class BigMuteButton extends UICorePlugin {
    */
   override get events() {
     return {
-      'click .big-mute-icon': 'handleBigMuteBtnClick',
+      'click .big-mute-icon': 'clicked',
       'click .big-mute-icon-wrapper': 'destroyBigMuteBtn',
     }
   }
@@ -62,6 +62,7 @@ export class BigMuteButton extends UICorePlugin {
     trace(`${T} bindEvents`, {
       mediacontrol: !!this.core.mediaControl,
     })
+    // TOOD use core.getPlugin('media_control')
     this.listenTo(
       this.core.mediaControl,
       Events.MEDIACONTROL_RENDERED,
@@ -199,7 +200,7 @@ export class BigMuteButton extends UICorePlugin {
     this.destroy()
   }
 
-  private handleBigMuteBtnClick(e: MouseEvent) {
+  private clicked(e: MouseEvent) {
     const localVolume = Utils.Config.restore('volume')
     const volume = !isNaN(localVolume) ? localVolume : 100
 

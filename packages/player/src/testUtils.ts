@@ -41,7 +41,7 @@ export function createSpinnerPlugin() {
   })
 }
 
-export function createMockPlayback(name = 'mock') {
+export function createMockPlayback(name = 'mock', options: Record<string, unknown> = {}) {
   const emitter = new Events()
   return Object.assign(emitter, {
     name,
@@ -51,6 +51,7 @@ export function createMockPlayback(name = 'mock') {
     dvrInUse: false,
     isAudioOnly: false,
     levels: [],
+    options: { ...options },
     consent: vi.fn(),
     play: vi.fn(),
     pause: vi.fn(),
@@ -80,7 +81,7 @@ export function createMockPlayback(name = 'mock') {
 
 export function createMockContainer(
   options: Record<string, unknown> = {},
-  playback: any = createMockPlayback(),
+  playback: any = createMockPlayback('html5_video', options),
 ) {
   const el = playback.el
   const emitter = new Events()
