@@ -17,7 +17,7 @@ const T = 'plugins.clips'
  */
 export interface ClipsPluginSettings {
   /**
-   * The compiled text of the clips description, one clip per line in format  :
+   * The compiled text of the clips description, one clip per line in format:
    * `HH:MM:SS text` or `MM:SS text` or `SS text`
    */
   text: string
@@ -123,7 +123,8 @@ export class Clips extends UICorePlugin {
    * @returns The text of the clip at the given time
    */
   getText(time: TimeValue): string | undefined {
-    return this.clips.find((clip) => clip.start <= time && clip.end >= time)?.text
+    return this.clips.find((clip) => clip.start <= time && clip.end >= time)
+      ?.text
   }
 
   private onCoreReady() {

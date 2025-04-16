@@ -2,12 +2,59 @@
 
 [Home](./index.md) &gt; [@gcorevideo/player](./player.md) &gt; [ClapprStatsSettings](./player.clapprstatssettings.md)
 
-## ClapprStatsSettings type
+## ClapprStatsSettings interface
+
+> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
+> 
+
+Config options for the [ClapprStats](./player.clapprstats.md) plugin
 
 **Signature:**
 
 ```typescript
-export type ClapprStatsSettings = {
-    runEach?: number;
-};
+export interface ClapprStatsSettings 
 ```
+
+## Properties
+
+<table><thead><tr><th>
+
+Property
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[runEach?](./player.clapprstatssettings.runeach.md)
+
+
+</td><td>
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+**_(BETA)_** _(Optional)_ The interval in milliseconds of periodic measurements. The plugin will emit a [ClapprStatsEvents.REPORT](./player.clapprstatsevents.md) event with the collected metrics at the specified interval.
+
+
+</td></tr>
+</tbody></table>

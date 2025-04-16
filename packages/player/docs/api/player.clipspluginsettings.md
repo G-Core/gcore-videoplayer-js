@@ -53,7 +53,7 @@ string
 
 </td><td>
 
-**_(BETA)_** The compiled text of the clips description, one clip per line in format : `HH:MM:SS text` or `MM:SS text` or `SS text`
+**_(BETA)_** The compiled text of the clips description, one clip per line in format: `HH:MM:SS text` or `MM:SS text` or `SS text`
 
 
 </td></tr>

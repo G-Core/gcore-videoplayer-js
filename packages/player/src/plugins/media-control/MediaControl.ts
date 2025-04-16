@@ -136,6 +136,10 @@ const LEFT_ORDER = [
   'dvr',
 ]
 
+/**
+ * Extended events for the {@link MediaControl} plugin
+ * @beta
+ */
 export enum ExtendedEvents {
   MEDIACONTROL_VOLUME = 'mediacontrol:volume',
   MEDIACONTROL_MENU_COLLAPSE = 'mediacontrol:menu:collapse',

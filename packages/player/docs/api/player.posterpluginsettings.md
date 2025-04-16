@@ -2,15 +2,116 @@
 
 [Home](./index.md) &gt; [@gcorevideo/player](./player.md) &gt; [PosterPluginSettings](./player.posterpluginsettings.md)
 
-## PosterPluginSettings type
+## PosterPluginSettings interface
+
+> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
+> 
+
+Config options for the [Poster](./player.poster.md) plugin
 
 **Signature:**
 
 ```typescript
-export type PosterPluginSettings = {
-    custom?: string;
-    showForNoOp?: boolean;
-    url?: string;
-    showOnVideoEnd?: boolean;
-};
+export interface PosterPluginSettings 
 ```
+
+## Properties
+
+<table><thead><tr><th>
+
+Property
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[custom?](./player.posterpluginsettings.custom.md)
+
+
+</td><td>
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+**_(BETA)_** _(Optional)_ Custom CSS background
+
+
+</td></tr>
+<tr><td>
+
+[showForNoOp?](./player.posterpluginsettings.showfornoop.md)
+
+
+</td><td>
+
+
+</td><td>
+
+boolean
+
+
+</td><td>
+
+**_(BETA)_** _(Optional)_ Whether to show the poster image when the playback is noop (i.e., when there is no appropriate video playback engine for current media sources set or the media sources are not set at all)
+
+
+</td></tr>
+<tr><td>
+
+[showOnVideoEnd?](./player.posterpluginsettings.showonvideoend.md)
+
+
+</td><td>
+
+
+</td><td>
+
+boolean
+
+
+</td><td>
+
+**_(BETA)_** _(Optional)_ Whether to show the poster after playback has ended, by default `true`
+
+
+</td></tr>
+<tr><td>
+
+[url?](./player.posterpluginsettings.url.md)
+
+
+</td><td>
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+**_(BETA)_** _(Optional)_ Poster image URL
+
+
+</td></tr>
+</tbody></table>

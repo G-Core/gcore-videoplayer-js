@@ -226,6 +226,20 @@ Description
 </td></tr>
 <tr><td>
 
+[getAvailableHeight()](./player.mediacontrol.getavailableheight.md)
+
+
+</td><td>
+
+
+</td><td>
+
+**_(BETA)_**
+
+
+</td></tr>
+<tr><td>
+
 [mount(name, element)](./player.mediacontrol.mount.md)
 
 

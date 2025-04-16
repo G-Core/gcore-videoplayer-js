@@ -28,15 +28,16 @@ const CMCD_KEYS = [
 ]
 
 /**
+ * Config options for the {@link CmcdConfig} plugin
  * @beta
  */
-export type CmcdConfigPluginSettings = {
+export interface CmcdConfigOptions {
   /**
-   * Session ID. If ommitted, a random UUID will be generated
+   * `sid` value. If ommitted, a random UUID will be generated
    */
-  sessionId: string
+  sessionId?: string
   /**
-   * Content ID,
+   * `cid` value.
    * If ommitted, the pathname part of the first source URL will be used
    */
   contentId?: string
@@ -48,17 +49,26 @@ export type CmcdConfigPluginSettings = {
  * A `PLUGIN` that configures CMCD for playback
  * @beta
  * @remarks
- * Configuration options
- *   `cmcd`: {@link CmcdConfigPluginSettings}
+ * Configuration options {@link CmcdConfigOptions}
+ * @example
+ * ```ts
+ * import { CmcdConfig } from '@gcorevideo/player'
+ * Player.registerPlugin(CmcdConfig)
+ *
+ * const player = new Player({
+ *   source: 'https://example.com/video.mp4',
+ *   cmcd: {
+ *     sessionId: '1234567890',
+ *     contentId: 'f572d396fae9206628714fb2ce00f72e94f2258f',
+ *   },
+ * })
+ * ```
  */
 export class CmcdConfig extends CorePlugin {
   private sid: string
 
   private cid = ''
 
-  /**
-   * @inheritdocs
-   */
   get name() {
     return 'cmcd'
   }
@@ -77,9 +87,6 @@ export class CmcdConfig extends CorePlugin {
     this.cid = this.options.cmcd?.contentId ?? this.generateContentId()
   }
 
-  /**
-   * @inheritdocs
-   */
   override bindEvents() {
     this.listenTo(this.core, Events.CORE_CONTAINERS_CREATED, () =>
       this.updateSettings(this.core.containers[0]),

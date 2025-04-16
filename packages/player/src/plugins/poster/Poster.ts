@@ -19,7 +19,11 @@ import posterHTML from '../../../assets/poster/poster.ejs'
 import playIcon from '../../../assets/icons/new/play.svg'
 import { PlaybackError } from '../../playback.types.js'
 
-export type PosterPluginSettings = {
+/**
+ * Config options for the {@link Poster} plugin
+ * @beta
+ */
+export interface PosterPluginSettings {
   /**
    * Custom CSS background
    */
@@ -33,7 +37,7 @@ export type PosterPluginSettings = {
    */
   url?: string
   /**
-   * Whether to show the poster after playback has ended @default true
+   * Whether to show the poster after playback has ended, by default `true`
    */
   showOnVideoEnd?: boolean
 }

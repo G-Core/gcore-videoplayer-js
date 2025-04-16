@@ -428,6 +428,8 @@ Description
 
 </td><td>
 
+**_(BETA)_** Extended events for the [MediaControl](./player.mediacontrol.md) plugin
+
 
 </td></tr>
 <tr><td>
@@ -539,12 +541,34 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
+[ClapprStatsSettings](./player.clapprstatssettings.md)
+
+
+</td><td>
+
+**_(BETA)_** Config options for the [ClapprStats](./player.clapprstats.md) plugin
+
+
+</td></tr>
+<tr><td>
+
 [ClipsPluginSettings](./player.clipspluginsettings.md)
 
 
 </td><td>
 
 **_(BETA)_** Configuration options for the [Clips](./player.clips.md) plugin.
+
+
+</td></tr>
+<tr><td>
+
+[CmcdConfigOptions](./player.cmcdconfigoptions.md)
+
+
+</td><td>
+
+**_(BETA)_** Config options for the [CmcdConfig](./player.cmcdconfig.md) plugin
 
 
 </td></tr>
@@ -611,6 +635,17 @@ Configuration options for the player
 </td><td>
 
 Describes a media source with its MIME type and URL.
+
+
+</td></tr>
+<tr><td>
+
+[PosterPluginSettings](./player.posterpluginsettings.md)
+
+
+</td><td>
+
+**_(BETA)_** Config options for the [Poster](./player.poster.md) plugin
 
 
 </td></tr>
@@ -730,32 +765,12 @@ Description
 </td></tr>
 <tr><td>
 
-[ClapprStatsSettings](./player.clapprstatssettings.md)
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
 [ClosedCaptionsPluginSettings](./player.closedcaptionspluginsettings.md)
 
 
 </td><td>
 
 **_(BETA)_** Configuration options for the [ClosedCaptions](./player.closedcaptions.md) plugin.
-
-
-</td></tr>
-<tr><td>
-
-[CmcdConfigPluginSettings](./player.cmcdconfigpluginsettings.md)
-
-
-</td><td>
-
-**_(BETA)_**
 
 
 </td></tr>
@@ -1036,15 +1051,6 @@ A media source to fetch the media data from
 
 </td><td>
 
-
-
-</td></tr>
-<tr><td>
-
-[PosterPluginSettings](./player.posterpluginsettings.md)
-
-
-</td><td>
 
 
 </td></tr>

@@ -20,7 +20,11 @@ import { isFullscreen } from '../utils/fullscreen.js'
 
 // const T = 'plugins.clappr_stats'
 
-export type ClapprStatsSettings = {
+/**
+ * Config options for the {@link ClapprStats} plugin
+ * @beta
+ */
+export interface ClapprStatsSettings {
   /**
    * The interval in milliseconds of periodic measurements.
    * The plugin will emit a {@link ClapprStatsEvents.REPORT} event with the collected metrics at the specified interval.

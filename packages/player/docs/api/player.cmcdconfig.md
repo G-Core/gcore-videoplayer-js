@@ -18,7 +18,23 @@ export declare class CmcdConfig extends CorePlugin
 
 ## Remarks
 
-Configuration options `cmcd`<!-- -->: [CmcdConfigPluginSettings](./player.cmcdconfigpluginsettings.md)
+Configuration options [CmcdConfigOptions](./player.cmcdconfigoptions.md)
+
+## Example
+
+
+```ts
+import { CmcdConfig } from '@gcorevideo/player'
+Player.registerPlugin(CmcdConfig)
+
+const player = new Player({
+  source: 'https://example.com/video.mp4',
+  cmcd: {
+    sessionId: '1234567890',
+    contentId: 'f572d396fae9206628714fb2ce00f72e94f2258f',
+  },
+})
+```
 
 ## Constructors
 
@@ -94,7 +110,7 @@ string
 
 </td><td>
 
-**_(BETA)_** 
+**_(BETA)_**
 
 
 </td></tr>
@@ -170,7 +186,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** 
+**_(BETA)_**
 
 
 </td></tr>
