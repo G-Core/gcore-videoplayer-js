@@ -5,7 +5,10 @@ exports[`BottomGear > basically > should render 1`] = `
     /assets/icons/new/gear.svg
 </button>
 <div class="gear-wrapper gcore-skin-bg-color" id="gear-options-wrapper" style="display: none;">
-    <ul class="gear-options-list" id="gear-options" role="menu"><li data-test=""><button>test</button></li></ul>
-</div>
+    <ul class="gear-options-list" id="gear-options" role="menu"><li data-test=""><button>test</button></li><li data-more=""><button id="more-button">more options</button></li></ul>
+<div class="gear-sub-menu-wrapper" style="display: none;">
+      <button id="more-options-back">&lt; back</button>
+      <ul class="gear-sub-menu" id="more-options"><li>Item</li><li>Item</li><li>Item</li></ul>
+    </div></div>
 "
 `;

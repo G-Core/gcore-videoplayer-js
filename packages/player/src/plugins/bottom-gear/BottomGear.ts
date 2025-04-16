@@ -1,4 +1,10 @@
-import { UICorePlugin, template, Events as ClapprEvents, $, Container } from '@clappr/core'
+import {
+  UICorePlugin,
+  template,
+  Events as ClapprEvents,
+  $,
+  Container,
+} from '@clappr/core'
 import { trace } from '@gcorevideo/utils'
 import assert from 'assert'
 
@@ -16,6 +22,9 @@ const VERSION = '2.19.12'
 
 const T = 'plugins.bottom_gear'
 
+const MENU_VMARGIN = 12
+const MENU_BACKLINK_HEIGHT = 44
+
 /**
  * Events triggered by the plugin
  * @beta
@@ -26,8 +35,6 @@ export enum GearEvents {
    */
   RENDERED = 'rendered',
 }
-
-// TODO disabled if no items added
 
 /**
  * `PLUGIN` that adds a button to extend the media controls UI with extra options.
@@ -100,9 +107,9 @@ export enum GearEvents {
 export class BottomGear extends UICorePlugin {
   private hd = false
 
-  private numItems = 0;
+  private numItems = 0
 
-  private collapsed = true;
+  private collapsed = true
 
   /**
    * @internal
@@ -175,7 +182,7 @@ export class BottomGear extends UICorePlugin {
    * ```
    */
   addItem(name: string, $subMenu?: ZeptoResult): ZeptoResult {
-    const $existingItem = this.$el.find(`#gear-options li[data-${name}`)
+    const $existingItem = this.$el.find(`#gear-options li[data-${name}]`)
     if ($existingItem.length) {
       trace(`${T} addItem already exists`, { name })
       return $existingItem
@@ -190,21 +197,18 @@ export class BottomGear extends UICorePlugin {
         .hide()
         .appendTo(this.$el.find('#gear-options-wrapper'))
       $item.on('click', (e: MouseEvent) => {
-        trace(`${T} addItem submenu clicked`, { name })
         e.stopPropagation()
+        this.alignSubmenu($subMenu)
         $subMenu.show()
         this.$el.find('#gear-options').hide()
       })
     }
-    this.numItems++;
-    if (this.numItems > 0) {
-      this.$el.show()
-    }
+    this.numItems++
+    this.$el.show()
     return $item
   }
 
   private bindContainerEvents(container: Container) {
-    trace(`${T} bindContainerEvents`)
     this.listenTo(
       container,
       ClapprEvents.CONTAINER_HIGHDEFINITIONUPDATE,
@@ -225,14 +229,13 @@ export class BottomGear extends UICorePlugin {
    * @internal
    */
   override render() {
-    trace(`${T} render`)
     const mediaControl = this.core.getPlugin('media_control')
     if (!mediaControl) {
       return this // TODO test
     }
     const icon = this.hd ? gearHdIcon : gearIcon
-    this.collapsed = true;
-    this.numItems = 0;
+    this.collapsed = true
+    this.numItems = 0
     this.$el
       .html(BottomGear.template({ icon }))
       .hide() // until numItems > 0
@@ -264,19 +267,19 @@ export class BottomGear extends UICorePlugin {
     this.core
       .getPlugin('media_control')
       .trigger(ExtendedEvents.MEDIACONTROL_MENU_COLLAPSE, this.name)
-    this.collapsed = !this.collapsed;
+    this.collapsed = !this.collapsed
     if (this.collapsed) {
       this.$el.find('#gear-options-wrapper').hide()
     } else {
       this.$el.find('#gear-options-wrapper').show()
     }
-    this.$el.find('#gear-button').attr('aria-expanded', (!this.collapsed).toString())
-    trace(`${T} toggleMenu`, { hidden: this.collapsed })
+    this.$el
+      .find('#gear-button')
+      .attr('aria-expanded', (!this.collapsed).toString())
   }
 
   private collapse() {
-    trace(`${T} collapse`)
-    this.collapsed = true;
+    this.collapsed = true
     this.$el.find('#gear-options-wrapper').hide()
     this.$el.find('#gear-button').attr('aria-expanded', 'false')
     // TODO hide submenus
@@ -284,7 +287,6 @@ export class BottomGear extends UICorePlugin {
   }
 
   private onCoreReady() {
-    trace(`${T} onCoreReady`)
     const mediaControl = this.core.getPlugin('media_control')
     assert(mediaControl, 'media_control plugin is required')
     this.listenTo(
@@ -293,9 +295,13 @@ export class BottomGear extends UICorePlugin {
       this.onMediaControlRendered,
     )
     this.listenTo(mediaControl, ClapprEvents.MEDIACONTROL_HIDE, this.collapse)
-    this.listenTo(mediaControl, ClapprEvents.MEDIACONTROL_CONTAINERCHANGED, () => {
-      this.bindContainerEvents(mediaControl.container)
-    })
+    this.listenTo(
+      mediaControl,
+      ClapprEvents.MEDIACONTROL_CONTAINERCHANGED,
+      () => {
+        this.bindContainerEvents(mediaControl.container)
+      },
+    )
     this.listenTo(
       mediaControl,
       ExtendedEvents.MEDIACONTROL_MENU_COLLAPSE,
@@ -309,15 +315,21 @@ export class BottomGear extends UICorePlugin {
   }
 
   private onMediaControlRendered() {
-    trace(`${T} onMediaControlRendered`)
     this.mount()
   }
 
   private mount() {
-    trace(`${T} mount`, {
-      numItems: this.numItems,
-    })
     const mediaControl = this.core.getPlugin('media_control')
     mediaControl.mount('gear', this.$el)
+  }
+
+  private alignSubmenu($subMenu: ZeptoResult) {
+    const availableHeight =
+      this.core.getPlugin('media_control').getAvailableHeight() -
+      MENU_VMARGIN * 2
+    $subMenu.css('max-height', `${availableHeight}px`)
+    $subMenu
+      .find('.gear-sub-menu')
+      .css('max-height', `${availableHeight - MENU_BACKLINK_HEIGHT}px`)
   }
 }

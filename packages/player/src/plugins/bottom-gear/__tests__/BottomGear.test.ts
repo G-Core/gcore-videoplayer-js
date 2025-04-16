@@ -31,6 +31,15 @@ describe('BottomGear', () => {
       bottomGear.on(GearEvents.RENDERED, onGearRendered, null)
       core.emit(Events.CORE_READY)
       bottomGear.addItem('test', null).html('<button>test</button>')
+      const $moreOptions = $(
+        `<div>
+      <button id="more-options-back">&lt; back</button>
+      <ul class="gear-sub-menu" id="more-options"><li>Item</li><li>Item</li><li>Item</li></ul>
+    </div>`,
+      )
+      bottomGear
+        .addItem('more', $moreOptions)
+        .html('<button id="more-button">more options</button>')
     })
     it('should render', () => {
       expect(bottomGear.el.innerHTML).toMatchSnapshot()
@@ -99,6 +108,26 @@ describe('BottomGear', () => {
         )
       })
     })
+    describe('when submenu is open', () => {
+      beforeEach(async () => {
+        mediaControl.getAvailableHeight.mockReturnValue(198)
+        bottomGear.$el.find('#gear-button').click()
+        await new Promise((resolve) => setTimeout(resolve, 0))
+        bottomGear.$el.find('#more-button').click()
+        await new Promise((resolve) => setTimeout(resolve, 0))
+      })
+      it('should show submenu', () => {
+        expect(
+          bottomGear.$el.find('#more-options').parent().css('display'),
+        ).not.toBe('none')
+      })
+      it('should align nicely within container', () => {
+        const submenu = bottomGear.$el.find('#more-options')
+        const wrapper = submenu.parent()
+        expect(wrapper.css('max-height')).toBe('174px') // available height minus vertical margins
+        expect(submenu.css('max-height')).toBe('130px') // wrapper height minus backlink height
+      })
+    })
   })
   describe('when there are no items', () => {
     beforeEach(() => {
@@ -128,9 +157,9 @@ describe('BottomGear', () => {
         await new Promise((resolve) => setTimeout(resolve, 0))
       })
       it('should collapse the gear menu', () => {
-        expect(bottomGear.$el.find('#gear-options-wrapper').css('display')).toBe(
-          'none',
-        )
+        expect(
+          bottomGear.$el.find('#gear-options-wrapper').css('display'),
+        ).toBe('none')
         expect(bottomGear.$el.find('#gear-button').attr('aria-expanded')).toBe(
           'false',
         )
@@ -140,14 +169,12 @@ describe('BottomGear', () => {
     describe('when submenu is open', () => {
       beforeEach(async () => {
         // bottomGear.$el.find('#test-submenu').click()
-        bottomGear.$el.find('#test-options').show(); // as if it was clicked
+        bottomGear.$el.find('#test-options').show() // as if it was clicked
         await new Promise((resolve) => setTimeout(resolve, 0))
         mediaControl.container.trigger(Events.CONTAINER_CLICK)
       })
       it('should collapse it as well', () => {
-        expect(bottomGear.$el.find('#test-options').css('display')).toBe(
-          'none',
-        )
+        expect(bottomGear.$el.find('#test-options').css('display')).toBe('none')
         expect(bottomGear.$el.find('#gear-options').css('display')).not.toBe(
           'none',
         )

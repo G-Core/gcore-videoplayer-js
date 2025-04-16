@@ -532,6 +532,18 @@ export class MediaControl extends UICorePlugin {
   }
 
   /**
+   *
+   * @returns  Vertical space available to render something on top of the container.
+   * @remarks
+   * This takes into account the container height and excludes the height of the controls bar
+   */
+  getAvailableHeight() {
+    return (
+      this.core.$el.height() - this.$el.find('.media-control-layer').height()
+    )
+  }
+
+  /**
    * Set the initial volume, which is preserved when playback is interrupted by an advertisement
    */
   setInitialVolume() {
@@ -645,12 +657,12 @@ export class MediaControl extends UICorePlugin {
   }
 
   private mousemoveOnSeekBar(event: MouseEvent) {
-    const offset = MediaControl.getPageX(event) -
-      (this.$seekBarContainer.offset().left ?? 0) // TODO check if the result can be negative
-    const hoverOffset =
-      offset -
-      (this.$seekBarHover.width() ?? 0) / 2
-    const pos = offset ? Math.min(1, Math.max(offset / this.$seekBarContainer.width(), 0)) : 0
+    const offset =
+      MediaControl.getPageX(event) - (this.$seekBarContainer.offset().left ?? 0) // TODO check if the result can be negative
+    const hoverOffset = offset - (this.$seekBarHover.width() ?? 0) / 2
+    const pos = offset
+      ? Math.min(1, Math.max(offset / this.$seekBarContainer.width(), 0))
+      : 0
     if (this.settings.seekEnabled) {
       // TODO test that it works when the element does not exist
       this.$seekBarHover.css({ left: hoverOffset })
