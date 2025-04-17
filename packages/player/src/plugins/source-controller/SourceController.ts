@@ -217,7 +217,9 @@ export class SourceController extends CorePlugin {
         if (this.switching) {
           return
         }
-        this.autoPlay = !!this.core.activeContainer.actionsMetadata.playEvent?.autoPlay
+        // The autoPlay metadata flag is set between a call to play and the actual playback start event, after which the flag is cleared.
+        this.autoPlay =
+          !!this.core.activeContainer.actionsMetadata.playEvent?.autoPlay
         switch (error.code) {
           case PlaybackErrorCode.MediaSourceUnavailable:
             this.core.activeContainer?.getPlugin('poster')?.disable()
@@ -242,7 +244,7 @@ export class SourceController extends CorePlugin {
     this.listenTo(
       this.core.activeContainer,
       Events.CONTAINER_PLAY,
-      (_: string, { autoPlay }: { autoPlay?: boolean}) => {
+      (_: string, { autoPlay }: { autoPlay?: boolean }) => {
         trace(`${T} onContainerPlay`, {
           autoPlay,
         })

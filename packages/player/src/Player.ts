@@ -52,7 +52,7 @@ export type PlayerEventHandler<E extends PlayerEvent> = (
   ...args: PlayerEventParams<E>
 ) => void
 
-const T = 'GPlayer'
+const T = 'gplayer'
 
 const DEFAULT_OPTIONS: PlayerConfig = {
   autoPlay: false,

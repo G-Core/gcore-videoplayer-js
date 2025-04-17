@@ -1,6 +1,6 @@
 {
   "name": "@gcorevideo/player",
-  "version": "2.24.3",
+  "version": "2.24.5",
   "description": "Gcore JavaScript video player",
   "main": "dist/index.js",
   "type": "module",
@@ -11,7 +11,6 @@
   ],
   "scripts": {
     "build": "npm run build:ts && npm run build:bundle",
-    "build:1": "npm run build:ts && npm run build:bundle && date",
     "build:ts": "tsc",
     "build:bundle": "rollup -c",
     "dev": "nodemon --watch src -e ts --exec \"npm run build:ts && npm run docs\"",

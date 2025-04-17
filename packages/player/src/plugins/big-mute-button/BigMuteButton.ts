@@ -24,6 +24,8 @@ const T = 'plugins.big_mute_button'
  * ```
  */
 export class BigMuteButton extends UICorePlugin {
+  private autoPlay = false
+
   private hidden = false
 
   // TODO get back to the ads-related logic later
@@ -50,7 +52,7 @@ export class BigMuteButton extends UICorePlugin {
    */
   override get events() {
     return {
-      'click': 'clicked',
+      click: 'clicked',
     }
   }
 
@@ -59,14 +61,16 @@ export class BigMuteButton extends UICorePlugin {
    */
   override bindEvents() {
     this.listenTo(this.core, Events.CORE_READY, this.onCoreReady)
-    this.listenTo(this.core, Events.CORE_ACTIVE_CONTAINER_CHANGED, this.onContainerChanged)
+    this.listenTo(
+      this.core,
+      Events.CORE_ACTIVE_CONTAINER_CHANGED,
+      this.onContainerChanged,
+    )
     this.listenTo(this.core, 'core:advertisement:start', this.onStartAd)
     this.listenTo(this.core, 'core:advertisement:finish', this.onFinishAd)
   }
 
-  private onCoreReady() {
-    
-  }
+  private onCoreReady() {}
 
   private onContainerChanged() {
     this.listenTo(
@@ -74,37 +78,44 @@ export class BigMuteButton extends UICorePlugin {
       Events.CONTAINER_VOLUME,
       this.onContainerVolume,
     )
-    // this.listenTo(
-    //   this.core.activeContainer,
-    //   Events.CONTAINER_READY,
-    //   this.onContainerReady,
-    // )
     this.listenTo(
       this.core.activePlayback,
       Events.PLAYBACK_ENDED,
       this.onPlaybackEnded,
     )
-    this.listenTo(
-      this.core.activeContainer,
-      Events.CONTAINER_PLAY,
-      this.onPlay
-    )
+    this.listenTo(this.core.activeContainer, Events.CONTAINER_PLAY, this.onPlay)
+    this.listenTo(this.core.activeContainer, Events.CONTAINER_STOP, this.onStop)
+    this.listenTo(this.core.activeContainer, Events.CONTAINER_PAUSE, this.onPause)
   }
 
-  private onPlay(_: string, { autoPlay }: { autoPlay?: boolean}) {
+  private onPlay(_: string, { autoPlay }: { autoPlay?: boolean }) {
     const container = this.core.activeContainer
     const { volume } = container
     const { wasMuted } = this.options
+    if (autoPlay) {
+      this.autoPlay = true
+    }
     trace(`${T} onPlay`, {
-      autoPlay,
+      autoPlay: this.autoPlay,
       wasMuted,
       volume,
     })
-    if (autoPlay && !wasMuted && volume === 0) {
+    if (this.autoPlay && !wasMuted && volume === 0) {
       this.mount()
     } else {
       this.destroy()
     }
+  }
+
+  private onStop(_: string, { ui }: { ui?: boolean }) {
+    trace(`${T} onStop`, { ui })
+    if (ui) {
+      this.destroy()
+    }
+  }
+
+  private onPause() {
+    this.destroy()
   }
 
   private onContainerVolume(value: number) {
@@ -134,7 +145,7 @@ export class BigMuteButton extends UICorePlugin {
     trace(`${T} render`)
     this.$el.html(BigMuteButton.template())
     this.$el.find('#gplayer-big-mute-icon').append(volumeMuteIcon)
-    
+
     // TODO
     // this._adIsPlaying && this.hide()
 

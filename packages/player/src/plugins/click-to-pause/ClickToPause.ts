@@ -85,7 +85,7 @@ export class ClickToPause extends ContainerPlugin {
     const isPlaying = this.container && this.container.isPlaying()
 
     if (isPlaying) {
-      useStop ? this.container.stop() : this.container.pause()
+      useStop ? this.container.stop({ ui: true }) : this.container.pause()
     } else {
       this.container.play()
     }

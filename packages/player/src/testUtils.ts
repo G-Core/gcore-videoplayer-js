@@ -42,7 +42,10 @@ export function createSpinnerPlugin() {
   })
 }
 
-export function createMockPlayback(name = 'mock', options: Record<string, unknown> = {}) {
+export function createMockPlayback(
+  name = 'mock',
+  options: Record<string, unknown> = {},
+) {
   const emitter = new Events()
   return Object.assign(emitter, {
     name,

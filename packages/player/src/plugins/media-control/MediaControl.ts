@@ -723,7 +723,7 @@ export class MediaControl extends UICorePlugin {
   }
 
   private togglePlayStop() {
-    this.container.isPlaying() ? this.container.stop() : this.container.play()
+    this.container.isPlaying() ? this.container.stop({ ui: true }) : this.container.play()
   }
 
   private startSeekDrag(event: MouseEvent) {

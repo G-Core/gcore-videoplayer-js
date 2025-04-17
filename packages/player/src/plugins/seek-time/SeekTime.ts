@@ -135,6 +135,7 @@ export class SeekTime extends UICorePlugin {
     this.update()
   }
 
+  // TODO delegate calculation to the MediaControl plugin
   private calculateHoverPosition(event: MouseEvent) {
     const mediaControl = this.core.getPlugin('media_control')
     const offset = event.pageX - mediaControl.$seekBarContainer.offset().left
