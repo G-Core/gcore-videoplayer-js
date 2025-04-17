@@ -28,6 +28,7 @@
 import { Player, PlayerMediaSource, PlayerConfig } from './index.core.js'
 import {
   AudioTracks,
+  BigMuteButton,
   BottomGear,
   MediaControl,
   ErrorScreen,
@@ -43,6 +44,7 @@ import {
 } from './index.plugins.js'
 
 Player.registerPlugin(AudioTracks)
+Player.registerPlugin(BigMuteButton)
 Player.registerPlugin(BottomGear)
 Player.registerPlugin(ClickToPause)
 Player.registerPlugin(CmcdConfig)
