@@ -7,7 +7,7 @@
 > This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
 > 
 
-`PLUGIN` that collects useful statistics about playback performance.
+`PLUGIN` that measures data about playback, which can be useful for analyzing performance and UX.
 
 **Signature:**
 
@@ -74,6 +74,20 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
+[clearMetrics()](./player.clapprstats.clearmetrics.md)
+
+
+</td><td>
+
+
+</td><td>
+
+**_(BETA)_**
+
+
+</td></tr>
+<tr><td>
+
 [exportMetrics()](./player.clapprstats.exportmetrics.md)
 
 
@@ -83,20 +97,6 @@ Description
 </td><td>
 
 **_(BETA)_** Returns the collected metrics.
-
-
-</td></tr>
-<tr><td>
-
-[setUpdateMetrics(updateMetricsFn)](./player.clapprstats.setupdatemetrics.md)
-
-
-</td><td>
-
-
-</td><td>
-
-**_(BETA)_** Registers a callback to receive the metrics.
 
 
 </td></tr>

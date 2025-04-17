@@ -1,65 +1,111 @@
-
 /**
  * @beta
  */
-export type Metrics = {
-  counters: {
-    play: number;
-    pause: number;
-    error: number;
-    buffering: number;
-    decodedFrames: number;
-    droppedFrames: number;
-    fps: number;
-    changeLevel: number;
-    seek: number;
-    fullscreen: number;
-    dvrUsage: number;
-  };
-  timers: {
-    startup: number;
-    watch: number;
-    pause: number;
-    buffering: number;
-    session: number;
-    latency: number;
-  };
-  extra: {
-    playbackName: string;
-    playbackType: string;
-    bitratesHistory: BitrateTrackRecord[];
-    bitrateWeightedMean: number;
-    bitrateMostUsed: number;
-    buffersize: number;
-    watchHistory: Array<[number, number]>;
-    watchedPercentage: number;
-    bufferingPercentage: number;
-    bandwidth: number;
-    duration: number;
-    currentTime: number;
-  };
-  custom: Record<string, unknown>;
-};
-
-/**
- * @beta
- */
-export type BitrateTrackRecord = {
-  start: number;
-  end?: number;
-  time?: number;
-  bitrate: number;
+export enum ClapprStatsChronograph {
+  Startup = 'startup',
+  Watch = 'watch',
+  Pause = 'pause',
+  Buffering = 'buffering',
+  Session = 'session',
+  // Latency = 'latency',
 }
 
 /**
  * @beta
  */
-export type MetricsUpdateFn = (metrics: Metrics) => void;
+export enum ClapprStatsCounter {
+  Play = 'play',
+  Pause = 'pause',
+  Error = 'error',
+  Buffering = 'buffering',
+  DecodedFrames = 'decodedFrames',
+  DroppedFrames = 'droppedFrames',
+  Fps = 'fps',
+  ChangeLevel = 'changeLevel',
+  Seek = 'seek',
+  Fullscreen = 'fullscreen',
+  DvrUsage = 'dvrUsage',
+}
+
+/**
+ * @beta
+ */
+export type ClapprStatsMetrics = {
+  /**
+   * Events count counters
+   */
+  counters: {
+    /**
+     *
+     */
+    [ClapprStatsCounter.Play]: number
+    [ClapprStatsCounter.Pause]: number
+    [ClapprStatsCounter.Error]: number
+    [ClapprStatsCounter.Buffering]: number
+    [ClapprStatsCounter.DecodedFrames]: number
+    [ClapprStatsCounter.DroppedFrames]: number
+    [ClapprStatsCounter.Fps]: number
+    [ClapprStatsCounter.ChangeLevel]: number
+    [ClapprStatsCounter.Seek]: number
+    [ClapprStatsCounter.Fullscreen]: number
+    [ClapprStatsCounter.DvrUsage]: number
+  }
+  /**
+   * Time measurements - accumulated duration of time-based activities
+   */
+  chrono: {
+    /**
+     * Time spent in the startup phase
+     */
+    [ClapprStatsChronograph.Startup]: number
+    /**
+     * Total time spent in the watch phase
+     */
+    [ClapprStatsChronograph.Watch]: number
+    /**
+     *
+     */
+    [ClapprStatsChronograph.Pause]: number
+    [ClapprStatsChronograph.Buffering]: number
+    [ClapprStatsChronograph.Session]: number
+    // [Chronograph.Latency]: number;
+  }
+  extra: {
+    playbackName: string
+    playbackType: string
+    bitratesHistory: ClapprStatsBitrateTrack[]
+    bitrateWeightedMean: number
+    bitrateMostUsed: number
+    buffersize: number
+    watchHistory: Array<[number, number]>
+    watchedPercentage: number
+    bufferingPercentage: number
+    bandwidth: number
+    duration: number
+    currentTime: number
+  }
+}
+
+/**
+ * @beta
+ */
+export type ClapprStatsBitrateTrack = {
+  start: number
+  end?: number
+  time?: number
+  bitrate: number
+}
 
 /**
  * @beta
  */
 export enum ClapprStatsEvents {
-  REPORT_EVENT = 'clappr:stats:report',
-  PERCENTAGE_EVENT = 'clappr:stats:percentage',
+  /**
+   * Emitted periodically with current measurements.
+   */
+  REPORT = 'clappr:stats:report',
+  /**
+   * Emitted when the playback reaches a certain percentage of the total duration.
+   */
+  // PERCENTAGE = 'clappr:stats:percentage',
 }

@@ -8,7 +8,7 @@ exports[`QualityLevels > basically > auto > should render the selected level 1`]
 <ul class="gear-sub-menu quality-levels" id="level-selector-menu" role="menu">
     
         <li class="current">
-            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color gcore-skin-active" data-id="-1" id="level_selector_auto">
+            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color gcore-skin-active" data-id="-1" id="level_selector_auto" aria-checked="true" role="menuitemradio">
                 <span class="check-icon">/assets/icons/new/check.svg</span>
                 auto
             </a>
@@ -16,21 +16,21 @@ exports[`QualityLevels > basically > auto > should render the selected level 1`]
     
     
         <li class="">
-            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="2" data-disabled="false" data-checked="false" role="menuitemradio" id="level_selector_1080">
+            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="2" aria-disabled="false" aria-checked="false" role="menuitemradio" id="level_selector_1080">
                 <span class="check-icon">/assets/icons/new/check.svg</span>
                 Full HD
             </a>
         </li>
     
         <li class="">
-            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="1" data-disabled="false" data-checked="false" role="menuitemradio" id="level_selector_720">
+            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="1" aria-disabled="false" aria-checked="false" role="menuitemradio" id="level_selector_720">
                 <span class="check-icon">/assets/icons/new/check.svg</span>
                 HD
             </a>
         </li>
     
         <li class="">
-            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="0" data-disabled="false" data-checked="false" role="menuitemradio" id="level_selector_360">
+            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="0" aria-disabled="false" aria-checked="false" role="menuitemradio" id="level_selector_360">
                 <span class="check-icon">/assets/icons/new/check.svg</span>
                 360p
             </a>
@@ -48,7 +48,7 @@ exports[`QualityLevels > basically > custom label > should render the selected l
 <ul class="gear-sub-menu quality-levels" id="level-selector-menu" role="menu">
     
         <li class="">
-            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="-1" id="level_selector_auto">
+            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="-1" id="level_selector_auto" aria-checked="true" role="menuitemradio">
                 <span class="check-icon">/assets/icons/new/check.svg</span>
                 auto
             </a>
@@ -56,21 +56,21 @@ exports[`QualityLevels > basically > custom label > should render the selected l
     
     
         <li class="">
-            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="2" data-disabled="false" data-checked="false" role="menuitemradio" id="level_selector_1080">
+            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="2" aria-disabled="false" aria-checked="false" role="menuitemradio" id="level_selector_1080">
                 <span class="check-icon">/assets/icons/new/check.svg</span>
                 Full HD
             </a>
         </li>
     
         <li class="current">
-            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color gcore-skin-active" data-id="1" data-disabled="false" data-checked="false" role="menuitemradio" id="level_selector_720">
+            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color gcore-skin-active" data-id="1" aria-disabled="false" aria-checked="false" role="menuitemradio" id="level_selector_720">
                 <span class="check-icon">/assets/icons/new/check.svg</span>
                 HD
             </a>
         </li>
     
         <li class="">
-            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="0" data-disabled="false" data-checked="false" role="menuitemradio" id="level_selector_360">
+            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="0" aria-disabled="false" aria-checked="false" role="menuitemradio" id="level_selector_360">
                 <span class="check-icon">/assets/icons/new/check.svg</span>
                 360p
             </a>
@@ -88,7 +88,7 @@ exports[`QualityLevels > basically > standard label > should render the selected
 <ul class="gear-sub-menu quality-levels" id="level-selector-menu" role="menu">
     
         <li class="">
-            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="-1" id="level_selector_auto">
+            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="-1" id="level_selector_auto" aria-checked="true" role="menuitemradio">
                 <span class="check-icon">/assets/icons/new/check.svg</span>
                 auto
             </a>
@@ -96,21 +96,21 @@ exports[`QualityLevels > basically > standard label > should render the selected
     
     
         <li class="">
-            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="2" data-disabled="false" data-checked="false" role="menuitemradio" id="level_selector_1080">
+            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="2" aria-disabled="false" aria-checked="false" role="menuitemradio" id="level_selector_1080">
                 <span class="check-icon">/assets/icons/new/check.svg</span>
                 Full HD
             </a>
         </li>
     
         <li class="">
-            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="1" data-disabled="false" data-checked="false" role="menuitemradio" id="level_selector_720">
+            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="1" aria-disabled="false" aria-checked="false" role="menuitemradio" id="level_selector_720">
                 <span class="check-icon">/assets/icons/new/check.svg</span>
                 HD
             </a>
         </li>
     
         <li class="current">
-            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color gcore-skin-active" data-id="0" data-disabled="false" data-checked="false" role="menuitemradio" id="level_selector_360">
+            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color gcore-skin-active" data-id="0" aria-disabled="false" aria-checked="false" role="menuitemradio" id="level_selector_360">
                 <span class="check-icon">/assets/icons/new/check.svg</span>
                 360p
             </a>
@@ -129,21 +129,21 @@ exports[`QualityLevels > options.restrictResolution > given vertical video forma
     
     
         <li class=" disabled">
-            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="2" data-disabled="true" data-checked="false" role="menuitemradio" id="level_selector_1080">
+            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="2" aria-disabled="true" aria-checked="false" role="menuitemradio" id="level_selector_1080">
                 <span class="check-icon">/assets/icons/new/check.svg</span>
                 1080p
             </a>
         </li>
     
         <li class=" disabled">
-            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="1" data-disabled="true" data-checked="false" role="menuitemradio" id="level_selector_720">
+            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="1" aria-disabled="true" aria-checked="false" role="menuitemradio" id="level_selector_720">
                 <span class="check-icon">/assets/icons/new/check.svg</span>
                 720p
             </a>
         </li>
     
         <li class=" current">
-            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color gcore-skin-active" data-id="0" data-disabled="false" data-checked="true" role="menuitemradio" id="level_selector_360">
+            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color gcore-skin-active" data-id="0" aria-disabled="false" aria-checked="true" role="menuitemradio" id="level_selector_360">
                 <span class="check-icon">/assets/icons/new/check.svg</span>
                 360p
             </a>
@@ -154,7 +154,7 @@ exports[`QualityLevels > options.restrictResolution > given vertical video forma
 `;
 
 exports[`QualityLevels > options.restrictResolution > initially > should render the restricted quality level label 1`] = `
-"<button class="gplayer-lite-btn gcore-skin-text-color gear-option" aria-haspopup="menu">
+"<button class="gplayer-lite-btn gcore-skin-text-color gear-option" aria-haspopup="menu" id="quality-levels">
     <span class="gear-option_icon hidden">/assets/icons/new/hd.svg</span>
     <span class="gear-option_label">quality</span>
     <span class="gear-option_value">360p</span>
@@ -172,21 +172,21 @@ exports[`QualityLevels > options.restrictResolution > initially > when opened > 
     
     
         <li class=" disabled">
-            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="2" data-disabled="true" data-checked="false" role="menuitemradio" id="level_selector_1080">
+            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="2" aria-disabled="true" aria-checked="false" role="menuitemradio" id="level_selector_1080">
                 <span class="check-icon">/assets/icons/new/check.svg</span>
                 1080p
             </a>
         </li>
     
         <li class=" disabled">
-            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="1" data-disabled="true" data-checked="false" role="menuitemradio" id="level_selector_720">
+            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="1" aria-disabled="true" aria-checked="false" role="menuitemradio" id="level_selector_720">
                 <span class="check-icon">/assets/icons/new/check.svg</span>
                 720p
             </a>
         </li>
     
         <li class=" current">
-            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color gcore-skin-active" data-id="0" data-disabled="false" data-checked="true" role="menuitemradio" id="level_selector_360">
+            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color gcore-skin-active" data-id="0" aria-disabled="false" aria-checked="true" role="menuitemradio" id="level_selector_360">
                 <span class="check-icon">/assets/icons/new/check.svg</span>
                 360p
             </a>

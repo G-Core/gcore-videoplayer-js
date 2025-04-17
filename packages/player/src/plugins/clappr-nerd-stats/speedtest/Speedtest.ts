@@ -328,9 +328,8 @@ export class Speedtest {
     this.worker.onmessage = (e: MessageEvent) => {
       if (e.data === this._prevData) {
         return
-      } else {
-        this._prevData = e.data
       }
+      this._prevData = e.data
       const data = e.data
 
       try {
@@ -384,6 +383,7 @@ export class Speedtest {
       }
     }
     this._state = 3
+    // TODO don't run until properly initialized (url_ping, etc)
     this.worker.postMessage('start ' + JSON.stringify(this._settings))
 
     // ... [rest of the logic remains unchanged] ...

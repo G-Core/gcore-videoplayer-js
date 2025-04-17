@@ -20,11 +20,30 @@ describe('DvrControls', () => {
     }
     core.getPlugin.mockImplementation((name: string) => plugins[name])
     dvrControls = new DvrControls(core)
-    plugins.dvr_controls = dvrControls
+    core.emit(Events.CORE_READY)
+    mediaControl.trigger(Events.MEDIACONTROL_RENDERED)
+    core.trigger(Events.CORE_ACTIVE_CONTAINER_CHANGED, core.activeContainer)
+  })
+  describe('basically', () => {
+    it('should render', () => {
+      expect(dvrControls.el.innerHTML).toMatchSnapshot()
+      expect(dvrControls.el.textContent).toMatch(/\blive\b/)
+      expect(dvrControls.el.textContent).toMatch(/\bback_to_live\b/)
+    })
+  })
+  describe('while playback type is unknown', () => {
+    it('should not mount', () => {
+      expect(mediaControl.mount).not.toHaveBeenCalledWith(
+        'dvr',
+        dvrControls.$el,
+      )
+    })
   })
   describe('live stream', () => {
     beforeEach(() => {
       core.getPlaybackType.mockReturnValue('live')
+      core.activeContainer.getPlaybackType.mockReturnValue('live')
+      core.activePlayback.getPlaybackType.mockReturnValue('live')
     })
     describe.each([
       ['no DVR', false, false, false],
@@ -33,36 +52,75 @@ describe('DvrControls', () => {
       beforeEach(() => {
         core.activePlayback.dvrEnabled = dvrEnabled
         core.activeContainer.isDvrEnabled.mockReturnValue(dvrEnabled)
-        core.trigger(Events.CORE_READY)
-        core.trigger(Events.CORE_ACTIVE_CONTAINER_CHANGED, core.activeContainer)
+        core.activePlayback.emit(Events.PLAYBACK_LOADEDMETADATA)
+        core.activeContainer.emit(Events.CONTAINER_LOADEDMETADATA)
         if (dvrInUse) {
           core.activePlayback.dvrInUse = true
           core.activeContainer.isDvrInUse.mockReturnValue(true)
-          core.activeContainer.emit(Events.CONTAINER_PLAYBACKDVRSTATECHANGED, true)
+          core.activeContainer.emit(
+            Events.CONTAINER_PLAYBACKDVRSTATECHANGED,
+            true,
+          )
         }
       })
-      it('should render', () => {
-        expect(dvrControls.el.textContent).toBeTruthy()
-        expect(dvrControls.el.innerHTML).toMatchSnapshot()
-      })
+      // TODO let the media control itself handle this
       it('should hide duration and position indicators', () => {
-        expect(mediaControl.toggleElement).toHaveBeenCalledWith('duration', false)
-        expect(mediaControl.toggleElement).toHaveBeenCalledWith('position', false)
+        expect(mediaControl.toggleElement).toHaveBeenCalledWith(
+          'duration',
+          false,
+        )
+        expect(mediaControl.toggleElement).toHaveBeenCalledWith(
+          'position',
+          false,
+        )
       })
-      it('should render to the media control', () => {
-        expect(mediaControl.putElement).toHaveBeenCalledWith('dvr', dvrControls.$el)
+      it('should mount to the media control', () => {
+        expect(mediaControl.mount).toHaveBeenCalledWith('dvr', dvrControls.$el)
       })
+      if (dvrEnabled) {
+        if (dvrInUse) {
+          it('should show back_to_live button', () => {
+            expect(
+              dvrControls.$el
+                .find('#media-control-back-to-live')
+                .css('display'),
+            ).not.toBe('none')
+          })
+          it('should hide live inficator', () => {
+            expect(
+              dvrControls.$el.find('#media-control-live').css('display'),
+            ).toBe('none')
+          })
+        } else {
+          it('should show live inficator', () => {
+            expect(
+              dvrControls.$el.find('#media-control-live').css('display'),
+            ).not.toBe('none')
+          })
+          it('should hide back_to_live button', () => {
+            expect(
+              dvrControls.$el
+                .find('#media-control-back-to-live')
+                .css('display'),
+            ).toBe('none')
+          })
+        }
+      }
     })
     describe('when back_to_live button is clicked', () => {
       beforeEach(() => {
         core.activePlayback.dvrEnabled = true
-        core.trigger('core:ready')
-        core.trigger('core:active:container:changed')
+        core.activeContainer.isDvrEnabled.mockReturnValue(true)
+        core.activePlayback.emit(Events.PLAYBACK_LOADEDMETADATA)
+        core.activeContainer.emit(Events.CONTAINER_LOADEDMETADATA)
         core.activeContainer.getDuration.mockReturnValue(180)
-        core.activeContainer.trigger('container:dvr', true)
-        dvrControls.$el.find('.live-button').click()
+        core.activeContainer.emit(
+          Events.CONTAINER_PLAYBACKDVRSTATECHANGED,
+          true,
+        )
+        dvrControls.$el.find('#media-control-back-to-live').click()
       })
-      it('should call active container play', () => {
+      it('should play stream', () => {
         expect(core.activeContainer.play).toHaveBeenCalled()
       })
       it('should seek to live edge', () => {
@@ -70,20 +128,20 @@ describe('DvrControls', () => {
       })
     })
   })
-  describe('basically', () => {
+  describe('VOD stream', () => {
     beforeEach(() => {
       core.getPlaybackType.mockReturnValue(Playback.VOD)
       core.activeContainer.getPlaybackType.mockReturnValue(Playback.VOD)
       core.activePlayback.getPlaybackType.mockReturnValue(Playback.VOD)
+      core.activePlayback.emit(Events.PLAYBACK_LOADEDMETADATA)
+      core.activeContainer.emit(Events.CONTAINER_LOADEDMETADATA)
     })
-    beforeEach(() => {
-      core.trigger(Events.CORE_READY)
-      core.trigger(Events.CORE_ACTIVE_CONTAINER_CHANGED, core.activeContainer)
-    })
-    it('should render', () => {
-      expect(dvrControls.el.innerHTML).toMatchSnapshot()
-      expect(dvrControls.el.textContent).toContain('live')
-      expect(dvrControls.el.textContent).toContain('back_to_live')
+    // TODO handle mount points in MediaControl
+    it('should not mount', () => {
+      expect(mediaControl.mount).not.toHaveBeenCalledWith(
+        'dvr',
+        expect.anything(),
+      )
     })
   })
 })

@@ -1,7 +1,8 @@
-import { UICorePlugin, Events, Browser, $, Container } from '@clappr/core';
-import { reportError } from '@gcorevideo/utils';
+import { UICorePlugin, Events, Browser, $, Core } from '@clappr/core'
+import { reportError, trace } from '@gcorevideo/utils'
 
-import { TimerId } from '../../utils/types.js';
+import { TimerId } from '../../utils/types.js'
+import { ExtendedEvents } from '../media-control/MediaControl.js'
 
 /**
  * Events emitted by the VolumeFade plugin.
@@ -11,114 +12,133 @@ export enum VolumeFadeEvents {
   FADE = 'core:volume:fade',
 }
 
+const T = 'plugins.volume_fade'
+
+const DEFAULT_DURATION = 600
+const DEFAULT_VOLUME_LEVEL = 80
+
 /**
- * `PLUGIN` that applies fade effect to the player's volume change.
  * @beta
  */
+export type VolumeFadeSettings = {
+  /**
+   * Initial active volume level, effective until volume is changed via media control
+   */
+  level?: number
+  /**
+   * Fade duration, ms
+   */
+  duration?: number
+}
+
+/**
+ * `PLUGIN` that mutes the sound and fades it in when the mouse is over the player.
+ * @beta
+ *
+ * @remarks
+ * When the user moves the mouse over and away from the player, the sound is unmuted and unmuted with a fade effect.
+ *
+ * Depends on {@link MediaControl} plugin.
+ * Configuration options - {@link VolumeFadeSettings}
+ */
 export class VolumeFade extends UICorePlugin {
-  private _aboveBorderVolume = 0;
+  private activeVolume = 0
 
-  private container: Container | null = null;
+  private duration = 0
 
-  private delay = 0;
-
-  private interval: TimerId | null = null;
+  private timerId: TimerId | null = null
 
   /**
    * @internal
    */
   get name() {
-    return 'volume_fade';
+    return 'volume_fade'
+  }
+
+  constructor(core: Core) {
+    super(core)
+    if (typeof this.options.volumeFade?.level === 'number') {
+      this.activeVolume = this.options.volumeFade.level
+    }
   }
 
   /**
    * @internal
    */
   override bindEvents() {
-    // TODO on container changed
-    this.listenTo(this.core, Events.CORE_READY, this.onCoreReady);
-    if (this.core.mediaControl) {
-      this.listenTo(this.core.mediaControl, 'mediacontrol:volume:user', this._onUserChangeVolume);
-    }
-    // this.listenTo(this.core, 'core:volume:config', this._onVolumeConfig);
-  }
-
-  private unBindEvents() {
-    this.core.$el.off('mouseleave.volume');
-    this.core.$el.off('mouseenter.volume');
-  }
-
-  private _onUserChangeVolume(volume: number) {
-    this._aboveBorderVolume = volume;
-  }
-
-  private _onVolumeConfig(value: number) {
-    this._aboveBorderVolume = value;
-    this.container?.setVolume(0);
+    this.listenTo(this.core, Events.CORE_READY, this.onCoreReady)
   }
 
   private onCoreReady() {
-    this.unBindEvents();
-    this.container = this.core.activeContainer;
-    if (this.core && this.core.$el) {
-      // TODO find out why options.playerElement instead of this.core.$el or this.container.$el
-      $(this.options.playerElement).on('mouseenter.volume', () => {
-        this.onEnter();
-      });
-      $(this.options.playerElement).on('mouseleave.volume', () => {
-        this.onLeave();
-      });
+    const mediaControl = this.core.getPlugin('media_control')
+    if (Browser.isMobile) {
+      this.destroy()
+      return
     }
-    if (!this._aboveBorderVolume) {
-      this._aboveBorderVolume = this.container?.volume && !isNaN(this.container.volume) ? this.container.volume : 80;
+    if (mediaControl) {
+      this.listenTo(
+        mediaControl,
+        ExtendedEvents.MEDIACONTROL_VOLUME,
+        this.onVolumeChange,
+      )
     }
-    if (this.options.mute || Browser.isMobile) {
-      this.destroy();
+    $(this.core.$el).on('mouseenter', () => this.onEnter())
+    $(this.core.$el).on('mouseleave', () => this.onLeave())
+    if (!this.activeVolume) {
+      this.activeVolume =
+        this.core.activeContainer?.volume &&
+        !isNaN(this.core.activeContainer.volume)
+          ? this.core.activeContainer.volume
+          : DEFAULT_VOLUME_LEVEL
+    }
 
-      return;
-    }
-    this.delay = this.options.volumeFade && this.options.volumeFade.delay || 600;
-    this.container?.setVolume(0);
+    this.duration = this.options.volumeFade?.duration || DEFAULT_DURATION
+    // TODO check if `mute` must be respected
+    this.core.activeContainer?.setVolume(this.activeVolume)
+    this.core.activePlayback.volume(0)
+  }
+
+  private onVolumeChange(volume: number) {
+    trace(`${T} onVolumeChange`, { volume })
+    this.activeVolume = volume
   }
 
   private onEnter() {
-    this.numberTo(this.delay);
-  }
-
-  private numberTo(duration: number, contra = 0) {
-    this.clearCurrentInterval();
-    const start = new Date().getTime();
-
-    this.interval = setInterval(() => {
-      let now = (new Date().getTime()) - start;
-
-      if (now > duration) {
-        now = duration;
-      }
-      const progress = Math.abs(contra - now / duration);
-
-      try {
-        this.container?.setVolume(progress * this._aboveBorderVolume);
-        this.core.trigger(VolumeFadeEvents.FADE, progress * this._aboveBorderVolume);
-      } catch (error) {
-        // LogManager.exception(error);
-        reportError(error);
-        this.clearCurrentInterval();
-      }
-      if (progress >= 1 || progress <= 0) {
-        this.clearCurrentInterval();
-      }
-    }, 10);
-  }
-
-  private clearCurrentInterval() {
-    if (this.interval !== null) {
-      clearInterval(this.interval);
-      this.interval = null;
-    }
+    trace(`${T} onEnter`)
+    this.fade(this.duration, 1)
   }
 
   private onLeave() {
-    this.numberTo(this.delay, 1);
+    trace(`${T} onLeave`)
+    this.fade(this.duration, 0)
+  }
+
+  private fade(duration: number, to: 0 | 1) {
+    this.stopFade()
+    const start = new Date().getTime()
+    const from = 1 - to
+    this.timerId = setInterval(() => {
+      const delta = new Date().getTime() - start
+      const progress = Math.min(1, delta / duration)
+      const normVol = progress * to + (1 - progress) * from
+      const volume = normVol * this.activeVolume
+      this.core.activePlayback.volume(volume)
+      try {
+        this.core.trigger(VolumeFadeEvents.FADE, volume)
+      } catch (error) {
+        reportError(error)
+      }
+      if (progress >= 1) {
+        this.stopFade()
+      }
+    }, 10)
+  }
+
+  private stopFade() {
+    trace(`${T} stopFade`)
+    if (this.timerId !== null) {
+      clearInterval(this.timerId)
+      this.timerId = null
+    }
   }
 }

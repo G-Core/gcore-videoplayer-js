@@ -12,11 +12,11 @@ Returns the collected metrics.
 **Signature:**
 
 ```typescript
-exportMetrics(): Metrics;
+exportMetrics(): ClapprStatsMetrics;
 ```
 **Returns:**
 
-Metrics
+[ClapprStatsMetrics](./player.clapprstatsmetrics.md)
 
-Currently collected metrics
+Measurements collected so far
 

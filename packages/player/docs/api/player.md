@@ -61,7 +61,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** `PLUGIN` that displays a big mute button over the video when it's muted. Once pressed, it unmutes the video.
+**_(BETA)_** `PLUGIN` that displays a big mute button over the video when it's being played muted.
 
 
 </td></tr>
@@ -78,23 +78,12 @@ Description
 </td></tr>
 <tr><td>
 
-[ClapprNerdStats](./player.clapprnerdstats.md)
-
-
-</td><td>
-
-**_(BETA)_** `PLUGIN` that displays useful network-related statistics.
-
-
-</td></tr>
-<tr><td>
-
 [ClapprStats](./player.clapprstats.md)
 
 
 </td><td>
 
-**_(BETA)_** `PLUGIN` that collects useful statistics about playback performance.
+**_(BETA)_** `PLUGIN` that measures data about playback, which can be useful for analyzing performance and UX.
 
 
 </td></tr>
@@ -111,12 +100,12 @@ Description
 </td></tr>
 <tr><td>
 
-[ClipsPlugin](./player.clipsplugin.md)
+[Clips](./player.clips.md)
 
 
 </td><td>
 
-**_(BETA)_** `PLUGIN` that shows text over the seekbar to indicate the current clip.
+**_(BETA)_** `PLUGIN` that allows marking up the timeline of the video
 
 
 </td></tr>
@@ -128,6 +117,17 @@ Description
 </td><td>
 
 **_(BETA)_** `PLUGIN` that provides a UI to select the subtitles when available.
+
+
+</td></tr>
+<tr><td>
+
+[CmcdConfig](./player.cmcdconfig.md)
+
+
+</td><td>
+
+**_(BETA)_** A `PLUGIN` that configures [CMCD](https://cdn.cta.tech/cta/media/media/resources/standards/pdfs/cta-5004-final.pdf) for playback
 
 
 </td></tr>
@@ -221,6 +221,17 @@ Description
 </td></tr>
 <tr><td>
 
+[NerdStats](./player.nerdstats.md)
+
+
+</td><td>
+
+**_(BETA)_** `PLUGIN` that displays useful statistics regarding the playback as well as the network quality estimation.
+
+
+</td></tr>
+<tr><td>
+
 [PictureInPicture](./player.pictureinpicture.md)
 
 
@@ -281,7 +292,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** `PLUGIN` that adds a seek time indicator to the media control UI.
+**_(BETA)_** `PLUGIN` that adds a seek time indicator when the mouse pointer is over the seek bar.
 
 
 </td></tr>
@@ -303,7 +314,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** `PLUGIN` that adds skip controls to the media control UI.
+**_(BETA)_** `PLUGIN` that allows skipping time by tapping on the left or right side of the video.
 
 
 </td></tr>
@@ -358,7 +369,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** `PLUGIN` that applies fade effect to the player's volume change.
+**_(BETA)_** `PLUGIN` that mutes the sound and fades it in when the mouse is over the player.
 
 
 </td></tr>
@@ -378,6 +389,50 @@ Description
 
 </th></tr></thead>
 <tbody><tr><td>
+
+[ClapprStatsChronograph](./player.clapprstatschronograph.md)
+
+
+</td><td>
+
+**_(BETA)_**
+
+
+</td></tr>
+<tr><td>
+
+[ClapprStatsCounter](./player.clapprstatscounter.md)
+
+
+</td><td>
+
+**_(BETA)_**
+
+
+</td></tr>
+<tr><td>
+
+[ClapprStatsEvents](./player.clapprstatsevents.md)
+
+
+</td><td>
+
+**_(BETA)_**
+
+
+</td></tr>
+<tr><td>
+
+[ExtendedEvents](./player.extendedevents.md)
+
+
+</td><td>
+
+**_(BETA)_** Extended events for the [MediaControl](./player.mediacontrol.md) plugin
+
+
+</td></tr>
+<tr><td>
 
 [GearEvents](./player.gearevents.md)
 
@@ -486,12 +541,34 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
+[ClapprStatsSettings](./player.clapprstatssettings.md)
+
+
+</td><td>
+
+**_(BETA)_** Config options for the [ClapprStats](./player.clapprstats.md) plugin
+
+
+</td></tr>
+<tr><td>
+
 [ClipsPluginSettings](./player.clipspluginsettings.md)
 
 
 </td><td>
 
-**_(BETA)_** Configuration options for the [clips](./player.clipsplugin.md) plugin.
+**_(BETA)_** Configuration options for the [Clips](./player.clips.md) plugin.
+
+
+</td></tr>
+<tr><td>
+
+[CmcdConfigOptions](./player.cmcdconfigoptions.md)
+
+
+</td><td>
+
+**_(BETA)_** Config options for the [CmcdConfig](./player.cmcdconfig.md) plugin
 
 
 </td></tr>
@@ -563,12 +640,23 @@ Describes a media source with its MIME type and URL.
 </td></tr>
 <tr><td>
 
+[PosterPluginSettings](./player.posterpluginsettings.md)
+
+
+</td><td>
+
+**_(BETA)_** Config options for the [Poster](./player.poster.md) plugin
+
+
+</td></tr>
+<tr><td>
+
 [QualityLevel](./player.qualitylevel.md)
 
 
 </td><td>
 
-A level of quality within a media source.
+A level of quality within a media source/representation.
 
 
 </td></tr>
@@ -654,6 +742,28 @@ Description
 
 </th></tr></thead>
 <tbody><tr><td>
+
+[ClapprStatsBitrateTrack](./player.clapprstatsbitratetrack.md)
+
+
+</td><td>
+
+**_(BETA)_**
+
+
+</td></tr>
+<tr><td>
+
+[ClapprStatsMetrics](./player.clapprstatsmetrics.md)
+
+
+</td><td>
+
+**_(BETA)_**
+
+
+</td></tr>
+<tr><td>
 
 [ClosedCaptionsPluginSettings](./player.closedcaptionspluginsettings.md)
 
@@ -809,6 +919,17 @@ An ISO 639-1 language code.
 </td></tr>
 <tr><td>
 
+[MenuOption](./player.menuoption.md)
+
+
+</td><td>
+
+**_(BETA)_**
+
+
+</td></tr>
+<tr><td>
+
 [PlaybackModule](./player.playbackmodule.md)
 
 
@@ -935,6 +1056,17 @@ A media source to fetch the media data from
 </td></tr>
 <tr><td>
 
+[SeekTimeSettings](./player.seektimesettings.md)
+
+
+</td><td>
+
+**_(BETA)_** Configuration options for the SeekTime plugin.
+
+
+</td></tr>
+<tr><td>
+
 [TelemetryEventData](./player.telemetryeventdata.md)
 
 
@@ -984,7 +1116,7 @@ A media source to fetch the media data from
 
 </td><td>
 
-**_(BETA)_** For the plugin development
+**_(BETA)_** Time progress information indicated by Clappr CONTAINER\_PROGRESS and PLAYBACK\_PROGRESS events.
 
 
 </td></tr>
@@ -1006,7 +1138,7 @@ A media source to fetch the media data from
 
 </td><td>
 
-Playback time in seconds since the beginning of the stream (or a segment for the live streams)
+Playback time position in seconds since the beginning of the stream. For the live streams this is limited to the length of a segment. When DVR is enabled, this refers to the
 
 
 </td></tr>
@@ -1039,6 +1171,17 @@ Localization strings for the player UI.
 </td><td>
 
 Preferred streaming media delivery protocol
+
+
+</td></tr>
+<tr><td>
+
+[VolumeFadeSettings](./player.volumefadesettings.md)
+
+
+</td><td>
+
+**_(BETA)_**
 
 
 </td></tr>

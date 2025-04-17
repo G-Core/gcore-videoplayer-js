@@ -1,5 +1,6 @@
 /**
- * Playback time in seconds since the beginning of the stream (or a segment for the live streams)
+ * Playback time position in seconds since the beginning of the stream.
+ * For the live streams this is limited to the length of a segment. When DVR is enabled, this refers to the 
  * @public
  */
 export type TimeValue = number
@@ -10,11 +11,30 @@ export type TimeValue = number
  */
 export interface TimePosition {
   /**
-   * Current playback time, 0..duration, seconds.
+   * Current playback time, 0..duration
    */
   current: TimeValue
   /**
-   * Total duration of the media, seconds.
+   * Total duration of the media content (or DVR window size or segment duration for live streams)
+   */
+  total: TimeValue
+}
+
+/**
+ * Time progress information indicated by Clappr CONTAINER_PROGRESS and PLAYBACK_PROGRESS events.
+ * @beta
+ */
+export type TimeProgress = {
+  /**
+   * Current playback time
+   */
+  start: TimeValue
+  /**
+   * Current buffer length beginning from the start (=current) time
+   */
+  current: TimeValue
+  /**
+   * Total duration of the media content
    */
   total: TimeValue
 }
@@ -22,32 +42,26 @@ export interface TimePosition {
 /**
  * For the plugin development
  * @beta
+ * @deprecated  Use TimePosition instead
  */
-export type TimeProgress = TimePosition & { start: number }
+export type TimeUpdate = TimePosition
 
 /**
- * For the plugin development
- * @beta
- */
-export type TimeUpdate = TimePosition & {
-  firstFragDateTime: number
-}
-
-/**
- * A level of quality within a media source.
+ * A level of quality within a media source/representation.
  * @public
  */
 export interface QualityLevel {
   /**
    * Zero-based index of the quality level.
+   * Quality levels go from low to high
    */
   level: number
   /**
-   * Width of the video, pixels.
+   * Width of the video frame, pixels.
    */
   width: number
   /**
-   * Height of the video, pixels.
+   * Height of the video frame, pixels.
    */
   height: number
   /**

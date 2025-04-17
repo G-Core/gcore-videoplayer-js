@@ -27,7 +27,6 @@ import {
   PlayerComponentType,
   QualityLevel,
   TimePosition,
-  TimeUpdate,
 } from '../../playback.types.js'
 import { PlaybackType } from '../../types.js'
 import { isHlsSource } from '../../utils/mediaSources.js'
@@ -742,11 +741,10 @@ export default class HlsPlayback extends BasePlayback {
     )
   }
 
-  private _onTimeUpdate() {
-    const update: TimeUpdate = {
+  override _onTimeUpdate() {
+    const update: TimePosition = {
       current: this.getCurrentTime(),
       total: this.getDuration(),
-      firstFragDateTime: this.getProgramDateTime(),
     }
     const isSame =
       this._lastTimeUpdate &&

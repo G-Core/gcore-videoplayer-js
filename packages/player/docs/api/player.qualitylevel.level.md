@@ -4,7 +4,7 @@
 
 ## QualityLevel.level property
 
-Zero-based index of the quality level.
+Zero-based index of the quality level. Quality levels go from low to high
 
 **Signature:**
 

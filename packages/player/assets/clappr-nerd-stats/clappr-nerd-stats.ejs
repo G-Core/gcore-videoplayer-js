@@ -1,12 +1,12 @@
 <% general = metrics.general %>
 <% counters = metrics.counters %>
-<% timers = metrics.timers %>
+<% timers = metrics.chrono %>
 <% extra = metrics.extra %>
 <% custom = metrics.custom %>
 
-<div class="stats-box">
+<div class="stats-box" id="nerd-stats-box">
     <div class="stats-box-top">
-        <a class="close-button gplayer-lite-btn" data-close-button>
+        <a class="close-button gplayer-lite-btn" id="nerd-stats-close">
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
                 <g clip-path="url(#clip0_184_1489)">
                     <path fill-rule="evenodd" clip-rule="evenodd"
@@ -23,156 +23,153 @@
     </div>
     <div class="stats-box-main">
         <ul>
-            <li class="title"><span>General</span></li>
+            <li class="title"><span><%= i18n.t('stats.general') %></span></li>
             <li>
-                Display resolution:
-                <div><span><%= general.displayResolution %></span></div>
+                <%= i18n.t('stats.display_resolution') %>
+                <div><span><span id="nerd-stats-resolution-width"><%= general.resolution.width %></span>&times;<span id="nerd-stats-resolution-height"><%= general.resolution.height %></span></span></div>
             </li>
             <li>
-                Volume:
-                <div><span><%= general.volume %></span></div>
+                <%= i18n.t('stats.volume') %>
+                <div id="nerd-stats-volume"><span><%= general.volume %></span></div>
             </li>
             <li>
-                Connection speed:
-                <div><span id="dlText"><%= custom.connectionSpeed %></span> Mbps</div>
+                <%= i18n.t('stats.connection_speed') %>
+                <div><span id="nerd-stats-dl-text"><%= custom.connectionSpeed %></span> <%= i18n.t('mbps') %></div>
             </li>
             <li class="canvas-wrapper">
-                <canvas id="speedTestCanvas" width="190" height="20"></canvas>
+                <canvas id="nerd-stats-speed-test-canvas" width="190" height="20"></canvas>
             </li>
             <li>
-                Ping:
-                <div><span id="pingText"><%= custom.ping %></span> ms</div>
+                <%= i18n.t('stats.ping') %>
+                <div><span id="nerd-stats-ping-text"><%= custom.ping %></span> <%= i18n.t('ms') %></div>
             </li>
             <li>
-                Jitter:
-                <div><span id="jitterText"><%= custom.jitter %></span> ms</div>
-            </li>
-        </ul>
-
-        <ul>
-            <li class="title"><span>Counters</span></li>
-            <li>
-                Plays:
-                <div><span><%= counters.play %></span></div>
-            </li>
-            <li>
-                Pauses:
-                <div><span><%= counters.pause %></span></div>
-            </li>
-            <li>
-                Errors:
-                <div><span><%= counters.error %></span></div>
-            </li>
-            <li>
-                Bufferings:
-                <div><span><%= counters.buffering %></span></div>
-            </li>
-            <li>
-                Decoded frames:
-                <div><span><%= counters.decodedFrames %></span></div>
-            </li>
-            <li>
-                Dropped frames:
-                <div><span><%= counters.droppedFrames %></span></div>
-            </li>
-            <li>
-                Frames per second:
-                <div><span><%= counters.fps %></span></div>
-            </li>
-            <li>
-                Bitrate changes:
-                <div><span><%= counters.changeLevel %></span></div>
-            </li>
-            <li>
-                Seeks:
-                <div><span><%= counters.seek %></span></div>
-            </li>
-            <li>
-                Fullscreen:
-                <div><span><%= counters.fullscreen %></span></div>
-            </li>
-            <li>
-                DVR seeks:
-                <div><span><%= counters.dvrUsage %></span></div>
+                <%= i18n.t('stats.jitter') %>
+                <div><span id="nerd-stats-jitter-text"><%= custom.jitter %></span> <%= i18n.t('ms') %></div>
             </li>
         </ul>
 
         <ul>
-            <li class="title"><span>Timers</span></li>
+            <li class="title"><span><%= i18n.t('stats.duration') %></span></li>
             <li>
-                Startup time:
-                <div><span><%= timers.startup %></span></div>
+                <%= i18n.t('stats.startup') %>
+                <div><span id="nerd-stats-startup-time"><%= timers.startup %></span></div>
             </li>
             <li>
-                Watching time:
-                <div><span><%= timers.watch %></span></div>
+                <%= i18n.t('stats.watching') %>
+                <div><span id="nerd-stats-watch-time"><%= timers.watch %></span></div>
             </li>
             <li>
-                Pause time:
-                <div><span><%= timers.pause %></span></div>
+                <%= i18n.t('stats.paused') %>
+                <div><span id="nerd-stats-pause-time"><%= timers.pause %></span></div>
             </li>
             <li>
-                Buffering time:
-                <div><span><%= timers.buffering %></span></div>
+                <%= i18n.t('stats.buffering') %>
+                <div><span id="nerd-stats-buffering-time"><%= timers.buffering %></span></div>
             </li>
             <li>
-                Session time:
-                <div><span><%= timers.session %></span></div>
+                <%= i18n.t('stats.session') %>
+                <div><span id="nerd-stats-session-time"><%= timers.session %></span></div>
             </li>
-            <!--    <li>-->
-            <!--      Latency:-->
-            <!--      <div><span><%= timers.latency %></span></div>-->
-            <!--    </li>-->
         </ul>
 
         <ul>
-            <li class="title"><span>Extra</span></li>
+            <li class="title"><span><%= i18n.t('stats.counters') %></span></li>
             <li>
-                Playback:
-                <div><span><%= extra.playbackName %></span></div>
+                <%= i18n.t('stats.plays') %>
+                <div><span id="nerd-stats-plays"><%= counters.play %></span></div>
             </li>
             <li>
-                Playback type:
-                <div><span><%= extra.playbackType %></span></div>
+                <%= i18n.t('stats.pauses') %>
+                <div><span id="nerd-stats-pauses"><%= counters.pause %></span></div>
             </li>
             <li>
-                Buffer size:
-                <div><span><%= extra.buffersize %></span></div>
+                <%= i18n.t('stats.errors') %>
+                <div><span id="nerd-stats-errors"><%= counters.error %></span></div>
             </li>
             <li>
-                Video duration:
-                <div><span><%= extra.duration %></span></div>
+                <%= i18n.t('stats.bufferings') %>
+                <div><span id="nerd-stats-bufferings"><%= counters.buffering %></span></div>
             </li>
             <li>
-                Current time:
-                <div><span><%= extra.currentTime %></span></div>
+                <%= i18n.t('stats.decoded_frames') %>
+                <div><span id="nerd-stats-decoded-frames"><%= counters.decodedFrames %></span></div>
             </li>
             <li>
-                Bitrate weighted mean:
-                <div><span><%= extra.bitrateWeightedMean %></span></div>
+                <%= i18n.t('stats.dropped_frames') %>
+                <div><span id="nerd-stats-dropped-frames"><%= counters.droppedFrames %></span></div>
             </li>
             <li>
-                Bitrate most used:
-                <div><span><%= extra.bitrateMostUsed %></span></div>
+                <%= i18n.t('stats.fps') %>
+                <div><span id="nerd-stats-fps"><%= counters.fps %></span></div>
             </li>
             <li>
-                % Watched:
-                <div><span><%= extra.watchedPercentage %></span></div>
+                <%= i18n.t('stats.bitrate_changes') %>
+                <div><span id="nerd-stats-bitrate-changes"><%= counters.changeLevel %></span></div>
             </li>
             <li>
-                % Buffering:
-                <div><span><%= extra.bufferingPercentage %></span></div>
+                <%= i18n.t('stats.seeks') %>
+                <div><span id="nerd-stats-seeks"><%= counters.seek %></span></div>
+            </li>
+            <li>
+                <%= i18n.t('stats.fullscreen') %>
+                <div><span id="nerd-stats-fullscreen"><%= counters.fullscreen %></span></div>
+            </li>
+            <li>
+                <%= i18n.t('stats.dvr_seeks') %>
+                <div><span id="nerd-stats-dvr-usage"><%= counters.dvrUsage %></span></div>
+            </li>
+        </ul>
+
+        <ul>
+            <li class="title"><span><%= i18n.t('stats.extra') %></span></li>
+            <li>
+                <%= i18n.t('stats.playback') %>
+                <div><span id="nerd-stats-playback-name"><%= extra.playbackName %></span></div>
+            </li>
+            <li>
+                <%= i18n.t('stats.playback_type') %>
+                <div><span id="nerd-stats-playback-type"><%= extra.playbackType %></span></div>
+            </li>
+            <li>
+                <%= i18n.t('stats.buffer_size') %>
+                <div><span id="nerd-stats-buffer-size"><%= extra.buffersize %></span></div>
+            </li>
+            <li>
+                <%= i18n.t('stats.video_duration') %>
+                <div><span id="nerd-stats-video-duration"><%= extra.duration %></span></div>
+            </li>
+            <li>
+                <%= i18n.t('stats.current_time') %>
+                <div><span id="nerd-stats-current-time"><%= extra.currentTime %></span></div>
+            </li>
+            <li>
+                <%= i18n.t('stats.bitrate_weighted_mean') %>
+                <div><span id="nerd-stats-bitrate-weighted-mean"><%= extra.bitrateWeightedMean %></span></div>
+            </li>
+            <li>
+                <%= i18n.t('stats.bitrate_most_used') %>
+                <div><span id="nerd-stats-bitrate-most-used"><%= extra.bitrateMostUsed %></span></div>
+            </li>
+            <li>
+                <%= i18n.t('stats.watched_percentage') %>
+                <div><span id="nerd-stats-watched-percentage"><%= extra.watchedPercentage %></span></div>
+            </li>
+            <li>
+                <%= i18n.t('stats.buffering_percentage') %>
+                <div><span id="nerd-stats-buffering-percentage"><%= extra.bufferingPercentage %></span></div>
             </li>
         </ul>
     </div>
     <div class="speedtest-summary">
-        <div class="speedtest-summary-header">Your internet quality summary</div>
+        <div class="speedtest-summary-header"><%= i18n.t('stats.your_internet_quality_summary') %>:</div>
         <div class="speedtest-summary-block">
             <div class="speedtest-summary-subblock">
                 <div class="speedtest-summary-subblock-content">
                     <div class="speedtest-quality">
-                        <div class="speedtest-quality-header">VOD: <%= custom.vodQuality %></div>
-                        <div class="speedtest-quality-content" data-streaming-type="vod">
+                        <div class="speedtest-quality-header"><%= i18n.t('vod') %>: 
+                            <span id="nerd-stats-quality-vod-text"><%= custom.vodQuality %></span></div>
+                        <div class="speedtest-quality-content" data-streaming-type="vod" id="nerd-stats-quality-vod">
                             <div class="speedtest-quality-content-item"></div>
                             <div class="speedtest-quality-content-item"></div>
                             <div class="speedtest-quality-content-item"></div>
@@ -185,8 +182,9 @@
             <div class="speedtest-summary-subblock">
                 <div class="speedtest-summary-subblock-content">
                     <div class="speedtest-quality">
-                        <div class="speedtest-quality-header">Live: <%= custom.liveQuality %></div>
-                        <div class="speedtest-quality-content" data-streaming-type="live">
+                        <div class="speedtest-quality-header"><%= i18n.t('live') %>: 
+                            <span id="nerd-stats-quality-live-text"><%= custom.liveQuality %></span></div>
+                        <div class="speedtest-quality-content" data-streaming-type="live" id="nerd-stats-quality-live">
                             <div class="speedtest-quality-content-item"></div>
                             <div class="speedtest-quality-content-item"></div>
                             <div class="speedtest-quality-content-item"></div>
@@ -200,13 +198,13 @@
     </div>
     <div class="speedtest-footer">
         <!--    <a class="speedtest-footer-about-link" href="" target="_blank">I am not a nerd, what's this all about?</a>-->
-        <button class="gplayer-lite-btn speedtest-btn speedtest-footer-refresh" data-refresh-button type="button">
+        <button class="gplayer-lite-btn speedtest-btn speedtest-footer-refresh" type="button" id="nerd-stats-refresh">
             <svg width="12" height="10" viewBox="0 0 12 10" fill="none">
                 <path
-                        d="M6.03968 0.124998C3.64268 0.124998 1.67268 1.9565 1.48068 4.2915H1.00018C0.925833 4.29146 0.853156 4.31353 0.791378 4.35489C0.729601 4.39625 0.681511 4.45503 0.653218 4.52378C0.624925 4.59253 0.617705 4.66814 0.632476 4.74101C0.647248 4.81387 0.683343 4.88069 0.736177 4.933L1.57618 5.766C1.64641 5.83561 1.74129 5.87467 1.84018 5.87467C1.93906 5.87467 2.03395 5.83561 2.10418 5.766L2.94418 4.933C2.99701 4.88069 3.03311 4.81387 3.04788 4.74101C3.06265 4.66814 3.05543 4.59253 3.02714 4.52378C2.99884 4.45503 2.95075 4.39625 2.88898 4.35489C2.8272 4.31353 2.75452 4.29146 2.68018 4.2915H2.23368C2.42368 2.376 4.05268 0.874998 6.03968 0.874998C6.6948 0.873639 7.33932 1.04039 7.91158 1.35931C8.48384 1.67822 8.9647 2.13863 9.30818 2.6965C9.33331 2.73978 9.36686 2.7776 9.40684 2.80771C9.44682 2.83783 9.49243 2.85963 9.54097 2.87184C9.58951 2.88405 9.64001 2.88643 9.68948 2.87881C9.73895 2.8712 9.7864 2.85377 9.82902 2.82753C9.87165 2.80129 9.90859 2.76679 9.93767 2.72605C9.96675 2.68531 9.98739 2.63916 9.99835 2.59032C10.0093 2.54148 10.0104 2.49095 10.0015 2.44168C9.99264 2.39242 9.974 2.34544 9.94668 2.3035C9.53615 1.63664 8.96146 1.08621 8.27752 0.704805C7.59359 0.323402 6.82277 0.123774 6.03968 0.124998ZM10.4207 4.2335C10.3505 4.16419 10.2558 4.12532 10.1572 4.12532C10.0585 4.12532 9.96386 4.16419 9.89368 4.2335L9.05018 5.0665C8.9972 5.11874 8.96096 5.18557 8.94608 5.25847C8.93119 5.33137 8.93833 5.40705 8.96658 5.47588C8.99483 5.54472 9.04292 5.60359 9.10473 5.64501C9.16654 5.68644 9.23927 5.70853 9.31368 5.7085H9.76318C9.57218 7.6235 7.93768 9.125 5.94118 9.125C5.28399 9.12683 4.63729 8.96035 4.06269 8.64141C3.48808 8.32247 3.00473 7.86169 2.65868 7.303C2.63281 7.26107 2.59893 7.22465 2.55899 7.19582C2.51904 7.16699 2.47381 7.14631 2.42587 7.13495C2.37793 7.1236 2.32823 7.1218 2.27959 7.12966C2.23096 7.13752 2.18435 7.15488 2.14243 7.18075C2.05776 7.233 1.99731 7.31674 1.97438 7.41355C1.95146 7.51037 1.96793 7.61233 2.02018 7.697C2.43345 8.36457 3.01076 8.91521 3.69713 9.29647C4.38349 9.67772 5.15604 9.87689 5.94118 9.875C8.34518 9.875 10.3237 8.045 10.5162 5.7085H11.0002C11.0746 5.70853 11.1473 5.68644 11.2091 5.64501C11.2709 5.60359 11.319 5.54472 11.3473 5.47588C11.3755 5.40705 11.3827 5.33137 11.3678 5.25847C11.3529 5.18557 11.3167 5.11874 11.2637 5.0665L10.4207 4.2335Z"
-                        fill="white"/>
+                    d="M6.03968 0.124998C3.64268 0.124998 1.67268 1.9565 1.48068 4.2915H1.00018C0.925833 4.29146 0.853156 4.31353 0.791378 4.35489C0.729601 4.39625 0.681511 4.45503 0.653218 4.52378C0.624925 4.59253 0.617705 4.66814 0.632476 4.74101C0.647248 4.81387 0.683343 4.88069 0.736177 4.933L1.57618 5.766C1.64641 5.83561 1.74129 5.87467 1.84018 5.87467C1.93906 5.87467 2.03395 5.83561 2.10418 5.766L2.94418 4.933C2.99701 4.88069 3.03311 4.81387 3.04788 4.74101C3.06265 4.66814 3.05543 4.59253 3.02714 4.52378C2.99884 4.45503 2.95075 4.39625 2.88898 4.35489C2.8272 4.31353 2.75452 4.29146 2.68018 4.2915H2.23368C2.42368 2.376 4.05268 0.874998 6.03968 0.874998C6.6948 0.873639 7.33932 1.04039 7.91158 1.35931C8.48384 1.67822 8.9647 2.13863 9.30818 2.6965C9.33331 2.73978 9.36686 2.7776 9.40684 2.80771C9.44682 2.83783 9.49243 2.85963 9.54097 2.87184C9.58951 2.88405 9.64001 2.88643 9.68948 2.87881C9.73895 2.8712 9.7864 2.85377 9.82902 2.82753C9.87165 2.80129 9.90859 2.76679 9.93767 2.72605C9.96675 2.68531 9.98739 2.63916 9.99835 2.59032C10.0093 2.54148 10.0104 2.49095 10.0015 2.44168C9.99264 2.39242 9.974 2.34544 9.94668 2.3035C9.53615 1.63664 8.96146 1.08621 8.27752 0.704805C7.59359 0.323402 6.82277 0.123774 6.03968 0.124998ZM10.4207 4.2335C10.3505 4.16419 10.2558 4.12532 10.1572 4.12532C10.0585 4.12532 9.96386 4.16419 9.89368 4.2335L9.05018 5.0665C8.9972 5.11874 8.96096 5.18557 8.94608 5.25847C8.93119 5.33137 8.93833 5.40705 8.96658 5.47588C8.99483 5.54472 9.04292 5.60359 9.10473 5.64501C9.16654 5.68644 9.23927 5.70853 9.31368 5.7085H9.76318C9.57218 7.6235 7.93768 9.125 5.94118 9.125C5.28399 9.12683 4.63729 8.96035 4.06269 8.64141C3.48808 8.32247 3.00473 7.86169 2.65868 7.303C2.63281 7.26107 2.59893 7.22465 2.55899 7.19582C2.51904 7.16699 2.47381 7.14631 2.42587 7.13495C2.37793 7.1236 2.32823 7.1218 2.27959 7.12966C2.23096 7.13752 2.18435 7.15488 2.14243 7.18075C2.05776 7.233 1.99731 7.31674 1.97438 7.41355C1.95146 7.51037 1.96793 7.61233 2.02018 7.697C2.43345 8.36457 3.01076 8.91521 3.69713 9.29647C4.38349 9.67772 5.15604 9.87689 5.94118 9.875C8.34518 9.875 10.3237 8.045 10.5162 5.7085H11.0002C11.0746 5.70853 11.1473 5.68644 11.2091 5.64501C11.2709 5.60359 11.319 5.54472 11.3473 5.47588C11.3755 5.40705 11.3827 5.33137 11.3678 5.25847C11.3529 5.18557 11.3167 5.11874 11.2637 5.0665L10.4207 4.2335Z"
+                    fill="white"/>
             </svg>
-            Refresh
+            <%= i18n.t('stats.refresh') %>
         </button>
     </div>
 </div>

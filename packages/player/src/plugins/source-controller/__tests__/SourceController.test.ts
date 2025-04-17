@@ -5,7 +5,6 @@ import FakeTimers from '@sinonjs/fake-timers'
 import { SourceController } from '../SourceController'
 import { PlaybackErrorCode } from '../../../playback.types.js'
 import {
-  _MockPlayback,
   createMockCore,
   createMockPlayback,
   createMockPlugin,
@@ -151,7 +150,7 @@ describe('SourceController', () => {
         core.activePlayback.emit('playback:error', {
           code: PlaybackErrorCode.MediaSourceUnavailable,
         })
-        nextPlayback = new _MockPlayback({} as any, {} as any)
+        nextPlayback = createMockPlayback()
         vi.spyOn(nextPlayback, 'consent')
         vi.spyOn(nextPlayback, 'play')
         core.activePlayback = nextPlayback

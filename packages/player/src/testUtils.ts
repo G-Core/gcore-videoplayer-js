@@ -1,90 +1,10 @@
-import { $, Playback, UICorePlugin } from '@clappr/core'
+import { $, UICorePlugin } from '@clappr/core'
 import Events from 'eventemitter3'
 import { vi } from 'vitest'
-/**
- * @internal
- * @deprecated
- * TODO use createMockPlayback() instead
- */
-export class _MockPlayback extends Events {
-  constructor(
-    protected options: any,
-    readonly i18n: any,
-    protected playerError?: any,
-  ) {
-    super()
-  }
-
-  get name() {
-    return 'mock'
-  }
-
-  consent() {}
-
-  play() {}
-
-  pause() {}
-
-  stop() {}
-
-  destroy() {}
-
-  seek() {}
-
-  seekPercentage() {}
-
-  getDuration() {
-    return 100
-  }
-
-  enterPiP() {}
-
-  exitPiP() {}
-
-  getPlaybackType() {
-    return Playback.LIVE
-  }
-
-  getStartTimeOffset() {
-    return 0
-  }
-
-  getCurrentTime() {
-    return 0
-  }
-
-  isHighDefinitionInUse() {
-    return false
-  }
-
-  mute() {}
-
-  unmute() {}
-
-  volume() {}
-
-  configure() {}
-
-  attemptAutoPlay() {
-    return true
-  }
-
-  canAutoPlay() {
-    return true
-  }
-
-  onResize() {
-    return true
-  }
-
-  trigger(event: string, ...args: any[]) {
-    this.emit(event, ...args)
-  }
-}
 
 export function createMockCore(
   options: Record<string, unknown> = {},
-  container: any = createMockContainer(),
+  container: any = createMockContainer(options),
 ) {
   const el = document.createElement('div')
   const emitter = new Events()
@@ -93,6 +13,7 @@ export function createMockCore(
     $el: $(el),
     activePlayback: container.playback,
     activeContainer: container,
+    containers: [container],
     i18n: {
       t: vi.fn().mockImplementation((key: string) => key),
     },
@@ -100,7 +21,7 @@ export function createMockCore(
       ...options,
     },
     configure: vi.fn(),
-    getPlaybackType: vi.fn().mockReturnValue(Playback.LIVE),
+    getPlaybackType: vi.fn(),
     getPlugin: vi.fn(),
     load: vi.fn(),
     trigger: emitter.emit,
@@ -121,7 +42,7 @@ export function createSpinnerPlugin() {
   })
 }
 
-export function createMockPlayback(name = 'mock') {
+export function createMockPlayback(name = 'mock', options: Record<string, unknown> = {}) {
   const emitter = new Events()
   return Object.assign(emitter, {
     name,
@@ -129,18 +50,20 @@ export function createMockPlayback(name = 'mock') {
     el: document.createElement('video'),
     dvrEnabled: false,
     dvrInUse: false,
+    isAudioOnly: false,
     levels: [],
-    consent() {},
-    play() {},
-    pause() {},
-    stop() {},
+    options: { ...options },
+    consent: vi.fn(),
+    play: vi.fn(),
+    pause: vi.fn(),
+    stop: vi.fn(),
     destroy: vi.fn(),
     seek: vi.fn(),
     seekPercentage: vi.fn(),
     getDuration: vi.fn().mockImplementation(() => 100),
     enterPiP: vi.fn(),
     exitPiP: vi.fn(),
-    getPlaybackType: vi.fn().mockImplementation(() => Playback.LIVE),
+    getPlaybackType: vi.fn(),
     getStartTimeOffset: vi.fn().mockImplementation(() => 0),
     getCurrentTime: vi.fn().mockImplementation(() => 0),
     isHighDefinitionInUse: vi.fn().mockImplementation(() => false),
@@ -157,21 +80,34 @@ export function createMockPlayback(name = 'mock') {
   })
 }
 
-export function createMockContainer(playback: any = createMockPlayback()) {
+export function createMockContainer(
+  options: Record<string, unknown> = {},
+  playback: any = createMockPlayback('html5_video', options),
+) {
   const el = playback.el
   const emitter = new Events()
   return Object.assign(emitter, {
     el,
     playback,
+    options: {
+      ...options,
+    },
     $el: $(el),
+    disableMediaControl: vi.fn(),
+    enableMediaControl: vi.fn(),
+    enterPiP: vi.fn(),
+    exitPiP: vi.fn(),
     getDuration: vi.fn().mockReturnValue(0),
     getPlugin: vi.fn(),
-    getPlaybackType: vi.fn().mockReturnValue(Playback.LIVE),
+    getPlaybackType: vi.fn(),
+    getStartTimeOffset: vi.fn().mockReturnValue(0),
     isDvrInUse: vi.fn().mockReturnValue(false),
     isDvrEnabled: vi.fn().mockReturnValue(false),
+    isHighDefinitionInUse: vi.fn().mockReturnValue(false),
     isPlaying: vi.fn().mockReturnValue(false),
     play: vi.fn(),
     seek: vi.fn(),
+    seekPercentage: vi.fn(),
     switchAudioTrack: vi.fn(),
     trigger: emitter.emit,
   })
@@ -179,20 +115,22 @@ export function createMockContainer(playback: any = createMockPlayback()) {
 
 export function createMockMediaControl(core: any) {
   const mediaControl = new UICorePlugin(core)
+  // TODO <div class="media-control-layer">
   mediaControl.$el.html(
     `<div class="media-control-left-panel" data-media-control></div>
     <div class="media-control-right-panel" data-media-control></div>
     <div class="media-control-center-panel" data-media-control></div>`,
   )
-  const elements = {
-    gear: $(document.createElement('div')),
-  }
   // @ts-ignore
-  mediaControl.getElement = vi.fn().mockImplementation((name) => elements[name])
+  mediaControl.mount = vi.fn()
   // @ts-ignore
-  mediaControl.putElement = vi.fn()
+  mediaControl.container = core.activeContainer
+  // @ts-ignore
+  mediaControl.getAvailableHeight = vi.fn().mockReturnValue(300)
   // @ts-ignore
   mediaControl.toggleElement = vi.fn()
+  vi.spyOn(mediaControl, 'trigger')
+  core.$el.append(mediaControl.$el)
   return mediaControl
 }
 
@@ -204,7 +142,10 @@ export function createMockBottomGear(core: any) {
     if (existing.length) {
       return existing
     }
-    return $('<li></li>').attr(`data-${name}`, '').append($el).appendTo(plugin.$el)
+    return $('<li></li>')
+      .attr(`data-${name}`, '')
+      .append($el)
+      .appendTo(plugin.$el)
   })
   plugin.refresh = vi.fn()
   return plugin

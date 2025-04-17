@@ -7,14 +7,16 @@
 > This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
 > 
 
-For the plugin development
+Time progress information indicated by Clappr CONTAINER\_PROGRESS and PLAYBACK\_PROGRESS events.
 
 **Signature:**
 
 ```typescript
-export type TimeProgress = TimePosition & {
-    start: number;
+export type TimeProgress = {
+    start: TimeValue;
+    current: TimeValue;
+    total: TimeValue;
 };
 ```
-**References:** [TimePosition](./player.timeposition.md)
+**References:** [TimeValue](./player.timevalue.md)
 

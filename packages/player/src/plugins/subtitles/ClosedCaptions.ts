@@ -13,6 +13,7 @@ import stringHTML from '../../../assets/subtitles/string.ejs'
 
 import { isFullscreen } from '../utils/fullscreen.js'
 import type { ZeptoResult } from '../../types.js'
+import { ExtendedEvents } from '../media-control/MediaControl.js'
 
 const VERSION: string = '2.19.14'
 
@@ -61,7 +62,7 @@ export type ClosedCaptionsPluginSettings = {
 export class ClosedCaptions extends UICorePlugin {
   private isPreselectedApplied = false
 
-  private isShowing = false
+  private active = false
 
   private track: TextTrackItem | null = null
 
@@ -108,13 +109,17 @@ export class ClosedCaptions extends UICorePlugin {
    */
   override get events() {
     return {
-      'click [data-cc-select]': 'onItemSelect',
-      'click [data-cc-button]': 'toggleMenu',
+      'click #cc-select li a': 'onItemSelect',
+      'click #cc-button': 'toggleMenu',
     }
   }
 
   private get preselectedLanguage(): string {
-    return this.core.options.cc?.language ?? this.core.options.subtitles?.language ?? ''
+    return (
+      this.core.options.cc?.language ??
+      this.core.options.subtitles?.language ??
+      ''
+    )
   }
 
   /**
@@ -134,11 +139,18 @@ export class ClosedCaptions extends UICorePlugin {
     trace(`${T} onCoreReady`)
     const mediaControl = this.core.getPlugin('media_control')
     assert(mediaControl, 'media_control plugin is required')
-    this.listenTo(mediaControl, Events.MEDIACONTROL_RENDERED, this.render)
+    this.listenTo(mediaControl, Events.MEDIACONTROL_RENDERED, this.render) // TODO mount to media control
+    this.listenTo(mediaControl, Events.MEDIACONTROL_HIDE, () => {
+      this.hideMenu()
+    })
     this.listenTo(
       mediaControl,
-      Events.MEDIACONTROL_HIDE,
-      this.hideMenu,
+      ExtendedEvents.MEDIACONTROL_MENU_COLLAPSE,
+      (from: string) => {
+        if (from !== this.name) {
+          this.hideMenu()
+        }
+      },
     )
   }
 
@@ -229,7 +241,7 @@ export class ClosedCaptions extends UICorePlugin {
   }
 
   private onStartAd() {
-    if (this.isShowing && this.core.activeContainer) {
+    if (this.active && this.core.activeContainer) {
       this.hide()
       this.listenTo(
         this.core.activeContainer,
@@ -256,7 +268,7 @@ export class ClosedCaptions extends UICorePlugin {
       this.track &&
       this.track.track.mode &&
       Browser.isiOS &&
-      this.isShowing
+      this.active
 
     if (shouldShow) {
       this.show()
@@ -273,7 +285,7 @@ export class ClosedCaptions extends UICorePlugin {
    * Hides the subtitles menu and the subtitles.
    */
   hide() {
-    this.isShowing = false
+    this.active = false
     this.renderIcon()
     this.$line.hide()
     if (this.tracks) {
@@ -287,7 +299,7 @@ export class ClosedCaptions extends UICorePlugin {
    * Shows the subtitles menu and the subtitles.
    */
   show() {
-    this.isShowing = true
+    this.active = true
     this.renderIcon()
     if (
       this.core.activeContainer &&
@@ -331,13 +343,14 @@ export class ClosedCaptions extends UICorePlugin {
 
     const mediaControl = this.core.getPlugin('media_control')
 
-    this.$el.html(ClosedCaptions.template({ tracks: this.tracks }))
+    this.$el.html(ClosedCaptions.template({ tracks: this.tracks, i18n: this.core.i18n }))
+    this.$el.find('#cc-select').hide()
     this.core.activeContainer.$el.find('#cc-line').remove()
     this.$line = $(ClosedCaptions.templateString())
     this.resizeFont()
 
     this.core.activeContainer.$el.append(this.$line)
-    mediaControl.putElement('cc', this.$el)
+    mediaControl.mount('cc', this.$el)
 
     this.updateSelection()
 
@@ -354,7 +367,6 @@ export class ClosedCaptions extends UICorePlugin {
     this.clearSubtitleText()
     this.track = item
 
-    this.hideMenu()
     this.updateSelection()
   }
 
@@ -365,7 +377,7 @@ export class ClosedCaptions extends UICorePlugin {
 
     localStorage.setItem(LOCAL_STORAGE_CC_ID, id)
     this.selectItem(this.findById(Number(id)))
-
+    this.hideMenu()
     return false
   }
 
@@ -386,22 +398,25 @@ export class ClosedCaptions extends UICorePlugin {
   }
 
   private hideMenu() {
-    ;(this.$('[data-cc] ul') as ZeptoResult).hide()
+    trace(`${T} hideMenu`)
+    this.$el.find('#cc-select').hide()
   }
 
   private toggleMenu() {
-    trace(`${T} toggleMenu`)
-    ;(this.$('[data-cc] ul') as ZeptoResult).toggle()
+    trace(`${T} toggleMenu`, {display: this.$el.find('#cc-select').css('display')})
+    this.core
+      .getPlugin('media_control')
+      .trigger(ExtendedEvents.MEDIACONTROL_MENU_COLLAPSE, this.name)
+    this.$el.find('#cc-select').toggle()
+    // TODO hold state, add aria-expanded to the button, add active state to the button
   }
 
   private itemElement(id: number): ZeptoResult {
-    return (
-      this.$(`ul li a[data-cc-select="${id}"]`) as ZeptoResult
-    ).parent()
+    return this.$el.find(`#cc-select li a[data-cc-select="${id}"]`).parent()
   }
 
   private allItemElements(): ZeptoResult {
-    return this.$('[data-cc] li')
+    return this.$('#cc-select li')
   }
 
   private selectSubtitles() {
@@ -453,7 +468,9 @@ export class ClosedCaptions extends UICorePlugin {
     trace(`${T} highlightCurrentSubtitles`, {
       track: this.track?.id,
     })
-    const currentLevelElement = this.itemElement(this.track ? this.track.id : -1)
+    const currentLevelElement = this.itemElement(
+      this.track ? this.track.id : -1,
+    )
     currentLevelElement
       .addClass('current')
       .find('a')
@@ -461,7 +478,7 @@ export class ClosedCaptions extends UICorePlugin {
   }
 
   private renderIcon() {
-    const icon = this.isShowing ? subtitlesOnIcon : subtitlesOffIcon
+    const icon = this.active ? subtitlesOnIcon : subtitlesOffIcon
 
     this.$el.find('span.cc-text').html(icon)
   }

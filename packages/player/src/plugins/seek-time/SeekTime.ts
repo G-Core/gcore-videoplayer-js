@@ -2,194 +2,223 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found at https://github.com/clappr/clappr-plugins/blob/master/LICENSE
 
-import { Events, Playback, UICorePlugin, Utils, template } from '@clappr/core';
-import { TimeUpdate } from '../../playback.types.js';
+import { Events, Playback, UICorePlugin, Utils, template } from '@clappr/core'
+import assert from 'assert'
 
-import { CLAPPR_VERSION } from '../../build.js';
+import { TimePosition } from '../../playback.types.js'
+import { CLAPPR_VERSION } from '../../build.js'
 
-import seekTimeHTML from '../../../assets/seek-time/seek-time.html';
-import '../../../assets/seek-time/seek-time.scss';
-import { ZeptoResult } from '../../types.js';
-
-const { formatTime } = Utils;
+import seekTimeHTML from '../../../assets/seek-time/seek-time.html'
+import '../../../assets/seek-time/seek-time.scss'
 
 /**
- * `PLUGIN` that adds a seek time indicator to the media control UI.
+ * Configuration options for the SeekTime plugin.
  * @beta
+ */
+export type SeekTimeSettings = {
+  /**
+   * Whether to show the duration of the video. Applies only to the VOD streams.
+   * @beta
+   */
+  duration?: boolean
+}
+
+const { formatTime } = Utils
+
+// const T = 'plugins.seek_time'
+
+/**
+ * `PLUGIN` that adds a seek time indicator when the mouse pointer is over the seek bar.
+ * @beta
+ * @remarks
+ * Configuration options - {@link SeekTimeSettings}
  */
 export class SeekTime extends UICorePlugin {
   get name() {
-    return 'seek_time';
+    return 'seek_time'
   }
 
   get supportedVersion() {
-    return { min: CLAPPR_VERSION };
+    return { min: CLAPPR_VERSION }
   }
 
-  get template() {
-    return template(seekTimeHTML);
-  }
+  private static readonly template = template(seekTimeHTML)
 
   override get attributes() {
     return {
-      'class': 'seek-time',
-      'data-seek-time': ''
-    };
-  }
-
-  get mediaControl() {
-    return this.core.mediaControl;
-  }
-
-  get mediaControlContainer() {
-    return this.mediaControl.container;
-  }
-
-  get isLiveStreamWithDvr() {
-    return this.mediaControlContainer &&
-      this.mediaControlContainer.getPlaybackType() === Playback.LIVE &&
-      this.mediaControlContainer.isDvrEnabled();
-  }
-
-  get durationShown() {
-    return !this.isLiveStreamWithDvr;
-  }
-
-  private hoveringOverSeekBar = false;
-
-  private hoverPosition = 0;
-
-  private displayedDuration: string | null = null;
-
-  private displayedSeekTime: string| null = null;
-
-  private duration = 0;
-  // private firstFragDateTime = 0;
-
-  private rendered = false;
-
-  private $durationEl: ZeptoResult | null = null;
-
-  private $seekTimeEl: ZeptoResult | null = null;
-
-  override bindEvents() {
-    this.listenTo(this.mediaControl, Events.MEDIACONTROL_RENDERED, this.render);
-    this.listenTo(this.mediaControl, Events.MEDIACONTROL_MOUSEMOVE_SEEKBAR, this.showTime);
-    this.listenTo(this.mediaControl, Events.MEDIACONTROL_MOUSELEAVE_SEEKBAR, this.hideTime);
-    this.listenTo(this.mediaControl, Events.MEDIACONTROL_CONTAINERCHANGED, this.onContainerChanged);
-    if (this.mediaControlContainer) {
-      this.listenTo(this.mediaControlContainer, Events.CONTAINER_PLAYBACKDVRSTATECHANGED, this.update);
-      this.listenTo(this.mediaControlContainer, Events.CONTAINER_TIMEUPDATE, this.updateDuration);
+      class: 'seek-time',
     }
+  }
+
+  private get isLiveStreamWithDvr() {
+    return (
+      this.core.activeContainer &&
+      this.core.activeContainer.getPlaybackType() === Playback.LIVE &&
+      this.core.activeContainer.isDvrEnabled()
+    )
+  }
+
+  private get showDuration() {
+    return (
+      this.core.options.seekTime?.duration === true &&
+      this.core.activeContainer?.getPlaybackType() !== Playback.LIVE
+    )
+  }
+
+  private hoveringOverSeekBar = false
+
+  private hoverPosition = 0
+
+  private displayedDuration: string | null = null
+
+  private displayedSeekTime: string | null = null
+
+  private duration = 0
+
+  /**
+   * @internal
+   */
+  override bindEvents() {
+    this.listenTo(this.core, Events.CORE_READY, this.onCoreReady)
+    this.listenTo(
+      this.core,
+      Events.CORE_ACTIVE_CONTAINER_CHANGED,
+      this.onContainerChanged,
+    )
+  }
+
+  private onCoreReady() {
+    const mediaControl = this.core.getPlugin('media_control')
+    assert(
+      mediaControl,
+      'MediaControl plugin is required for SeekTime plugin to work',
+    )
+    this.listenTo(mediaControl, Events.MEDIACONTROL_RENDERED, this.mount)
+    this.listenTo(
+      mediaControl,
+      Events.MEDIACONTROL_MOUSEMOVE_SEEKBAR,
+      this.showTime,
+    )
+    this.listenTo(
+      mediaControl,
+      Events.MEDIACONTROL_MOUSELEAVE_SEEKBAR,
+      this.hideTime,
+    )
   }
 
   private onContainerChanged() {
-    // @ts-ignore
-    this.stopListening();
-    this.bindEvents();
+    this.listenTo(
+      this.core.activeContainer,
+      Events.CONTAINER_PLAYBACKDVRSTATECHANGED,
+      this.update,
+    )
+    this.listenTo(
+      this.core.activeContainer,
+      Events.CONTAINER_TIMEUPDATE,
+      this.onTimeUpdate,
+    )
   }
 
-  private updateDuration(timeProgress: TimeUpdate) {
-    this.duration = timeProgress.total;
-    // this.firstFragDateTime = timeProgress.firstFragDateTime;
-    this.update();
+  private onTimeUpdate({ total }: TimePosition) {
+    this.duration = total
+    this.update()
   }
 
   private showTime(event: MouseEvent) {
-    this.hoveringOverSeekBar = true;
-    this.calculateHoverPosition(event);
-    this.update();
+    this.hoveringOverSeekBar = true
+    this.calculateHoverPosition(event)
+    this.update()
   }
 
   private hideTime() {
-    this.hoveringOverSeekBar = false;
-    this.update();
+    this.hoveringOverSeekBar = false
+    this.update()
   }
 
   private calculateHoverPosition(event: MouseEvent) {
-    const offset = event.pageX - this.mediaControl.$seekBarContainer.offset().left;
+    const mediaControl = this.core.getPlugin('media_control')
+    const offset = event.pageX - mediaControl.$seekBarContainer.offset().left
 
     // proportion into the seek bar that the mouse is hovered over 0-1
-    this.hoverPosition = Math.min(1, Math.max(offset/this.mediaControl.$seekBarContainer.width(), 0));
+    this.hoverPosition = Math.min(
+      1,
+      Math.max(offset / mediaControl.$seekBarContainer.width(), 0),
+    )
   }
 
-  getSeekTime() {
-    let seekTime;
+  private getSeekTime() {
+    return this.isLiveStreamWithDvr
+      ? this.duration - this.hoverPosition * this.duration
+      : this.hoverPosition * this.duration
+  }
+
+  private update() {
+    if (!this.shouldBeVisible()) {
+      this.$el.hide()
+      this.$el.css('left', '-100%')
+      return
+    }
+
+    const seekTime = this.getSeekTime()
+    let currentSeekTime = formatTime(seekTime, false)
 
     if (this.isLiveStreamWithDvr) {
-      seekTime = this.duration - this.hoverPosition * this.duration;
-    } else {
-      seekTime = this.hoverPosition * this.duration;
+      currentSeekTime = `-${currentSeekTime}`
     }
 
-    return { seekTime };
+    // only update dom if necessary, ie time actually changed
+    if (currentSeekTime !== this.displayedSeekTime) {
+      this.$el.find('#mc-seek-time').text(currentSeekTime)
+      this.displayedSeekTime = currentSeekTime
+    }
+
+    const $durationEl = this.$el.find('#mc-duration')
+    if (this.showDuration) {
+      $durationEl.show()
+      const currentDuration = formatTime(this.duration, false)
+
+      if (currentDuration !== this.displayedDuration) {
+        $durationEl.text(currentDuration)
+        this.displayedDuration = currentDuration
+      }
+    } else {
+      $durationEl.hide()
+    }
+
+    // the element must be unhidden before its width is requested, otherwise it's width will be reported as 0
+    this.$el.show()
+    const mediaControl = this.core.getPlugin('media_control')
+    const containerWidth = mediaControl.$seekBarContainer.width()
+    const elWidth = this.$el.width()
+    let elLeftPos = this.hoverPosition * containerWidth
+
+    elLeftPos -= elWidth / 2
+    elLeftPos = Math.max(0, Math.min(elLeftPos, containerWidth - elWidth))
+    this.$el.css('left', elLeftPos)
   }
 
-  update() {
-    if (!this.rendered) {
-      // update() is always called after a render
-      return;
-    }
-    if (!this.shouldBeVisible()) {
-      this.$el.hide();
-      this.$el.css('left', '-100%');
-    } else {
-      const seekTime = this.getSeekTime();
-      let currentSeekTime = formatTime(seekTime.seekTime, false);
-
-      if (this.isLiveStreamWithDvr) {
-        currentSeekTime = `-${currentSeekTime}`;
-      }
-
-      // only update dom if necessary, ie time actually changed
-      if (currentSeekTime !== this.displayedSeekTime) {
-        this.$seekTimeEl.text(currentSeekTime);
-        this.displayedSeekTime = currentSeekTime;
-      }
-
-      if (this.durationShown) {
-        this.$durationEl.show();
-        const currentDuration = formatTime(this.duration, false);
-
-        if (currentDuration !== this.displayedDuration) {
-          this.$durationEl.text(currentDuration);
-          this.displayedDuration = currentDuration;
-        }
-      } else {
-        this.$durationEl.hide();
-      }
-
-      // the element must be unhidden before its width is requested, otherwise it's width will be reported as 0
-      this.$el.show();
-      const containerWidth = this.mediaControl.$seekBarContainer.width();
-      const elWidth = this.$el.width();
-      let elLeftPos = this.hoverPosition * containerWidth;
-
-      elLeftPos -= elWidth / 2;
-      elLeftPos = Math.max(0, Math.min(elLeftPos, containerWidth - elWidth));
-      this.$el.css('left', elLeftPos);
-    }
-  }
-
-  shouldBeVisible() {
-    return this.mediaControlContainer &&
-      this.mediaControlContainer.settings.seekEnabled &&
+  private shouldBeVisible() {
+    return (
+      this.core.activeContainer &&
+      this.core.activeContainer.settings.seekEnabled &&
       this.hoveringOverSeekBar &&
       this.hoverPosition !== null &&
-      this.duration !== null;
+      this.duration !== null
+    )
   }
 
+  /**
+   * @internal
+   */
   override render() {
-    this.rendered = true;
-    this.displayedDuration = null;
-    this.displayedSeekTime = null;
-    this.$el.html(this.template());
-    this.$el.hide();
-    this.mediaControl.$el.append(this.el);
-    this.$seekTimeEl = this.$el.find('[data-seek-time]');
-    this.$durationEl = this.$el.find('[data-duration]');
-    this.$durationEl.hide();
-    this.update();
-    return this;
+    this.displayedDuration = null
+    this.displayedSeekTime = null
+    this.$el.html(SeekTime.template())
+    this.$el.hide()
+    return this
+  }
+
+  private mount() {
+    this.core.getPlugin('media_control').$el.append(this.$el) // TODO use a method
   }
 }

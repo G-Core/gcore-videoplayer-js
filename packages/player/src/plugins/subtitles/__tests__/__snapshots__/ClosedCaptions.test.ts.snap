@@ -5,21 +5,21 @@ exports[`ClosedCaptions > basically > should render 1`] = `
     <span class="cc-text">/assets/icons/new/subtitles-off.svg</span>
 </button>
 
-<ul class="gcore-skin-bg-color" id="cc-select">
+<ul class="gcore-skin-bg-color" id="cc-select" style="display: none;">
     
-        <li>
+        <li class="">
             <a href="#" class="gcore-skin-text-color" data-cc-select="1">
                 English
             </a>
         </li>
     
-        <li>
+        <li class="">
             <a href="#" class="gcore-skin-text-color" data-cc-select="2">
                 Spanish
             </a>
         </li>
     
-    <li class="current"><a href="#" class="gcore-skin-text-color gcore-skin-active" data-cc-select="-1">Off</a></li>
+    <li class="current"><a href="#" class="gcore-skin-text-color gcore-skin-active" data-cc-select="-1">off</a></li>
 </ul>
 "
 `;

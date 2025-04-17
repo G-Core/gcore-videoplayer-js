@@ -1,5 +1,5 @@
 import { type Server, type TestStatusInfo, Speedtest } from './Speedtest.js';
-import { CustomMetrics } from './types.js';
+import { SpeedtestMetrics } from './types.js';
 
 const DIGITS_THRESHOLD = 99999;
 const DEFAULT_DOWNLOAD_SPEED = '0.00';
@@ -37,7 +37,7 @@ const getColor = (speedValue: number): string => {
 };
 
 export function drawSpeedTestResults() {
-  const canvas = document.getElementById('speedTestCanvas');
+  const canvas = document.getElementById('nerd-stats-speed-test-canvas');
   if (!canvas) {
     return;
   }
@@ -59,7 +59,7 @@ export function drawSpeedTestResults() {
 
 let inited: Promise<void> | null = null;
 
-export const initSpeedTest = (customMetrics: CustomMetrics): Promise<void> => {
+export const initSpeedTest = (customMetrics: SpeedtestMetrics): Promise<void> => {
   if (inited !== null) {
     return inited;
   }

@@ -146,16 +146,16 @@
       }
     }
 
-    .media-clip-container {
+    .media-clip-container,
+    .media-control-clips {
 
-      .media-clip-text,
-      .media-clip-point {
+      .media-clip-text {
         line-height: 33px;
         font-size: 11px;
       }
 
       .media-clip-text {
-        max-width: calc(80% - 210px);
+        max-width: 50px;
       }
     }
 

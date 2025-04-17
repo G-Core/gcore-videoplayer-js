@@ -178,31 +178,6 @@
       }
     }
 
-    .media-clip-container {
-      display: none;
-
-      .media-clip-text,
-      .media-clip-point {
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        overflow: hidden;
-        display: inline-block;
-        float: left;
-        color: white;
-        cursor: default;
-        line-height: var(--bottom-panel);
-        position: relative;
-      }
-
-      .media-clip-point {
-        margin-right: 6px;
-      }
-
-      .media-clip-text {
-        max-width: calc(80% - 240px);
-      }
-    }
-
     .bar-container[data-seekbar] {
       position: absolute;
       top: -11px;
@@ -452,7 +427,7 @@
     }
   }
 
-  .seek-time[data-seek-time] {
+  .seek-time {
     height: 26px;
     line-height: 26px;
     bottom: 52px;
@@ -465,13 +440,9 @@
       font-family: Roboto, "Open Sans", Arial, sans-serif;
     }
 
-    span[data-seek-time] {
+    .seek-time__pos {
       padding-left: 8px;
       padding-right: 8px;
-    }
-
-    span[data-duration] {
-      display: none !important;
     }
   }
 }

@@ -1,4 +1,4 @@
-.seek-time[data-seek-time] {
+.seek-time {
   position: absolute;
   white-space: nowrap;
   height: 20px;
@@ -10,11 +10,11 @@
   z-index: 9999;
   transition: opacity 0.1s ease;
 
-  &.hidden[data-seek-time] {
+  &.hidden {
     opacity: 0;
   }
 
-  [data-seek-time] {
+  .seek-time__pos {
     display: inline-block;
     color: white;
     font-size: 10px;
@@ -23,7 +23,7 @@
     vertical-align: top;
   }
 
-  [data-duration] {
+  .seek-time__duration {
     display: inline-block;
     color: rgb(255 255 255 / 50%);
     font-size: 10px;

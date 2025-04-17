@@ -40,7 +40,7 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-[label?](./player.contextmenupluginsettings.label.md)
+[options?](./player.contextmenupluginsettings.options.md)
 
 
 </td><td>
@@ -48,45 +48,7 @@ Description
 
 </td><td>
 
-string
-
-
-</td><td>
-
-**_(BETA)_** _(Optional)_
-
-
-</td></tr>
-<tr><td>
-
-[preventShowContextMenu?](./player.contextmenupluginsettings.preventshowcontextmenu.md)
-
-
-</td><td>
-
-
-</td><td>
-
-boolean
-
-
-</td><td>
-
-**_(BETA)_** _(Optional)_
-
-
-</td></tr>
-<tr><td>
-
-[url?](./player.contextmenupluginsettings.url.md)
-
-
-</td><td>
-
-
-</td><td>
-
-string
+[MenuOption](./player.menuoption.md)<!-- -->\[\]
 
 
 </td><td>

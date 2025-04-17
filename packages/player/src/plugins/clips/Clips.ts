@@ -1,54 +1,53 @@
-import { Container, Events, UICorePlugin, $ } from '@clappr/core'
-
-import { TimeProgress } from '../../playback.types.js'
-import type { ZeptoResult } from '../../types.js'
-import { strtimeToMiliseconds } from '../utils.js'
-import '../../../assets/clips/clips.scss'
+import { Container, Events, UICorePlugin, $, template } from '@clappr/core'
+import { trace } from '@gcorevideo/utils'
 import assert from 'assert'
 
-type ClipDesc = {
-  start: number
-  text: string
-  end: number
-  index: number
-}
+import { TimeProgress, TimeValue } from '../../playback.types.js'
+import type { ZeptoResult } from '../../types.js'
+import '../../../assets/clips/clips.scss'
+import { ClipDesc } from './types.js'
+import { buildSvg, parseClips } from './utils.js'
+import clipsHTML from '../../../assets/clips/clips.ejs'
 
-type ClipItem = {
-  start: number
-  text: string
-}
+const T = 'plugins.clips'
 
 /**
- * Configuration options for the {@link ClipsPlugin | clips} plugin.
+ * Configuration options for the {@link Clips} plugin.
  * @beta
  */
 export interface ClipsPluginSettings {
   /**
-   * The text to display over the seekbar.
+   * The compiled text of the clips description, one clip per line in format:
+   * `HH:MM:SS text` or `MM:SS text` or `SS text`
    */
   text: string
 }
 
+const VERSION = '2.22.16'
+const CLAPPR_VERSION = '0.11.4'
+
 /**
- * `PLUGIN` that shows text over the seekbar to indicate the current clip.
+ * `PLUGIN` that allows marking up the timeline of the video
  * @beta
  * @remarks
+ * The plugin decorates the seekbar with notches to indicate the clips of the video and displays current clip text in the left panel
+ *
  * Depends on:
  *
  * - {@link MediaControl}
  *
  * Configuration options - {@link ClipsPluginSettings}
  */
-export class ClipsPlugin extends UICorePlugin {
-  private clips: Map<number, ClipDesc> = new Map()
+export class Clips extends UICorePlugin {
+  private barStyle: HTMLStyleElement | null = null
 
-  private duration: number = 0
+  private clips: ClipDesc[] = []
 
-  private durationGetting = false
-
-  private _oldContainer: Container | undefined
+  private oldContainer: Container | undefined
 
   private svgMask: ZeptoResult | null = null
+
+  private static readonly template = template(clipsHTML)
 
   /**
    * @internal
@@ -62,174 +61,166 @@ export class ClipsPlugin extends UICorePlugin {
    */
   override get attributes() {
     return {
-      class: this.name,
+      class: 'media-control-clips',
     }
+  }
+
+  get version() {
+    return VERSION
+  }
+
+  get supportedVersion() {
+    return { min: CLAPPR_VERSION }
   }
 
   /**
    * @internal
    */
   override bindEvents() {
+    this.listenToOnce(this.core, Events.CORE_READY, this.onCoreReady)
+    this.listenTo(this.core, Events.CORE_RESIZE, this.playerResize)
+    this.listenTo(
+      this.core,
+      Events.CORE_ACTIVE_CONTAINER_CHANGED,
+      this.onContainerChanged,
+    )
+  }
+
+  override render() {
+    trace(`${T} render`)
+    if (!this.options.clips) {
+      return this
+    }
+    this.$el.html(Clips.template())
+    this.$el.hide()
+    return this
+  }
+
+  override destroy() {
+    if (this.barStyle) {
+      this.barStyle.remove()
+      this.barStyle = null
+    }
+    return super.destroy()
+  }
+
+  override disable() {
+    if (this.barStyle) {
+      this.barStyle.remove()
+      this.barStyle = null
+    }
+    return super.disable()
+  }
+
+  override enable() {
+    this.render()
+    return super.enable()
+  }
+
+  /**
+   * Get the text of the clip at the given time
+   * @param time - The time to get the text for
+   * @returns The text of the clip at the given time
+   */
+  getText(time: TimeValue): string | undefined {
+    return this.clips.find((clip) => clip.start <= time && clip.end >= time)
+      ?.text
+  }
+
+  private onCoreReady() {
+    trace(`${T} onCoreReady`)
     const mediaControl = this.core.getPlugin('media_control')
     assert(mediaControl, 'media_control plugin is required')
-    this.listenToOnce(this.core, Events.CORE_READY, this._onCoreReady)
-    // TODO listen to CORE_ACTIVE_CONTAINER_CHANGED
-    this.listenTo(
-      mediaControl,
-      Events.MEDIACONTROL_CONTAINERCHANGED,
-      this._onMediaControlContainerChanged,
-    )
-    this.listenTo(this.core, Events.CORE_RESIZE, this.playerResize)
+
+    this.parseClips(this.options.clips.text)
+    this.listenTo(mediaControl, Events.MEDIACONTROL_RENDERED, this.onMcRender)
   }
 
-  private _onCoreReady() {
-    if (!this.options.clips) {
-      this.destroy()
-
-      return
-    }
-
-    this.parseClips()
+  private onMcRender() {
+    trace(`${T} onMcRender`)
+    const mediaControl = this.core.getPlugin('media_control')
+    mediaControl.mount('clips', this.$el)
   }
 
-  private _onMediaControlContainerChanged() {
-    this._bindContainerEvents()
-  }
-
-  private playerResize() {
-    this.durationGetting = false
-    if (this.durationGetting) {
-      this.makeSvg(this.duration)
-    }
-  }
-
-  private _bindContainerEvents() {
-    if (this._oldContainer) {
+  private onContainerChanged() {
+    trace(`${T} onContainerChanged`)
+    // TODO figure out the conditions of changing the container (without destroying the previous one)
+    if (this.oldContainer) {
       this.stopListening(
-        this._oldContainer,
+        this.oldContainer,
         Events.CONTAINER_TIMEUPDATE,
         this.onTimeUpdate,
       )
     }
-
-    const mediaControl = this.core.getPlugin('media_control')
-    this._oldContainer = mediaControl.container
-    this.durationGetting = false
+    this.oldContainer = this.core.activeContainer
+    if (this.svgMask) {
+      this.svgMask.remove()
+      this.svgMask = null
+    }
     this.listenTo(
-      mediaControl.container,
+      this.core.activeContainer,
       Events.CONTAINER_TIMEUPDATE,
       this.onTimeUpdate,
     )
   }
 
-  private onTimeUpdate(event: TimeProgress) {
-    if (!this.durationGetting) {
-      this.duration = event.total
-      this.makeSvg(event.total)
-      this.durationGetting = true
+  private playerResize() {
+    const duration = this.core.activeContainer.getDuration()
+    if (duration) {
+      this.makeSvg(duration)
     }
+  }
 
-    for (const value of this.clips.values()) {
-      if (event.current >= value.start && event.current < value.end) {
+  private onTimeUpdate(event: TimeProgress) {
+    if (!this.svgMask) {
+      this.makeSvg(event.total)
+    }
+    for (const value of this.clips) {
+      if (
+        (event.current >= value.start && !value.end) ||
+        event.current < value.end
+      ) {
         this.setClipText(value.text)
         break
       }
     }
   }
 
-  private parseClips() {
-    const textArr = this.options.clips.text.split('\n')
-
-    const clipsArr = textArr
-      .map((val: string) => {
-        const matchRes = val.match(/(\d+:\d+|:\d+) (.+)/i)
-
-        return matchRes
-          ? {
-              start: strtimeToMiliseconds(matchRes[1]),
-              text: matchRes[2],
-            }
-          : null
-      })
-      .filter((clip: ClipItem | null) => clip !== null)
-
-    clipsArr.sort((a: ClipDesc, b: ClipDesc) => a.start - b.start)
-
-    clipsArr.forEach((clip: ClipDesc, index: number) => {
-      this.clips.set(clip.start, {
-        index,
-        start: clip.start,
-        text: clip.text,
-        end: clipsArr[index + 1] ? clipsArr[index + 1].start : null,
-      })
-    })
-  }
-
-  /**
-   * Returns the text of the current clip.
-   * @param time - The current time of the player.
-   * @returns The text of the current clip.
-   */
-  getText(time: number) {
-    for (const [key, value] of this.clips.entries()) {
-      if (time >= value.start && time < value.end) {
-        return value.text
-      }
-    }
-    return ''
+  private parseClips(text: string) {
+    this.clips = parseClips(text)
   }
 
   private makeSvg(duration: number) {
-    let svg =
-      '<svg width="0" height="0">\n' + '<defs>\n' + '<clipPath id="myClip">\n'
-    const widthOfSeek = this.core.activeContainer.$el.width()
-    let finishValue = 0
-
-    this.clips.forEach((val) => {
-      let end = val.end
-
-      if (!end) {
-        end = val.end = duration
-      }
-
-      const widthChunk = ((end - val.start) * widthOfSeek) / duration
-
-      svg += `<rect x="${finishValue}" y="0" width="${
-        widthChunk - 2
-      }" height="30"/>\n`
-      finishValue += widthChunk
-    })
-
-    svg += `<rect x="${finishValue}" y="0" width="${
-      widthOfSeek - finishValue
-    }" height="30"/>\n`
-    svg += '</clipPath>' + '</defs>' + '</svg>'
+    const svg = buildSvg(
+      this.clips,
+      duration,
+      this.core.activeContainer.$el.width(),
+    )
     this.setSVGMask(svg)
   }
 
   private setSVGMask(svg: string) {
-    // this.core.mediaControl.setSVGMask(svg);
     if (this.svgMask) {
       this.svgMask.remove()
     }
 
-    const mediaControl = this.core.getPlugin('media_control')
-    const $seekBarContainer =
-      mediaControl.getElement('seekBarContainer')
-    if ($seekBarContainer?.get(0)) {
-      $seekBarContainer.addClass('clips')
-    }
-
     this.svgMask = $(svg)
-    $seekBarContainer?.append(this.svgMask)
+    this.$el.append(this.svgMask)
+    if (!this.barStyle) {
+      this.barStyle = document.createElement('style')
+      this.barStyle.textContent = `
+.bar-container[data-seekbar] {
+  clip-path: url("#myClip");
+}`
+      this.$el.append(this.barStyle)
+    }
   }
 
   private setClipText(text: string) {
-    const mediaControl = this.core.getPlugin('media_control')
-    const $clipText = mediaControl.getElement('clipText')
-    if ($clipText && text) {
-      $clipText.show()
-      $clipText.text(`${text}`)
+    if (text) {
+      this.$el.show().find('#clips-text').text(text)
+    } else {
+      this.$el.hide()
     }
   }
 }

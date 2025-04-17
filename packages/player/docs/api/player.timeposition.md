@@ -50,7 +50,7 @@ Description
 
 </td><td>
 
-Current playback time, 0..duration, seconds.
+Current playback time, 0..duration
 
 
 </td></tr>
@@ -69,7 +69,7 @@ Current playback time, 0..duration, seconds.
 
 </td><td>
 
-Total duration of the media, seconds.
+Total duration of the media content (or DVR window size or segment duration for live streams)
 
 
 </td></tr>

@@ -1,6 +1,6 @@
-import type { Metrics } from "./types";
+import type { ClapprStatsMetrics } from './types'
 
-export function newMetrics(): Metrics {
+export function newMetrics(): ClapprStatsMetrics {
   return {
     counters: {
       play: 0,
@@ -15,13 +15,12 @@ export function newMetrics(): Metrics {
       fullscreen: 0,
       dvrUsage: 0,
     },
-    timers: {
+    chrono: {
       startup: 0,
       watch: 0,
       pause: 0,
       buffering: 0,
       session: 0,
-      latency: 0,
     },
     extra: {
       playbackName: '',
@@ -37,6 +36,5 @@ export function newMetrics(): Metrics {
       duration: 0,
       currentTime: 0,
     },
-    custom: {},
-  };
+  }
 }

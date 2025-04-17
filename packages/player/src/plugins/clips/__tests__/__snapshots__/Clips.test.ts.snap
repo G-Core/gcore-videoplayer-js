@@ -1,0 +1,14 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Clips > should render indicator 1`] = `
+"<div class="media-clip-text" id="clips-text">Introduction</div><svg width="0" height="0">
+<defs>
+<clipPath id="myClip">
+<rect x="0" y="0" width="148" height="30"></rect>
+<rect x="150" y="0" width="298" height="30"></rect>
+<rect x="450" y="0" width="148" height="30"></rect>
+</clipPath></defs></svg><style>
+.bar-container[data-seekbar] {
+  clip-path: url("#myClip");
+}</style>"
+`;

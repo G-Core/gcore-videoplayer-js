@@ -11,12 +11,16 @@
   --speedtest-green: #73df4d;
 }
 
-.clappr-nerd-stats[data-clappr-nerd-stats] {
+.clappr-nerd-stats {
+  cursor: default;
   .stats-box {
     position: absolute;
     display: inline-block;
     bottom: 52px;
-    right: 16px;
+    right: 0;
+    top: 0;
+    left: 0;
+    bottom: 0;
     padding: 0 10px 12px;
     margin: 0;
     line-height: 20px;
@@ -26,22 +30,23 @@
     color: #fff;
     z-index: 20000;
     overflow: auto;
-    max-height: calc(100vh - 60px);
-    max-width: calc(100vw - 10px);
+    max-width: 100%;
+    // max-height: calc(100vh - 60px);
+    // max-width: calc(100vw - 10px);
 
     &-top {
       position: absolute;
       top: 0;
       left: 0;
-      z-index: 99990;
+      z-index: 9999;
       width: 100%;
       height: 32px;
       background: var(--primary-background-color);
 
       .close-button {
-        float: right;
-        margin-right: 12px;
-        margin-top: 10px;
+        position: absolute;
+        right: 12px;
+        top: 10px;
         display: block;
         width: 12px;
         height: 12px;
@@ -60,12 +65,17 @@
           }
         }
       }
-
     }
 
     &-main {
       overflow: hidden;
       margin-top: 44px;
+      display: flex;
+      flex-wrap: wrap;
+      ul {
+        flex: 0 1 1fr;
+        min-width: 200px;
+      }
     }
 
     &.wide {
@@ -79,14 +89,14 @@
         padding-left: 2px;
         padding-right: 2px;
         background: var(--primary-background-color);
+        gap: 10px;
       }
     }
 
     ul {
-      display: inline-block;
-      float: left;
       padding: 5px;
       width: 200px;
+      flex: 0 1 50%;
 
       li {
         position: relative;
@@ -129,7 +139,7 @@
 }
 
 .desktop {
-  .clappr-nerd-stats[data-clappr-nerd-stats] .stats-box.narrow {
+  .clappr-nerd-stats .stats-box.narrow {
     width: 250px;
 
     ul {
@@ -365,7 +375,7 @@
 }
 
 .mobile {
-  .clappr-nerd-stats[data-clappr-nerd-stats] {
+  .clappr-nerd-stats {
     .stats-box {
       position: fixed;
       height: auto;
@@ -379,9 +389,10 @@
       &-top {
         position: fixed;
       }
-
-      ul {
-        width: 50%;
+      &-main {
+        ul {
+          flex: 0 1 50%;
+        }
       }
     }
   }
@@ -412,8 +423,6 @@
         height: 38px;
         text-align: center;
       }
-
-
     }
 
     .speedtest-quality {
@@ -433,13 +442,22 @@
 
 @media only screen and (orientation: landscape) {
   .mobile {
-    .clappr-nerd-stats[data-clappr-nerd-stats] {
-      .stats-box {
+    .clappr-nerd-stats {
+      .stats-box-main {
         ul {
-          width: 25%;
+          flex-basis: 1fr;
         }
       }
     }
   }
 }
 
+@media only screen and (min-width: 1100px) {
+  .fullscreen {
+    .clappr-nerd-stats {
+      .stats-box {
+        top: unset;
+      }
+    }
+  }
+}

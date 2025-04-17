@@ -7,7 +7,7 @@
 > This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
 > 
 
-`PLUGIN` that displays a big mute button over the video when it's muted. Once pressed, it unmutes the video.
+`PLUGIN` that displays a big mute button over the video when it's being played muted.
 
 **Signature:**
 
@@ -15,4 +15,16 @@
 export declare class BigMuteButton extends UICorePlugin 
 ```
 **Extends:** UICorePlugin
+
+## Remarks
+
+When pressed, it unmutes the video.
+
+## Example
+
+
+```ts
+import { BigMuteButton } from '@gcorevideo/player'
+Player.registerPlugin(BigMuteButton)
+```
 

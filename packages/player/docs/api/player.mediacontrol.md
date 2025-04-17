@@ -226,21 +226,7 @@ Description
 </td></tr>
 <tr><td>
 
-[getElement(name)](./player.mediacontrol.getelement.md)
-
-
-</td><td>
-
-
-</td><td>
-
-**_(BETA)_** Get a media control element DOM node
-
-
-</td></tr>
-<tr><td>
-
-[putElement(name, element)](./player.mediacontrol.putelement.md)
+[getAvailableHeight()](./player.mediacontrol.getavailableheight.md)
 
 
 </td><td>
@@ -249,6 +235,20 @@ Description
 </td><td>
 
 **_(BETA)_**
+
+
+</td></tr>
+<tr><td>
+
+[mount(name, element)](./player.mediacontrol.mount.md)
+
+
+</td><td>
+
+
+</td><td>
+
+**_(BETA)_** Get a media control element DOM node
 
 
 </td></tr>

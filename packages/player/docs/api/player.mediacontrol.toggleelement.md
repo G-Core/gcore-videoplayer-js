@@ -59,7 +59,7 @@ boolean
 
 </td><td>
 
-Whether to show or hide the element
+Visibility state
 
 
 </td></tr>

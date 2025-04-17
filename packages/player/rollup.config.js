@@ -23,34 +23,34 @@ export default [
       }
     ]
   },
-  {
-    input: 'lib/index.plugins.js',
-    plugins: [
-      resolve(), // TODO check which aren't inlined in the bundle and put them here
-      commonjs(),
-      json(),
-      polyfillNode(),
-      sass({
-        output: 'dist/plugins/index.css',
-        verbose: true,
-      }),
-      string({
-        include: [
-          '**/*.ejs',
-          '**/*.html',
-          '**/*.svg',
-          '**/*.worker.js',
-        ],
-      }),
-    ],
-    output: [
-      {
-        file: 'dist/plugins/index.js',
-        format: 'es',
-        generatedCode: 'es2015',
-      }
-    ]
-  },
+  // {
+  //   input: 'lib/index.plugins.js',
+  //   plugins: [
+  //     resolve(), // TODO check which aren't inlined in the bundle and put them here
+  //     commonjs(),
+  //     json(),
+  //     polyfillNode(),
+  //     sass({
+  //       output: 'dist/plugins/index.css',
+  //       verbose: true,
+  //     }),
+  //     string({
+  //       include: [
+  //         '**/*.ejs',
+  //         '**/*.html',
+  //         '**/*.svg',
+  //         '**/*.worker.js',
+  //       ],
+  //     }),
+  //   ],
+  //   output: [
+  //     {
+  //       file: 'dist/plugins/index.js',
+  //       format: 'es',
+  //       generatedCode: 'es2015',
+  //     }
+  //   ]
+  // },
   {
     input: 'lib/index.js',
     plugins: [

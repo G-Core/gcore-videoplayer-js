@@ -1,4 +1,4 @@
-.player-poster[data-poster] {
+.player-poster {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -14,9 +14,9 @@
   background-position: 50% 50%;
 
   &.clickable { cursor: pointer; }
-  &:hover .play-wrapper[data-poster] { opacity: 1; }
+  &:hover .play-wrapper { opacity: 1; }
 
-  .play-wrapper[data-poster] {
+  .play-wrapper {
     width: 100%;
     height: 25%;
     margin: 0 auto;

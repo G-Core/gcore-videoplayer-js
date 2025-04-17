@@ -50,14 +50,13 @@ export type MediaControlLeftElement =
   | 'playstop'
   | 'position'
   | 'volume'
+  | 'clips'
 
 /**
  * Media control elements that appear in main layer, spanning the entire width of the player.
  * @beta
  */
-export type MediaControlLayerElement =
-  | 'seekbar'
-  | 'seekBarContainer' // TODO rename seekbar
+export type MediaControlLayerElement = 'seekbar' | 'seekBarContainer' // TODO rename seekbar
 
 /**
  * Media control elements that appear in the right area.
@@ -82,6 +81,16 @@ export type MediaControlElement =
   | MediaControlLayerElement
   | MediaControlRightElement
 
+const MANAGED_ELEMENTS: MediaControlElement[] = [
+  'dvr',
+  'duration',
+  'fullscreen',
+  'hd-indicator',
+  'position',
+  'seekbar',
+  'volume',
+]
+
 /**
  * Specifies the allowed media control elements in each area.
  * Can be used to restrict rendered media control elements.
@@ -96,14 +105,10 @@ export type MediaControlSettings = {
 
 const DEFAULT_SETTINGS: MediaControlSettings = {
   default: [],
-  left: [
-    'dvr'
-  ], 
+  left: ['dvr'],
   right: [
     'audiotracks',
     'cc',
-    // 'dvr',
-    // 'duration',
     'fullscreen',
     'gear',
     'multicamera',
@@ -114,12 +119,9 @@ const DEFAULT_SETTINGS: MediaControlSettings = {
 }
 
 const INITIAL_SETTINGS: MediaControlSettings = {
-  left: [
-  ],
-  right: [
-  ],
-  default: [
-  ],
+  left: [],
+  right: [],
+  default: [],
   seekEnabled: false,
 }
 
@@ -128,11 +130,20 @@ const T = 'plugins.media_control'
 const LEFT_ORDER = [
   'playpause',
   'playstop',
-  'dvr',
   'volume',
   'position',
   'duration',
+  'dvr',
 ]
+
+/**
+ * Extended events for the {@link MediaControl} plugin
+ * @beta
+ */
+export enum ExtendedEvents {
+  MEDIACONTROL_VOLUME = 'mediacontrol:volume',
+  MEDIACONTROL_MENU_COLLAPSE = 'mediacontrol:menu:collapse',
+}
 
 const { Config, Fullscreen, formatTime, extend, removeArrayItem } = Utils
 
@@ -155,13 +166,13 @@ type DisabledClickable = {
  * @beta
  * @remarks
  * The methods exposed are to be used by the other plugins that extend the media control UI.
- * 
+ *
  * Configuration options:
  *
  * - `mediaControl`: {@link MediaControlSettings} - specifies the allowed media control elements in each area
  *
  * - `persistConfig`: boolean - `common` option, makes the plugin persist the media control settings
- * 
+ *
  * - `chromeless`: boolean
  */
 export class MediaControl extends UICorePlugin {
@@ -212,10 +223,6 @@ export class MediaControl extends UICorePlugin {
   private userKeepVisible = false
 
   private verticalVolume = false
-
-  private $clipText: ZeptoResult | null = null
-
-  private $clipTextContainer: ZeptoResult | null = null
 
   private $duration: ZeptoResult | null = null
 
@@ -276,8 +283,8 @@ export class MediaControl extends UICorePlugin {
   }
 
   /**
+   * Use in mediacontrol-based plugins to access the active container
    * @internal
-   * @deprecated Use core.activeContainer directly
    */
   get container() {
     return this.core.activeContainer
@@ -312,7 +319,7 @@ export class MediaControl extends UICorePlugin {
       'click [data-stop]': 'stop',
       'click [data-playstop]': 'togglePlayStop',
       'click [data-fullscreen]': 'handleFullScreenOnBtn',
-      'click .bar-container[data-seekbar]': 'seek',
+      // 'click .bar-container[data-seekbar]': 'seek', // This together with global window.bind causes duplicate seeks events
       'click .bar-container[data-volume]': 'onVolumeClick',
       'click .drawer-icon[data-volume]': 'toggleMute',
       'mouseenter .drawer-container[data-volume]': 'showVolumeBar',
@@ -499,13 +506,9 @@ export class MediaControl extends UICorePlugin {
       Events.CONTAINER_LOADEDMETADATA,
       this.onLoadedMetadata,
     )
-    this.listenTo(
-      this.core,
-      Events.CONTAINER_DESTROYED,
-      () => {
-        this.cancelRenderTimer()
-      },
-    )
+    this.listenTo(this.core, Events.CONTAINER_DESTROYED, () => {
+      this.cancelRenderTimer()
+    })
   }
 
   /**
@@ -516,7 +519,7 @@ export class MediaControl extends UICorePlugin {
     this.userDisabled = true // TODO distinguish between user and system (e.g., unplayable) disabled?
     this.hide()
     this.unbindKeyEvents()
-    this.$el.hide()
+    this.$el.hide() // TODO why?
   }
 
   /**
@@ -533,6 +536,18 @@ export class MediaControl extends UICorePlugin {
   }
 
   /**
+   *
+   * @returns  Vertical space available to render something on top of the container.
+   * @remarks
+   * This takes into account the container height and excludes the height of the controls bar
+   */
+  getAvailableHeight() {
+    return (
+      this.core.$el.height() - this.$el.find('.media-control-layer').height()
+    )
+  }
+
+  /**
    * Set the initial volume, which is preserved when playback is interrupted by an advertisement
    */
   setInitialVolume() {
@@ -546,6 +561,7 @@ export class MediaControl extends UICorePlugin {
     this.updateVolumeUI()
   }
 
+  // TODO check if CONTAINER_SETTINGSUPDATE handler is sufficient
   private onLoadedMetadata() {
     const video = this.core.activePlayback?.el
 
@@ -646,18 +662,17 @@ export class MediaControl extends UICorePlugin {
   }
 
   private mousemoveOnSeekBar(event: MouseEvent) {
+    const offset =
+      MediaControl.getPageX(event) - (this.$seekBarContainer.offset().left ?? 0) // TODO check if the result can be negative
+    const hoverOffset = offset - (this.$seekBarHover.width() ?? 0) / 2
+    const pos = offset
+      ? Math.min(1, Math.max(offset / this.$seekBarContainer.width(), 0))
+      : 0
     if (this.settings.seekEnabled) {
-      // assert.ok(this.$seekBarHover && this.$seekBarContainer, 'seek bar elements must be present');
-      if (this.$seekBarHover && this.$seekBarContainer) {
-        const offsetX =
-          MediaControl.getPageX(event) -
-          this.$seekBarContainer.offset().left -
-          this.$seekBarHover.width() / 2
-
-        this.$seekBarHover.css({ left: offsetX })
-      }
+      // TODO test that it works when the element does not exist
+      this.$seekBarHover.css({ left: hoverOffset })
     }
-    this.trigger(Events.MEDIACONTROL_MOUSEMOVE_SEEKBAR, event)
+    this.trigger(Events.MEDIACONTROL_MOUSEMOVE_SEEKBAR, event, pos)
   }
 
   private mouseleaveOnSeekBar(event: MouseEvent) {
@@ -732,12 +747,14 @@ export class MediaControl extends UICorePlugin {
   }
 
   private stopDrag = (event: MouseEvent) => {
-    this.draggingSeekBar && this.seek(event)
+    if (this.draggingSeekBar) {
+      this.draggingSeekBar = false
+      this.seek(event)
+    }
     this.$el.removeClass('dragging')
     this.$seekBarLoaded?.removeClass('media-control-notransition')
     this.$seekBarPosition?.removeClass('media-control-notransition')
     this.$seekBarScrubber?.removeClass('media-control-notransition dragging')
-    this.draggingSeekBar = false
     this.draggingVolumeBar = false
   }
 
@@ -753,7 +770,9 @@ export class MediaControl extends UICorePlugin {
       pos = Math.min(100, Math.max(pos, 0))
 
       this.setSeekPercentage(pos)
-    } else if (this.draggingVolumeBar) {
+      return
+    }
+    if (this.draggingVolumeBar) {
       event.preventDefault()
       this.setVolume(this.getVolumeFromUIEvent(event))
     }
@@ -799,16 +818,17 @@ export class MediaControl extends UICorePlugin {
     // if the container is not ready etc
     this.intendedVolume = value
     this.persistConfig && !isInitialVolume && Config.persist('volume', value)
-    // TODO
     const setWhenContainerReady = () => {
       if (this.core.activeContainer && this.core.activeContainer.isReady) {
         this.core.activeContainer.setVolume(value)
+        this.trigger(ExtendedEvents.MEDIACONTROL_VOLUME, value)
       } else {
         this.listenToOnce(
           this.core.activeContainer,
           Events.CONTAINER_READY,
           () => {
             this.core.activeContainer.setVolume(value)
+            this.trigger(ExtendedEvents.MEDIACONTROL_VOLUME, value)
           },
         )
       }
@@ -966,6 +986,7 @@ export class MediaControl extends UICorePlugin {
     if (!this.settings.seekEnabled) {
       return
     }
+    // TODO prevent double seek
 
     assert.ok(this.$seekBarContainer, 'seek bar container must be present')
     const offsetX =
@@ -976,8 +997,6 @@ export class MediaControl extends UICorePlugin {
     this.core.activeContainer && this.core.activeContainer.seekPercentage(pos)
 
     this.setSeekPercentage(pos)
-
-    return false
   }
 
   private setUserKeepVisible() {
@@ -1010,8 +1029,10 @@ export class MediaControl extends UICorePlugin {
       }
       this.$el.show()
       this.trigger(Events.MEDIACONTROL_SHOW, this.name)
-      this.container &&
-        this.container.trigger(Events.CONTAINER_MEDIACONTROL_SHOW, this.name)
+      this.core.activeContainer?.trigger(
+        Events.CONTAINER_MEDIACONTROL_SHOW,
+        this.name,
+      )
       this.$el.removeClass('media-control-hide')
       this.hideId = setTimeout(() => this.hide(), timeout)
       if (event) {
@@ -1068,7 +1089,6 @@ export class MediaControl extends UICorePlugin {
   }
 
   private updateSettings() {
-    trace(`${T} updateSettings`, { settings: this.settings })
     const newSettings = $.extend(
       true,
       {
@@ -1078,15 +1098,13 @@ export class MediaControl extends UICorePlugin {
       },
       this.core.activeContainer.settings,
     )
-    trace(`${T} updateSettings`, { newSettings })
 
-
+    newSettings.left.push('clips') // TODO settings
     // TODO make order controlled via CSS
     newSettings.left = orderByOrderPattern(
-      [...newSettings.left, 'clipsText', 'volume'],
+      [...newSettings.left, 'volume', 'clips'],
       LEFT_ORDER,
     )
-
     if (
       this.core.activePlayback.getPlaybackType() === Playback.LIVE &&
       this.core.activePlayback.dvrEnabled
@@ -1098,15 +1116,9 @@ export class MediaControl extends UICorePlugin {
     newSettings.right = DEFAULT_SETTINGS.right // TODO get from the options
 
     if (
-      (!this.fullScreenOnVideoTagSupported &&
-        !fullscreenEnabled()) ||
+      (!this.fullScreenOnVideoTagSupported && !fullscreenEnabled()) ||
       this.options.fullscreenDisable
     ) {
-      trace(`${T} updateSettings removing fullscreen`, {
-        supported: this.fullScreenOnVideoTagSupported,
-        enabled: Fullscreen.fullscreenEnabled(),
-        optionsDisable: this.options.fullscreenDisable,
-      })
       // remove fullscreen from settings if it is not available
       removeArrayItem(newSettings.default, 'fullscreen')
       removeArrayItem(newSettings.left, 'fullscreen')
@@ -1163,11 +1175,6 @@ export class MediaControl extends UICorePlugin {
     this.$multiCameraSelector = this.$el.find(
       '.media-control-multicamera[data-multicamera]',
     )
-    this.$clipText = this.$el.find('.media-clip-text[data-clipstext]') // TODO
-    this.$clipTextContainer = this.$el.find(
-      '.media-clip-container[data-clipstext]',
-    )
-
     this.resetIndicators()
     this.initializeIcons()
   }
@@ -1176,35 +1183,21 @@ export class MediaControl extends UICorePlugin {
    * Get a media control element DOM node
    * @param name - The name of the media control element
    * @returns The DOM node to render to or extend
-   * @deprecated  Use {@link MediaControl.putElement} instead
    * @remarks
    * Use this method to render custom media control UI in a plugin
    * @example
    * ```ts
    * class MyPlugin extends UICorePlugin {
    *   override render() {
-   *     const mediaControl = this.core.getPlugin('media_control')
-   *     const clipText = mediaControl.getElement('clipText')
-   *     clipText?.el.text('Here we go')
+   *     this.$el.html('<div data-clips>Here we go</div>')
+   *     this.core.getPlugin('media_control').mount('clips', this.$el)
    *     return this
    *   }
    * }
    * ```
    */
-  getElement(name: MediaControlElement): ZeptoResult | null {
-    switch (name) {
-      case 'audiotracks':
-        return null
-      case 'clipText':
-        return this.$clipText
-      case 'seekBarContainer':
-        return this.$seekBarContainer
-    }
-  }
-
-  putElement(name: MediaControlElement, element: ZeptoResult) {
+  mount(name: MediaControlElement, element: ZeptoResult) {
     const panel = this.getElementLocation(name)
-    trace(`${T} putElement`, { name, panel: !!panel })
     if (panel) {
       const current = panel.find(`[data-${name}]`)
       element.attr(`data-${name}`, '')
@@ -1217,14 +1210,13 @@ export class MediaControl extends UICorePlugin {
       } else {
         panel.append(element)
       }
-      return
     }
   }
 
   /**
    * Toggle the visibility of a media control element
    * @param name - The name of the media control element
-   * @param show - Whether to show or hide the element
+   * @param show - Visibility state
    */
   toggleElement(area: MediaControlElement, show: boolean) {
     this.$el.find(`[data-${area}]`).toggle(show)
@@ -1284,12 +1276,12 @@ export class MediaControl extends UICorePlugin {
       return
     }
 
-    const currentTime = this.container.getCurrentTime()
-    const duration = this.container.getDuration()
+    const currentTime = this.core.activeContainer.getCurrentTime()
+    const duration = this.core.activeContainer.getDuration()
     let position = Math.min(Math.max(currentTime + delta, 0), duration)
 
     position = Math.min((position * 100) / duration, 100)
-    this.container.seekPercentage(position)
+    this.core.activeContainer.seekPercentage(position)
   }
 
   private bindKeyAndShow(key: string, callback: () => boolean | undefined) {
@@ -1427,12 +1419,12 @@ export class MediaControl extends UICorePlugin {
    * @internal
    */
   override render() {
-    trace(`${T} render`, { needsUpdate: this.hasUpdate, metadataLoaded: this.metadataLoaded })
     if (!this.hasUpdate || !this.metadataLoaded) {
       return this
     }
     const timeout = this.options.hideMediaControlDelay || 2000
 
+    trace(`${T} render`, { settings: this.settings })
     this.$el.html(MediaControl.template({ settings: this.settings }))
     // const style = Styler.getStyleFor(mediaControlStyle, { baseUrl: this.options.baseUrl });
     // this.$el.append(style[0]);
@@ -1482,6 +1474,7 @@ export class MediaControl extends UICorePlugin {
         width: this.options.width,
         height: this.options.height,
       })
+      // TODO check out
       this.hideVolumeBar(0)
     }, 0)
 
@@ -1491,7 +1484,7 @@ export class MediaControl extends UICorePlugin {
 
     this.rendered = true
     this.updateVolumeUI()
-    
+
     this.hasUpdate = false
     // TODO setTimeout?
     this.trigger(Events.MEDIACONTROL_RENDERED)
@@ -1583,12 +1576,6 @@ export class MediaControl extends UICorePlugin {
   }
 
   private getElementLocation(name: MediaControlElement) {
-    trace(`${T} getElementLocation`, {
-      name,
-      right: this.settings.right,
-      left: this.settings.left,
-      default: this.settings.default,
-    })
     if (this.settings.right?.includes(name as MediaControlRightElement)) {
       return this.getRightPanel()
     }
@@ -1615,8 +1602,7 @@ MediaControl.extend = function (properties) {
 }
 
 function serializeSettings(s: MediaControlSettings) {
-  return (s.left
-    .slice() as MediaControlElement[])
+  return (s.left.slice() as MediaControlElement[])
     .sort()
     .concat(s.right.slice().sort())
     .concat(s.default.slice().sort())

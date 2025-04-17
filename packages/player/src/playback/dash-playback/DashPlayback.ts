@@ -20,7 +20,6 @@ import {
   PlaybackErrorCode,
   QualityLevel,
   TimePosition,
-  TimeUpdate,
   TimeValue,
 } from '../../playback.types.js'
 import { isDashSource } from '../../utils/mediaSources.js'
@@ -77,7 +76,6 @@ export default class DashPlayback extends BasePlayback {
   // #EXT-X-PLAYLIST-TYPE
   _playlistType: PlaylistType | null = null
 
-  // #EXT-X-PROGRAM-DATE-TIME
   _programDateTime: TimeValue = 0
 
   _dash: DASHJS.MediaPlayerClass | null = null
@@ -350,9 +348,9 @@ export default class DashPlayback extends BasePlayback {
     }
   }
 
-  getProgramDateTime() {
-    return this._programDateTime
-  }
+  // getProgramDateTime() {
+  //   return this._programDateTime
+  // }
 
   // the duration on the video element itself should not be used
   // as this does not necesarily represent the duration of the stream
@@ -498,10 +496,10 @@ export default class DashPlayback extends BasePlayback {
     if (this.startChangeQuality) {
       return
     }
-    const update: TimeUpdate = {
+    const update: TimePosition = {
       current: this.getCurrentTime(),
       total: this.getDuration(),
-      firstFragDateTime: this.getProgramDateTime(),
+      // firstFragDateTime: this.getProgramDateTime(), // TODO figure out if needed
     }
     const isSame =
       this._lastTimeUpdate &&
@@ -543,15 +541,12 @@ export default class DashPlayback extends BasePlayback {
   }
 
   override _onProgress() {
-    if (!this._dash) {
-      return
-    }
+    const buffer =
+      // @ts-expect-error
+      this._dash.getDashMetrics().getCurrentBufferLevel('video') ||
+      // @ts-expect-error
+      this._dash.getDashMetrics().getCurrentBufferLevel('audio')
 
-    let buffer = this._dash.getDashMetrics().getCurrentBufferLevel('video')
-
-    if (!buffer) {
-      buffer = this._dash.getDashMetrics().getCurrentBufferLevel('audio')
-    }
     const progress = {
       start: this.getCurrentTime(),
       current: this.getCurrentTime() + buffer,

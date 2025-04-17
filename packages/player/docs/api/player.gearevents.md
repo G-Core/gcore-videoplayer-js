@@ -45,7 +45,7 @@ RENDERED
 
 </td><td>
 
-**_(BETA)_** Use this event to accurately attach an item to the gear menu
+**_(BETA)_** Subscribe to this event to accurately attach an item to the gear menu
 
 
 </td></tr>

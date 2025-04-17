@@ -4,7 +4,7 @@
 
 ## QualityLevel.width property
 
-Width of the video, pixels.
+Width of the video frame, pixels.
 
 **Signature:**
 

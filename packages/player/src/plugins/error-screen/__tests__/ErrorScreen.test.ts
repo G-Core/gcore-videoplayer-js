@@ -1,4 +1,4 @@
-import { createMockContainer, createMockCore, createMockPlayback } from '../../../testUtils'
+import { createMockCore } from '../../../testUtils'
 import { ErrorScreen } from '../ErrorScreen'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -9,9 +9,8 @@ describe('ErrorScreen', () => {
   let errorScreen: ErrorScreen
   beforeEach(() => {
     core = createMockCore()
-    container = createMockContainer()
-    playback = createMockPlayback()
-    container.playback = playback
+    container = core.activeContainer
+    playback = container.playback
     core.activeContainer = container
   })
   describe('on error', () => {

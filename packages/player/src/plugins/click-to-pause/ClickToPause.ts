@@ -10,7 +10,7 @@ import { CLAPPR_VERSION } from '../../build.js'
 
 type Timer = ReturnType<typeof setTimeout>
 
-const T = 'plugins.click_to_pause_custom'
+const T = 'plugins.click_to_pause'
 
 /**
  * A small `PLUGIN` that toggles the playback state on click over the video container
@@ -25,7 +25,7 @@ export class ClickToPause extends ContainerPlugin {
    * @internal
    */
   get name() {
-    return 'click_to_pause_custom'
+    return 'click_to_pause'
   }
 
   /**
@@ -58,13 +58,13 @@ export class ClickToPause extends ContainerPlugin {
 
     if (isLivePlayback && !isDvrEnabled) {
       this.togglePlay(true)
-    } else if (!isLivePlayback || isDvrEnabled) {
-      this.clearTimer()
-      this.timer = setTimeout(() => {
-        this.timer = null
-        this.togglePlay(false)
-      }, 300)
+      return
     }
+    this.clearTimer()
+    this.timer = setTimeout(() => {
+      this.timer = null
+      this.togglePlay(false)
+    }, 300)
   }
 
   private settingsUpdate() {

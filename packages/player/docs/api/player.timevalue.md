@@ -4,7 +4,7 @@
 
 ## TimeValue type
 
-Playback time in seconds since the beginning of the stream (or a segment for the live streams)
+Playback time position in seconds since the beginning of the stream. For the live streams this is limited to the length of a segment. When DVR is enabled, this refers to the
 
 **Signature:**
 

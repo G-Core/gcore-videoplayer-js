@@ -4,7 +4,7 @@
 
 ## TimePosition.total property
 
-Total duration of the media, seconds.
+Total duration of the media content (or DVR window size or segment duration for live streams)
 
 **Signature:**
 

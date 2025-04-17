@@ -1,11 +1,13 @@
 import '../assets/style/main.scss';
 
-export * from "./plugins/audio-selector/AudioSelector.js";
-export { AudioTracks as AudioSelector } from "./plugins/audio-selector/AudioSelector.js";
+export * from "./plugins/audio-selector/AudioTracks.js";
+export { AudioTracks as AudioSelector } from "./plugins/audio-selector/AudioTracks.js";
 export * from "./plugins/big-mute-button/BigMuteButton.js";
 export * from "./plugins/bottom-gear/BottomGear.js";
-export * from "./plugins/clappr-nerd-stats/ClapprNerdStats.js";
 export * from "./plugins/clappr-stats/ClapprStats.js";
+export * from "./plugins/cmcd-config/CmcdConfig.js";
+export * from "./plugins/clappr-nerd-stats/NerdStats.js";
+export { NerdStats as ClapprNerdStats } from "./plugins/clappr-nerd-stats/NerdStats.js";
 export * from "./plugins/click-to-pause/ClickToPause.js";
 export * from "./plugins/clips/Clips.js";
 export * from "./plugins/context-menu/ContextMenu.js";

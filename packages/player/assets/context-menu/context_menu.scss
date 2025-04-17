@@ -22,10 +22,24 @@ $box-border-color: #666;
     border: 1px solid $box-border-color;
     border-radius: 4px;
 
-    .context-menu-list-item {
-      color: white;
-      padding: 5px;
-      cursor: pointer;
+    &-item {
+      button {
+        border: none;
+        background-color: transparent;
+        padding: 0;
+        color: white;
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        padding: 5px;
+        width: 100%;
+      }
+      &_icon {
+        width: 20px;
+        height: 20px;
+      }
     }
   }
 }

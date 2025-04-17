@@ -12,6 +12,5 @@
 ```typescript
 get attributes(): {
         class: string;
-        'data-seek-time': string;
     };
 ```
