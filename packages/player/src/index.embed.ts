@@ -37,6 +37,7 @@ import {
   ClickToPause,
   DvrControls,
   PictureInPicture,
+  PlaybackRate,
   Poster,
   Spinner,
 } from './index.plugins.js'
@@ -49,6 +50,7 @@ Player.registerPlugin(DvrControls)
 Player.registerPlugin(ErrorScreen)
 Player.registerPlugin(MediaControl)
 Player.registerPlugin(PictureInPicture)
+Player.registerPlugin(PlaybackRate)
 Player.registerPlugin(Poster)
 Player.registerPlugin(SourceController)
 Player.registerPlugin(Spinner)
