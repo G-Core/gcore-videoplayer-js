@@ -55,9 +55,11 @@ describe('CmcdConfig', () => {
           expect(core.containers[0].playback.options).toEqual(
             expect.objectContaining({
               dash: expect.objectContaining({
-                cmcd: expect.objectContaining({
-                  enabled: true,
-                  enabledKeys: CMCD_KEYS,
+                streaming: expect.objectContaining({
+                  cmcd: expect.objectContaining({
+                    enabled: true,
+                    enabledKeys: CMCD_KEYS,
+                  }),
                 }),
               }),
             }),
@@ -67,8 +69,10 @@ describe('CmcdConfig', () => {
           expect(core.containers[0].playback.options).toEqual(
             expect.objectContaining({
               dash: expect.objectContaining({
-                cmcd: expect.objectContaining({
-                  sid: '123',
+                streaming: expect.objectContaining({
+                  cmcd: expect.objectContaining({
+                    sid: '123',
+                  }),
                 }),
               }),
             }),
@@ -78,8 +82,10 @@ describe('CmcdConfig', () => {
           expect(core.containers[0].playback.options).toEqual(
             expect.objectContaining({
               dash: expect.objectContaining({
-                cmcd: expect.objectContaining({
-                  cid: '/123.mpd',
+                streaming: expect.objectContaining({
+                  cmcd: expect.objectContaining({
+                    cid: '/123.mpd',
+                  }),
                 }),
               }),
             }),
@@ -134,8 +140,10 @@ describe('CmcdConfig', () => {
       expect(core.containers[0].playback.options).toEqual(
         expect.objectContaining({
           dash: expect.objectContaining({
-            cmcd: expect.objectContaining({
-              cid: 'e287ea99b57c09b7a185aaaf36e075f2c0b346ce90aeced72976b1732678a8c6',
+            streaming: expect.objectContaining({
+              cmcd: expect.objectContaining({
+                cid: 'e287ea99b57c09b7a185aaaf36e075f2c0b346ce90aeced72976b1732678a8c6',
+              }),
             }),
           }),
         }),
@@ -163,8 +171,10 @@ describe('CmcdConfig', () => {
       expect(core.containers[0].playback.options).toEqual(
         expect.objectContaining({
           dash: expect.objectContaining({
-            cmcd: expect.objectContaining({
-              sid: '456',
+            streaming: expect.objectContaining({
+              cmcd: expect.objectContaining({
+                sid: '456',
+              }),
             }),
           }),
         }),
