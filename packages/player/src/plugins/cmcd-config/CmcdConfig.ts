@@ -4,7 +4,6 @@ import { $, Container, Core, CorePlugin, Events } from '@clappr/core'
 
 import { generateSessionId } from './utils'
 import { CLAPPR_VERSION } from '../../build.js'
-import { CoreOptions } from 'src/internal.types'
 
 const CMCD_KEYS = [
   'br',
@@ -46,10 +45,10 @@ export interface CmcdConfigOptions {
 // const T = 'plugins.cmcd'
 
 /**
- * A `PLUGIN` that configures CMCD for playback
+ * A `PLUGIN` that configures {@link https://cdn.cta.tech/cta/media/media/resources/standards/pdfs/cta-5004-final.pdf | CMCD} for playback
  * @beta
  * @remarks
- * Configuration options {@link CmcdConfigOptions}
+ * Configuration options - {@link CmcdConfigOptions}.
  * @example
  * ```ts
  * import { CmcdConfig } from '@gcorevideo/player'
@@ -69,14 +68,23 @@ export class CmcdConfig extends CorePlugin {
 
   private cid = ''
 
+  /**
+   * @internal
+   */
   get name() {
     return 'cmcd'
   }
 
+  /**
+   * @internal
+   */
   get version() {
     return '0.1.0'
   }
 
+  /**
+   * @internal
+   */
   get supportedVersion() {
     return CLAPPR_VERSION
   }
@@ -87,12 +95,20 @@ export class CmcdConfig extends CorePlugin {
     this.cid = this.options.cmcd?.contentId ?? this.generateContentId()
   }
 
+  /**
+   * @internal
+   */
   override bindEvents() {
     this.listenTo(this.core, Events.CORE_CONTAINERS_CREATED, () =>
       this.updateSettings(this.core.containers[0]),
     )
   }
 
+  /**
+   * Returns the current `sid` and `cid` values.
+   * Useful when the auto-generated values need to be known.
+   * @returns `sid` and `cid` values
+   */
   exportIds(): { sid: string; cid: string } {
     return {
       sid: this.sid,
@@ -128,23 +144,6 @@ export class CmcdConfig extends CorePlugin {
         })
         break
     }
-  }
-
-  private updateHlsjsSettings(
-    options: CoreOptions,
-    { cid, sid }: { cid: string; sid: string },
-  ) {
-    $.extend(true, options, {
-      playback: {
-        hlsjsConfig: {
-          cmcd: {
-            includeKeys: CMCD_KEYS,
-            sessionId: sid,
-            contentId: cid,
-          },
-        },
-      },
-    })
   }
 
   private generateContentId() {

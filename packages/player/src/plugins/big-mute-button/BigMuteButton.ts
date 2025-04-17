@@ -1,11 +1,12 @@
 import { Events, template, UICorePlugin, Utils } from '@clappr/core'
 import { trace } from '@gcorevideo/utils'
+import assert from 'assert'
 
 import { CLAPPR_VERSION } from '../../build.js'
 import { ZeptoResult } from '../../types.js'
 
 import volumeMuteIcon from '../../../assets/icons/new/volume-off.svg'
-import pluginHtml from '../../../assets/big-mute-button/big-mute-button.ejs'
+import templateHtml from '../../../assets/big-mute-button/big-mute-button.ejs'
 import '../../../assets/big-mute-button/big-mute-button.scss'
 
 const T = 'plugins.big_mute_button'
@@ -13,9 +14,15 @@ const T = 'plugins.big_mute_button'
 // TODO rewrite as a container plugin
 
 /**
- * `PLUGIN` that displays a big mute button over the video when it's muted.
- * Once pressed, it unmutes the video.
+ * `PLUGIN` that displays a big mute button over the video when it's being played muted.
  * @beta
+ * @remarks
+ * When pressed, it unmutes the video.
+ * @example
+ * ```ts
+ * import { BigMuteButton } from '@gcorevideo/player'
+ * Player.registerPlugin(BigMuteButton)
+ * ```
  */
 export class BigMuteButton extends UICorePlugin {
   private isBigMuteButtonHidden = false
@@ -40,7 +47,7 @@ export class BigMuteButton extends UICorePlugin {
     return { min: CLAPPR_VERSION }
   }
 
-  private static readonly template = template(pluginHtml)
+  private static readonly template = template(templateHtml)
 
   /**
    * @internal
@@ -63,14 +70,16 @@ export class BigMuteButton extends UICorePlugin {
       mediacontrol: !!this.core.mediaControl,
     })
     // TOOD use core.getPlugin('media_control')
-    this.listenTo(
-      this.core.mediaControl,
-      Events.MEDIACONTROL_RENDERED,
-      this.mediaControlRendered,
-    )
   }
 
   private onCoreReady() {
+    const mediaControl = this.core.getPlugin('media_control')
+    assert(mediaControl, 'media_control plugin is required')
+    this.listenTo(
+      mediaControl,
+      Events.MEDIACONTROL_RENDERED,
+      this.onMediaControlRendered,
+    )
     this.listenTo(
       this.core.activeContainer,
       Events.CONTAINER_VOLUME,
@@ -104,17 +113,17 @@ export class BigMuteButton extends UICorePlugin {
     this.hideBigMuteBtn()
   }
 
-  private mediaControlRendered() {
+  private onMediaControlRendered() {
     const container = this.core.activeContainer
 
-    trace(`${T} mediaControlRendered`, {
+    trace(`${T} onMediaControlRendered`, {
       container: !!container,
     })
 
     if (container) {
       this.listenTo(container.playback, Events.PLAYBACK_PLAY, () => {
         trace(`${T} PLAYBACK_PLAY`)
-        this.render()
+        this.render() // TODO mount
       })
     }
   }
@@ -133,7 +142,7 @@ export class BigMuteButton extends UICorePlugin {
     }
   }
 
-  private shouldRender() {
+  private isActive() {
     const container = this.core.activeContainer
 
     if (!container) {
@@ -156,26 +165,38 @@ export class BigMuteButton extends UICorePlugin {
    * @internal
    */
   override render() {
-    if (this.shouldRender()) {
-      trace(`${T} render`, {
-        el: !!this.$el,
-      })
-      this.$el.html(BigMuteButton.template())
+    // if (!this.shouldRender()) {
+    //   return this
+    // } 
+    // trace(`${T} render`, {
+    //   el: !!this.$el,
+    // })
+    this.$el.html(BigMuteButton.template())
 
-      this.$bigMuteBtnContainer = this.$el.find(
-        '.big-mute-icon-wrapper[data-big-mute]',
-      )
-      this._adIsPlaying && this.$bigMuteBtnContainer.addClass('hide')
+    // TODO sort out the states
+    this.$bigMuteBtnContainer = this.$el.find(
+      '.big-mute-icon-wrapper[data-big-mute]',
+    )
+    this._adIsPlaying && this.$bigMuteBtnContainer.addClass('hide')
 
-      this.$bigMuteButton = this.$bigMuteBtnContainer.find('.big-mute-icon')
-      this.$bigMuteButton.append(volumeMuteIcon)
-
-      const container = this.core.activeContainer
-
-      container.$el.append(this.$el.get(0))
-    }
+    this.$bigMuteButton = this.$bigMuteBtnContainer.find('#gplayer-big-mute-icon')
+    this.$bigMuteButton.append(volumeMuteIcon)
 
     return this
+  }
+
+  private mount() {
+    const container = this.core.activeContainer
+    container.$el.append(this.$el.get(0))
+  }
+
+  private update() {
+    const active = this.isActive()
+    if (active) {
+      this.$el.show()
+    } else {
+      this.$el.hide()
+    }
   }
 
   private hideBigMuteBtn() {

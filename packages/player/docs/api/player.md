@@ -61,7 +61,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** `PLUGIN` that displays a big mute button over the video when it's muted. Once pressed, it unmutes the video.
+**_(BETA)_** `PLUGIN` that displays a big mute button over the video when it's being played muted.
 
 
 </td></tr>
@@ -127,7 +127,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** A `PLUGIN` that configures CMCD for playback
+**_(BETA)_** A `PLUGIN` that configures [CMCD](https://cdn.cta.tech/cta/media/media/resources/standards/pdfs/cta-5004-final.pdf) for playback
 
 
 </td></tr>

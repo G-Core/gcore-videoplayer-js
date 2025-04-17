@@ -7,7 +7,7 @@
 > This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
 > 
 
-A `PLUGIN` that configures CMCD for playback
+A `PLUGIN` that configures [CMCD](https://cdn.cta.tech/cta/media/media/resources/standards/pdfs/cta-5004-final.pdf) for playback
 
 **Signature:**
 
@@ -18,7 +18,7 @@ export declare class CmcdConfig extends CorePlugin
 
 ## Remarks
 
-Configuration options [CmcdConfigOptions](./player.cmcdconfigoptions.md)
+Configuration options - [CmcdConfigOptions](./player.cmcdconfigoptions.md)<!-- -->.
 
 ## Example
 
@@ -70,94 +70,6 @@ Description
 </td></tr>
 </tbody></table>
 
-## Properties
-
-<table><thead><tr><th>
-
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>
-
-[name](./player.cmcdconfig.name.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
-[supportedVersion](./player.cmcdconfig.supportedversion.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
-[version](./player.cmcdconfig.version.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-</tbody></table>
-
 ## Methods
 
 <table><thead><tr><th>
@@ -178,20 +90,6 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-[bindEvents()](./player.cmcdconfig.bindevents.md)
-
-
-</td><td>
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
 [exportIds()](./player.cmcdconfig.exportids.md)
 
 
@@ -200,7 +98,7 @@ Description
 
 </td><td>
 
-**_(BETA)_**
+**_(BETA)_** Returns the current `sid` and `cid` values. Useful when the auto-generated values need to be known.
 
 
 </td></tr>

@@ -561,6 +561,7 @@ export class MediaControl extends UICorePlugin {
     this.updateVolumeUI()
   }
 
+  // TODO check if CONTAINER_SETTINGSUPDATE handler is sufficient
   private onLoadedMetadata() {
     const video = this.core.activePlayback?.el
 
