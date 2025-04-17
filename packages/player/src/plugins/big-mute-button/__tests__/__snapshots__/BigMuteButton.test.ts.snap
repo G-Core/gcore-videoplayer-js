@@ -1,0 +1,8 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`BigMuteButton > basically > should render 1`] = `
+"<div class="big-mute-icon-wrapper" data-big-mute="" id="gplayer-big-mute-button">
+    <div class="big-mute-icon gcore-skin-border-color" data-big-mute-icon="" id="gplayer-big-mute-icon">/assets/icons/new/volume-off.svg</div>
+</div>
+"
+`;

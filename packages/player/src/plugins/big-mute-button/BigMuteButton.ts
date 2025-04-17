@@ -3,7 +3,6 @@ import { trace } from '@gcorevideo/utils'
 import assert from 'assert'
 
 import { CLAPPR_VERSION } from '../../build.js'
-import { ZeptoResult } from '../../types.js'
 
 import volumeMuteIcon from '../../../assets/icons/new/volume-off.svg'
 import templateHtml from '../../../assets/big-mute-button/big-mute-button.ejs'
@@ -25,13 +24,10 @@ const T = 'plugins.big_mute_button'
  * ```
  */
 export class BigMuteButton extends UICorePlugin {
-  private isBigMuteButtonHidden = false
+  private hidden = false
 
+  // TODO get back to the ads-related logic later
   private _adIsPlaying = false
-
-  private $bigMuteBtnContainer: ZeptoResult | null = null
-
-  private $bigMuteButton: ZeptoResult | null = null
 
   /**
    * @internal
@@ -54,8 +50,7 @@ export class BigMuteButton extends UICorePlugin {
    */
   override get events() {
     return {
-      'click .big-mute-icon': 'clicked',
-      'click .big-mute-icon-wrapper': 'destroyBigMuteBtn',
+      'click': 'clicked',
     }
   }
 
@@ -64,170 +59,119 @@ export class BigMuteButton extends UICorePlugin {
    */
   override bindEvents() {
     this.listenTo(this.core, Events.CORE_READY, this.onCoreReady)
+    this.listenTo(this.core, Events.CORE_ACTIVE_CONTAINER_CHANGED, this.onContainerChanged)
     this.listenTo(this.core, 'core:advertisement:start', this.onStartAd)
     this.listenTo(this.core, 'core:advertisement:finish', this.onFinishAd)
-    trace(`${T} bindEvents`, {
-      mediacontrol: !!this.core.mediaControl,
-    })
-    // TOOD use core.getPlugin('media_control')
   }
 
   private onCoreReady() {
-    const mediaControl = this.core.getPlugin('media_control')
-    assert(mediaControl, 'media_control plugin is required')
-    this.listenTo(
-      mediaControl,
-      Events.MEDIACONTROL_RENDERED,
-      this.onMediaControlRendered,
-    )
+    
+  }
+
+  private onContainerChanged() {
     this.listenTo(
       this.core.activeContainer,
       Events.CONTAINER_VOLUME,
       this.onContainerVolume,
     )
-    this.listenTo(
-      this.core.activeContainer,
-      Events.CONTAINER_READY,
-      this.onContainerStart,
-    )
+    // this.listenTo(
+    //   this.core.activeContainer,
+    //   Events.CONTAINER_READY,
+    //   this.onContainerReady,
+    // )
     this.listenTo(
       this.core.activePlayback,
       Events.PLAYBACK_ENDED,
       this.onPlaybackEnded,
     )
+    this.listenTo(
+      this.core.activeContainer,
+      Events.CONTAINER_PLAY,
+      this.onPlay
+    )
   }
 
-  private onContainerVolume(value: number) {
-    if (value !== 0) {
-      this.destroyBigMuteBtn()
-    }
-  }
-
-  private onContainerStart() {
-    if (this.isBigMuteButtonHidden) {
-      this.showBigMuteBtn()
-    }
-  }
-
-  private onPlaybackEnded() {
-    this.hideBigMuteBtn()
-  }
-
-  private onMediaControlRendered() {
+  private onPlay(_: string, { autoPlay }: { autoPlay?: boolean}) {
     const container = this.core.activeContainer
-
-    trace(`${T} onMediaControlRendered`, {
-      container: !!container,
-    })
-
-    if (container) {
-      this.listenTo(container.playback, Events.PLAYBACK_PLAY, () => {
-        trace(`${T} PLAYBACK_PLAY`)
-        this.render() // TODO mount
-      })
-    }
-  }
-
-  private onStartAd() {
-    this._adIsPlaying = true
-    if (this.$bigMuteBtnContainer) {
-      this.$bigMuteBtnContainer.addClass('hide')
-    }
-  }
-
-  private onFinishAd() {
-    this._adIsPlaying = false
-    if (this.$bigMuteBtnContainer) {
-      this.$bigMuteBtnContainer.removeClass('hide')
-    }
-  }
-
-  private isActive() {
-    const container = this.core.activeContainer
-
-    if (!container) {
-      return false
-    }
-
-    const { autoPlay, wasMuted } = this.options
-    const volume = container.volume
-
-    trace(`${T} shouldRender`, {
+    const { volume } = container
+    const { wasMuted } = this.options
+    trace(`${T} onPlay`, {
       autoPlay,
       wasMuted,
       volume,
     })
+    if (autoPlay && !wasMuted && volume === 0) {
+      this.mount()
+    } else {
+      this.destroy()
+    }
+  }
 
-    return autoPlay && !wasMuted && volume === 0
+  private onContainerVolume(value: number) {
+    if (value !== 0) {
+      this.destroy()
+    }
+  }
+
+  private onPlaybackEnded() {
+    this.hide()
+  }
+
+  private onStartAd() {
+    this._adIsPlaying = true
+    this.hide()
+  }
+
+  private onFinishAd() {
+    this._adIsPlaying = false
+    this.show()
   }
 
   /**
    * @internal
    */
   override render() {
-    // if (!this.shouldRender()) {
-    //   return this
-    // } 
-    // trace(`${T} render`, {
-    //   el: !!this.$el,
-    // })
+    trace(`${T} render`)
     this.$el.html(BigMuteButton.template())
-
-    // TODO sort out the states
-    this.$bigMuteBtnContainer = this.$el.find(
-      '.big-mute-icon-wrapper[data-big-mute]',
-    )
-    this._adIsPlaying && this.$bigMuteBtnContainer.addClass('hide')
-
-    this.$bigMuteButton = this.$bigMuteBtnContainer.find('#gplayer-big-mute-icon')
-    this.$bigMuteButton.append(volumeMuteIcon)
+    this.$el.find('#gplayer-big-mute-icon').append(volumeMuteIcon)
+    
+    // TODO
+    // this._adIsPlaying && this.hide()
 
     return this
   }
 
   private mount() {
-    const container = this.core.activeContainer
-    container.$el.append(this.$el.get(0))
+    this.core.activeContainer.$el.append(this.$el)
+    this.show()
   }
 
-  private update() {
-    const active = this.isActive()
-    if (active) {
-      this.$el.show()
-    } else {
-      this.$el.hide()
-    }
+  private hide() {
+    this.hidden = true
+    this.$el.find('#gplayer-big-mute-button')?.addClass('hide')
   }
 
-  private hideBigMuteBtn() {
-    this.isBigMuteButtonHidden = true
-    this.$bigMuteBtnContainer?.addClass('hide')
-  }
-
-  private showBigMuteBtn() {
-    this.isBigMuteButtonHidden = false
-    if (this.$bigMuteBtnContainer) {
-      this.$bigMuteBtnContainer.removeClass('hide')
-    }
-  }
-
-  private destroyBigMuteBtn(e?: MouseEvent) {
-    this.hideBigMuteBtn()
-
-    if (e && e.stopPropagation) {
-      e.stopPropagation()
-    }
-
-    this.destroy()
+  private show() {
+    this.hidden = false
+    this.$el.find('#gplayer-big-mute-button')?.removeClass('hide')
   }
 
   private clicked(e: MouseEvent) {
+    trace(`${T} clicked`)
+    const mediaControl = this.core.getPlugin('media_control')
+    // TODO delegate to media_control plugin
     const localVolume = Utils.Config.restore('volume')
     const volume = !isNaN(localVolume) ? localVolume : 100
+    const unmuted = volume === 0 ? 100 : volume
 
-    // TODO use container.setVolume() instead
-    this.core.mediaControl.setVolume(volume === 0 ? 100 : volume)
+    if (mediaControl) {
+      mediaControl.setVolume(unmuted)
+    } else {
+      this.core.activeContainer.setVolume(unmuted)
+    }
 
-    this.destroyBigMuteBtn(e)
+    e.stopPropagation?.()
+
+    this.destroy()
   }
 }

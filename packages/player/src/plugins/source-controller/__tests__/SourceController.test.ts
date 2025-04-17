@@ -1,5 +1,4 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-
 import FakeTimers from '@sinonjs/fake-timers'
 
 import { SourceController } from '../SourceController'
@@ -10,6 +9,11 @@ import {
   createMockPlugin,
   createSpinnerPlugin,
 } from '../../../testUtils.js'
+
+// import { LogTracer, Logger, setTracer } from '@gcorevideo/utils'
+
+// setTracer(new LogTracer('SourceController.test'))
+// Logger.enable('*')
 
 const MOCK_SOURCES = [
   {
@@ -85,8 +89,6 @@ describe('SourceController', () => {
           code: PlaybackErrorCode.MediaSourceUnavailable,
         })
         nextPlayback = createMockPlayback()
-        vi.spyOn(nextPlayback, 'consent')
-        vi.spyOn(nextPlayback, 'play')
         core.activePlayback = nextPlayback
       })
       it('should load the next source after a delay', async () => {
@@ -101,7 +103,7 @@ describe('SourceController', () => {
         await clock.tickAsync(1000)
         expect(nextPlayback.play).not.toHaveBeenCalled()
         await clock.tickAsync(500) // TODO check randomness
-        expect(nextPlayback.play).toHaveBeenCalled()
+        expect(core.activeContainer.play).toHaveBeenCalled()
       })
       it('should not call consent', async () => {
         await clock.tickAsync(1500)
@@ -151,8 +153,6 @@ describe('SourceController', () => {
           code: PlaybackErrorCode.MediaSourceUnavailable,
         })
         nextPlayback = createMockPlayback()
-        vi.spyOn(nextPlayback, 'consent')
-        vi.spyOn(nextPlayback, 'play')
         core.activePlayback = nextPlayback
       })
       it('should sync with the spinner before reloading the source', async () => {
@@ -234,8 +234,6 @@ describe('SourceController', () => {
         })
         await clock.tickAsync(1)
         nextPlayback = createMockPlayback()
-        vi.spyOn(nextPlayback, 'consent')
-        vi.spyOn(nextPlayback, 'play')
         core.activePlayback = nextPlayback
       })
       it('should run handler only once', async () => {
@@ -246,6 +244,28 @@ describe('SourceController', () => {
           MOCK_SOURCES[1].source,
           MOCK_SOURCES[1].mimeType,
         )
+      })
+    })
+    describe('when playback was started with autoPlay', () => {
+      beforeEach(async () => {
+        core = createMockCore({
+          sources: MOCK_SOURCES,
+        })
+        const _ = new SourceController(core)
+        core.emit('core:ready')
+        core.emit('core:active:container:changed')
+        core.activeContainer.actionsMetadata.playEvent = {
+          autoPlay: true,
+        }
+        core.activePlayback.emit('playback:error', {
+          code: PlaybackErrorCode.MediaSourceUnavailable,
+        })
+        await clock.tickAsync(1500)
+      })
+      it('should call play with autoPlay metadata', () => {
+        expect(core.activeContainer.play).toHaveBeenCalledWith({
+          autoPlay: true,
+        })
       })
     })
   })

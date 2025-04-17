@@ -87,6 +87,7 @@ export function createMockContainer(
   const el = playback.el
   const emitter = new Events()
   return Object.assign(emitter, {
+    actionsMetadata: {},
     el,
     playback,
     options: {

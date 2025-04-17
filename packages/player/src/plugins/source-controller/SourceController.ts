@@ -1,5 +1,5 @@
 import {
-  Events as ClapprEvents,
+  Events as Events,
   CorePlugin,
   type Core as ClapprCore,
 } from '@clappr/core'
@@ -127,6 +127,8 @@ export class SourceController extends CorePlugin {
 
   private active = false
 
+  private autoPlay = false
+
   private switching = false
 
   private sync: SyncFn = noSync
@@ -165,10 +167,10 @@ export class SourceController extends CorePlugin {
   override bindEvents() {
     super.bindEvents()
 
-    this.listenTo(this.core, ClapprEvents.CORE_READY, this.onCoreReady)
+    this.listenTo(this.core, Events.CORE_READY, this.onCoreReady)
     this.listenTo(
       this.core,
-      ClapprEvents.CORE_ACTIVE_CONTAINER_CHANGED,
+      Events.CORE_ACTIVE_CONTAINER_CHANGED,
       this.onActiveContainerChanged,
     )
   }
@@ -200,7 +202,7 @@ export class SourceController extends CorePlugin {
 
   private bindContainerEventListeners() {
     this.core.activePlayback.on(
-      ClapprEvents.PLAYBACK_ERROR,
+      Events.PLAYBACK_ERROR,
       (error: PlaybackError) => {
         trace(`${T} on PLAYBACK_ERROR`, {
           error: {
@@ -215,6 +217,7 @@ export class SourceController extends CorePlugin {
         if (this.switching) {
           return
         }
+        this.autoPlay = !!this.core.activeContainer.actionsMetadata.playEvent?.autoPlay
         switch (error.code) {
           case PlaybackErrorCode.MediaSourceUnavailable:
             this.core.activeContainer?.getPlugin('poster')?.disable()
@@ -225,7 +228,7 @@ export class SourceController extends CorePlugin {
         }
       },
     )
-    this.core.activePlayback.on(ClapprEvents.PLAYBACK_PLAY, () => {
+    this.core.activePlayback.on(Events.PLAYBACK_PLAY, () => {
       trace(`${T} on PLAYBACK_PLAY`, {
         currentSource: this.sourcesList[this.currentSourceIndex],
         retrying: this.active,
@@ -236,6 +239,16 @@ export class SourceController extends CorePlugin {
         this.core.activeContainer?.getPlugin('spinner')?.hide()
       }
     })
+    this.listenTo(
+      this.core.activeContainer,
+      Events.CONTAINER_PLAY,
+      (_: string, { autoPlay }: { autoPlay?: boolean}) => {
+        trace(`${T} onContainerPlay`, {
+          autoPlay,
+        })
+        this.autoPlay = !!autoPlay
+      },
+    )
   }
 
   private reset() {
@@ -255,17 +268,20 @@ export class SourceController extends CorePlugin {
       trace(`${T} retryPlayback syncing...`, {
         nextSource,
       })
-      const rnd = RETRY_DELAY_BLUR * Math.random()
+      const rnd = Math.round(RETRY_DELAY_BLUR * Math.random())
       this.sync(() => {
-        trace(`${T} retryPlayback loading...`)
         this.switching = false
         this.core.load(nextSource.source, nextSource.mimeType)
         trace(`${T} retryPlayback loaded`, {
           nextSource,
         })
         setTimeout(() => {
-          this.core.activePlayback.play()
-          trace(`${T} retryPlayback playing`)
+          trace(`${T} retryPlayback playing`, {
+            autoPlay: this.autoPlay,
+          })
+          this.core.activeContainer.play({
+            autoPlay: this.autoPlay,
+          })
         }, rnd)
       })
     })
