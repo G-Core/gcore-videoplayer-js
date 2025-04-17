@@ -121,12 +121,14 @@ export class CmcdConfig extends CorePlugin {
       case 'dash':
         $.extend(true, container.playback.options, {
           dash: {
-            cmcd: {
-              enabled: true,
-              enabledKeys: CMCD_KEYS,
-              sid: this.sid,
-              cid: this.cid,
-            },
+            streaming: {
+              cmcd: {
+                enabled: true,
+                enabledKeys: CMCD_KEYS,
+                sid: this.sid,
+                cid: this.cid,
+              },
+            }
           },
         })
         break
