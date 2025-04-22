@@ -504,12 +504,7 @@ export default class HlsPlayback extends BasePlayback {
   }
 
   protected override _ready() {
-    trace(`${T} _ready`, {
-      isReadyState: this._isReadyState, // is defined in HTML5Video
-    })
     !this._hls && this._setup()
-    // this._isReadyState = true
-    // this.trigger(Events.PLAYBACK_READY, this.name)
     super._ready()
   }
 
