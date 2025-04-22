@@ -394,6 +394,7 @@ export default class HlsPlayback extends BasePlayback {
       this.options.hlsPlayback.preload && this._hls.loadSource(this.options.src)
     })
 
+    // TODO drop?
     const onPlaying = () => {
       if (this._hls) {
         this._hls.config.maxBufferLength =
