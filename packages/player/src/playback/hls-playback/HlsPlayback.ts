@@ -87,8 +87,6 @@ export default class HlsPlayback extends BasePlayback {
 
   private _hls: HLSJS | null = null
 
-  private _isReadyState = false
-
   private _lastDuration: number | null = null
 
   private _lastTimeUpdate: TimePosition | null = null
@@ -121,10 +119,16 @@ export default class HlsPlayback extends BasePlayback {
 
   private _timeUpdateTimer: TimerId | null = null
 
+  /**
+   * @internal
+   */
   get name() {
     return 'hls'
   }
 
+  /**
+   * @internal
+   */
   get supportedVersion() {
     return { min: CLAPPR_VERSION }
   }
@@ -135,10 +139,6 @@ export default class HlsPlayback extends BasePlayback {
 
   get currentLevel() {
     return this._currentLevel ?? AUTO
-  }
-
-  get isReady() {
-    return this._isReadyState
   }
 
   set currentLevel(id: number) {
@@ -369,6 +369,7 @@ export default class HlsPlayback extends BasePlayback {
       {
         maxBufferLength: 2,
         maxMaxBufferLength: 4,
+        autoStartLoad: false,
       },
       this.options.playback.hlsjsConfig,
     )
@@ -405,14 +406,15 @@ export default class HlsPlayback extends BasePlayback {
 
     this.el.addEventListener('playing', onPlaying)
 
-    this._hls.on(
-      HLSJS.Events.MANIFEST_PARSED,
-      () => (this._manifestParsed = true),
-    )
+    this._hls.on(HLSJS.Events.MANIFEST_PARSED, () => {
+      this._manifestParsed = true
+      this._hls!.startLoad(-1)
+    })
     this._hls.on(
       HLSJS.Events.LEVEL_LOADED,
-      (evt: HlsEvents.LEVEL_LOADED, data: LevelLoadedData) =>
-        this._updatePlaybackType(evt, data),
+      (evt: HlsEvents.LEVEL_LOADED, data: LevelLoadedData) => {
+        this._updatePlaybackType(evt, data)
+      },
     )
     this._hls.on(
       HLSJS.Events.LEVEL_UPDATED,
@@ -458,7 +460,9 @@ export default class HlsPlayback extends BasePlayback {
     this._hls.on(HlsEvents.AUDIO_TRACKS_UPDATED, (evt, data) =>
       this._onAudioTracksUpdated(evt, data),
     )
-    this._hls.on(HlsEvents.AUDIO_TRACK_SWITCHED, (evt, data) => this._onAudioTrackSwitched(evt, data))
+    this._hls.on(HlsEvents.AUDIO_TRACK_SWITCHED, (evt, data) =>
+      this._onAudioTrackSwitched(evt, data),
+    )
     this.bindCustomListeners()
   }
 
@@ -499,15 +503,20 @@ export default class HlsPlayback extends BasePlayback {
   }
 
   protected override _ready() {
-    if (this._isReadyState) {
-      return
-    }
+    trace(`${T} _ready`, {
+      isReadyState: this._isReadyState, // is defined in HTML5Video
+    })
     !this._hls && this._setup()
-    this._isReadyState = true
-    this.trigger(Events.PLAYBACK_READY, this.name)
+    // this._isReadyState = true
+    // this.trigger(Events.PLAYBACK_READY, this.name)
+    super._ready()
   }
 
-  private _recover(evt: HlsEvents.ERROR, data: HlsErrorData, error: PlaybackError) {
+  private _recover(
+    evt: HlsEvents.ERROR,
+    data: HlsErrorData,
+    error: PlaybackError,
+  ) {
     assert(this._hls, 'HLS.js is not initialized')
     if (!this._recoveredDecodingError) {
       this._recoveredDecodingError = true
@@ -1129,12 +1138,21 @@ export default class HlsPlayback extends BasePlayback {
     this._hls.audioTrack = Number(id) // TODO or find index by .id == id?
   }
 
-  private _onAudioTracksUpdated(_: HlsEvents.AUDIO_TRACKS_UPDATED, data: AudioTracksUpdatedData) {
+  private _onAudioTracksUpdated(
+    _: HlsEvents.AUDIO_TRACKS_UPDATED,
+    data: AudioTracksUpdatedData,
+  ) {
     trace(`${T} onAudioTracksUpdated`)
-    this.trigger(Events.PLAYBACK_AUDIO_AVAILABLE, data.audioTracks.map(toClapprTrack))
+    this.trigger(
+      Events.PLAYBACK_AUDIO_AVAILABLE,
+      data.audioTracks.map(toClapprTrack),
+    )
   }
 
-  private _onAudioTrackSwitched(_: HlsEvents.AUDIO_TRACK_SWITCHED, data: AudioTrackSwitchedData) {
+  private _onAudioTrackSwitched(
+    _: HlsEvents.AUDIO_TRACK_SWITCHED,
+    data: AudioTrackSwitchedData,
+  ) {
     trace(`${T} onAudioTrackSwitched`)
     // @ts-ignore
     const track = this._hls.audioTracks[data.id]
