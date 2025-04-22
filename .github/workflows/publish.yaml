@@ -40,7 +40,7 @@ jobs:
           cd package/dist
           python $LIBDIR/sri.py \
             -a sha256 \
-            *.* > ./SHA256.txt
+            ./**/*.* > ./SHA256.txt
           python $LIBDIR/upload-s3.py \
             --endpoint https://$S3_HOSTNAME \
             --bucket player \
