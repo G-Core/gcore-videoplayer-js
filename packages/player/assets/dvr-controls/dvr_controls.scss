@@ -1,104 +1,67 @@
-$disabled-opacity: 0.3;
-$control-height: 32px;
-$circle-radius: 3.5px;
-$bottom-panel: 40px;
+.dvr-controls {
+  --disabled-opacity: 0.3;
+  --circle-radius: 5px;
 
-.dvr-controls[data-dvr] {
-  display: inline-block;
+  display: flex;
+  align-items: center;
   color: var(--player-dvr-color);
-  line-height: 32px;
   font-size: 10px;
-  font-weight: bold;
-  margin-left: 6px;
-
-  .live-info {
-    cursor: default;
-    text-transform: uppercase;
-
-    &:before {
-      content: "";
-      display: inline-block;
-      position: relative;
-      width: $circle-radius*2;
-      height: $circle-radius*2;
-      border-radius: $circle-radius;
-      margin-right: $circle-radius;
-      background-color: var(--player-live-color);
-    }
-
-    &.disabled {
-      opacity: $disabled-opacity;
-
-      &:before {
-        background-color: var(--player-dvr-color);
-      }
-    }
-  }
-
-  .live-button {
-    cursor: pointer;
-    outline: none;
-    display: none;
-    border: 0;
-    color: var(--player-dvr-color);
-    background-color: transparent;
-    height: 32px;
-    padding: 0;
-    opacity: 0.7;
-    text-transform: uppercase;
-    transition: all 0.1s ease;
-
-    &:before {
-      content: "";
-      display: inline-block;
-      position: relative;
-      width: $circle-radius*2;
-      height: $circle-radius*2;
-      border-radius: $circle-radius;
-      margin-right: $circle-radius;
-      background-color: var(--player-dvr-color);
-    }
-
-    &:hover {
-      opacity: 1;
-      text-shadow: rgba(255, 255, 255, .75) 0 0 5px;
-    }
-  }
-
-  height: $bottom-panel;
-  line-height: $bottom-panel;
+  font-weight: 500;
+  height: var(--bottom-panel);
+  line-height: var(--bottom-panel);
   margin-left: 0;
 
-  .live-info {
+  .live-info,
+  .live-button {
     font-size: 14px;
-    letter-spacing: 0.8px;
     font-weight: 500;
-    color: #fffffe;
-    margin-left: 21px;
+    margin-left: 20px;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
 
     &::before {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
       margin-right: 8px;
-      background-color: #ed4f4a;
+      content: "";
+      display: inline-block;
+      position: relative;
+      width: calc(var(--circle-radius)*2);
+      height: calc(var(--circle-radius)*2);
+      border-radius: var(--circle-radius);
+      background-color: var(--player-dvr-color);
     }
   }
 
-  .live-button {
-    height: $bottom-panel;
-    opacity: 1;
-    font-size: 14px;
-    letter-spacing: 0.8px;
-    font-weight: 500;
-    margin-left: 20px;
+  &.disabled {
+    opacity: var(--disabled-opacity);
 
-    &::before {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      margin-right: 8px;
-      background-color: #cacaca;
+    &:before {
+      background-color: var(--player-dvr-color);
     }
+  }
+}
+
+.live-info {
+  text-transform: uppercase;
+  color: #fffffe;
+
+  &::before {
+    background-color: var(--player-live-color); // TODO
+    background-color: #ed4f4a;
+  }
+}
+
+.live-button {
+  cursor: pointer;
+  outline: none;
+  border: 0;
+  color: var(--player-dvr-color);
+  background-color: transparent;
+  padding: 0;
+  opacity: 0.7;
+  transition: all 0.1s ease;
+
+  &:hover {
+    opacity: 1;
+    text-shadow: rgba(255, 255, 255, .75) 0 0 5px;
   }
 }

@@ -813,13 +813,13 @@ export default class HlsPlayback extends BasePlayback {
     this.trigger(Events.PLAYBACK_PROGRESS, progress, buffered)
   }
 
-  load(url: string) {
+  override load(url: string) {
     this._stopTimeUpdateTimer()
     this.options.src = url
     this._setup()
   }
 
-  play() {
+  override play() {
     !this._hls && this._setup()
     !this._manifestParsed &&
       !this.options.hlsPlayback.preload &&
@@ -829,7 +829,7 @@ export default class HlsPlayback extends BasePlayback {
     this._startTimeUpdateTimer()
   }
 
-  pause() {
+  override pause() {
     if (!this._hls) {
       return
     }

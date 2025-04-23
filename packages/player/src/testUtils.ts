@@ -128,6 +128,8 @@ export function createMockMediaControl(core: any) {
   // @ts-ignore
   mediaControl.mount = vi.fn()
   // @ts-ignore
+  mediaControl.slot = vi.fn()
+  // @ts-ignore
   mediaControl.container = core.activeContainer
   // @ts-ignore
   mediaControl.getAvailableHeight = vi.fn().mockReturnValue(300)

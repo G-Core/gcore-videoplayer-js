@@ -1,14 +1,14 @@
 import { Events, Playback, UICorePlugin, template } from '@clappr/core'
 import assert from 'assert'
+import { trace } from '@gcorevideo/utils'
 
 import { CLAPPR_VERSION } from '../../build.js'
 
 import dvrHTML from '../../../assets/dvr-controls/index.ejs'
 import '../../../assets/dvr-controls/dvr_controls.scss'
-// import { trace } from '@gcorevideo/utils'
 import { MediaControl } from '../media-control/MediaControl.js'
 
-// const T = 'plugins.dvr_controls'
+const T = 'plugins.dvr_controls'
 
 /**
  * `PLUGIN` that adds the DVR controls to the media control UI
@@ -46,7 +46,7 @@ export class DvrControls extends UICorePlugin {
    */
   override get events() {
     return {
-      'click .live-button': 'click',
+      'click #gplayer-mc-back-to-live': 'clicked',
     }
   }
 
@@ -56,6 +56,7 @@ export class DvrControls extends UICorePlugin {
   override get attributes() {
     return {
       class: 'dvr-controls',
+      'data-dvr': '',
     }
   }
 
@@ -91,7 +92,7 @@ export class DvrControls extends UICorePlugin {
     )
   }
 
-  private click() {
+  private clicked() {
     const container = this.core.activeContainer
     if (!container.isPlaying()) {
       container.play()
@@ -103,17 +104,16 @@ export class DvrControls extends UICorePlugin {
    * @internal
    */
   override render() {
+    trace(`${T} render`)
     this.$el.html(
       DvrControls.template({
         i18n: this.core.i18n,
       }),
     )
+    this.$el.find('#gplayer-mc-back-to-live').hide()
+    this.$el.find('#gplayer-mc-live').hide()
 
     return this
-  }
-
-  private onMediacontrolRendered() {
-    this.render()
   }
 
   private onMetadataLoaded() {
@@ -128,10 +128,10 @@ export class DvrControls extends UICorePlugin {
     }
     const mediaControl = this.core.getPlugin('media_control') as MediaControl
     assert(mediaControl, 'media_control plugin is required')
-    // TODO -> to MediaControl
+    // TODO -> to MediaControl (auto hide)
     mediaControl.toggleElement('duration', false)
     mediaControl.toggleElement('position', false)
-    mediaControl.mount('dvr', this.$el)
+    mediaControl.mount('left', this.$el) // TODO use independent mount point
   }
 
   private onDvrStateChanged(dvrInUse: boolean) {
@@ -140,11 +140,11 @@ export class DvrControls extends UICorePlugin {
 
   private toggleState(dvrInUse: boolean) {
     if (dvrInUse) {
-      this.$el.find('#media-control-back-to-live').show()
-      this.$el.find('#media-control-live').hide()
+      this.$el.find('#gplayer-mc-back-to-live').show()
+      this.$el.find('#gplayer-mc-live').hide()
     } else {
-      this.$el.find('#media-control-back-to-live').hide()
-      this.$el.find('#media-control-live').show()
+      this.$el.find('#gplayer-mc-back-to-live').hide()
+      this.$el.find('#gplayer-mc-live').show()
     }
   }
 }

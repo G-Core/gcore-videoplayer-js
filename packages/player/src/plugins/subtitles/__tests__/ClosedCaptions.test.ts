@@ -61,7 +61,7 @@ describe('ClosedCaptions', () => {
     it('should render', () => {
       expect(cc.el.innerHTML).toMatchSnapshot()
       expect(cc.$el.find('#cc-button').length).toEqual(1)
-      expect(mediaControl.mount).toHaveBeenCalledWith('cc', cc.$el)
+      expect(mediaControl.slot).toHaveBeenCalledWith('cc', cc.$el)
     })
     describe('when button is clicked', () => {
       beforeEach(() => {

@@ -325,11 +325,10 @@ export default class DashPlayback extends BasePlayback {
   }
 
   _ready() {
-    this._isReadyState = true
-    this.trigger(Events.PLAYBACK_READY, this.name)
+    !this._dash && this._setup()
+    super._ready()
   }
 
-  // override
   private override _setupSrc() {
     // this playback manages the src on the video element itself
   }
@@ -558,10 +557,7 @@ export default class DashPlayback extends BasePlayback {
 
   override play() {
     trace(`${T} play`, { dash: !!this._dash })
-    if (!this._dash) {
-      this._setup()
-    }
-
+    !this._dash && this._setup()
     super.play()
     this._startTimeUpdateTimer()
   }
@@ -579,14 +575,12 @@ export default class DashPlayback extends BasePlayback {
   override stop() {
     if (this._dash) {
       this._stopTimeUpdateTimer()
-      this._dash.reset()
+      this.destroyInstance()
       super.stop()
-      this._dash = null
     }
   }
 
-  override destroy() {
-    this._stopTimeUpdateTimer()
+  private destroyInstance() {
     if (this._dash) {
       this._dash.off(DASHJS.MediaPlayer.events.ERROR, this._onDASHJSSError)
       this._dash.off(
@@ -598,8 +592,13 @@ export default class DashPlayback extends BasePlayback {
         this.getDuration,
       )
       this._dash.reset()
+      this._dash = null
     }
-    this._dash = null
+  }
+
+  override destroy() {
+    this._stopTimeUpdateTimer()
+    this.destroyInstance()
     return super.destroy()
   }
 
@@ -673,12 +672,20 @@ export default class DashPlayback extends BasePlayback {
     return toClapprTrack(t)
   }
 
-  switchAudioTrack(id: string): void {
+  override switchAudioTrack(id: string): void {
     assert.ok(this._dash, 'DASH.js MediaPlayer is not initialized')
     const tracks = this._dash.getTracksFor('audio')
     const track = tracks.find((t) => t.id === id)
     assert.ok(track, 'Invalid audio track ID')
     this._dash.setCurrentTrack(track)
+  }
+
+  override load(srcUrl: string) {
+    this._stopTimeUpdateTimer()
+    this.options.src = srcUrl
+    // TODO destroy the instance first?
+    this.destroyInstance()
+    this._setup()
   }
 
   private checkAudioTracks() {

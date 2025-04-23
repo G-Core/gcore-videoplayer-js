@@ -320,7 +320,7 @@ export class BottomGear extends UICorePlugin {
 
   private mount() {
     const mediaControl = this.core.getPlugin('media_control')
-    mediaControl.mount('gear', this.$el)
+    mediaControl.slot('gear', this.$el)
   }
 
   private alignSubmenu($subMenu: ZeptoResult) {

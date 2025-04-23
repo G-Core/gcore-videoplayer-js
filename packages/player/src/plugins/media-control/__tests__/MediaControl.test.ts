@@ -1,8 +1,9 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, MockedFunction } from 'vitest'
 import {
   MediaControl,
   MediaControlElement,
   MediaControlSettings,
+  MediaControlSlotSelector,
 } from '../MediaControl'
 import { createMockCore } from '../../../testUtils'
 import { $, Events, Playback } from '@clappr/core'
@@ -57,9 +58,10 @@ describe('MediaControl', () => {
         core.activePlayback.emit(Events.PLAYBACK_LOADEDMETADATA)
         core.activeContainer.emit(Events.CONTAINER_LOADEDMETADATA)
       })
+      // TODO review why delay is needed
       it('should wait a delay before rendering anything', async () => {
         expect(mediaControl.el.innerHTML).toBe('')
-        await new Promise((resolve) => setTimeout(resolve, 35))
+        await new Promise((resolve) => setTimeout(resolve, 50))
         expect(mediaControl.el.innerHTML).toMatchSnapshot()
         expect(
           mediaControl.$el.find('.media-control-left-panel [data-playpause]')
@@ -78,9 +80,114 @@ describe('MediaControl', () => {
             .length,
         ).toBeGreaterThan(0)
       })
+      it('should hide volume bar', async () => {
+        await new Promise((resolve) => setTimeout(resolve, 50))
+        const volumeBar = mediaControl.$el.find(
+          '.media-control-left-panel .bar-container[data-volume]',
+        )
+        expect(volumeBar[0].classList.contains('volume-bar-hide')).toBe(true)
+      })
     })
   })
-  describe('when container settings update', () => {
+  describe('playback type', () => {
+    beforeEach(() => {
+      mediaControl = new MediaControl(core)
+      core.emit(Events.CORE_READY)
+      core.emit(Events.CORE_ACTIVE_CONTAINER_CHANGED, core.activeContainer)
+    })
+    describe('when live', () => {
+      beforeEach(async () => {
+        core.activeContainer.getPlaybackType.mockReturnValue(Playback.LIVE)
+        core.activePlayback.getPlaybackType.mockReturnValue(Playback.LIVE)
+        core.getPlaybackType.mockReturnValue(Playback.LIVE)
+        // This is not strictly necessary as the CSS class is applied on the root element and does not require rendering.
+        // However, it makes the scenario more realistic
+        await runMetadataLoaded(core)
+        // TODO playback.settings
+        core.activePlayback.emit(Events.PLAYBACK_SETTINGSUPDATE)
+      })
+      it('should apply live style class', () => {
+        expect(mediaControl.$el.hasClass('live')).toBe(true)
+      })
+    })
+    describe('when vod', () => {
+      beforeEach(async () => {
+        core.activeContainer.getPlaybackType.mockReturnValue(Playback.VOD)
+        core.activePlayback.getPlaybackType.mockReturnValue(Playback.VOD)
+        core.getPlaybackType.mockReturnValue(Playback.VOD)
+        await runMetadataLoaded(core)
+      })
+      it('should not apply live style class', () => {
+        expect(mediaControl.$el.hasClass('live')).toBe(false)
+      })
+    })
+  })
+  // TODO drop, deprecated
+  describe('slot', () => {
+    beforeEach(async () => {
+      mediaControl = new MediaControl(core)
+      core.emit(Events.CORE_READY)
+      core.emit(Events.CORE_ACTIVE_CONTAINER_CHANGED, core.activeContainer)
+      core.activeContainer.settings = {}
+      core.emit(Events.CONTAINER_SETTINGSUPDATE)
+      await runMetadataLoaded(core)
+    })
+    describe.each([
+      ['pip' as MediaControlElement],
+      ['gear' as MediaControlElement],
+      ['cc' as MediaControlElement],
+      // ['multicamera' as MediaControlElement],
+      // ['playbackrate' as MediaControlElement],
+      // ['vr' as MediaControlElement],
+      ['audiotracks' as MediaControlElement],
+      // dvr controls
+    ])('%s', (mcName) => {
+      it('should put the element in the right panel', () => {
+        const element = document.createElement('div')
+        element.className = 'my-media-control'
+        element.textContent = 'test'
+        mediaControl.slot(mcName, $(element))
+
+        expect(mediaControl.el.innerHTML).toMatchSnapshot()
+        expect(
+          mediaControl.$el.find('.media-control-right-panel .my-media-control')
+            .length,
+        ).toEqual(1)
+      })
+    })
+  })
+  describe('mount', () => {
+    beforeEach(async () => {
+      mediaControl = new MediaControl(core)
+      core.emit(Events.CORE_READY)
+      core.activeContainer.settings = {
+        left: ['playpause', 'position', 'duration', 'volume'],
+        default: ['_'],
+        right: ['fullscreen', 'hd-indicator'],
+        seekEnabled: true,
+      } as MediaControlSettings
+      core.emit(Events.CORE_ACTIVE_CONTAINER_CHANGED, core.activeContainer)
+      core.emit(Events.CONTAINER_SETTINGSUPDATE)
+      await runMetadataLoaded(core)
+    })
+    describe.each([
+      ['root', '> #test-element'],
+      ['base', '.media-control-layer > #test-element'],
+      ['left', '.media-control-left-panel > #test-element'],
+      ['right', '.media-control-right-panel > #test-element'],
+      ['center', '.media-control-center-panel > #test-element'],
+    ])('%s', (name: string, checkSelector: string) => {
+      it('should attach node to DOM tree', () => {
+        mediaControl.mount(
+          name as MediaControlSlotSelector,
+          $('<div id="test-element">test</div>'),
+        )
+        expect(mediaControl.el.innerHTML).toMatchSnapshot()
+        expect(mediaControl.$el.find(checkSelector).length).toBe(1)
+      })
+    })
+  })
+  describe('container/playback settings', () => {
     beforeEach(async () => {
       mediaControl = new MediaControl(core)
       core.emit(Events.CORE_READY)
@@ -89,6 +196,7 @@ describe('MediaControl', () => {
     })
     describe.each([
       [
+        // TODO nothing has changed
         'vod',
         {
           left: ['playpause', 'position', 'duration', 'volume'],
@@ -96,6 +204,8 @@ describe('MediaControl', () => {
           right: ['fullscreen', 'hd-indicator'],
           seekEnabled: true,
         } as MediaControlSettings,
+        // live
+        // live + dvr
       ],
     ])('%s', (_, settings: MediaControlSettings) => {
       beforeEach(() => {
@@ -156,119 +266,25 @@ describe('MediaControl', () => {
         }
       })
     })
-  })
-  describe('playback type', () => {
-    beforeEach(() => {
-      mediaControl = new MediaControl(core)
-      core.emit(Events.CORE_READY)
-      core.emit(Events.CORE_ACTIVE_CONTAINER_CHANGED, core.activeContainer)
-    })
-    describe('when live', () => {
-      beforeEach(async () => {
-        core.activeContainer.getPlaybackType.mockReturnValue(Playback.LIVE)
-        core.activePlayback.getPlaybackType.mockReturnValue(Playback.LIVE)
-        core.getPlaybackType.mockReturnValue(Playback.LIVE)
-        // This is not strictly necessary as the CSS class is applied on the root element and does not require rendering.
-        // However, it makes the scenario more realistic
-        await runMetadataLoaded(core)
-        // TODO playback.settings
-        core.activePlayback.emit(Events.PLAYBACK_SETTINGSUPDATE)
+    describe('basically', () => {
+      let handler: MockedFunction<() => void>
+      beforeEach(() => {
+        handler = vi.fn()
+        mediaControl.on(Events.MEDIACONTROL_RENDERED, handler, null)
       })
-      it('should apply live style class', () => {
-        expect(mediaControl.$el.hasClass('live')).toBe(true)
-      })
-    })
-    describe('when vod', () => {
-      beforeEach(async () => {
-        core.activeContainer.getPlaybackType.mockReturnValue(Playback.VOD)
-        core.activePlayback.getPlaybackType.mockReturnValue(Playback.VOD)
-        core.getPlaybackType.mockReturnValue(Playback.VOD)
-        await runMetadataLoaded(core)
-      })
-      it('should not apply live style class', () => {
-        expect(mediaControl.$el.hasClass('live')).toBe(false)
-      })
-    })
-  })
-  describe('mount', () => {
-    beforeEach(async () => {
-      mediaControl = new MediaControl(core)
-      core.emit(Events.CORE_READY)
-      core.emit(Events.CORE_ACTIVE_CONTAINER_CHANGED, core.activeContainer)
-      core.activeContainer.settings = {}
-      core.emit(Events.CONTAINER_SETTINGSUPDATE)
-      await runMetadataLoaded(core)
-    })
-    describe.each([
-      ['pip' as MediaControlElement],
-      ['gear' as MediaControlElement],
-      ['cc' as MediaControlElement],
-      // ['multicamera' as MediaControlElement],
-      // ['playbackrate' as MediaControlElement],
-      // ['vr' as MediaControlElement],
-      ['audiotracks' as MediaControlElement],
-      // dvr controls
-    ])('%s', (mcName) => {
-      it('should put the element in the right panel', () => {
-        const element = document.createElement('div')
-        element.className = 'my-media-control'
-        element.textContent = 'test'
-        mediaControl.mount(mcName, $(element))
-
-        expect(mediaControl.el.innerHTML).toMatchSnapshot()
-        expect(
-          mediaControl.$el.find('.media-control-right-panel .my-media-control')
-            .length,
-        ).toEqual(1)
-      })
-    })
-  })
-  describe('updateSettings', () => {
-    beforeEach(() => {
-      mediaControl = new MediaControl(core)
-      core.emit(Events.CORE_READY)
-    })
-    describe('dvr', () => {
-      beforeEach(async () => {
-        core.activeContainer.settings = {
-          left: ['playpause', 'position', 'duration'],
-          seekEnabled: true,
-        }
-        core.emit(Events.CORE_ACTIVE_CONTAINER_CHANGED, core.activeContainer)
-        core.activePlayback.getPlaybackType.mockReturnValue(Playback.LIVE)
-        core.activeContainer.getPlaybackType.mockReturnValue(Playback.LIVE)
-        core.getPlaybackType.mockReturnValue(Playback.LIVE)
-        await runMetadataLoaded(core)
-      })
-      describe('when enabled', () => {
+      describe('when settings change', () => {
         beforeEach(() => {
-          core.activePlayback.dvrEnabled = true
-          core.activeContainer.isDvrEnabled.mockReturnValue(true)
+          core.activeContainer.settings = {
+            left: ['playpause', 'position', 'duration'],
+            seekEnabled: true,
+            right: ['fullscreen', 'hd-indicator'],
+          }
+          handler = vi.fn()
+          mediaControl.on(Events.MEDIACONTROL_RENDERED, handler, null)
           core.activeContainer.emit(Events.CONTAINER_SETTINGSUPDATE)
         })
-        it('should enable DVR controls', () => {
-          const element = document.createElement('div')
-          element.className = 'my-dvr-controls'
-          element.textContent = 'live'
-          mediaControl.mount('dvr', $(element))
-          expect(mediaControl.el.innerHTML).toMatchSnapshot()
-          expect(
-            mediaControl.$el.find('.media-control-left-panel .my-dvr-controls')
-              .length,
-          ).toEqual(1)
-        })
-      })
-      describe('when disabled', () => {
-        it('should disable DVR controls', () => {
-          const element = document.createElement('div')
-          element.className = 'my-dvr-controls'
-          element.textContent = 'live'
-          mediaControl.mount('dvr', $(element))
-          expect(mediaControl.el.innerHTML).toMatchSnapshot()
-          expect(
-            mediaControl.$el.find('.media-control-left-panel .my-dvr-controls')
-              .length,
-          ).toEqual(0)
+        it('should trigger MEDIACONTROL_RENDERED event', () => {
+          expect(handler).toHaveBeenCalled()
         })
       })
     })

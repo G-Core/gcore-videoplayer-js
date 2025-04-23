@@ -33,10 +33,7 @@ describe('DvrControls', () => {
   })
   describe('while playback type is unknown', () => {
     it('should not mount', () => {
-      expect(mediaControl.mount).not.toHaveBeenCalledWith(
-        'dvr',
-        dvrControls.$el,
-      )
+      expect(mediaControl.slot).not.toHaveBeenCalledWith('dvr', dvrControls.$el)
     })
   })
   describe('live stream', () => {
@@ -75,33 +72,29 @@ describe('DvrControls', () => {
         )
       })
       it('should mount to the media control', () => {
-        expect(mediaControl.mount).toHaveBeenCalledWith('dvr', dvrControls.$el)
+        expect(mediaControl.mount).toHaveBeenCalledWith('left', dvrControls.$el)
       })
       if (dvrEnabled) {
         if (dvrInUse) {
           it('should show back_to_live button', () => {
             expect(
-              dvrControls.$el
-                .find('#media-control-back-to-live')
-                .css('display'),
+              dvrControls.$el.find('#gplayer-mc-back-to-live').css('display'),
             ).not.toBe('none')
           })
-          it('should hide live inficator', () => {
+          it('should hide live indicator', () => {
             expect(
-              dvrControls.$el.find('#media-control-live').css('display'),
+              dvrControls.$el.find('#gplayer-mc-live').css('display'),
             ).toBe('none')
           })
         } else {
-          it('should show live inficator', () => {
+          it('should show live indicator', () => {
             expect(
-              dvrControls.$el.find('#media-control-live').css('display'),
+              dvrControls.$el.find('#gplayer-mc-live').css('display'),
             ).not.toBe('none')
           })
           it('should hide back_to_live button', () => {
             expect(
-              dvrControls.$el
-                .find('#media-control-back-to-live')
-                .css('display'),
+              dvrControls.$el.find('#gplayer-mc-back-to-live').css('display'),
             ).toBe('none')
           })
         }
@@ -118,7 +111,7 @@ describe('DvrControls', () => {
           Events.CONTAINER_PLAYBACKDVRSTATECHANGED,
           true,
         )
-        dvrControls.$el.find('#media-control-back-to-live').click()
+        dvrControls.$el.find('#gplayer-mc-back-to-live').click()
       })
       it('should play stream', () => {
         expect(core.activeContainer.play).toHaveBeenCalled()
@@ -139,8 +132,18 @@ describe('DvrControls', () => {
     // TODO handle mount points in MediaControl
     it('should not mount', () => {
       expect(mediaControl.mount).not.toHaveBeenCalledWith(
-        'dvr',
+        'left',
         expect.anything(),
+      )
+    })
+    it('should not alter position and duration indicators', () => {
+      expect(mediaControl.toggleElement).not.toHaveBeenCalledWith(
+        'duration',
+        false,
+      )
+      expect(mediaControl.toggleElement).not.toHaveBeenCalledWith(
+        'position',
+        false,
       )
     })
   })

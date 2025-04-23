@@ -66,7 +66,7 @@ describe('Clips', () => {
       mediaControl.trigger(Events.MEDIACONTROL_RENDERED)
     })
     it('should mount the indicator', () => {
-      expect(mediaControl.mount).toHaveBeenCalledWith('clips', clips.$el)
+      expect(mediaControl.slot).toHaveBeenCalledWith('clips', clips.$el)
     })
   })
 })

@@ -88,7 +88,7 @@ export class AudioTracks extends UICorePlugin {
     const mediaControl = this.core.getPlugin('media_control')
     assert(mediaControl, 'media_control plugin is required')
     this.listenTo(mediaControl, Events.MEDIACONTROL_RENDERED, () => {
-      mediaControl.mount('audiotracks', this.$el)
+      mediaControl.slot('audiotracks', this.$el)
     })
     this.listenTo(mediaControl, Events.MEDIACONTROL_HIDE, this.hideMenu)
     this.listenTo(mediaControl, ExtendedEvents.MEDIACONTROL_MENU_COLLAPSE, (from: string) => {

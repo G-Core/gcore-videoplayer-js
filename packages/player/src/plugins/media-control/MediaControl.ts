@@ -56,7 +56,7 @@ export type MediaControlLeftElement =
  * Media control elements that appear in main layer, spanning the entire width of the player.
  * @beta
  */
-export type MediaControlLayerElement = 'seekbar' | 'seekBarContainer' // TODO rename seekbar
+export type MediaControlLayerElement = 'seekbar' | 'seekBarContainer' | '_' // TODO remove seekbar
 
 /**
  * Media control elements that appear in the right area.
@@ -90,6 +90,14 @@ const MANAGED_ELEMENTS: MediaControlElement[] = [
   'seekbar',
   'volume',
 ]
+
+export type MediaControlSlotSelector =
+  | 'root'
+  | 'base'
+  | 'left'
+  | 'right'
+  | 'center'
+  | 'seekbar'
 
 /**
  * Specifies the allowed media control elements in each area.
@@ -723,7 +731,9 @@ export class MediaControl extends UICorePlugin {
   }
 
   private togglePlayStop() {
-    this.container.isPlaying() ? this.container.stop({ ui: true }) : this.container.play()
+    this.container.isPlaying()
+      ? this.container.stop({ ui: true })
+      : this.container.play()
   }
 
   private startSeekDrag(event: MouseEvent) {
@@ -897,19 +907,19 @@ export class MediaControl extends UICorePlugin {
   }
 
   private hideVolumeBar(timeout = 400) {
-    if (!this.$volumeBarContainer) {
-      return
-    }
     if (this.hideVolumeId) {
       clearTimeout(this.hideVolumeId)
     }
     if (this.draggingVolumeBar) {
-      this.hideVolumeId = setTimeout(() => this.hideVolumeBar(), timeout)
+      this.hideVolumeId = setTimeout(() => {
+        this.hideVolumeId = null
+        this.hideVolumeBar()
+      }, timeout)
     } else {
-      this.hideVolumeId = setTimeout(
-        () => this.$volumeBarContainer?.addClass('volume-bar-hide'),
-        timeout,
-      )
+      this.hideVolumeId = setTimeout(() => {
+        this.hideVolumeId = null
+        this.$volumeBarContainer.addClass('volume-bar-hide')
+      }, timeout)
     }
   }
 
@@ -1133,8 +1143,7 @@ export class MediaControl extends UICorePlugin {
       newSettings.seekEnabled = this.isSeekEnabledForHtml5Playback()
     }
 
-    const settingsChanged =
-      serializeSettings(this.settings) !== serializeSettings(newSettings)
+    const settingsChanged = !isEqualSettings(this.settings, newSettings)
 
     if (settingsChanged) {
       this.settings = newSettings
@@ -1182,34 +1191,52 @@ export class MediaControl extends UICorePlugin {
   /**
    * Get a media control element DOM node
    * @param name - The name of the media control element
-   * @returns The DOM node to render to or extend
+   * @param element - The DOM node/fragment to mount
+   * @deprecated Use {@link MediaControl.mount} instead
+   */
+  slot(name: MediaControlElement, element: ZeptoResult): void {
+    const panel = this.getElementLocation(name)
+    if (panel) {
+      element.attr(`data-${name}`, '')
+      mountTo(panel, element)
+    }
+  }
+
+  /**
+   * Mounts a media control element at a specific location
+   * @param name - The location to mount the element
+   * @param element - The element to mount
    * @remarks
    * Use this method to render custom media control UI in a plugin
    * @example
    * ```ts
    * class MyPlugin extends UICorePlugin {
    *   override render() {
-   *     this.$el.html('<div data-clips>Here we go</div>')
-   *     this.core.getPlugin('media_control').mount('clips', this.$el)
+   *     this.$el.html('<div id="my-element" class="my-class">Here we go</div>')
+   *     this.core.getPlugin('media_control').mount('left', this.$el)
    *     return this
    *   }
    * }
    * ```
    */
-  mount(name: MediaControlElement, element: ZeptoResult) {
-    const panel = this.getElementLocation(name)
-    if (panel) {
-      const current = panel.find(`[data-${name}]`)
-      element.attr(`data-${name}`, '')
-      // TODO test
-      if (current.length) {
-        if (current[0] === element[0]) {
-          return
-        }
-        current.replaceWith(element)
-      } else {
-        panel.append(element)
-      }
+  mount(name: MediaControlSlotSelector, element: ZeptoResult) {
+    mountTo(this.getMountParent(name), element)
+  }
+
+  private getMountParent(name: MediaControlSlotSelector): ZeptoResult {
+    switch (name) {
+      case 'root':
+        return this.$el
+      case 'base':
+        return this.$el.find('.media-control-layer')
+      case 'center':
+        return this.getCenterPanel()
+      case 'left':
+        return this.getLeftPanel()
+      case 'right':
+        return this.getRightPanel()
+      default:
+        assert.fail(`Invalid mount parent name: ${name}`)
     }
   }
 
@@ -1452,17 +1479,14 @@ export class MediaControl extends UICorePlugin {
       }
     }
 
+    // TODO check if needed
     this.$seekBarPosition?.addClass('media-control-notransition')
     this.$seekBarScrubber?.addClass('media-control-notransition')
 
-    let previousSeekPercentage = 0
-
-    if (this.displayedSeekBarPercentage) {
-      previousSeekPercentage = this.displayedSeekBarPercentage
-    }
+    const prevSeekPercentage = this.displayedSeekBarPercentage || 0
 
     this.displayedSeekBarPercentage = null
-    this.setSeekPercentage(previousSeekPercentage)
+    this.setSeekPercentage(prevSeekPercentage)
 
     setTimeout(() => {
       !this.settings.seekEnabled &&
@@ -1608,4 +1632,14 @@ function serializeSettings(s: MediaControlSettings) {
     .concat(s.default.slice().sort())
     .concat([s.seekEnabled as any])
     .join(',')
+}
+
+function isEqualSettings(a: MediaControlSettings, b: MediaControlSettings) {
+  return serializeSettings(a) === serializeSettings(b)
+}
+
+function mountTo(parent: ZeptoResult, element: ZeptoResult) {
+  if (!parent.find(element).length) {
+    parent.append(element)
+  }
 }

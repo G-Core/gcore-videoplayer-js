@@ -34,7 +34,7 @@ describe('AudioTracks', () => {
       emitTracksAvailable(core, TRACKS)
     })
     it('should not attach to the media control', () => {
-      expect(mediaControl.mount).not.toHaveBeenCalledWith(
+      expect(mediaControl.slot).not.toHaveBeenCalledWith(
         'audiotracks',
         expect.anything(),
       )
@@ -45,7 +45,7 @@ describe('AudioTracks', () => {
       mediaControl.trigger(Events.MEDIACONTROL_RENDERED)
     })
     it('should attach to the media control', () => {
-      expect(mediaControl.mount).toHaveBeenCalledWith(
+      expect(mediaControl.slot).toHaveBeenCalledWith(
         'audiotracks',
         audioTracks.$el,
       )

@@ -139,7 +139,7 @@ export class Clips extends UICorePlugin {
   private onMcRender() {
     trace(`${T} onMcRender`)
     const mediaControl = this.core.getPlugin('media_control')
-    mediaControl.mount('clips', this.$el)
+    mediaControl.slot('clips', this.$el)
   }
 
   private onContainerChanged() {

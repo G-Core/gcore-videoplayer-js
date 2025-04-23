@@ -1,7 +1,9 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`DvrControls > basically > should render 1`] = `
-"<div class="live-info" id="media-control-live">live</div>
-<button type="button" class="live-button" aria-label="back_to_live" id="media-control-back-to-live">back_to_live</button>
+"<div class="live-info" id="gplayer-mc-live" style="display: none;">live</div>
+<button type="button" class="live-button" aria-label="back_to_live" id="gplayer-mc-back-to-live" style="display: none;">
+    back_to_live
+</button>
 "
 `;

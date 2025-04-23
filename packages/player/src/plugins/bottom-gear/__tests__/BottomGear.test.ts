@@ -61,7 +61,7 @@ describe('BottomGear', () => {
     })
     describe('until media control is rendered', () => {
       it('should not attach to media control', () => {
-        expect(mediaControl.mount).not.toHaveBeenCalledWith(
+        expect(mediaControl.slot).not.toHaveBeenCalledWith(
           'gear',
           expect.anything(),
         )
@@ -72,7 +72,7 @@ describe('BottomGear', () => {
         mediaControl.trigger(Events.MEDIACONTROL_RENDERED)
       })
       it('should attach to media control', () => {
-        expect(mediaControl.mount).toHaveBeenCalledWith('gear', bottomGear.$el)
+        expect(mediaControl.slot).toHaveBeenCalledWith('gear', bottomGear.$el)
       })
     })
     describe('when clicked', () => {
