@@ -38,30 +38,29 @@
       background-color: var(--player-dvr-color);
     }
   }
-}
 
-.live-info {
-  text-transform: uppercase;
-  color: #fffffe;
+  .live-info {
+    text-transform: uppercase;
+    color: #fffffe;
 
-  &::before {
-    background-color: var(--player-live-color); // TODO
-    background-color: #ed4f4a;
+    &::before {
+      background-color: #ed4f4a;
+    }
   }
-}
 
-.live-button {
-  cursor: pointer;
-  outline: none;
-  border: 0;
-  color: var(--player-dvr-color);
-  background-color: transparent;
-  padding: 0;
-  opacity: 0.7;
-  transition: all 0.1s ease;
+  .live-button {
+    cursor: pointer;
+    outline: none;
+    border: 0;
+    color: var(--player-dvr-color);
+    background-color: transparent;
+    padding: 0;
+    opacity: 0.7;
+    transition: all 0.1s ease;
 
-  &:hover {
-    opacity: 1;
-    text-shadow: rgba(255, 255, 255, .75) 0 0 5px;
+    &:hover {
+      opacity: 1;
+      text-shadow: rgba(255, 255, 255, .75) 0 0 5px;
+    }
   }
 }
