@@ -80,6 +80,28 @@
       justify-content: flex-start;
     }
 
+    .media-control-button,
+    .media-control-indicator {
+      order: 10;
+    }
+
+    [data-playpause],
+    [data-playstop] {
+      order: 1;
+    }
+
+    [data-volume] {
+      order: 2;
+    }
+
+    [data-position] {
+      order: 3;
+    }
+
+    [data-duration] {
+      order: 3;
+    }
+
     .media-control-center-panel {
       height: 100%;
       text-align: center;
