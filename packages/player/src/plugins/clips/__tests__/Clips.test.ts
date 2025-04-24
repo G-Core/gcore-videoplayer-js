@@ -57,7 +57,7 @@ describe('Clips', () => {
         })
       })
       it(`text should be "${expected}"`, () => {
-        expect(clips.$el.find('#clips-text').text()).toBe(expected)
+        expect(clips.$el.find('#gplayer-mc-clips-text').text()).toBe(expected)
       })
     })
   })

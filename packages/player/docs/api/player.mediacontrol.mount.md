@@ -7,12 +7,12 @@
 > This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
 > 
 
-Get a media control element DOM node
+Mounts a media control element at a specific location
 
 **Signature:**
 
 ```typescript
-mount(name: MediaControlElement, element: ZeptoResult): void;
+mount(name: MediaControlSlotMountPoint, element: ZeptoResult): void;
 ```
 
 ## Parameters
@@ -40,12 +40,12 @@ name
 
 </td><td>
 
-[MediaControlElement](./player.mediacontrolelement.md)
+[MediaControlSlotMountPoint](./player.mediacontrolslotmountpoint.md)
 
 
 </td><td>
 
-The name of the media control element
+The location to mount the element
 
 
 </td></tr>
@@ -61,14 +61,14 @@ element
 
 </td><td>
 
+The element to mount
+
 
 </td></tr>
 </tbody></table>
 **Returns:**
 
 void
-
-The DOM node to render to or extend
 
 ## Remarks
 
@@ -80,8 +80,8 @@ Use this method to render custom media control UI in a plugin
 ```ts
 class MyPlugin extends UICorePlugin {
   override render() {
-    this.$el.html('<div data-clips>Here we go</div>')
-    this.core.getPlugin('media_control').mount('clips', this.$el)
+    this.$el.html('<div id="my-element" class="my-class">Here we go</div>')
+    this.core.getPlugin('media_control').mount('left', this.$el)
     return this
   }
 }

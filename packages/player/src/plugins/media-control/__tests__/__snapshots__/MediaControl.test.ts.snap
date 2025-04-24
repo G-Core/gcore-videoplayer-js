@@ -20,6 +20,10 @@ exports[`MediaControl > mount > base > should attach node to DOM tree 1`] = `
             
         <button type="button" class="media-control-button media-control-icon gcore-skin-button-color paused" data-playpause="" aria-label="playpause">/assets/icons/new/play.svg</button>
     
+        <div class="media-control-indicator gcore-skin-text-color" data-position="">00:00</div>
+    
+        <div class="media-control-indicator gcore-skin-text-color" data-duration="">00:00</div>
+    
         <div class="drawer-container" data-volume="">
             <div class="drawer-icon-container" data-volume="">
                 <div class="drawer-icon media-control-icon gcore-skin-button-color" data-volume="">/assets/icons/new/volume-max.svg</div>
@@ -37,12 +41,6 @@ exports[`MediaControl > mount > base > should attach node to DOM tree 1`] = `
     
         </div>
     
-        <div class="media-control-indicator gcore-skin-text-color" data-position="">00:00</div>
-    
-        <div class="media-control-indicator gcore-skin-text-color" data-duration="">00:00</div>
-    
-        <div class="media-control-indicator gcore-skin-text-color" data-clips=""></div>
-    
         </div>
     
     
@@ -54,10 +52,6 @@ exports[`MediaControl > mount > base > should attach node to DOM tree 1`] = `
         <div class="media-control-right-panel" data-media-control="">
             
         <button type="button" class="media-control-button media-control-icon gcore-skin-button-color" data-fullscreen="" aria-label="fullscreen">/assets/icons/new/fullscreen-off.svg</button>
-    
-        <div class="media-control-multicamera" data-multicamera=""></div>
-    
-        <div class="media-control-vr" data-vr=""></div>
     
         </div>
     
@@ -85,6 +79,10 @@ exports[`MediaControl > mount > center > should attach node to DOM tree 1`] = `
             
         <button type="button" class="media-control-button media-control-icon gcore-skin-button-color paused" data-playpause="" aria-label="playpause">/assets/icons/new/play.svg</button>
     
+        <div class="media-control-indicator gcore-skin-text-color" data-position="">00:00</div>
+    
+        <div class="media-control-indicator gcore-skin-text-color" data-duration="">00:00</div>
+    
         <div class="drawer-container" data-volume="">
             <div class="drawer-icon-container" data-volume="">
                 <div class="drawer-icon media-control-icon gcore-skin-button-color" data-volume="">/assets/icons/new/volume-max.svg</div>
@@ -102,12 +100,6 @@ exports[`MediaControl > mount > center > should attach node to DOM tree 1`] = `
     
         </div>
     
-        <div class="media-control-indicator gcore-skin-text-color" data-position="">00:00</div>
-    
-        <div class="media-control-indicator gcore-skin-text-color" data-duration="">00:00</div>
-    
-        <div class="media-control-indicator gcore-skin-text-color" data-clips=""></div>
-    
         </div>
     
     
@@ -119,10 +111,6 @@ exports[`MediaControl > mount > center > should attach node to DOM tree 1`] = `
         <div class="media-control-right-panel" data-media-control="">
             
         <button type="button" class="media-control-button media-control-icon gcore-skin-button-color" data-fullscreen="" aria-label="fullscreen">/assets/icons/new/fullscreen-off.svg</button>
-    
-        <div class="media-control-multicamera" data-multicamera=""></div>
-    
-        <div class="media-control-vr" data-vr=""></div>
     
         </div>
     
@@ -150,6 +138,10 @@ exports[`MediaControl > mount > left > should attach node to DOM tree 1`] = `
             
         <button type="button" class="media-control-button media-control-icon gcore-skin-button-color paused" data-playpause="" aria-label="playpause">/assets/icons/new/play.svg</button>
     
+        <div class="media-control-indicator gcore-skin-text-color" data-position="">00:00</div>
+    
+        <div class="media-control-indicator gcore-skin-text-color" data-duration="">00:00</div>
+    
         <div class="drawer-container" data-volume="">
             <div class="drawer-icon-container" data-volume="">
                 <div class="drawer-icon media-control-icon gcore-skin-button-color" data-volume="">/assets/icons/new/volume-max.svg</div>
@@ -167,12 +159,6 @@ exports[`MediaControl > mount > left > should attach node to DOM tree 1`] = `
     
         </div>
     
-        <div class="media-control-indicator gcore-skin-text-color" data-position="">00:00</div>
-    
-        <div class="media-control-indicator gcore-skin-text-color" data-duration="">00:00</div>
-    
-        <div class="media-control-indicator gcore-skin-text-color" data-clips=""></div>
-    
         <div id="test-element">test</div></div>
     
     
@@ -184,10 +170,6 @@ exports[`MediaControl > mount > left > should attach node to DOM tree 1`] = `
         <div class="media-control-right-panel" data-media-control="">
             
         <button type="button" class="media-control-button media-control-icon gcore-skin-button-color" data-fullscreen="" aria-label="fullscreen">/assets/icons/new/fullscreen-off.svg</button>
-    
-        <div class="media-control-multicamera" data-multicamera=""></div>
-    
-        <div class="media-control-vr" data-vr=""></div>
     
         </div>
     
@@ -215,6 +197,10 @@ exports[`MediaControl > mount > right > should attach node to DOM tree 1`] = `
             
         <button type="button" class="media-control-button media-control-icon gcore-skin-button-color paused" data-playpause="" aria-label="playpause">/assets/icons/new/play.svg</button>
     
+        <div class="media-control-indicator gcore-skin-text-color" data-position="">00:00</div>
+    
+        <div class="media-control-indicator gcore-skin-text-color" data-duration="">00:00</div>
+    
         <div class="drawer-container" data-volume="">
             <div class="drawer-icon-container" data-volume="">
                 <div class="drawer-icon media-control-icon gcore-skin-button-color" data-volume="">/assets/icons/new/volume-max.svg</div>
@@ -232,12 +218,6 @@ exports[`MediaControl > mount > right > should attach node to DOM tree 1`] = `
     
         </div>
     
-        <div class="media-control-indicator gcore-skin-text-color" data-position="">00:00</div>
-    
-        <div class="media-control-indicator gcore-skin-text-color" data-duration="">00:00</div>
-    
-        <div class="media-control-indicator gcore-skin-text-color" data-clips=""></div>
-    
         </div>
     
     
@@ -249,10 +229,6 @@ exports[`MediaControl > mount > right > should attach node to DOM tree 1`] = `
         <div class="media-control-right-panel" data-media-control="">
             
         <button type="button" class="media-control-button media-control-icon gcore-skin-button-color" data-fullscreen="" aria-label="fullscreen">/assets/icons/new/fullscreen-off.svg</button>
-    
-        <div class="media-control-multicamera" data-multicamera=""></div>
-    
-        <div class="media-control-vr" data-vr=""></div>
     
         <div id="test-element">test</div></div>
     
@@ -280,6 +256,10 @@ exports[`MediaControl > mount > root > should attach node to DOM tree 1`] = `
             
         <button type="button" class="media-control-button media-control-icon gcore-skin-button-color paused" data-playpause="" aria-label="playpause">/assets/icons/new/play.svg</button>
     
+        <div class="media-control-indicator gcore-skin-text-color" data-position="">00:00</div>
+    
+        <div class="media-control-indicator gcore-skin-text-color" data-duration="">00:00</div>
+    
         <div class="drawer-container" data-volume="">
             <div class="drawer-icon-container" data-volume="">
                 <div class="drawer-icon media-control-icon gcore-skin-button-color" data-volume="">/assets/icons/new/volume-max.svg</div>
@@ -297,12 +277,6 @@ exports[`MediaControl > mount > root > should attach node to DOM tree 1`] = `
     
         </div>
     
-        <div class="media-control-indicator gcore-skin-text-color" data-position="">00:00</div>
-    
-        <div class="media-control-indicator gcore-skin-text-color" data-duration="">00:00</div>
-    
-        <div class="media-control-indicator gcore-skin-text-color" data-clips=""></div>
-    
         </div>
     
     
@@ -314,10 +288,6 @@ exports[`MediaControl > mount > root > should attach node to DOM tree 1`] = `
         <div class="media-control-right-panel" data-media-control="">
             
         <button type="button" class="media-control-button media-control-icon gcore-skin-button-color" data-fullscreen="" aria-label="fullscreen">/assets/icons/new/fullscreen-off.svg</button>
-    
-        <div class="media-control-multicamera" data-multicamera=""></div>
-    
-        <div class="media-control-vr" data-vr=""></div>
     
         </div>
     
@@ -345,6 +315,10 @@ exports[`MediaControl > rendering timing > once metadata is loaded > should wait
             
         <button type="button" class="media-control-button media-control-icon gcore-skin-button-color paused" data-playpause="" aria-label="playpause">/assets/icons/new/play.svg</button>
     
+        <div class="media-control-indicator gcore-skin-text-color" data-position="">00:00</div>
+    
+        <div class="media-control-indicator gcore-skin-text-color" data-duration="">00:00</div>
+    
         <div class="drawer-container" data-volume="">
             <div class="drawer-icon-container" data-volume="">
                 <div class="drawer-icon media-control-icon gcore-skin-button-color" data-volume="">/assets/icons/new/volume-max.svg</div>
@@ -361,12 +335,6 @@ exports[`MediaControl > rendering timing > once metadata is loaded > should wait
     </div>
     
         </div>
-    
-        <div class="media-control-indicator gcore-skin-text-color" data-position="">00:00</div>
-    
-        <div class="media-control-indicator gcore-skin-text-color" data-duration="">00:00</div>
-    
-        <div class="media-control-indicator gcore-skin-text-color" data-clips=""></div>
     
         </div>
     
@@ -390,10 +358,6 @@ exports[`MediaControl > rendering timing > once metadata is loaded > should wait
         <div class="media-control-right-panel" data-media-control="">
             
         <button type="button" class="media-control-button media-control-icon gcore-skin-button-color" data-fullscreen="" aria-label="fullscreen">/assets/icons/new/fullscreen-off.svg</button>
-    
-        <div class="media-control-multicamera" data-multicamera=""></div>
-    
-        <div class="media-control-vr" data-vr=""></div>
     
         </div>
     
@@ -459,19 +423,13 @@ exports[`MediaControl > seekbar > should render 1`] = `
     
         <div class="media-control-right-panel" data-media-control="">
             
-        <button type="button" class="media-control-button media-control-icon gcore-skin-button-color" data-fullscreen="" aria-label="fullscreen">/assets/icons/new/fullscreen-off.svg</button>
-    
-        <div class="media-control-multicamera" data-multicamera=""></div>
-    
-        <div class="media-control-vr" data-vr=""></div>
-    
         </div>
     
 </div>
 <style>:root {}</style>"
 `;
 
-exports[`MediaControl > slot > audiotracks > should put the element in the right panel 1`] = `
+exports[`MediaControl > slot > audiotracks > should put the element according to layout 1`] = `
 "<div class="media-control-background" data-background=""></div>
 
 <div class="media-control-layer gcore-skin-bg-color" data-controls="">
@@ -514,19 +472,13 @@ exports[`MediaControl > slot > audiotracks > should put the element in the right
     
         <div class="media-control-right-panel" data-media-control="">
             
-        <button type="button" class="media-control-button media-control-icon gcore-skin-button-color" data-fullscreen="" aria-label="fullscreen">/assets/icons/new/fullscreen-off.svg</button>
-    
-        <div class="media-control-multicamera" data-multicamera=""></div>
-    
-        <div class="media-control-vr" data-vr=""></div>
-    
-        <div class="my-media-control" data-audiotracks="">test</div></div>
+        <div class="my-media-control" id="my-media-control" data-audiotracks="">test</div></div>
     
 </div>
 <style>:root {}</style>"
 `;
 
-exports[`MediaControl > slot > cc > should put the element in the right panel 1`] = `
+exports[`MediaControl > slot > cc > should put the element according to layout 1`] = `
 "<div class="media-control-background" data-background=""></div>
 
 <div class="media-control-layer gcore-skin-bg-color" data-controls="">
@@ -569,19 +521,111 @@ exports[`MediaControl > slot > cc > should put the element in the right panel 1`
     
         <div class="media-control-right-panel" data-media-control="">
             
-        <button type="button" class="media-control-button media-control-icon gcore-skin-button-color" data-fullscreen="" aria-label="fullscreen">/assets/icons/new/fullscreen-off.svg</button>
-    
-        <div class="media-control-multicamera" data-multicamera=""></div>
-    
-        <div class="media-control-vr" data-vr=""></div>
-    
-        <div class="my-media-control" data-cc="">test</div></div>
+        <div class="my-media-control" id="my-media-control" data-cc="">test</div></div>
     
 </div>
 <style>:root {}</style>"
 `;
 
-exports[`MediaControl > slot > gear > should put the element in the right panel 1`] = `
+exports[`MediaControl > slot > clips > should put the element according to layout 1`] = `
+"<div class="media-control-background" data-background=""></div>
+
+<div class="media-control-layer gcore-skin-bg-color" data-controls="">
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+    
+    
+        <div class="media-control-left-panel" data-media-control="">
+            
+        <div class="drawer-container" data-volume="">
+            <div class="drawer-icon-container" data-volume="">
+                <div class="drawer-icon media-control-icon gcore-skin-button-color" data-volume="">/assets/icons/new/volume-max.svg</div>
+                <span class="drawer-text" data-volume=""></span>
+            </div>
+            
+    <div class="bar-container" data-volume="">
+        <div class="bar-background" data-volume="">
+            <div class="bar-fill-1 gcore-skin-main-color" data-volume="" style="width: 100%;"></div>
+        </div>
+        <div class="bar-scrubber" data-volume="" style="left: 100%;">
+            <div class="bar-scrubber-icon gcore-skin-main-color" data-volume=""></div>
+        </div>
+    </div>
+    
+        </div>
+    
+        <div class="media-control-indicator gcore-skin-text-color" data-clips=""></div>
+    
+        <div class="my-media-control" id="my-media-control" data-clips="">test</div></div>
+    
+    
+    
+        <div class="media-control-right-panel" data-media-control="">
+            
+        </div>
+    
+</div>
+<style>:root {}</style>"
+`;
+
+exports[`MediaControl > slot > dvr > should put the element according to layout 1`] = `
+"<div class="media-control-background" data-background=""></div>
+
+<div class="media-control-layer gcore-skin-bg-color" data-controls="">
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+    
+    
+        <div class="media-control-left-panel" data-media-control="">
+            
+        <div class="drawer-container" data-volume="">
+            <div class="drawer-icon-container" data-volume="">
+                <div class="drawer-icon media-control-icon gcore-skin-button-color" data-volume="">/assets/icons/new/volume-max.svg</div>
+                <span class="drawer-text" data-volume=""></span>
+            </div>
+            
+    <div class="bar-container" data-volume="">
+        <div class="bar-background" data-volume="">
+            <div class="bar-fill-1 gcore-skin-main-color" data-volume="" style="width: 100%;"></div>
+        </div>
+        <div class="bar-scrubber" data-volume="" style="left: 100%;">
+            <div class="bar-scrubber-icon gcore-skin-main-color" data-volume=""></div>
+        </div>
+    </div>
+    
+        </div>
+    
+        <div class="media-control-indicator gcore-skin-text-color" data-clips=""></div>
+    
+        <div class="my-media-control" id="my-media-control" data-dvr="">test</div></div>
+    
+    
+    
+        <div class="media-control-right-panel" data-media-control="">
+            
+        </div>
+    
+</div>
+<style>:root {}</style>"
+`;
+
+exports[`MediaControl > slot > gear > should put the element according to layout 1`] = `
 "<div class="media-control-background" data-background=""></div>
 
 <div class="media-control-layer gcore-skin-bg-color" data-controls="">
@@ -624,19 +668,13 @@ exports[`MediaControl > slot > gear > should put the element in the right panel 
     
         <div class="media-control-right-panel" data-media-control="">
             
-        <button type="button" class="media-control-button media-control-icon gcore-skin-button-color" data-fullscreen="" aria-label="fullscreen">/assets/icons/new/fullscreen-off.svg</button>
-    
-        <div class="media-control-multicamera" data-multicamera=""></div>
-    
-        <div class="media-control-vr" data-vr=""></div>
-    
-        <div class="my-media-control" data-gear="">test</div></div>
+        <div class="my-media-control" id="my-media-control" data-gear="">test</div></div>
     
 </div>
 <style>:root {}</style>"
 `;
 
-exports[`MediaControl > slot > pip > should put the element in the right panel 1`] = `
+exports[`MediaControl > slot > pip > should put the element according to layout 1`] = `
 "<div class="media-control-background" data-background=""></div>
 
 <div class="media-control-layer gcore-skin-bg-color" data-controls="">
@@ -679,13 +717,7 @@ exports[`MediaControl > slot > pip > should put the element in the right panel 1
     
         <div class="media-control-right-panel" data-media-control="">
             
-        <button type="button" class="media-control-button media-control-icon gcore-skin-button-color" data-fullscreen="" aria-label="fullscreen">/assets/icons/new/fullscreen-off.svg</button>
-    
-        <div class="media-control-multicamera" data-multicamera=""></div>
-    
-        <div class="media-control-vr" data-vr=""></div>
-    
-        <div class="my-media-control" data-pip="">test</div></div>
+        <div class="my-media-control" id="my-media-control" data-pip="">test</div></div>
     
 </div>
 <style>:root {}</style>"

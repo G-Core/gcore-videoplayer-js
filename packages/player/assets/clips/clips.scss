@@ -1,7 +1,7 @@
-.media-control-clips {
+.gplayer-mc-clips {
   display: flex;
   gap: 6px;
-  .media-clip-text {
+  .gplayer-mc-clips-text {
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
@@ -11,13 +11,15 @@
     cursor: default;
     line-height: var(--bottom-panel);
     position: relative;
+    max-width: 150px;
 
     &::before {
       content: '•';
       padding-right: 6px;
     }
-  }
-  .media-clip-text {
-    max-width: 100px;
+
+    &.compact {
+      max-width: 100px;
+    }
   }
 }

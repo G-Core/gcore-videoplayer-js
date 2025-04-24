@@ -1,9 +1,8 @@
 import { describe, it, expect, vi, beforeEach, MockedFunction } from 'vitest'
 import {
   MediaControl,
-  MediaControlElement,
   MediaControlSettings,
-  MediaControlSlotSelector,
+  MediaControlSlotMountPoint,
 } from '../MediaControl'
 import { createMockCore } from '../../../testUtils'
 import { $, Events, Playback } from '@clappr/core'
@@ -122,9 +121,13 @@ describe('MediaControl', () => {
       })
     })
   })
-  // TODO drop, deprecated
   describe('slot', () => {
     beforeEach(async () => {
+      core.options.mediaControl = MediaControl.extendSettings({
+        left: ['dvr', 'clips'],
+        right: ['pip', 'gear', 'cc', 'audiotracks'],
+        default: ['seekbar'],
+      })
       mediaControl = new MediaControl(core)
       core.emit(Events.CORE_READY)
       core.emit(Events.CORE_ACTIVE_CONTAINER_CHANGED, core.activeContainer)
@@ -133,36 +136,40 @@ describe('MediaControl', () => {
       await runMetadataLoaded(core)
     })
     describe.each([
-      ['pip' as MediaControlElement],
-      ['gear' as MediaControlElement],
-      ['cc' as MediaControlElement],
-      // ['multicamera' as MediaControlElement],
-      // ['playbackrate' as MediaControlElement],
-      // ['vr' as MediaControlElement],
-      ['audiotracks' as MediaControlElement],
+      ['pip', '.media-control-right-panel'],
+      ['gear', '.media-control-right-panel'],
+      ['cc', '.media-control-right-panel'],
+      ['audiotracks', '.media-control-right-panel'],
+      ['dvr', '.media-control-left-panel'],
+      ['clips', '.media-control-left-panel'],
       // dvr controls
-    ])('%s', (mcName) => {
-      it('should put the element in the right panel', () => {
+    ])('%s', (mcName, checkSelector) => {
+      it('should put the element according to layout', () => {
         const element = document.createElement('div')
         element.className = 'my-media-control'
+        element.id = 'my-media-control'
         element.textContent = 'test'
         mediaControl.slot(mcName, $(element))
 
         expect(mediaControl.el.innerHTML).toMatchSnapshot()
         expect(
-          mediaControl.$el.find('.media-control-right-panel .my-media-control')
-            .length,
+          mediaControl.$el.find(`${checkSelector} #my-media-control`).length,
         ).toEqual(1)
       })
     })
   })
   describe('mount', () => {
     beforeEach(async () => {
-      mediaControl = new MediaControl(core)
       core.emit(Events.CORE_READY)
+      core.options.mediaControl = {
+        left: ['playpause', 'position', 'duration', 'volume'],
+        default: ['_'], // placeholder is needed because otherwise the panel is not rendered
+        right: ['fullscreen', 'hd-indicator'],
+      } as MediaControlSettings
+      mediaControl = new MediaControl(core)
       core.activeContainer.settings = {
         left: ['playpause', 'position', 'duration', 'volume'],
-        default: ['_'],
+        default: [], // placeholder is needed because otherwise the panel is not rendered
         right: ['fullscreen', 'hd-indicator'],
         seekEnabled: true,
       } as MediaControlSettings
@@ -179,7 +186,7 @@ describe('MediaControl', () => {
     ])('%s', (name: string, checkSelector: string) => {
       it('should attach node to DOM tree', () => {
         mediaControl.mount(
-          name as MediaControlSlotSelector,
+          name as MediaControlSlotMountPoint,
           $('<div id="test-element">test</div>'),
         )
         expect(mediaControl.el.innerHTML).toMatchSnapshot()

@@ -131,7 +131,7 @@ export class DvrControls extends UICorePlugin {
     // TODO -> to MediaControl (auto hide)
     mediaControl.toggleElement('duration', false)
     mediaControl.toggleElement('position', false)
-    mediaControl.mount('left', this.$el) // TODO use independent mount point
+    mediaControl.slot('dvr', this.$el) // TODO use independent mount point
   }
 
   private onDvrStateChanged(dvrInUse: boolean) {

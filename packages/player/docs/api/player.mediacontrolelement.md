@@ -7,12 +7,15 @@
 > This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
 > 
 
-Built-in media control elements.
+Media control element. Each element's token in the media control layout settings determines where the element is rendered.
 
 **Signature:**
 
 ```typescript
-export type MediaControlElement = MediaControlLeftElement | MediaControlLayerElement | MediaControlRightElement;
+export type MediaControlElement = string;
 ```
-**References:** [MediaControlLeftElement](./player.mediacontrolleftelement.md)<!-- -->, [MediaControlLayerElement](./player.mediacontrollayerelement.md)<!-- -->, [MediaControlRightElement](./player.mediacontrolrightelement.md)
+
+## Remarks
+
+Standard media control elements are defined in the [StandardMediaControlElement](./player.standardmediacontrolelement.md) type. Custom media control elements can be identified by a unique token.
 

@@ -7,7 +7,7 @@
 > This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
 > 
 
-`PLUGIN` that provides basic playback controls UI and a foundation for developing custom UI.
+`PLUGIN` that provides framework for building media control UI.
 
 **Signature:**
 
@@ -20,13 +20,15 @@ export declare class MediaControl extends UICorePlugin
 
 The methods exposed are to be used by the other plugins that extend the media control UI.
 
-Configuration options:
+Configuration options (root level)
 
-- `mediaControl`<!-- -->: [MediaControlSettings](./player.mediacontrolsettings.md) - specifies the allowed media control elements in each area
+- `hideMediaControlDelay`<!-- -->: number - specifies the delay in milliseconds before the media control UI is hidden after the last user interaction
+
+- `mediaControl`<!-- -->: [MediaControlSettings](./player.mediacontrolsettings.md) - specifies the media control dashboard layout
 
 - `persistConfig`<!-- -->: boolean - `common` option, makes the plugin persist the media control settings
 
-- `chromeless`<!-- -->: boolean
+- `chromeless`<!-- -->: boolean - `common` option, hides the media control UI
 
 ## Constructors
 
@@ -170,6 +172,22 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
+[defaultSettings()](./player.mediacontrol.defaultsettings.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+**_(BETA)_**
+
+
+</td></tr>
+<tr><td>
+
 [disable()](./player.mediacontrol.disable.md)
 
 
@@ -179,20 +197,6 @@ Description
 </td><td>
 
 **_(BETA)_** Hides the media control UI
-
-
-</td></tr>
-<tr><td>
-
-[disabledControlButton()](./player.mediacontrol.disabledcontrolbutton.md)
-
-
-</td><td>
-
-
-</td><td>
-
-**_(BETA)_** Disable the user interaction for the control buttons
 
 
 </td></tr>
@@ -212,15 +216,17 @@ Description
 </td></tr>
 <tr><td>
 
-[enableControlButton()](./player.mediacontrol.enablecontrolbutton.md)
+[extendSettings(settings)](./player.mediacontrol.extendsettings.md)
 
 
 </td><td>
 
+`static`
+
 
 </td><td>
 
-**_(BETA)_** Enable the user interaction disabled earlier
+**_(BETA)_** Extend the default media control layout settings
 
 
 </td></tr>
@@ -248,7 +254,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Get a media control element DOM node
+**_(BETA)_** Mounts a media control element at a specific location
 
 
 </td></tr>
@@ -277,6 +283,20 @@ Description
 </td><td>
 
 **_(BETA)_** Set the volume
+
+
+</td></tr>
+<tr><td>
+
+[slot(name, element)](./player.mediacontrol.slot.md)
+
+
+</td><td>
+
+
+</td><td>
+
+**_(BETA)_** Mount a media control to its configured location
 
 
 </td></tr>

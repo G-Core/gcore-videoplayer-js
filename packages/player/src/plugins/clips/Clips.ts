@@ -26,6 +26,8 @@ export interface ClipsPluginSettings {
 const VERSION = '2.22.16'
 const CLAPPR_VERSION = '0.11.4'
 
+const COMPACT_WIDTH = 495;
+
 /**
  * `PLUGIN` that allows marking up the timeline of the video
  * @beta
@@ -61,7 +63,7 @@ export class Clips extends UICorePlugin {
    */
   override get attributes() {
     return {
-      class: 'media-control-clips',
+      class: 'media-control-clips gplayer-mc-clips',
     }
   }
 
@@ -145,6 +147,7 @@ export class Clips extends UICorePlugin {
   private onContainerChanged() {
     trace(`${T} onContainerChanged`)
     // TODO figure out the conditions of changing the container (without destroying the previous one)
+    // probably it is the case with the MultiCamera plugin
     if (this.oldContainer) {
       this.stopListening(
         this.oldContainer,
@@ -162,12 +165,24 @@ export class Clips extends UICorePlugin {
       Events.CONTAINER_TIMEUPDATE,
       this.onTimeUpdate,
     )
+    this.toggleCompact()
   }
 
   private playerResize() {
     const duration = this.core.activeContainer.getDuration()
+    // TODO check
     if (duration) {
       this.makeSvg(duration)
+    }
+    this.toggleCompact()
+  }
+
+  private toggleCompact() {
+    const elText = this.$el.find('#gplayer-mc-clips-text')
+    if (this.core.activeContainer.el.clientWidth <= COMPACT_WIDTH) {
+      elText.addClass('compact')
+    } else {
+      elText.removeClass('compact')
     }
   }
 
@@ -218,7 +233,7 @@ export class Clips extends UICorePlugin {
 
   private setClipText(text: string) {
     if (text) {
-      this.$el.show().find('#clips-text').text(text)
+      this.$el.show().find('#gplayer-mc-clips-text').text(text)
     } else {
       this.$el.hide()
     }

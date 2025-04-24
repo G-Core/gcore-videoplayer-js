@@ -204,7 +204,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** `PLUGIN` that provides basic playback controls UI and a foundation for developing custom UI.
+**_(BETA)_** `PLUGIN` that provides framework for building media control UI.
 
 
 </td></tr>
@@ -869,40 +869,16 @@ An ISO 639-1 language code.
 
 </td><td>
 
-**_(BETA)_** Built-in media control elements.
+**_(BETA)_** Media control element. Each element's token in the media control layout settings determines where the element is rendered.
 
 
 </td></tr>
 <tr><td>
 
-[MediaControlLayerElement](./player.mediacontrollayerelement.md)
+[MediaControlPluginSettings](./player.mediacontrolpluginsettings.md)
 
 
 </td><td>
-
-**_(BETA)_** Media control elements that appear in main layer, spanning the entire width of the player.
-
-
-</td></tr>
-<tr><td>
-
-[MediaControlLeftElement](./player.mediacontrolleftelement.md)
-
-
-</td><td>
-
-**_(BETA)_** Media control elements that appear in the left area.
-
-
-</td></tr>
-<tr><td>
-
-[MediaControlRightElement](./player.mediacontrolrightelement.md)
-
-
-</td><td>
-
-**_(BETA)_** Media control elements that appear in the right area.
 
 
 </td></tr>
@@ -913,7 +889,18 @@ An ISO 639-1 language code.
 
 </td><td>
 
-**_(BETA)_** Specifies the allowed media control elements in each area. Can be used to restrict rendered media control elements.
+**_(BETA)_** Specifies the layout of media control elements. Actual elements will be rendered according to the playback settings. Custom elements rendered by the plugins will be mounted at the specified locations.
+
+
+</td></tr>
+<tr><td>
+
+[MediaControlSlotMountPoint](./player.mediacontrolslotmountpoint.md)
+
+
+</td><td>
+
+**_(BETA)_** Identifies a location for mounting custom media control elements.
 
 
 </td></tr>
@@ -1062,6 +1049,17 @@ A media source to fetch the media data from
 </td><td>
 
 **_(BETA)_** Configuration options for the SeekTime plugin.
+
+
+</td></tr>
+<tr><td>
+
+[StandardMediaControlElement](./player.standardmediacontrolelement.md)
+
+
+</td><td>
+
+**_(BETA)_** Built-in media control elements.
 
 
 </td></tr>

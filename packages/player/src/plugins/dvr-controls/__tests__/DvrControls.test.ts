@@ -72,7 +72,7 @@ describe('DvrControls', () => {
         )
       })
       it('should mount to the media control', () => {
-        expect(mediaControl.mount).toHaveBeenCalledWith('left', dvrControls.$el)
+        expect(mediaControl.slot).toHaveBeenCalledWith('dvr', dvrControls.$el)
       })
       if (dvrEnabled) {
         if (dvrInUse) {

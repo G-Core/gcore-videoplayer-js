@@ -38,60 +38,36 @@ import volumeOffIcon from '../../../assets/icons/new/volume-off.svg'
 import fullscreenOffIcon from '../../../assets/icons/new/fullscreen-off.svg'
 import fullscreenOnIcon from '../../../assets/icons/new/fullscreen-on.svg'
 
-/**
- * Media control elements that appear in the left area.
- * @beta
- */
-export type MediaControlLeftElement =
-  | 'clipText' // TODO lowercase
-  | 'duration'
-  | 'dvr'
-  | 'playpause'
-  | 'playstop'
-  | 'position'
-  | 'volume'
-  | 'clips'
-
-/**
- * Media control elements that appear in main layer, spanning the entire width of the player.
- * @beta
- */
-export type MediaControlLayerElement = 'seekbar' | 'seekBarContainer' | '_' // TODO remove seekbar
-
-/**
- * Media control elements that appear in the right area.
- * @beta
- */
-export type MediaControlRightElement =
-  | 'audiotracks'
-  | 'cc'
-  | 'fullscreen'
-  | 'hd-indicator'
-  | 'gear'
-  | 'multicamera'
-  | 'pip'
-  | 'vr'
-
-/**
- * Built-in media control elements.
- * @beta
- */
-export type MediaControlElement =
-  | MediaControlLeftElement
-  | MediaControlLayerElement
-  | MediaControlRightElement
-
-const MANAGED_ELEMENTS: MediaControlElement[] = [
-  'dvr',
+const STANDARD_MEDIA_CONTROL_ELEMENTS: string[] = [
   'duration',
   'fullscreen',
   'hd-indicator',
+  'playpause',
+  'playstop',
   'position',
   'seekbar',
   'volume',
 ]
 
-export type MediaControlSlotSelector =
+/**
+ * Built-in media control elements.
+ * @beta
+ */
+export type StandardMediaControlElement =
+  | 'duration'
+  | 'fullscreen'
+  | 'hd-indicator'
+  | 'playpause'
+  | 'playstop'
+  | 'position'
+  | 'seekbar'
+  | 'volume'
+
+/**
+ * Identifies a location for mounting custom media control elements.
+ * @beta
+ */
+export type MediaControlSlotMountPoint =
   | 'root'
   | 'base'
   | 'left'
@@ -100,28 +76,36 @@ export type MediaControlSlotSelector =
   | 'seekbar'
 
 /**
- * Specifies the allowed media control elements in each area.
- * Can be used to restrict rendered media control elements.
+ * Media control element.
+ * Each element's token in the media control layout settings determines where the element is rendered.
+ * @beta
+ * @remarks
+ * Standard media control elements are defined in the {@link StandardMediaControlElement} type.
+ * Custom media control elements can be identified by a unique token.
+ */
+export type MediaControlElement = string
+
+/**
+ * Specifies the layout of media control elements.
+ * Actual elements will be rendered according to the playback settings. Custom elements rendered by the plugins
+ * will be mounted at the specified locations.
  * @beta
  */
 export type MediaControlSettings = {
-  left: MediaControlLeftElement[]
-  right: MediaControlRightElement[]
-  default: MediaControlLayerElement[]
+  left: MediaControlElement[]
+  right: MediaControlElement[]
+  default: MediaControlElement[]
   seekEnabled: boolean
 }
 
+// TODO export
 const DEFAULT_SETTINGS: MediaControlSettings = {
-  default: [],
-  left: ['dvr'],
+  default: ['seekbar'],
+  left: ['playpause', 'playstop', 'position', 'duration', 'volume'],
   right: [
-    'audiotracks',
-    'cc',
+    '*',
+    // 'hd-indicator',
     'fullscreen',
-    'gear',
-    'multicamera',
-    'pip',
-    'vr',
   ],
   seekEnabled: true,
 }
@@ -135,15 +119,6 @@ const INITIAL_SETTINGS: MediaControlSettings = {
 
 const T = 'plugins.media_control'
 
-const LEFT_ORDER = [
-  'playpause',
-  'playstop',
-  'volume',
-  'position',
-  'duration',
-  'dvr',
-]
-
 /**
  * Extended events for the {@link MediaControl} plugin
  * @beta
@@ -155,33 +130,25 @@ export enum ExtendedEvents {
 
 const { Config, Fullscreen, formatTime, extend, removeArrayItem } = Utils
 
-function orderByOrderPattern(arr: string[], order: string[]): string[] {
-  const arrWithoutDuplicates = [...new Set(arr)]
-  const ordered = order.filter((item) => arrWithoutDuplicates.includes(item))
-
-  const rest = arrWithoutDuplicates.filter((item) => !order.includes(item))
-
-  return [...ordered, ...rest]
-}
-
-type DisabledClickable = {
-  el: ZeptoResult
-  pointerEventValue: string
+export type MediaControlPluginSettings = {
+  hideMediaControlDelay?: number
 }
 
 /**
- * `PLUGIN` that provides basic playback controls UI and a foundation for developing custom UI.
+ * `PLUGIN` that provides framework for building media control UI.
  * @beta
  * @remarks
  * The methods exposed are to be used by the other plugins that extend the media control UI.
  *
- * Configuration options:
+ * Configuration options (root level)
  *
- * - `mediaControl`: {@link MediaControlSettings} - specifies the allowed media control elements in each area
+ * - `hideMediaControlDelay`: number - specifies the delay in milliseconds before the media control UI is hidden after the last user interaction
+ *
+ * - `mediaControl`: {@link MediaControlSettings} - specifies the media control dashboard layout
  *
  * - `persistConfig`: boolean - `common` option, makes the plugin persist the media control settings
  *
- * - `chromeless`: boolean
+ * - `chromeless`: boolean - `common` option, hides the media control UI
  */
 export class MediaControl extends UICorePlugin {
   // private advertisementPlaying = false
@@ -192,7 +159,7 @@ export class MediaControl extends UICorePlugin {
   private currentPositionValue: number = 0
   private currentSeekBarPercentage = 0
 
-  private disabledClickableList: DisabledClickable[] = []
+  // private disabledClickableList: DisabledClickable[] = []
   private displayedDuration: string | null = null
   private displayedPosition: string | null = null
   private displayedSeekBarPercentage: number | null = null
@@ -236,8 +203,6 @@ export class MediaControl extends UICorePlugin {
 
   private $fullscreenToggle: ZeptoResult | null = null
 
-  private $multiCameraSelector: ZeptoResult | null = null
-
   private $playPauseToggle: ZeptoResult | null = null
 
   private $playStopToggle: ZeptoResult | null = null
@@ -280,6 +245,48 @@ export class MediaControl extends UICorePlugin {
    */
   get supportedVersion() {
     return { min: CLAPPR_VERSION }
+  }
+
+  /**
+   * @returns  Default media control layout settings
+   * @remark
+   * The method can be used to change the default dashboard layout, for example, removing the standard UI elements
+   * @example
+   * ```ts
+   * const settings = MediaControl.defaultSettings()
+   * settings.left = settings.filter(item => item !== 'playpause' && item !== 'playstop')
+   * ...
+   * new Player({
+   *   mediaControl: settings,
+   * })
+   * ```
+   */
+  static defaultSettings() {
+    return $.extend(true, {}, DEFAULT_SETTINGS)
+  }
+
+  /**
+   * Extend the default media control layout settings
+   * @param settings - Additional settings
+   * @returns The extended settings
+   * @remarks
+   * This method allows adding custom elements to the media control dashboard.
+   * The default settings are not modified.
+   * @example
+   * ```ts
+   * new Player({
+   *   mediaControl: MediaControl.extendSettings({
+   *     left: ['*'], // add all custom elements to the left panel
+   *   }),
+   * })
+   * ```
+   */
+  static extendSettings(settings: Partial<MediaControlSettings>) {
+    return {
+      left: mergeElements(DEFAULT_SETTINGS.left, settings.left ?? []),
+      right: mergeElements(DEFAULT_SETTINGS.right, settings.right ?? []),
+      default: mergeElements(DEFAULT_SETTINGS.default, settings.default ?? []),
+    }
   }
 
   private get disabled() {
@@ -648,10 +655,8 @@ export class MediaControl extends UICorePlugin {
   }
 
   private changeTogglePlay() {
-    // assert.ok(this.$playPauseToggle, 'play/pause toggle must be present');
     this.$playPauseToggle?.html('')
 
-    // assert.ok(this.$playStopToggle, 'play/stop toggle must be present');
     this.$playStopToggle?.html('')
     if (this.container && this.container.isPlaying()) {
       this.$playPauseToggle?.append(pauseIcon)
@@ -1099,7 +1104,8 @@ export class MediaControl extends UICorePlugin {
   }
 
   private updateSettings() {
-    const newSettings = $.extend(
+    // TODO use this.options.mediaControl to additionally filter the settings
+    const container = $.extend(
       true,
       {
         left: [],
@@ -1109,44 +1115,34 @@ export class MediaControl extends UICorePlugin {
       this.core.activeContainer.settings,
     )
 
-    newSettings.left.push('clips') // TODO settings
-    // TODO make order controlled via CSS
-    newSettings.left = orderByOrderPattern(
-      [...newSettings.left, 'volume', 'clips'],
-      LEFT_ORDER,
-    )
-    if (
-      this.core.activePlayback.getPlaybackType() === Playback.LIVE &&
-      this.core.activePlayback.dvrEnabled
-    ) {
-      newSettings.left.push('dvr')
-    }
+    container.left.push('volume')
 
-    // actual order of the items appear rendered is controlled by CSS
-    newSettings.right = DEFAULT_SETTINGS.right // TODO get from the options
+    const setup = this.options.mediaControl ?? DEFAULT_SETTINGS
 
     if (
       (!this.fullScreenOnVideoTagSupported && !fullscreenEnabled()) ||
       this.options.fullscreenDisable
     ) {
       // remove fullscreen from settings if it is not available
-      removeArrayItem(newSettings.default, 'fullscreen')
-      removeArrayItem(newSettings.left, 'fullscreen')
-      removeArrayItem(newSettings.right, 'fullscreen')
+      removeArrayItem(container.default, 'fullscreen')
+      removeArrayItem(container.left, 'fullscreen')
+      removeArrayItem(container.right, 'fullscreen')
     }
-
-    removeArrayItem(newSettings.default, 'hd-indicator')
-    removeArrayItem(newSettings.left, 'hd-indicator')
 
     // TODO get from container's settings
     if (this.core.activePlayback.name === 'html5_video') {
-      newSettings.seekEnabled = this.isSeekEnabledForHtml5Playback()
+      container.seekEnabled = this.isSeekEnabledForHtml5Playback()
+      // TODO remove seekbar if seek is disabled?
     }
 
-    const settingsChanged = !isEqualSettings(this.settings, newSettings)
+    container.left = evalSettings(container.left, setup.left)
+    container.right = evalSettings(container.right, setup.right)
+    container.default = evalSettings(container.default, setup.default)
+
+    const settingsChanged = !isEqualSettings(this.settings, container)
 
     if (settingsChanged) {
-      this.settings = newSettings
+      this.settings = container
       this.hasUpdate = true
       this.render()
     }
@@ -1181,18 +1177,38 @@ export class MediaControl extends UICorePlugin {
     this.$volumeBarBackground = this.$el.find('.bar-background[data-volume]')
     this.$volumeBarFill = this.$el.find('.bar-fill-1[data-volume]')
     this.$volumeBarScrubber = this.$el.find('.bar-scrubber[data-volume]')
-    this.$multiCameraSelector = this.$el.find(
-      '.media-control-multicamera[data-multicamera]',
-    )
     this.resetIndicators()
     this.initializeIcons()
   }
 
   /**
-   * Get a media control element DOM node
+   * Mount a media control to its configured location
    * @param name - The name of the media control element
    * @param element - The DOM node/fragment to mount
-   * @deprecated Use {@link MediaControl.mount} instead
+   * @remarks
+   * Media controls layout is configured via {@link MediaControlSettings}.
+   * A plugin implementing custom elements on the media control dashboard,
+   * should use this method to mount the element to the correct location.
+   * The actual location is defined by the occurence of the element token in the `left`, `right` or `default` section
+   * of the {@link MediaControlSettings}.
+   * @example
+   * ```ts
+   * class MyPlugin extends UICorePlugin {
+   *   override render() {
+   *     // mount the element where it is configured in the layout
+   *     this.core.getPlugin('media_control').slot('my-element', this.$el)
+   *   }
+   * }
+   * ...
+   * Player.registerPlugin(MyPlugin)
+   * ...
+   * // Configuration of the media control layout
+   * new Player({
+   *   mediaControl: {
+   *     left: ['my-element'], // the element will be mounted to the left panel
+   *   },
+   * })
+   * ```
    */
   slot(name: MediaControlElement, element: ZeptoResult): void {
     const panel = this.getElementLocation(name)
@@ -1219,11 +1235,11 @@ export class MediaControl extends UICorePlugin {
    * }
    * ```
    */
-  mount(name: MediaControlSlotSelector, element: ZeptoResult) {
+  mount(name: MediaControlSlotMountPoint, element: ZeptoResult) {
     mountTo(this.getMountParent(name), element)
   }
 
-  private getMountParent(name: MediaControlSlotSelector): ZeptoResult {
+  private getMountParent(name: MediaControlSlotMountPoint): ZeptoResult {
     switch (name) {
       case 'root':
         return this.$el
@@ -1451,7 +1467,6 @@ export class MediaControl extends UICorePlugin {
     }
     const timeout = this.options.hideMediaControlDelay || 2000
 
-    trace(`${T} render`, { settings: this.settings })
     this.$el.html(MediaControl.template({ settings: this.settings }))
     // const style = Styler.getStyleFor(mediaControlStyle, { baseUrl: this.options.baseUrl });
     // this.$el.append(style[0]);
@@ -1572,24 +1587,6 @@ export class MediaControl extends UICorePlugin {
     return 0
   }
 
-  /**
-   * Enable the user interaction disabled earlier
-   */
-  enableControlButton() {
-    this.disabledClickableList.forEach((element) => {
-      element.el.css({ 'pointer-events': element.pointerEventValue })
-    })
-  }
-
-  /**
-   * Disable the user interaction for the control buttons
-   */
-  disabledControlButton() {
-    this.disabledClickableList.forEach((element) => {
-      element.el.css({ 'pointer-events': 'none' })
-    })
-  }
-
   // TODO drop
   private isSeekEnabledForHtml5Playback() {
     if (this.core.getPlaybackType() === Playback.LIVE) {
@@ -1600,13 +1597,16 @@ export class MediaControl extends UICorePlugin {
   }
 
   private getElementLocation(name: MediaControlElement) {
-    if (this.settings.right?.includes(name as MediaControlRightElement)) {
-      return this.getRightPanel()
-    }
-    if (this.settings.left?.includes(name as MediaControlLeftElement)) {
+    if (this.settings.left.includes(name) || this.settings.left.includes('*')) {
       return this.getLeftPanel()
     }
-    if (this.settings.default?.includes(name as MediaControlLayerElement)) {
+    if (
+      this.settings.right.includes(name) ||
+      this.settings.right.includes('*')
+    ) {
+      return this.getRightPanel()
+    }
+    if (this.settings.default.includes(name)) {
       return this.getCenterPanel()
     }
     return null
@@ -1626,7 +1626,8 @@ MediaControl.extend = function (properties) {
 }
 
 function serializeSettings(s: MediaControlSettings) {
-  return (s.left.slice() as MediaControlElement[])
+  return s.left
+    .slice()
     .sort()
     .concat(s.right.slice().sort())
     .concat(s.default.slice().sort())
@@ -1642,4 +1643,32 @@ function mountTo(parent: ZeptoResult, element: ZeptoResult) {
   if (!parent.find(element).length) {
     parent.append(element)
   }
+}
+
+function isStandardMediaControl(name: MediaControlElement) {
+  return STANDARD_MEDIA_CONTROL_ELEMENTS.includes(name)
+}
+
+function evalSettings(
+  container: MediaControlElement[],
+  setup: MediaControlElement[],
+): MediaControlElement[] {
+  return setup.filter((item) => {
+    if (isStandardMediaControl(item)) {
+      return container.includes(item)
+    }
+    return true
+  })
+}
+
+function mergeElements(
+  a: MediaControlElement[],
+  b: MediaControlElement[],
+): MediaControlElement[] {
+  return b.reduce((acc, item) => {
+    if (!acc.includes(item)) {
+      acc.push(item)
+    }
+    return acc
+  }, a)
 }

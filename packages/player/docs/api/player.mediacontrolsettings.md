@@ -7,17 +7,17 @@
 > This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
 > 
 
-Specifies the allowed media control elements in each area. Can be used to restrict rendered media control elements.
+Specifies the layout of media control elements. Actual elements will be rendered according to the playback settings. Custom elements rendered by the plugins will be mounted at the specified locations.
 
 **Signature:**
 
 ```typescript
 export type MediaControlSettings = {
-    left: MediaControlLeftElement[];
-    right: MediaControlRightElement[];
-    default: MediaControlLayerElement[];
+    left: MediaControlElement[];
+    right: MediaControlElement[];
+    default: MediaControlElement[];
     seekEnabled: boolean;
 };
 ```
-**References:** [MediaControlLeftElement](./player.mediacontrolleftelement.md)<!-- -->, [MediaControlRightElement](./player.mediacontrolrightelement.md)<!-- -->, [MediaControlLayerElement](./player.mediacontrollayerelement.md)
+**References:** [MediaControlElement](./player.mediacontrolelement.md)
 
