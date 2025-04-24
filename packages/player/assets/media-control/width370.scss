@@ -31,11 +31,11 @@
     display: block;
   }
 
-  .level-selector[data-level-selector],
+  // .level-selector[data-level-selector],
   .media-control-audiotracks[data-audiotracks] {
     margin-top: 3px;
     margin-right: 10px;
-
+    
     ul {
       bottom: 30px;
       width: 50px;
@@ -51,9 +51,7 @@
       }
     }
 
-    button[data-level-selector-button],
     button[data-audiotracks-button] {
-
       .quality-text,
       .audio-text {
         font-size: 13px;

@@ -114,6 +114,7 @@
       align-items: center;
       gap: 1rem;
       justify-content: flex-end;
+
       @media (max-width: 420px) {
         gap: 0.5rem;
         overflow: hidden;
@@ -199,6 +200,10 @@
         margin-top: 1px;
         margin-right: 6px;
       }
+    }
+
+    .gplayer-mc-panel-item {
+      height: 32px;
     }
 
     .bar-container[data-seekbar] {
@@ -405,7 +410,8 @@
       }
     }
 
-    ul { // TODO extract common styles
+    ul {
+      // TODO extract common styles
       background-color: rgb(74 74 74 / 60%);
       border: none;
       width: auto;
