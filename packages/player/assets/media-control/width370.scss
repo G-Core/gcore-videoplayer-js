@@ -1,4 +1,4 @@
-.media-control-skin-1[data-media-control-skin-1].w370 {
+.media-control-skin-1.w370 {
   .media-control-cc {
     width: 28px;
 
@@ -26,45 +26,8 @@
     }
   }
 
-  .media-control-quality,
-  .media-control-audiotracks {
+  .media-control-quality {
     display: block;
-  }
-
-  // .level-selector[data-level-selector],
-  .media-control-audiotracks[data-audiotracks] {
-    margin-top: 3px;
-    margin-right: 10px;
-    
-    ul {
-      bottom: 30px;
-      width: 50px;
-
-      li {
-        height: 23px;
-        font-size: 14px;
-
-        a {
-          height: 23px;
-          padding: 2px 5px;
-        }
-      }
-    }
-
-    button[data-audiotracks-button] {
-      .quality-text,
-      .audio-text {
-        font-size: 13px;
-      }
-
-      span.quality-arrow,
-      span.audio-arrow {
-        width: 7px;
-        height: 5px;
-        margin-left: 4px;
-        margin-top: 11px;
-      }
-    }
   }
 
   .media-control-multicamera {
@@ -98,8 +61,6 @@
     }
 
     .dvr-controls {
-      height: 32px;
-
       .live-button {
         margin-left: 10px;
         height: 32px;
@@ -133,8 +94,6 @@
     }
 
     button.media-control-button {
-      height: 32px;
-
       &[data-fullscreen] {
         height: 33px;
       }
@@ -180,6 +139,11 @@
           padding: 0;
         }
       }
+    }
+
+    .media-control-button,
+    .media-control-item {
+      height: 32px;
     }
   }
 }

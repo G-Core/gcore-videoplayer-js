@@ -1,19 +1,19 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`AudioSelector > given that audio tracks are available > should render menu hidden 1`] = `
-"<button data-audiotracks-button="" class="gcore-skin-button-color" id="audiotracks-button" aria-haspopup="menu" aria-expanded="false">
+"<button data-gplayer-mc-audiotracks-button="" class="gcore-skin-button-color" id="gplayer-mc-audiotracks-button" aria-haspopup="menu" aria-expanded="false">
     <span class="audio-text"></span> <span class="audio-arrow">/assets/icons/old/quality-arrow.svg</span>
 </button>
-<ul class="gcore-skin-bg-color menu hidden" id="audiotracks-select" role="menu">
+<ul class="gcore-skin-bg-color menu hidden" id="media-control-audiotracks-select" role="menu">
     
         <li class="">
-            <a href="#" class="gcore-skin-text-color" data-audiotracks-select="1" role="menuitemradio" aria-checked="false">
+            <a href="#" class="gcore-skin-text-color" data-media-control-audiotracks-select="1" role="menuitemradio" aria-checked="false">
                 English
             </a>
         </li>
     
         <li class="">
-            <a href="#" class="gcore-skin-text-color" data-audiotracks-select="2" role="menuitemradio" aria-checked="false">
+            <a href="#" class="gcore-skin-text-color" data-media-control-audiotracks-select="2" role="menuitemradio" aria-checked="false">
                 Spanish
             </a>
         </li>
@@ -23,19 +23,19 @@ exports[`AudioSelector > given that audio tracks are available > should render m
 `;
 
 exports[`AudioSelector > given that audio tracks are available > when button is clicked > should show menu 1`] = `
-"<button data-audiotracks-button="" class="gcore-skin-button-color" id="audiotracks-button" aria-haspopup="menu" aria-expanded="true">
+"<button data-gplayer-mc-audiotracks-button="" class="gcore-skin-button-color" id="gplayer-mc-audiotracks-button" aria-haspopup="menu" aria-expanded="true">
     <span class="audio-text"></span> <span class="audio-arrow">/assets/icons/old/quality-arrow.svg</span>
 </button>
-<ul class="gcore-skin-bg-color menu" id="audiotracks-select" role="menu">
+<ul class="gcore-skin-bg-color menu" id="media-control-audiotracks-select" role="menu">
     
         <li class="">
-            <a href="#" class="gcore-skin-text-color" data-audiotracks-select="1" role="menuitemradio" aria-checked="false">
+            <a href="#" class="gcore-skin-text-color" data-media-control-audiotracks-select="1" role="menuitemradio" aria-checked="false">
                 English
             </a>
         </li>
     
         <li class="">
-            <a href="#" class="gcore-skin-text-color" data-audiotracks-select="2" role="menuitemradio" aria-checked="false">
+            <a href="#" class="gcore-skin-text-color" data-media-control-audiotracks-select="2" role="menuitemradio" aria-checked="false">
                 Spanish
             </a>
         </li>
@@ -45,19 +45,19 @@ exports[`AudioSelector > given that audio tracks are available > when button is 
 `;
 
 exports[`AudioSelector > given that audio tracks are available > when button is clicked > when audio track is selected > should hide the menu 1`] = `
-"<button data-audiotracks-button="" class="gcore-skin-button-color changing" id="audiotracks-button" aria-haspopup="menu" aria-expanded="true">
+"<button data-gplayer-mc-audiotracks-button="" class="gcore-skin-button-color changing" id="gplayer-mc-audiotracks-button" aria-haspopup="menu" aria-expanded="true">
     <span class="audio-text"></span> <span class="audio-arrow">/assets/icons/old/quality-arrow.svg</span>
 </button>
-<ul class="gcore-skin-bg-color menu hidden" id="audiotracks-select" role="menu">
+<ul class="gcore-skin-bg-color menu hidden" id="media-control-audiotracks-select" role="menu">
     
         <li class="">
-            <a href="#" class="gcore-skin-text-color" data-audiotracks-select="1" role="menuitemradio" aria-checked="false">
+            <a href="#" class="gcore-skin-text-color" data-media-control-audiotracks-select="1" role="menuitemradio" aria-checked="false">
                 English
             </a>
         </li>
     
         <li class="">
-            <a href="#" class="gcore-skin-text-color" data-audiotracks-select="2" role="menuitemradio" aria-checked="false">
+            <a href="#" class="gcore-skin-text-color" data-media-control-audiotracks-select="2" role="menuitemradio" aria-checked="false">
                 Spanish
             </a>
         </li>
@@ -67,19 +67,19 @@ exports[`AudioSelector > given that audio tracks are available > when button is 
 `;
 
 exports[`AudioTracks > given that audio tracks are available > should render menu hidden 1`] = `
-"<button data-audiotracks-button="" class="gcore-skin-button-color" id="audiotracks-button" aria-haspopup="menu" aria-expanded="false">
+"<button data-gplayer-mc-audiotracks-button="" class="gcore-skin-button-color" id="gplayer-mc-audiotracks-button" aria-haspopup="menu" aria-expanded="false">
     <span class="audio-text"></span> <span class="audio-arrow">/assets/icons/old/quality-arrow.svg</span>
 </button>
-<ul class="gcore-skin-bg-color menu hidden" id="audiotracks-select" role="menu">
+<ul class="gcore-skin-bg-color menu hidden" id="media-control-audiotracks-select" role="menu">
     
         <li class="">
-            <a href="#" class="gcore-skin-text-color" data-audiotracks-select="1" role="menuitemradio" aria-checked="false">
+            <a href="#" class="gcore-skin-text-color" data-media-control-audiotracks-select="1" role="menuitemradio" aria-checked="false">
                 English
             </a>
         </li>
     
         <li class="">
-            <a href="#" class="gcore-skin-text-color" data-audiotracks-select="2" role="menuitemradio" aria-checked="false">
+            <a href="#" class="gcore-skin-text-color" data-media-control-audiotracks-select="2" role="menuitemradio" aria-checked="false">
                 Spanish
             </a>
         </li>
@@ -89,19 +89,19 @@ exports[`AudioTracks > given that audio tracks are available > should render men
 `;
 
 exports[`AudioTracks > given that audio tracks are available > when button is clicked > should show menu 1`] = `
-"<button data-audiotracks-button="" class="gcore-skin-button-color" id="audiotracks-button" aria-haspopup="menu" aria-expanded="true">
+"<button data-gplayer-mc-audiotracks-button="" class="gcore-skin-button-color" id="gplayer-mc-audiotracks-button" aria-haspopup="menu" aria-expanded="true">
     <span class="audio-text"></span> <span class="audio-arrow">/assets/icons/old/quality-arrow.svg</span>
 </button>
-<ul class="gcore-skin-bg-color menu" id="audiotracks-select" role="menu">
+<ul class="gcore-skin-bg-color menu" id="media-control-audiotracks-select" role="menu">
     
         <li class="">
-            <a href="#" class="gcore-skin-text-color" data-audiotracks-select="1" role="menuitemradio" aria-checked="false">
+            <a href="#" class="gcore-skin-text-color" data-media-control-audiotracks-select="1" role="menuitemradio" aria-checked="false">
                 English
             </a>
         </li>
     
         <li class="">
-            <a href="#" class="gcore-skin-text-color" data-audiotracks-select="2" role="menuitemradio" aria-checked="false">
+            <a href="#" class="gcore-skin-text-color" data-media-control-audiotracks-select="2" role="menuitemradio" aria-checked="false">
                 Spanish
             </a>
         </li>
@@ -111,19 +111,19 @@ exports[`AudioTracks > given that audio tracks are available > when button is cl
 `;
 
 exports[`AudioTracks > given that audio tracks are available > when button is clicked > when audio track is selected > should hide the menu 1`] = `
-"<button data-audiotracks-button="" class="gcore-skin-button-color changing" id="audiotracks-button" aria-haspopup="menu" aria-expanded="true">
+"<button data-gplayer-mc-audiotracks-button="" class="gcore-skin-button-color changing" id="gplayer-mc-audiotracks-button" aria-haspopup="menu" aria-expanded="true">
     <span class="audio-text"></span> <span class="audio-arrow">/assets/icons/old/quality-arrow.svg</span>
 </button>
-<ul class="gcore-skin-bg-color menu hidden" id="audiotracks-select" role="menu">
+<ul class="gcore-skin-bg-color menu hidden" id="media-control-audiotracks-select" role="menu">
     
         <li class="">
-            <a href="#" class="gcore-skin-text-color" data-audiotracks-select="1" role="menuitemradio" aria-checked="false">
+            <a href="#" class="gcore-skin-text-color" data-media-control-audiotracks-select="1" role="menuitemradio" aria-checked="false">
                 English
             </a>
         </li>
     
         <li class="">
-            <a href="#" class="gcore-skin-text-color" data-audiotracks-select="2" role="menuitemradio" aria-checked="false">
+            <a href="#" class="gcore-skin-text-color" data-media-control-audiotracks-select="2" role="menuitemradio" aria-checked="false">
                 Spanish
             </a>
         </li>

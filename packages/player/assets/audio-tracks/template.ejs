@@ -1,10 +1,11 @@
-<button data-audiotracks-button class='gcore-skin-button-color' id="audiotracks-button" aria-haspopup="menu" aria-expanded="false">
-    <span class='audio-text'><%= title %></span> <span class="audio-arrow"><%= icon %></span>
+<button class='gcore-skin-button-color media-control-dd' id="gplayer-audiotracks-button" aria-haspopup="menu" aria-expanded="false">
+    <span class="media-control-dd__text" id="gplayer-audiotracks-button-text"><%= title %></span>
+    <span class="media-control-dd__arrow"><%= icon %></span>
 </button>
-<ul class='gcore-skin-bg-color menu hidden' id="audiotracks-select" role="menu">
+<ul class="gcore-skin-bg-color menu media-control-dd__popup" id="gplayer-audiotracks-menu" role="menu">
     <% for (const track of tracks) { %>
         <li>
-            <a href="#" class='gcore-skin-text-color' data-audiotracks-select="<%= track.id %>" role="menuitemradio" aria-checked="<%= track.id === current %>">
+            <a href="#" class="gcore-skin-text-color" data-item="<%= track.id %>" role="menuitemradio" aria-checked="<%= track.id === current %>">
                 <%= track.label %>
             </a>
         </li>

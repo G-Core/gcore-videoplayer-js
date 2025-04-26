@@ -5,7 +5,7 @@ import { CLAPPR_VERSION } from '../../build.js';
 
 import pipIcon from '../../../assets/icons/new/pip.svg';
 import buttonHtml from '../../../assets/picture-in-picture/button.ejs';
-import '../../../assets/picture-in-picture/button.scss';
+import '../../../assets/picture-in-picture/style.scss';
 import assert from 'assert';
 
 const VERSION = '0.0.1';

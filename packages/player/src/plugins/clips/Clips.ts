@@ -26,7 +26,7 @@ export interface ClipsPluginSettings {
 const VERSION = '2.22.16'
 const CLAPPR_VERSION = '0.11.4'
 
-const COMPACT_WIDTH = 495;
+const COMPACT_WIDTH = 495
 
 /**
  * `PLUGIN` that allows marking up the timeline of the video
@@ -63,7 +63,7 @@ export class Clips extends UICorePlugin {
    */
   override get attributes() {
     return {
-      class: 'media-control-clips gplayer-mc-clips',
+      class: 'gplayer-mc-clips',
     }
   }
 
@@ -89,7 +89,6 @@ export class Clips extends UICorePlugin {
   }
 
   override render() {
-    trace(`${T} render`)
     if (!this.options.clips) {
       return this
     }
@@ -140,8 +139,7 @@ export class Clips extends UICorePlugin {
 
   private onMcRender() {
     trace(`${T} onMcRender`)
-    const mediaControl = this.core.getPlugin('media_control')
-    mediaControl.slot('clips', this.$el)
+    this.core.getPlugin('media_control')?.slot('clips', this.$el)
   }
 
   private onContainerChanged() {

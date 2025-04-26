@@ -1214,7 +1214,7 @@ export class MediaControl extends UICorePlugin {
     const panel = this.getElementLocation(name)
     if (panel) {
       element.attr(`data-${name}`, '')
-      element.addClass('gplayer-mc-panel-item')
+      element.addClass('media-control-item')
       mountTo(panel, element)
     }
   }

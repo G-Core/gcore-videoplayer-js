@@ -1,4 +1,6 @@
-*, :focus, :visited {
+*,
+:focus,
+:visited {
   outline: none !important;
 }
 
@@ -40,7 +42,7 @@
     }
   }
 
-  & > ul {
+  &>ul {
     padding: 6px 0;
     right: -24px;
     width: 245px;
@@ -91,7 +93,8 @@
         pointer-events: none;
       }
 
-      &:hover, &.multicamera-active {
+      &:hover,
+      &.multicamera-active {
         background-color: rgb(0 0 0 / 30%);
       }
 
@@ -110,7 +113,8 @@
         text-align: left;
         margin-left: 15px;
 
-        .multicamera-title, .multicamera-description {
+        .multicamera-title,
+        .multicamera-description {
           width: 120px;
           height: 20px;
           font-family: Roboto, "Open Sans", Arial, sans-serif;
@@ -158,19 +162,5 @@
       color: #f00;
     }
 
-  }
-}
-
-@keyframes pulse {
-  0% {
-    color: #fff;
-  }
-
-  50% {
-    color: #ff0101
-  }
-
-  100% {
-    color: #B80000;
   }
 }

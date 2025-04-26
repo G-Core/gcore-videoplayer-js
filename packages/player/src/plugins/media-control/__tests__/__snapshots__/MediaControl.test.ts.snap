@@ -472,7 +472,7 @@ exports[`MediaControl > slot > audiotracks > should put the element according to
     
         <div class="media-control-right-panel" data-media-control="">
             
-        <div class="my-media-control gplayer-mc-panel-item" id="my-media-control" data-audiotracks="">test</div></div>
+        <div class="my-media-control media-control-item" id="my-media-control" data-audiotracks="">test</div></div>
     
 </div>
 <style>:root {}</style>"
@@ -521,7 +521,7 @@ exports[`MediaControl > slot > cc > should put the element according to layout 1
     
         <div class="media-control-right-panel" data-media-control="">
             
-        <div class="my-media-control gplayer-mc-panel-item" id="my-media-control" data-cc="">test</div></div>
+        <div class="my-media-control media-control-item" id="my-media-control" data-cc="">test</div></div>
     
 </div>
 <style>:root {}</style>"
@@ -564,7 +564,7 @@ exports[`MediaControl > slot > clips > should put the element according to layou
     
         <div class="media-control-indicator gcore-skin-text-color" data-clips=""></div>
     
-        <div class="my-media-control gplayer-mc-panel-item" id="my-media-control" data-clips="">test</div></div>
+        <div class="my-media-control media-control-item" id="my-media-control" data-clips="">test</div></div>
     
     
     
@@ -613,7 +613,7 @@ exports[`MediaControl > slot > dvr > should put the element according to layout 
     
         <div class="media-control-indicator gcore-skin-text-color" data-clips=""></div>
     
-        <div class="my-media-control gplayer-mc-panel-item" id="my-media-control" data-dvr="">test</div></div>
+        <div class="my-media-control media-control-item" id="my-media-control" data-dvr="">test</div></div>
     
     
     
@@ -668,7 +668,7 @@ exports[`MediaControl > slot > gear > should put the element according to layout
     
         <div class="media-control-right-panel" data-media-control="">
             
-        <div class="my-media-control gplayer-mc-panel-item" id="my-media-control" data-gear="">test</div></div>
+        <div class="my-media-control media-control-item" id="my-media-control" data-gear="">test</div></div>
     
 </div>
 <style>:root {}</style>"
@@ -717,7 +717,7 @@ exports[`MediaControl > slot > pip > should put the element according to layout 
     
         <div class="media-control-right-panel" data-media-control="">
             
-        <div class="my-media-control gplayer-mc-panel-item" id="my-media-control" data-pip="">test</div></div>
+        <div class="my-media-control media-control-item" id="my-media-control" data-pip="">test</div></div>
     
 </div>
 <style>:root {}</style>"

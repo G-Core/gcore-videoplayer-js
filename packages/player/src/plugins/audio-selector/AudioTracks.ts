@@ -1,19 +1,18 @@
 import { Events, UICorePlugin, template } from '@clappr/core'
 import { AudioTrack } from '@clappr/core/types/base/playback/playback.js'
 import assert from 'assert'
+// import { trace } from '@gcorevideo/utils'
 
 import { CLAPPR_VERSION } from '../../build.js'
 
 import pluginHtml from '../../../assets/audio-tracks/template.ejs'
-import '../../../assets/audio-tracks/style.scss'
 import audioArrow from '../../../assets/icons/old/quality-arrow.svg'
 import { ZeptoResult } from '../../types.js'
 import { ExtendedEvents, MediaControl } from '../media-control/MediaControl.js'
-import { trace } from '@gcorevideo/utils'
 
 const VERSION: string = '2.22.4'
 
-const T = 'plugins.audiotracks'
+// const T = 'plugins.audiotracks'
 
 /**
  * `PLUGIN` that makes possible to switch audio tracks via the media control UI.
@@ -27,6 +26,8 @@ const T = 'plugins.audiotracks'
  */
 export class AudioTracks extends UICorePlugin {
   private currentTrack: AudioTrack | null = null
+
+  private open = false
 
   private tracks: AudioTrack[] = []
 
@@ -58,7 +59,7 @@ export class AudioTracks extends UICorePlugin {
    */
   override get attributes() {
     return {
-      class: 'media-control-audiotracks',
+      class: 'media-control-audiotracks media-control-dd__wrap',
     }
   }
 
@@ -67,8 +68,8 @@ export class AudioTracks extends UICorePlugin {
    */
   override get events() {
     return {
-      'click [data-audiotracks-select]': 'onTrackSelect',
-      'click #audiotracks-button': 'toggleMenu',
+      'click #gplayer-audiotracks-menu [data-item]': 'onTrackSelect',
+      'click #gplayer-audiotracks-button': 'toggleMenu',
     }
   }
 
@@ -87,15 +88,21 @@ export class AudioTracks extends UICorePlugin {
   private onCoreReady() {
     const mediaControl = this.core.getPlugin('media_control')
     assert(mediaControl, 'media_control plugin is required')
+
     this.listenTo(mediaControl, Events.MEDIACONTROL_RENDERED, () => {
-      mediaControl.slot('audiotracks', this.$el)
+      this.mount()
     })
+    // TODO when tracks change, re-render and re-attach
     this.listenTo(mediaControl, Events.MEDIACONTROL_HIDE, this.hideMenu)
-    this.listenTo(mediaControl, ExtendedEvents.MEDIACONTROL_MENU_COLLAPSE, (from: string) => {
-      if (from !== this.name) {
-        this.hideMenu()
-      }
-    })
+    this.listenTo(
+      mediaControl,
+      ExtendedEvents.MEDIACONTROL_MENU_COLLAPSE,
+      (from: string) => {
+        if (from !== this.name) {
+          this.hideMenu()
+        }
+      },
+    )
   }
 
   private onActiveContainerChanged() {
@@ -108,6 +115,7 @@ export class AudioTracks extends UICorePlugin {
           tracks.find((track) => track.kind === 'main') ?? null // TODO test
         this.tracks = tracks
         this.render()
+        this.mount()
       },
     )
     this.listenTo(
@@ -120,6 +128,10 @@ export class AudioTracks extends UICorePlugin {
         this.updateText()
       },
     )
+    // TODO test
+    this.listenTo(this.core.activeContainer, Events.CONTAINER_CLICK, () => {
+      this.hideMenu()
+    })
   }
 
   private shouldRender() {
@@ -132,18 +144,15 @@ export class AudioTracks extends UICorePlugin {
    * @internal
    */
   override render() {
-    if (!this.shouldRender()) {
-      return this
-    }
-
     this.$el.html(
       AudioTracks.template({
-        tracks: this.tracks,
+        tracks: this.tracks ?? [],
         title: this.getTitle(),
         icon: audioArrow,
         current: this.currentTrack?.id,
       }),
     )
+    this.$el.find('#gplayer-audiotracks-menu').hide()
     this.updateText()
     this.highlightCurrentTrack()
 
@@ -151,7 +160,7 @@ export class AudioTracks extends UICorePlugin {
   }
 
   private onTrackSelect(event: MouseEvent) {
-    const id = (event.currentTarget as HTMLElement)?.dataset?.audiotracksSelect
+    const id = (event.currentTarget as HTMLElement)?.dataset?.item
     if (id) {
       this.selectAudioTrack(id)
     }
@@ -167,31 +176,40 @@ export class AudioTracks extends UICorePlugin {
   }
 
   private hideMenu() {
-    trace(`${T} hideMenu`)
-    this.$el.find('#audiotracks-select').addClass('hidden')
-    this.$el.find('#audiotracks-button').attr('aria-expanded', 'false')
+    this.open = false
+    this.$el.find('#gplayer-audiotracks-menu').hide()
+    this.$el.find('#gplayer-audiotracks-button').attr('aria-expanded', 'false')
   }
 
   private toggleMenu() {
-    this.core.getPlugin('media_control').trigger(ExtendedEvents.MEDIACONTROL_MENU_COLLAPSE, this.name)
-    this.$el.find('#audiotracks-select').toggleClass('hidden') // TODO use plain CSS display: none
-    const open = !this.$el.find('#audiotracks-select').hasClass('hidden') // TODO hold state
-    this.$el.find('#audiotracks-button').attr('aria-expanded', open)
+    this.open = !this.open
+
+    this.core
+      .getPlugin('media_control')
+      .trigger(ExtendedEvents.MEDIACONTROL_MENU_COLLAPSE, this.name)
+    if (this.open) {
+      this.$el.find('#gplayer-audiotracks-menu').show()
+    } else {
+      this.$el.find('#gplayer-audiotracks-menu').hide()
+    }
+    this.$el
+      .find('#gplayer-audiotracks-button')
+      .attr('aria-expanded', this.open)
   }
 
   private buttonElement(): ZeptoResult {
-    return this.$('button')
+    return this.$('#gplayer-audiotracks-button')
   }
 
   private buttonElementText(): ZeptoResult {
-    return this.$('button .audio-text')
+    return this.$el.find('#gplayer-audiotracks-button-text')
   }
 
   private trackElement(id?: string): ZeptoResult {
     return (
       this.$(
-        '#audiotracks-select a' +
-          (id !== undefined ? `[data-audiotracks-select="${id}"]` : ''),
+        '#gplayer-audiotracks-menu a' +
+          (id !== undefined ? `[data-item="${id}"]` : ''),
       ) as ZeptoResult
     ).parent()
   }
@@ -227,6 +245,12 @@ export class AudioTracks extends UICorePlugin {
         .find('a')
         .addClass('gcore-skin-active')
         .attr('aria-checked', 'true')
+    }
+  }
+
+  private mount() {
+    if (this.shouldRender()) {
+      this.core.getPlugin('media_control')?.slot('audiotracks', this.$el)
     }
   }
 }

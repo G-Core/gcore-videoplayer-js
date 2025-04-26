@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { Events } from '@clappr/core'
+
 import { ExtendedEvents } from '../../media-control/MediaControl'
 import { AudioTracks } from '../AudioTracks'
 
@@ -29,54 +30,51 @@ describe('AudioTracks', () => {
     core.emit(Events.CORE_READY)
     core.emit(Events.CORE_ACTIVE_CONTAINER_CHANGED, core.activeContainer)
   })
-  describe('before media control is rendererd', () => {
-    beforeEach(() => {
-      emitTracksAvailable(core, TRACKS)
+  describe('basically', () => {
+    it('should render button', () => {
+      expect(audioTracks.$el.find('#gplayer-audiotracks-button').length).toBe(1)
     })
-    it('should not attach to the media control', () => {
+    it('should render menu hidden', () => {
+      expect(audioTracks.$el.find('#gplayer-audiotracks-menu').css('display')).toBe('none')
+    })
+  })
+  describe('until audio tracks are available', () => {
+    it('should not mount', () => {
       expect(mediaControl.slot).not.toHaveBeenCalledWith(
         'audiotracks',
         expect.anything(),
       )
     })
   })
-  describe('when media control is rendered', () => {
+  describe('when audio tracks are available', () => {
     beforeEach(() => {
-      mediaControl.trigger(Events.MEDIACONTROL_RENDERED)
+      emitTracksAvailable(core, TRACKS)
     })
-    it('should attach to the media control', () => {
+    it('should render menu', () => {
+      expect(audioTracks.el.innerHTML).toMatchSnapshot()
+      expect(
+        audioTracks.$el.find('#gplayer-audiotracks-menu').css('display'),
+      ).toBe('none')
+      const trackItems = audioTracks.$el.find('#gplayer-audiotracks-menu li')
+      expect(trackItems.length).toBe(2)
+      expect(trackItems.eq(0).text().trim()).toBe('English')
+      expect(trackItems.eq(1).text().trim()).toBe('Spanish')
+    })
+    it('should mount', () => {
       expect(mediaControl.slot).toHaveBeenCalledWith(
         'audiotracks',
         audioTracks.$el,
       )
     })
-  })
-  describe('given that audio tracks are available', () => {
-    beforeEach(() => {
-      emitTracksAvailable(core, TRACKS)
-    })
-    it('should render button', () => {
-      expect(audioTracks.$el.find('#audiotracks-button').length).toBe(1)
-    })
-    it('should render menu hidden', () => {
-      expect(audioTracks.el.innerHTML).toMatchSnapshot()
-      expect(
-        audioTracks.$el.find('#audiotracks-select').hasClass('hidden'),
-      ).toBe(true)
-      const trackItems = audioTracks.$el.find('#audiotracks-select li')
-      expect(trackItems.length).toBe(2)
-      expect(trackItems.eq(0).text().trim()).toBe('English')
-      expect(trackItems.eq(1).text().trim()).toBe('Spanish')
-    })
     describe('when button is clicked', () => {
       beforeEach(() => {
-        audioTracks.$el.find('#audiotracks-button').click()
+        audioTracks.$el.find('#gplayer-audiotracks-button').click()
       })
       it('should show menu', () => {
         expect(audioTracks.$el.html()).toMatchSnapshot()
         expect(
-          audioTracks.$el.find('#audiotracks-select').hasClass('hidden'),
-        ).toBe(false)
+          audioTracks.$el.find('#gplayer-audiotracks-menu').css('display'),
+        ).not.toBe('none')
       })
       it('should collapse all other menus', () => {
         expect(mediaControl.trigger).toHaveBeenCalledWith(
@@ -87,7 +85,7 @@ describe('AudioTracks', () => {
       describe('when audio track is selected', () => {
         beforeEach(() => {
           audioTracks.$el
-            .find('#audiotracks-select [data-audiotracks-select="2"]')
+            .find('#gplayer-audiotracks-menu [data-item="2"]')
             .click()
         })
         it('should switch to the selected audio track', () => {
@@ -98,13 +96,13 @@ describe('AudioTracks', () => {
         it('should hide the menu', () => {
           expect(audioTracks.$el.html()).toMatchSnapshot()
           expect(
-            audioTracks.$el.find('#audiotracks-select').hasClass('hidden'),
-          ).toBe(true)
-          expect(audioTracks.$el.find('#audiotracks-button').attr('aria-expanded')).toBe('false')
+            audioTracks.$el.find('#gplayer-audiotracks-menu').css('display'),
+          ).toBe('none')
+          expect(audioTracks.$el.find('#gplayer-audiotracks-button').attr('aria-expanded')).toBe('false')
         })
         it('should add changing class to the button', () => {
           expect(
-            audioTracks.$el.find('#audiotracks-button').hasClass('changing'),
+            audioTracks.$el.find('#gplayer-audiotracks-button').hasClass('changing'),
           ).toBe(true)
         })
         describe('when current audio track changes', () => {
@@ -123,14 +121,14 @@ describe('AudioTracks', () => {
           it('should update button class', () => {
             expect(
               audioTracks.$el
-                .find('#audiotracks-button')
+                .find('#gplayer-audiotracks-button')
                 .hasClass('changing'),
             ).toBe(false)
           })
           it('should update button label', () => {
             expect(
               audioTracks.$el
-                .find('#audiotracks-button')
+                .find('#gplayer-audiotracks-button')
                 .text()
                 .replace(/\/assets.*\.svg/g, '')
                 .trim(),
@@ -138,22 +136,22 @@ describe('AudioTracks', () => {
           })
           it('should highlight the selected menu item', () => {
             const selectedItem = audioTracks.$el.find(
-              '#audiotracks-select .current',
+              '#gplayer-audiotracks-menu .current',
             )
             expect(selectedItem.text().trim()).toBe('Spanish')
             expect(
               selectedItem
-                .find('a[data-audiotracks-select]')
+                .find('a[data-item]')
                 .hasClass('gcore-skin-active'),
             ).toBe(true)
           })
           it('should unhighlight any previously highlighted menu item', () => {
             expect(
-              audioTracks.$el.find('#audiotracks-select li.current').length,
+              audioTracks.$el.find('#gplayer-audiotracks-menu li.current').length,
             ).toBe(1)
             expect(
               audioTracks.$el.find(
-                '#audiotracks-select a.gcore-skin-active[data-audiotracks-select]',
+                '#gplayer-audiotracks-menu a.gcore-skin-active[data-item]',
               ).length,
             ).toBe(1)
           })
@@ -162,19 +160,36 @@ describe('AudioTracks', () => {
     })
     describe('when button is clicked twice', () => {
       beforeEach(() => {
-        audioTracks.$el.find('#audiotracks-button').click()
-        audioTracks.$el.find('#audiotracks-button').click()
+        audioTracks.$el.find('#gplayer-audiotracks-button').click()
+        audioTracks.$el.find('#gplayer-audiotracks-button').click()
       })
       it('should collapse the menu', () => {
-        expect(audioTracks.$el.find('#audiotracks-select').hasClass('hidden')).toBe(true)
-        expect(audioTracks.$el.find('#audiotracks-button').attr('aria-expanded')).toBe('false')
+        expect(audioTracks.$el.find('#gplayer-audiotracks-menu').css('display')).toBe('none')
+        expect(audioTracks.$el.find('#gplayer-audiotracks-button').attr('aria-expanded')).toBe('false')
+      })
+    })
+    describe('when media control is rendered', () => {
+      beforeEach(() => {
+        mediaControl.slot.mockClear()
+        mediaControl.trigger(Events.MEDIACONTROL_RENDERED)
+      })
+      it('should remount', () => {
+        expect(mediaControl.slot).toHaveBeenCalledWith(
+          'audiotracks',
+          audioTracks.$el,
+        )
       })
     })
   })
-  describe('when audio tracks are not available', () => {
-    it('should not render the button', () => {
-      expect(audioTracks.$el.find('#audiotracks-button').length).toBe(0)
-      expect(audioTracks.$el.find('#audiotracks-select').length).toBe(0)
+  describe('when container is clicked', () => {
+    beforeEach(() => {
+      emitTracksAvailable(core, TRACKS)
+      audioTracks.$el.find('#gplayer-audiotracks-button').click()
+      core.activeContainer.emit(Events.CONTAINER_CLICK)
+    })
+    it('should hide the menu', () => {
+      expect(audioTracks.$el.find('#gplayer-audiotracks-menu').css('display')).toBe('none')
+      expect(audioTracks.$el.find('#gplayer-audiotracks-button').attr('aria-expanded')).toBe('false')
     })
   })
 })
