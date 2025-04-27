@@ -49,6 +49,8 @@ const STANDARD_MEDIA_CONTROL_ELEMENTS: string[] = [
   'volume',
 ]
 
+const MENU_VMARGIN = 12
+
 /**
  * Built-in media control elements.
  * @beta
@@ -563,6 +565,13 @@ export class MediaControl extends UICorePlugin {
   }
 
   /**
+   * @returns Vertical space available to render a popup menu
+   */
+  getAvailablePopupHeight() {
+    return this.getAvailableHeight() - MENU_VMARGIN * 2
+  }
+
+  /**
    * Set the initial volume, which is preserved when playback is interrupted by an advertisement
    */
   setInitialVolume() {
@@ -681,6 +690,7 @@ export class MediaControl extends UICorePlugin {
     const pos = offset
       ? Math.min(1, Math.max(offset / this.$seekBarContainer.width(), 0))
       : 0
+
     if (this.settings.seekEnabled) {
       // TODO test that it works when the element does not exist
       this.$seekBarHover.css({ left: hoverOffset })

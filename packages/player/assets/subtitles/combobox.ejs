@@ -1,14 +1,35 @@
-<button data-cc-button class='media-control-button media-control-icon gcore-skin-button-color' id="cc-button">
-    <span class='cc-text'></span>
+<button
+    class='media-control-button media-control-icon gcore-skin-button-color media-control-dd'
+    id="gplayer-cc-button"
+    aria-haspopup="menu"
+    aria-expanded="false"
+    aria-controls="gplayer-cc-menu"
+>
 </button>
 
-<ul class='gcore-skin-bg-color' id="cc-select">
+<ul class='gcore-skin-bg-color media-control-dd__popup' id="gplayer-cc-menu" role="menu">
     <% for (const t of tracks) { %>
         <li>
-            <a href="#" class='gcore-skin-text-color' data-cc-select="<%= t.id %>">
+            <a
+                href="#"
+                class="gcore-skin-text-color"
+                data-item="<%= t.id %>"
+                role="menuitemradio"
+                aria-checked="<%= t.id === current %>"
+            >
                 <%= t.name %>
             </a>
         </li>
     <% } %>
-    <li><a href="#" class='gcore-skin-text-color' data-cc-select="-1"><%= i18n.t('off') %></a></li>
+    <li class="current">
+        <a
+            href="#"
+            class='gcore-skin-text-color gcore-skin-active'
+            data-item="-1"
+            role="menuitemradio"
+            aria-checked="<%= current === -1 %>"
+        >
+            <%= i18n.t('off') %>
+        </a>
+    </li>
 </ul>

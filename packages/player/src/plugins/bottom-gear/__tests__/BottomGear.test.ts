@@ -110,7 +110,7 @@ describe('BottomGear', () => {
     })
     describe('when submenu is open', () => {
       beforeEach(async () => {
-        mediaControl.getAvailableHeight.mockReturnValue(198)
+        mediaControl.getAvailablePopupHeight.mockReturnValue(174)
         bottomGear.$el.find('#gear-button').click()
         await new Promise((resolve) => setTimeout(resolve, 0))
         bottomGear.$el.find('#more-button').click()

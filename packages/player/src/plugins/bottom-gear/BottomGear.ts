@@ -198,7 +198,7 @@ export class BottomGear extends UICorePlugin {
         .appendTo(this.$el.find('#gear-options-wrapper'))
       $item.on('click', (e: MouseEvent) => {
         e.stopPropagation()
-        this.alignSubmenu($subMenu)
+        this.clampPopup($subMenu)
         $subMenu.show()
         this.$el.find('#gear-options').hide()
       })
@@ -323,10 +323,9 @@ export class BottomGear extends UICorePlugin {
     mediaControl.slot('gear', this.$el)
   }
 
-  private alignSubmenu($subMenu: ZeptoResult) {
+  private clampPopup($subMenu: ZeptoResult) {
     const availableHeight =
-      this.core.getPlugin('media_control').getAvailableHeight() -
-      MENU_VMARGIN * 2
+      this.core.getPlugin('media_control').getAvailablePopupHeight()
     $subMenu.css('max-height', `${availableHeight}px`)
     $subMenu
       .find('.gear-sub-menu')

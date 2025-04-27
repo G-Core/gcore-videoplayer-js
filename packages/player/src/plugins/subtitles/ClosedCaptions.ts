@@ -64,6 +64,8 @@ export class ClosedCaptions extends UICorePlugin {
 
   private active = false
 
+  private open = false
+
   private track: TextTrackItem | null = null
 
   private tracks: TextTrackItem[] = []
@@ -91,16 +93,16 @@ export class ClosedCaptions extends UICorePlugin {
     return VERSION
   }
 
-  private static readonly template = template(comboboxHTML)
+  private static readonly templateControl = template(comboboxHTML)
 
-  private static readonly templateString = template(stringHTML)
+  private static readonly templateLine = template(stringHTML)
 
   /**
    * @internal
    */
   override get attributes() {
     return {
-      class: 'media-control-cc',
+      class: 'media-control-cc media-control-dd__wrap',
     }
   }
 
@@ -109,8 +111,8 @@ export class ClosedCaptions extends UICorePlugin {
    */
   override get events() {
     return {
-      'click #cc-select li a': 'onItemSelect',
-      'click #cc-button': 'toggleMenu',
+      'click #gplayer-cc-menu [data-item]': 'onItemSelect',
+      'click #gplayer-cc-button': 'toggleMenu',
     }
   }
 
@@ -136,10 +138,9 @@ export class ClosedCaptions extends UICorePlugin {
   }
 
   private onCoreReady() {
-    trace(`${T} onCoreReady`)
     const mediaControl = this.core.getPlugin('media_control')
     assert(mediaControl, 'media_control plugin is required')
-    this.listenTo(mediaControl, Events.MEDIACONTROL_RENDERED, this.render) // TODO mount to media control
+    this.listenTo(mediaControl, Events.MEDIACONTROL_RENDERED, this.mount)
     this.listenTo(mediaControl, Events.MEDIACONTROL_HIDE, () => {
       this.hideMenu()
     })
@@ -155,7 +156,6 @@ export class ClosedCaptions extends UICorePlugin {
   }
 
   private onContainerChanged() {
-    trace(`${T} onContainerChanged`)
     this.listenTo(
       this.core.activeContainer,
       Events.CONTAINER_FULLSCREEN,
@@ -176,6 +176,10 @@ export class ClosedCaptions extends UICorePlugin {
       Events.PLAYBACK_SUBTITLE_CHANGED,
       this.onSubtitleChanged,
     )
+    this.listenTo(this.core.activeContainer, Events.CONTAINER_CLICK, () => {
+      // TODO test
+      this.hideMenu()
+    })
 
     // fix for iOS
     const video = this.core.activePlayback.el
@@ -197,6 +201,7 @@ export class ClosedCaptions extends UICorePlugin {
   private onSubtitleAvailable() {
     trace(`${T} onSubtitleAvailable`)
     this.applyTracks()
+    this.mount()
   }
 
   private onSubtitleChanged({ id }: { id: number }) {
@@ -276,6 +281,7 @@ export class ClosedCaptions extends UICorePlugin {
 
     try {
       this.resizeFont()
+      this.clampPopup()
     } catch (error) {
       reportError(error)
     }
@@ -286,7 +292,10 @@ export class ClosedCaptions extends UICorePlugin {
    */
   hide() {
     this.active = false
+    this.open = false
     this.renderIcon()
+    this.$el.find('#gplayer-cc-menu').hide()
+    this.$el.find('#gplayer-cc-button').attr('aria-expanded', 'false')
     this.$line.hide()
     if (this.tracks) {
       for (const t of this.tracks) {
@@ -337,20 +346,21 @@ export class ClosedCaptions extends UICorePlugin {
       return this
     }
 
-    if (!this.shouldRender()) {
-      return this
-    }
-
-    const mediaControl = this.core.getPlugin('media_control')
-
-    this.$el.html(ClosedCaptions.template({ tracks: this.tracks, i18n: this.core.i18n }))
-    this.$el.find('#cc-select').hide()
-    this.core.activeContainer.$el.find('#cc-line').remove()
-    this.$line = $(ClosedCaptions.templateString())
+    this.$el.html(
+      ClosedCaptions.templateControl({
+        tracks: this.tracks ?? [],
+        i18n: this.core.i18n,
+        current: this.track?.id ?? -1,
+      }),
+    )
+    this.$el.find('#gplayer-cc-menu').hide()
+    this.open = false
+    this.core.activeContainer.$el.find('#gplayer-cc-line').remove()
+    this.$line = $(ClosedCaptions.templateLine())
     this.resizeFont()
+    this.clampPopup()
 
     this.core.activeContainer.$el.append(this.$line)
-    mediaControl.slot('cc', this.$el)
 
     this.updateSelection()
 
@@ -371,11 +381,12 @@ export class ClosedCaptions extends UICorePlugin {
   }
 
   private onItemSelect(event: MouseEvent) {
-    const id = (event.target as HTMLElement).dataset.ccSelect ?? '-1'
+    // event.target does not exist for some reason in tests
+    const id =
+      ((event.target ?? event.currentTarget) as HTMLElement).dataset?.item ??
+      '-1'
 
-    trace(`${T} onItemSelect`, { id })
-
-    localStorage.setItem(LOCAL_STORAGE_CC_ID, id)
+    localStorage.setItem(LOCAL_STORAGE_CC_ID, id) // TODO store language instead
     this.selectItem(this.findById(Number(id)))
     this.hideMenu()
     return false
@@ -398,31 +409,37 @@ export class ClosedCaptions extends UICorePlugin {
   }
 
   private hideMenu() {
-    trace(`${T} hideMenu`)
-    this.$el.find('#cc-select').hide()
+    this.open = false
+    this.$el.find('#gplayer-cc-menu').hide()
+    this.$el.find('#gplayer-cc-button').attr('aria-expanded', 'false')
   }
 
   private toggleMenu() {
-    trace(`${T} toggleMenu`, {display: this.$el.find('#cc-select').css('display')})
     this.core
       .getPlugin('media_control')
       .trigger(ExtendedEvents.MEDIACONTROL_MENU_COLLAPSE, this.name)
-    this.$el.find('#cc-select').toggle()
-    // TODO hold state, add aria-expanded to the button, add active state to the button
+    this.open = !this.open
+    if (this.open) {
+      this.$el.find('#gplayer-cc-menu').show()
+    } else {
+      this.$el.find('#gplayer-cc-menu').hide()
+    }
+    this.$el.find('#gplayer-cc-button').attr('aria-expanded', this.open)
   }
 
   private itemElement(id: number): ZeptoResult {
-    return this.$el.find(`#cc-select li a[data-cc-select="${id}"]`).parent()
+    // TODO fix semantically
+    return this.$el.find(`#gplayer-cc-menu [data-item="${id}"]`).parent()
   }
 
   private allItemElements(): ZeptoResult {
-    return this.$('#cc-select li')
+    return this.$el.find('#gplayer-cc-menu li') // TODO fix semantically
   }
 
   private selectSubtitles() {
     const trackId = this.track ? this.track.id : -1
 
-    this.core.activePlayback.closedCaptionsTrackId = trackId
+    this.core.activePlayback.closedCaptionsTrackId = trackId // TODO test
   }
 
   private getSubtitleText(track: TextTrack) {
@@ -434,6 +451,7 @@ export class ClosedCaptions extends UICorePlugin {
       for (const cue of cues) {
         if (currentTime >= cue.startTime && currentTime <= cue.endTime) {
           lines.push((cue as VTTCue).getCueAsHTML().textContent)
+          // TODO break?
         }
       }
     }
@@ -464,10 +482,8 @@ export class ClosedCaptions extends UICorePlugin {
       .removeClass('current')
       .find('a')
       .removeClass('gcore-skin-active')
+      .attr('aria-checked', 'false')
 
-    trace(`${T} highlightCurrentSubtitles`, {
-      track: this.track?.id,
-    })
     const currentLevelElement = this.itemElement(
       this.track ? this.track.id : -1,
     )
@@ -475,11 +491,26 @@ export class ClosedCaptions extends UICorePlugin {
       .addClass('current')
       .find('a')
       .addClass('gcore-skin-active')
+      .attr('aria-checked', 'true')
   }
 
   private renderIcon() {
+    // render both icons at once
     const icon = this.active ? subtitlesOnIcon : subtitlesOffIcon
+    this.$el.find('#gplayer-cc-button').html(icon)
+  }
 
-    this.$el.find('span.cc-text').html(icon)
+  private clampPopup() {
+    const availableHeight = this.core
+      .getPlugin('media_control')
+      .getAvailablePopupHeight()
+    this.$el.find('#gplayer-cc-menu').css('max-height', `${availableHeight}px`)
+  }
+
+  private mount() {
+    if (this.shouldRender()) {
+      const mediaControl = this.core.getPlugin('media_control')
+      mediaControl.slot('cc', this.$el)
+    }
   }
 }

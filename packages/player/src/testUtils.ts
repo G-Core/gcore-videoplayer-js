@@ -134,6 +134,8 @@ export function createMockMediaControl(core: any) {
   // @ts-ignore
   mediaControl.getAvailableHeight = vi.fn().mockReturnValue(300)
   // @ts-ignore
+  mediaControl.getAvailablePopupHeight = vi.fn().mockReturnValue(286)
+  // @ts-ignore
   mediaControl.toggleElement = vi.fn()
   vi.spyOn(mediaControl, 'trigger')
   core.$el.append(mediaControl.$el)

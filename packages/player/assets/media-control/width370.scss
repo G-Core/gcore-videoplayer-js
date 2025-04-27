@@ -1,4 +1,5 @@
 .media-control-skin-1.w370 {
+  // TODO -> cc stylesheet
   .media-control-cc {
     width: 28px;
 
@@ -145,5 +146,8 @@
     .media-control-item {
       height: 32px;
     }
+  }
+  .media-control-dd__popup {
+    max-width: 150px;
   }
 }

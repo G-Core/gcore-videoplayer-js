@@ -13,6 +13,7 @@
   --player-seekbar-current-color: #ff5700;
   --player-seekbar-buffer-color: #fff;
   --gplayer-mc-text-color: #fff;
+  --gplayer-mc-text-dim-color: #fffffe;
   --gplayer-mc-popup-border-color: rgb(255 255 255 / 10%);
   --gplayer-mc-popup-bg: rgb(74 74 74 / 60%);
 }
@@ -185,7 +186,6 @@
   }
 
   .media-control-indicator {
-
     &[data-position],
     &[data-duration] {
       display: flex;
@@ -444,10 +444,13 @@
       animation: pulse 0.5s infinite alternate;
     }
 
+    svg {
+      fill: var(--gplayer-mc-text-color);
+    }
+
     &__arrow {
       width: 9px;
       height: 6px;
-      // margin-left: 5px;
     }
 
     &__wrap {
@@ -455,7 +458,8 @@
     }
 
     &__popup {
-      max-width: 114px;
+      // max-width: 114px;
+      max-width: 200px;
       list-style-type: none;
       position: absolute;
       box-shadow: 0 0 1px 1px var(--gplayer-mc-popup-border-color);
@@ -464,17 +468,15 @@
       border-radius: 4px;
       bottom: 40px;
       right: -2px;
-      overflow: hidden;
+      overflow-x: hidden;
+      overflow-y: auto;
+
+      padding: 5px 0;
 
       li {
         font-size: var(--gplayer-mc-font-size-dropdown);
         text-align: right;
         height: 30px;
-    
-        &[data-title] {
-          background-color: #c3c2c2;
-          padding: 5px;
-        }
     
         a {
           display: block;
@@ -483,15 +485,15 @@
           overflow: hidden;
           white-space: nowrap;
     
-          height: 30px;
+          // height: 30px;
           padding: 5px 10px;
           line-height: 20px;
-          color: #fffffe;
+          color: #fffffe; // TODO color var
     
           &:hover {
             text-decoration: none;
             background-color: rgb(0 0 0 / 40%);
-            color: white;
+            color: var(--gplayer-mc-text-color);
           }
         }
     
