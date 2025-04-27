@@ -45,6 +45,14 @@ export type ClosedCaptionsPluginSettings = {
  * - {@link MediaControl}
  *
  * Configuration options -  {@link ClosedCaptionsPluginSettings}
+ *
+ * Known issues:
+ *
+ * 1. When media source changes, the subtitles tracks aren't reloaded. Possible solution: use `playback.recycleVideo = false`
+ * {@link PlayerConfig | main config option}, which will force new video element creation every time media source changes.
+ * However, this may lead to other issues, such as autoplay not working (after media source has been changed).
+ * {@link https://github.com/video-dev/hls.js/issues/2198 | related discussion}
+ *
  * @example
  * ```ts
  * import { ClosedCaptions } from '@gcorevideo/player'
@@ -129,7 +137,6 @@ export class ClosedCaptions extends UICorePlugin {
    */
   override bindEvents() {
     this.listenTo(this.core, Events.CORE_READY, this.onCoreReady)
-    this.listenTo(this.core, Events.CORE_RESIZE, this.playerResize)
     this.listenTo(
       this.core,
       Events.CORE_ACTIVE_CONTAINER_CHANGED,
@@ -159,7 +166,12 @@ export class ClosedCaptions extends UICorePlugin {
     this.listenTo(
       this.core.activeContainer,
       Events.CONTAINER_FULLSCREEN,
-      this.playerResize,
+      this.onContainerResize,
+    )
+    this.listenTo(
+      this.core.activeContainer,
+      Events.CONTAINER_RESIZE,
+      this.onContainerResize,
     )
     this.listenTo(
       this.core.activeContainer,
@@ -199,7 +211,9 @@ export class ClosedCaptions extends UICorePlugin {
   }
 
   private onSubtitleAvailable() {
-    trace(`${T} onSubtitleAvailable`)
+    trace(`${T} onSubtitleAvailable`, {
+      tracks: this.core.activePlayback.closedCaptionsTracks.length,
+    })
     this.applyTracks()
     this.mount()
   }
@@ -265,8 +279,7 @@ export class ClosedCaptions extends UICorePlugin {
     )
   }
 
-  private playerResize() {
-    trace(`${T} playerResize`)
+  private onContainerResize() {
     const shouldShow =
       this.core.activeContainer &&
       isFullscreen(this.core.activeContainer.el) &&

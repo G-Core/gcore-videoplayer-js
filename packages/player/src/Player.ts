@@ -167,7 +167,6 @@ export class Player {
     if (this.config.debug === 'all' || this.config.debug === 'clappr') {
       Log.setLevel(0)
     }
-
     const coreOpts = this.buildCoreOptions(playerElement)
     const { core, container } = Player.getRegisteredPlugins()
     trace(`${T} init`, {

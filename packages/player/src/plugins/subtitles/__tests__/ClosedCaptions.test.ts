@@ -61,7 +61,7 @@ describe('ClosedCaptions', () => {
           width: 320,
           height: 260,
         })
-        core.emit(Events.CORE_RESIZE, { width: 320, height: 260 })
+        // core.emit(Events.CORE_RESIZE, { width: 320, height: 260 })
       })
       it('should clamp popup height', () => {
         expect(cc.$el.find('#gplayer-cc-menu').css('max-height')).toBe('197px')
