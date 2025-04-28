@@ -17,7 +17,7 @@ import { MediaControl } from '../media-control/MediaControl.js'
 import { TimerId } from '../../utils/types.js'
 
 /**
- * @beta
+ * @public
  */
 export type PlaybackRateOption = {
   value: number
@@ -25,7 +25,7 @@ export type PlaybackRateOption = {
 }
 
 /**
- * @beta
+ * @public
  */
 export type PlaybackRateSettings = {
   options?: PlaybackRateOption[]
@@ -249,11 +249,6 @@ export class PlaybackRate extends UICorePlugin {
   }
 
   private shouldMount() {
-    trace(`${T} shouldMount`, {
-      playbackType: this.core.activePlayback?.getPlaybackType(),
-      dvrEnabled: this.core.activePlayback?.dvrEnabled,
-    })
-
     if (!this.core.activePlayback || !this.metadataLoaded) {
       return false
     }
@@ -272,10 +267,6 @@ export class PlaybackRate extends UICorePlugin {
    * @internal
    */
   override render() {
-    trace(`${T} render`, {
-      shouldMount: this.shouldMount(),
-    })
-
     this.$el.html(
       PlaybackRate.listTemplate({
         arrowLeftIcon,
@@ -394,9 +385,6 @@ export class PlaybackRate extends UICorePlugin {
   }
 
   private updateGearOptionLabel() {
-    trace(`${T} updateGearOptionLabel`, {
-      selectedRate: this.selectedRate,
-    })
     this.mount()
   }
 }

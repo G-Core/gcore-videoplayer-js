@@ -4,9 +4,6 @@
 
 ## ClosedCaptions class
 
-> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
-> 
-
 `PLUGIN` that provides a UI to select the subtitles when available.
 
 **Signature:**
@@ -25,6 +22,10 @@ Depends on:
 - [MediaControl](./player.mediacontrol.md)
 
 Configuration options - [ClosedCaptionsPluginSettings](./player.closedcaptionspluginsettings.md)
+
+Known issues:
+
+1. When media source changes, the subtitles tracks aren't reloaded. Possible solution: use `playback.recycleVideo = false` [main config option](./player.playerconfig.md)<!-- -->, which will force new video element creation every time media source changes. However, this may lead to other issues, such as autoplay not working (after media source has been changed). [related discussion](https://github.com/video-dev/hls.js/issues/2198)
 
 ## Example
 
@@ -70,7 +71,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Hides the subtitles menu and the subtitles.
+Hides the subtitles menu and the subtitles.
 
 
 </td></tr>
@@ -84,7 +85,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Shows the subtitles menu and the subtitles.
+Shows the subtitles menu and the subtitles.
 
 
 </td></tr>

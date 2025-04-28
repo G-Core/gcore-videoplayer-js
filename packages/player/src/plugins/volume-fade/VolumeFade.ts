@@ -6,7 +6,7 @@ import { ExtendedEvents } from '../media-control/MediaControl.js'
 
 /**
  * Events emitted by the VolumeFade plugin.
- * @beta
+ * @public
  */
 export enum VolumeFadeEvents {
   FADE = 'core:volume:fade',
@@ -18,7 +18,7 @@ const DEFAULT_DURATION = 600
 const DEFAULT_VOLUME_LEVEL = 80
 
 /**
- * @beta
+ * @public
  */
 export type VolumeFadeSettings = {
   /**

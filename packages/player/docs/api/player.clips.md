@@ -4,9 +4,6 @@
 
 ## Clips class
 
-> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
-> 
-
 `PLUGIN` that allows marking up the timeline of the video
 
 **Signature:**
@@ -66,8 +63,6 @@ Description
 
 </td><td>
 
-**_(BETA)_**
-
 
 </td></tr>
 <tr><td>
@@ -86,8 +81,6 @@ string
 
 
 </td><td>
-
-**_(BETA)_**
 
 
 </td></tr>
@@ -121,8 +114,6 @@ Description
 
 </td><td>
 
-**_(BETA)_**
-
 
 </td></tr>
 <tr><td>
@@ -134,8 +125,6 @@ Description
 
 
 </td><td>
-
-**_(BETA)_**
 
 
 </td></tr>
@@ -149,8 +138,6 @@ Description
 
 </td><td>
 
-**_(BETA)_**
-
 
 </td></tr>
 <tr><td>
@@ -163,7 +150,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Get the text of the clip at the given time
+Get the text of the clip at the given time
 
 
 </td></tr>
@@ -176,8 +163,6 @@ Description
 
 
 </td><td>
-
-**_(BETA)_**
 
 
 </td></tr>

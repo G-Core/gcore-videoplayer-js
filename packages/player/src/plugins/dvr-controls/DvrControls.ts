@@ -1,6 +1,6 @@
 import { Events, Playback, UICorePlugin, template } from '@clappr/core'
 import assert from 'assert'
-import { trace } from '@gcorevideo/utils'
+// import { trace } from '@gcorevideo/utils'
 
 import { CLAPPR_VERSION } from '../../build.js'
 
@@ -8,12 +8,12 @@ import dvrHTML from '../../../assets/dvr-controls/index.ejs'
 import '../../../assets/dvr-controls/dvr_controls.scss'
 import { MediaControl } from '../media-control/MediaControl.js'
 
-const T = 'plugins.dvr_controls'
+// const T = 'plugins.dvr_controls'
 
 /**
  * `PLUGIN` that adds the DVR controls to the media control UI
  *
- * @beta
+ * @public
  *
  * @remarks
  * Depends on:
@@ -104,7 +104,6 @@ export class DvrControls extends UICorePlugin {
    * @internal
    */
   override render() {
-    trace(`${T} render`)
     this.$el.html(
       DvrControls.template({
         i18n: this.core.i18n,

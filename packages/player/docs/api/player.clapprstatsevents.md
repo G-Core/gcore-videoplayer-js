@@ -4,9 +4,6 @@
 
 ## ClapprStatsEvents enum
 
-> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
-> 
-
 
 **Signature:**
 
@@ -44,7 +41,7 @@ REPORT
 
 </td><td>
 
-**_(BETA)_** Emitted periodically with current measurements.
+Emitted periodically with current measurements.
 
 
 </td></tr>

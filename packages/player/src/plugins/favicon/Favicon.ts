@@ -11,7 +11,7 @@ const FAVICON_COLOR = '#567';
 const FAVICON_SELECTOR = 'link[rel="shortcut icon"]';
 
 /**
- * @beta
+ * @public
  */
 export interface FaviconPluginSettings {
   /**
@@ -22,7 +22,7 @@ export interface FaviconPluginSettings {
 
 /**
  * `PLUGIN` that changes the favicon according to the player's state.
- * @beta
+ * @public
  * @remarks
  * There are three states: stopped, playing and paused.
  */

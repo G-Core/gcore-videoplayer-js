@@ -246,6 +246,20 @@ Description
 </td></tr>
 <tr><td>
 
+[getAvailablePopupHeight()](./player.mediacontrol.getavailablepopupheight.md)
+
+
+</td><td>
+
+
+</td><td>
+
+**_(BETA)_**
+
+
+</td></tr>
+<tr><td>
+
 [mount(name, element)](./player.mediacontrol.mount.md)
 
 

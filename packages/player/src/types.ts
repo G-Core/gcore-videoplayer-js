@@ -300,6 +300,6 @@ export enum PlayerEvent {
 
 /**
  * {@link https://zeptojs.com/#$() | Zepto query result}
- * @beta
+ * @public
  */
 export type ZeptoResult = ReturnType<typeof $>;

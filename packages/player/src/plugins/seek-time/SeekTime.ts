@@ -10,7 +10,7 @@ import { CLAPPR_VERSION } from '../../build.js'
 
 import seekTimeHTML from '../../../assets/seek-time/seek-time.html'
 import '../../../assets/seek-time/seek-time.scss'
-import { trace } from '@gcorevideo/utils'
+// import { trace } from '@gcorevideo/utils'
 
 /**
  * Configuration options for the SeekTime plugin.
@@ -26,7 +26,7 @@ export type SeekTimeSettings = {
 
 const { formatTime } = Utils
 
-const T = 'plugins.seek_time'
+// const T = 'plugins.seek_time'
 
 /**
  * `PLUGIN` that adds a seek time indicator when the mouse pointer is over the seek bar.
@@ -128,14 +128,10 @@ export class SeekTime extends UICorePlugin {
   private showTime(event: MouseEvent) {
     this.hoveringOverSeekBar = true
     this.calculateHoverPosition(event)
-    trace(`${T} showTime`, {
-      hoverPosition: this.hoverPosition,
-    })
     this.update()
   }
 
   private hideTime() {
-    trace(`${T} hideTime`)
     this.hoveringOverSeekBar = false
     this.update()
   }

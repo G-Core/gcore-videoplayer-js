@@ -4,9 +4,6 @@
 
 ## CmcdConfigOptions interface
 
-> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
-> 
-
 Config options for the [CmcdConfig](./player.cmcdconfig.md) plugin
 
 **Signature:**
@@ -53,7 +50,7 @@ string
 
 </td><td>
 
-**_(BETA)_** _(Optional)_ `cid` value. If ommitted, the pathname part of the first source URL will be used
+_(Optional)_ `cid` value. If ommitted, the pathname part of the first source URL will be used
 
 
 </td></tr>
@@ -72,7 +69,7 @@ string
 
 </td><td>
 
-**_(BETA)_** _(Optional)_ `sid` value. If ommitted, a random UUID will be generated
+_(Optional)_ `sid` value. If ommitted, a random UUID will be generated
 
 
 </td></tr>

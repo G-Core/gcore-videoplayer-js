@@ -4,9 +4,6 @@
 
 ## ClapprStats class
 
-> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
-> 
-
 `PLUGIN` that measures data about playback, which can be useful for analyzing performance and UX.
 
 **Signature:**
@@ -48,7 +45,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Constructs a new instance of the `ClapprStats` class
+Constructs a new instance of the `ClapprStats` class
 
 
 </td></tr>
@@ -82,8 +79,6 @@ Description
 
 </td><td>
 
-**_(BETA)_**
-
 
 </td></tr>
 <tr><td>
@@ -96,7 +91,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Returns the collected metrics.
+Returns the collected metrics.
 
 
 </td></tr>

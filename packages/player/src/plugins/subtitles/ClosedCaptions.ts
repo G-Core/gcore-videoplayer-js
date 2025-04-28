@@ -23,7 +23,7 @@ const T = 'plugins.cc'
 
 /**
  * Configuration options for the {@link ClosedCaptions} plugin.
- * @beta
+ * @public
  */
 export type ClosedCaptionsPluginSettings = {
   /**
@@ -34,7 +34,7 @@ export type ClosedCaptionsPluginSettings = {
 
 /**
  * `PLUGIN` that provides a UI to select the subtitles when available.
- * @beta
+ * @public
  *
  * @remarks
  * The plugin is activated when closed captions tracks are detected in the media source.

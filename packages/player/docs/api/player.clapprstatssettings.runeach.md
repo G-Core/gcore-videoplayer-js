@@ -4,9 +4,6 @@
 
 ## ClapprStatsSettings.runEach property
 
-> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
-> 
-
 The interval in milliseconds of periodic measurements. The plugin will emit a [ClapprStatsEvents.REPORT](./player.clapprstatsevents.md) event with the collected metrics at the specified interval.
 
 **Signature:**

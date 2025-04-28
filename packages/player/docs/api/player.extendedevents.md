@@ -4,9 +4,6 @@
 
 ## ExtendedEvents enum
 
-> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
-> 
-
 Extended events for the [MediaControl](./player.mediacontrol.md) plugin
 
 **Signature:**
@@ -45,8 +42,6 @@ MEDIACONTROL\_MENU\_COLLAPSE
 
 </td><td>
 
-**_(BETA)_**
-
 
 </td></tr>
 <tr><td>
@@ -60,8 +55,6 @@ MEDIACONTROL\_VOLUME
 
 
 </td><td>
-
-**_(BETA)_**
 
 
 </td></tr>

@@ -16,7 +16,11 @@ static defaultSettings(): any;
 
 any
 
-Default media control layout settings  The method can be used to change the default dashboard layout, for example, removing the standard UI elements
+Default media control layout settings
+
+## Remarks
+
+The method can be used to change the default dashboard layout, for example, removing the standard UI elements
 
 ## Example
 

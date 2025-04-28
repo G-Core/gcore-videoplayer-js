@@ -1,5 +1,5 @@
 import { Events, template, UICorePlugin } from '@clappr/core'
-import { trace } from '@gcorevideo/utils'
+// import { trace } from '@gcorevideo/utils'
 import assert from 'assert'
 
 import { type QualityLevel } from '../../playback.types.js'
@@ -17,12 +17,12 @@ import checkIcon from '../../../assets/icons/new/check.svg'
 import '../../../assets/level-selector/style.scss'
 import { MediaControl } from '../media-control/MediaControl.js'
 
-const T = 'plugins.quality_levels'
+// const T = 'plugins.quality_levels'
 const VERSION = 'v2.22.5'
 
 /**
  * Configuration options for the {@link QualityLevels} plugin.
- * @beta
+ * @public
  */
 export interface QualityLevelsPluginSettings {
   /**
@@ -41,7 +41,7 @@ export interface QualityLevelsPluginSettings {
 
 /**
  * `PLUGIN` that provides a UI to select the desired quality level of the playback.
- * @beta
+ * @public
  *
  * @remarks
  * Depends on:
@@ -133,7 +133,6 @@ export class QualityLevels extends UICorePlugin {
   }
 
   private onCoreReady() {
-    trace(`${T} onCoreReady`)
     const gear = this.core.getPlugin('bottom_gear') as BottomGear
     assert(gear, 'bottom_gear plugin is required')
 
@@ -142,7 +141,6 @@ export class QualityLevels extends UICorePlugin {
   }
 
   private onGearRendered() {
-    trace(`${T} onGearRendered`)
     this.render()
   }
 
@@ -191,7 +189,6 @@ export class QualityLevels extends UICorePlugin {
   }
 
   private onStop() {
-    trace(`${T} onStop`)
     this.listenToOnce(this.core.activePlayback, Events.PLAYBACK_PLAY, () => {
       if (this.core.activePlayback.getPlaybackType() === 'live') {
         if (this.selectedLevelId !== -1) {
@@ -316,7 +313,6 @@ export class QualityLevels extends UICorePlugin {
   }
 
   private goBack() {
-    trace(`${T} goBack`)
     this.core.getPlugin('bottom_gear').refresh()
   }
 
@@ -361,14 +357,10 @@ export class QualityLevels extends UICorePlugin {
   }
 
   private onBitrate(info: QualityLevel) {
-    trace(`${T} updateCurrentLevel`, { info })
     this.highlightCurrentLevel()
   }
 
   private highlightCurrentLevel() {
-    trace(`${T} highlightCurrentLevel`, {
-      selectedLevelId: this.selectedLevelId,
-    })
     this.allLevelElements()
       .removeClass('current')
       .find('a')

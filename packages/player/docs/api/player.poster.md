@@ -4,9 +4,6 @@
 
 ## Poster class
 
-> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
-> 
-
 `PLUGIN` that displays a poster image in the background and a big play button on top when playback is stopped
 
 **Signature:**
@@ -63,7 +60,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Disables the plugin, unmounting it from the DOM
+Disables the plugin, unmounting it from the DOM
 
 
 </td></tr>
@@ -77,7 +74,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Reenables earlier disabled plugin
+Reenables earlier disabled plugin
 
 
 </td></tr>

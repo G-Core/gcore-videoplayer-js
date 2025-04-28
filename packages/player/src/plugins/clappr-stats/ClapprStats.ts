@@ -22,7 +22,7 @@ import { isFullscreen } from '../utils/fullscreen.js'
 
 /**
  * Config options for the {@link ClapprStats} plugin
- * @beta
+ * @public
  */
 export interface ClapprStatsSettings {
   /**
@@ -34,7 +34,7 @@ export interface ClapprStatsSettings {
 
 /**
  * `PLUGIN` that measures data about playback, which can be useful for analyzing performance and UX.
- * @beta
+ * @public
  * @remarks
  * This plugin does not render anything and is supposed to be extended or used together with other plugins that actually render something.
  *
@@ -175,7 +175,7 @@ export class ClapprStats extends ContainerPlugin {
 
   /**
    * Returns the collected metrics.
-   * @returns Measurements collected so far
+   * @returns {@link ClapprStatsMetrics | Measurements} collected so far
    */
   exportMetrics() {
     return structuredClone(this.metrics)

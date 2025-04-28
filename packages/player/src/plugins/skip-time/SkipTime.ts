@@ -1,5 +1,5 @@
 import { UICorePlugin, Browser, Playback, Events, template } from '@clappr/core'
-import { trace } from '@gcorevideo/utils'
+// import { trace } from '@gcorevideo/utils'
 
 import { CLAPPR_VERSION } from '../../build.js'
 
@@ -8,11 +8,11 @@ import '../../../assets/skip-time/style.scss'
 
 type Position = 'mid' | 'left' | 'right'
 
-const T = 'plugins.skip_time'
+// const T = 'plugins.skip_time'
 
 /**
  * `PLUGIN` that allows skipping time by tapping on the left or right side of the video.
- * @beta
+ * @public
  */
 export class SkipTime extends UICorePlugin {
   get name() {
@@ -69,14 +69,10 @@ export class SkipTime extends UICorePlugin {
   }
 
   private setBack() {
-    trace(`${T} setBack`)
     this.position = 'left'
   }
 
   private handleRewindClicks() {
-    trace(`${T} handleRewindClicks`, {
-      position: this.position,
-    })
     if (
       this.core.getPlaybackType() === Playback.LIVE &&
       !this.container.isDvrEnabled()
@@ -88,9 +84,6 @@ export class SkipTime extends UICorePlugin {
   }
 
   private handleSkip() {
-    trace(`${T} handleSkip`, {
-      position: this.position,
-    })
     if (Browser.isMobile) {
       if (this.position === 'left') {
         const seekPos = this.container.getCurrentTime() - 10
@@ -114,17 +107,14 @@ export class SkipTime extends UICorePlugin {
   }
 
   private setMidClick() {
-    trace(`${T} setMidClick`)
     this.position = 'mid'
   }
 
   private setForward() {
-    trace(`${T} setForward`)
     this.position = 'right'
   }
 
   private toggleFullscreen() {
-    trace(`${T} toggleFullscreen`)
     this.trigger(Events.MEDIACONTROL_FULLSCREEN, this.name)
     this.container.fullscreen()
     this.core.toggleFullscreen()
@@ -134,14 +124,12 @@ export class SkipTime extends UICorePlugin {
    * @internal
    */
   override render() {
-    trace(`${T} render`)
     this.$el.html(SkipTime.template())
 
     return this
   }
 
   private mount() {
-    trace(`${T} mount`)
     this.core.activeContainer.$el.append(this.el)
   }
 }

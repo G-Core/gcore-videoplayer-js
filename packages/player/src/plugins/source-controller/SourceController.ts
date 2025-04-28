@@ -176,15 +176,10 @@ export class SourceController extends CorePlugin {
   }
 
   private onCoreReady() {
-    trace(`${T} onCoreReady`)
     this.core.getPlugin('error_screen')?.disable() //  TODO test
   }
 
   private onActiveContainerChanged() {
-    trace(`${T} onActiveContainerChanged`, {
-      retrying: this.active,
-      currentSource: this.sourcesList[this.currentSourceIndex],
-    })
     const spinner = this.core.activeContainer?.getPlugin('spinner')
     if (spinner) {
       this.sync = (cb: () => void) => {

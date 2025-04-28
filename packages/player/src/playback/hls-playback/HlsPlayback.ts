@@ -373,8 +373,6 @@ export default class HlsPlayback extends BasePlayback {
       },
       this.options.playback.hlsjsConfig,
     )
-    trace(`${T} _createHLSInstance`, { config })
-
     this._hls = new HLSJS(config)
   }
 
@@ -450,14 +448,9 @@ export default class HlsPlayback extends BasePlayback {
     this._hls.on(HLSJS.Events.ERROR, (evt, data) =>
       this._onHLSJSError(evt, data),
     )
-    // this._hls.on(HLSJS.Events.SUBTITLE_TRACK_LOADED, (evt, data) => this._onSubtitleLoaded(evt, data));
-    this._hls.on(HLSJS.Events.SUBTITLE_TRACK_LOADED, () =>
-      this._onSubtitleLoaded(),
-    )
-    this._hls.on(
-      HLSJS.Events.SUBTITLE_TRACKS_UPDATED,
-      () => (this._ccTracksUpdated = true),
-    )
+    // this._hls.on(HLSJS.Events.SUBTITLE_TRACK_LOADED, () =>
+    //   this._onSubtitleLoaded(),
+    // )
     this._hls.on(HlsEvents.AUDIO_TRACKS_UPDATED, (evt, data) =>
       this._onAudioTracksUpdated(evt, data),
     )
@@ -863,13 +856,13 @@ export default class HlsPlayback extends BasePlayback {
     ) as PlaybackType
     this._onLevelUpdated(evt, data)
     // Live stream subtitle tracks detection hack (may not immediately available)
-    if (
-      this._ccTracksUpdated &&
-      this._playbackType === Playback.LIVE &&
-      this.hasClosedCaptionsTracks
-    ) {
-      this._onSubtitleLoaded()
-    }
+    // if (
+    //   this._ccTracksUpdated &&
+    //   this._playbackType === Playback.LIVE &&
+    //   this.hasClosedCaptionsTracks
+    // ) {
+    //   this._onSubtitleLoaded()
+    // }
     if (prevPlaybackType !== this._playbackType) {
       this._updateSettings()
     }
@@ -1044,18 +1037,19 @@ export default class HlsPlayback extends BasePlayback {
     this.trigger(Events.PLAYBACK_FRAGMENT_LOADED, data)
   }
 
-  _onSubtitleLoaded() {
-    // This event may be triggered multiple times
-    // Setup CC only once (disable CC by default)
-    if (!this._ccIsSetup) {
-      this.trigger(Events.PLAYBACK_SUBTITLE_AVAILABLE)
-      const trackId =
-        this._playbackType === Playback.LIVE ? -1 : this.closedCaptionsTrackId
+  // _onSubtitleLoaded() {
+  //   trace(`${T} _onSubtitleLoaded`)
+  //   // This event may be triggered multiple times
+  //   // Setup CC only once (disable CC by default)
+  //   if (!this._ccIsSetup) {
+  //     this.trigger(Events.PLAYBACK_SUBTITLE_AVAILABLE)
+  //     const trackId =
+  //       this._playbackType === Playback.LIVE ? -1 : this.closedCaptionsTrackId
 
-      this.closedCaptionsTrackId = trackId
-      this._ccIsSetup = true
-    }
-  }
+  //     this.closedCaptionsTrackId = trackId
+  //     this._ccIsSetup = true
+  //   }
+  // }
 
   _onLevelSwitch(evt: HlsEvents.LEVEL_SWITCHING, data: LevelSwitchingData) {
     if (!this.levels.length) {
@@ -1138,7 +1132,6 @@ export default class HlsPlayback extends BasePlayback {
     _: HlsEvents.AUDIO_TRACKS_UPDATED,
     data: AudioTracksUpdatedData,
   ) {
-    trace(`${T} onAudioTracksUpdated`)
     this.trigger(
       Events.PLAYBACK_AUDIO_AVAILABLE,
       data.audioTracks.map(toClapprTrack),

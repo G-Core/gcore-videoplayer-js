@@ -18,9 +18,6 @@ export default class HTML5Video extends BasePlayback {
    * @internal
    */
   override createError(errorData: any, options?: ErrorOptions) {
-    trace(`${T} createError`, {
-      errorData: { ...errorData },
-    })
     const i18n =
       this.i18n ||
       // @ts-ignore
@@ -39,12 +36,10 @@ export default class HTML5Video extends BasePlayback {
   }
 
   override _onWaiting() {
-    trace(`${T} _onWaiting`)
     super._onWaiting()
   }
 
   override _onEnded() {
-    trace(`${T} _onEnded`)
     if (this.stallTimerId) {
       clearTimeout(this.stallTimerId)
       this.stallTimerId = null
@@ -53,15 +48,8 @@ export default class HTML5Video extends BasePlayback {
   }
 
   override _handleBufferingEvents() {
-    trace(`${T} _handleBufferingEvents`, {
-      networkState: (this.el as HTMLMediaElement).networkState,
-    })
     if (!this.stallTimerId) {
       this.stallTimerId = setTimeout(() => {
-        trace(`${T} _handleBufferingEvents stall timeout`, {
-          buffering: this.buffering,
-          ended: this.ended,
-        })
         this.stallTimerId = null
         const error = this.createError({
           code: PlaybackErrorCode.MediaSourceUnavailable,
@@ -77,7 +65,6 @@ export default class HTML5Video extends BasePlayback {
   }
 
   override _onPlaying() {
-    trace(`${T} _onPlaying`)
     if (this.stallTimerId) {
       clearTimeout(this.stallTimerId)
       this.stallTimerId = null
@@ -86,7 +73,6 @@ export default class HTML5Video extends BasePlayback {
   }
 
   override _onPause() {
-    trace(`${T} _onPause`)
     super._onPause()
     if (this.stallTimerId) {
       clearTimeout(this.stallTimerId)
@@ -97,7 +83,6 @@ export default class HTML5Video extends BasePlayback {
   get audioTracks(): AudioTrack[] {
     const tracks = (this.el as HTMLMediaElement).audioTracks
     const supported = !!tracks
-    trace(`${T} get audioTracks`, { supported })
     const retval: AudioTrack[] = []
     if (supported) {
       for (let i = 0; i < tracks.length; i++) {
@@ -117,9 +102,6 @@ export default class HTML5Video extends BasePlayback {
   get currentAudioTrack() {
     const tracks = (this.el as HTMLMediaElement).audioTracks
     const supported = !!tracks
-    trace(`${T} get currentAudioTrack`, {
-      supported,
-    })
     if (supported) {
       for (let i = 0; i < tracks.length; i++) {
         const track = tracks[i]

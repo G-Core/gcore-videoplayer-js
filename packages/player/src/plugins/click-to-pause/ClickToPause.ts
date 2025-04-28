@@ -4,17 +4,17 @@
 // license that can be found at https://github.com/clappr/clappr-plugins/blob/master/LICENSE.
 
 import { ContainerPlugin, Events, Playback } from '@clappr/core'
-import { trace } from '@gcorevideo/utils'
+// import { trace } from '@gcorevideo/utils'
 
 import { CLAPPR_VERSION } from '../../build.js'
 
 type Timer = ReturnType<typeof setTimeout>
 
-const T = 'plugins.click_to_pause'
+// const T = 'plugins.click_to_pause'
 
 /**
  * A small `PLUGIN` that toggles the playback state on click over the video container
- * @beta
+ * @public
  */
 export class ClickToPause extends ContainerPlugin {
   private pointerEnabled = false
@@ -50,11 +50,6 @@ export class ClickToPause extends ContainerPlugin {
   private click() {
     const isLivePlayback = this.container.getPlaybackType() === Playback.LIVE
     const isDvrEnabled = this.container.isDvrEnabled()
-
-    trace(`${T} click`, {
-      isLivePlayback,
-      isDvrEnabled,
-    })
 
     if (isLivePlayback && !isDvrEnabled) {
       this.togglePlay(true)

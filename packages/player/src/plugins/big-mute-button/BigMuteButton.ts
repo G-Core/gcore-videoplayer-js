@@ -1,6 +1,5 @@
 import { Events, template, UICorePlugin, Utils } from '@clappr/core'
 import { trace } from '@gcorevideo/utils'
-import assert from 'assert'
 
 import { CLAPPR_VERSION } from '../../build.js'
 
@@ -14,7 +13,7 @@ const T = 'plugins.big_mute_button'
 
 /**
  * `PLUGIN` that displays a big mute button over the video when it's being played muted.
- * @beta
+ * @public
  * @remarks
  * When pressed, it unmutes the video.
  * @example
@@ -142,7 +141,6 @@ export class BigMuteButton extends UICorePlugin {
    * @internal
    */
   override render() {
-    trace(`${T} render`)
     this.$el.html(BigMuteButton.template())
     this.$el.find('#gplayer-big-mute-icon').append(volumeMuteIcon)
 
@@ -168,7 +166,6 @@ export class BigMuteButton extends UICorePlugin {
   }
 
   private clicked(e: MouseEvent) {
-    trace(`${T} clicked`)
     const mediaControl = this.core.getPlugin('media_control')
     // TODO delegate to media_control plugin
     const localVolume = Utils.Config.restore('volume')

@@ -4,9 +4,6 @@
 
 ## NerdStats class
 
-> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
-> 
-
 `PLUGIN` that displays useful statistics regarding the playback as well as the network quality estimation.
 
 **Signature:**
@@ -56,7 +53,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Constructs a new instance of the `NerdStats` class
+Constructs a new instance of the `NerdStats` class
 
 
 </td></tr>

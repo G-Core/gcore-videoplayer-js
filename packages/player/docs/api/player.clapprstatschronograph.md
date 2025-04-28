@@ -4,9 +4,6 @@
 
 ## ClapprStatsChronograph enum
 
-> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
-> 
-
 
 **Signature:**
 
@@ -44,8 +41,6 @@ Buffering
 
 </td><td>
 
-**_(BETA)_**
-
 
 </td></tr>
 <tr><td>
@@ -59,8 +54,6 @@ Pause
 
 
 </td><td>
-
-**_(BETA)_**
 
 
 </td></tr>
@@ -76,8 +69,6 @@ Session
 
 </td><td>
 
-**_(BETA)_**
-
 
 </td></tr>
 <tr><td>
@@ -92,8 +83,6 @@ Startup
 
 </td><td>
 
-**_(BETA)_**
-
 
 </td></tr>
 <tr><td>
@@ -107,8 +96,6 @@ Watch
 
 
 </td><td>
-
-**_(BETA)_**
 
 
 </td></tr>

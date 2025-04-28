@@ -61,7 +61,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** `PLUGIN` that displays a big mute button over the video when it's being played muted.
+`PLUGIN` that displays a big mute button over the video when it's being played muted.
 
 
 </td></tr>
@@ -72,7 +72,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** `PLUGIN` that adds a button to extend the media controls UI with extra options.
+`PLUGIN` that adds a button to extend the media controls UI with extra options.
 
 
 </td></tr>
@@ -83,7 +83,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** `PLUGIN` that measures data about playback, which can be useful for analyzing performance and UX.
+`PLUGIN` that measures data about playback, which can be useful for analyzing performance and UX.
 
 
 </td></tr>
@@ -94,7 +94,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** A small `PLUGIN` that toggles the playback state on click over the video container
+A small `PLUGIN` that toggles the playback state on click over the video container
 
 
 </td></tr>
@@ -105,7 +105,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** `PLUGIN` that allows marking up the timeline of the video
+`PLUGIN` that allows marking up the timeline of the video
 
 
 </td></tr>
@@ -116,7 +116,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** `PLUGIN` that provides a UI to select the subtitles when available.
+`PLUGIN` that provides a UI to select the subtitles when available.
 
 
 </td></tr>
@@ -127,7 +127,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** A `PLUGIN` that configures [CMCD](https://cdn.cta.tech/cta/media/media/resources/standards/pdfs/cta-5004-final.pdf) for playback
+A `PLUGIN` that configures [CMCD](https://cdn.cta.tech/cta/media/media/resources/standards/pdfs/cta-5004-final.pdf) for playback
 
 
 </td></tr>
@@ -149,7 +149,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** `PLUGIN` that adds the DVR controls to the media control UI
+`PLUGIN` that adds the DVR controls to the media control UI
 
 
 </td></tr>
@@ -171,7 +171,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** `PLUGIN` that changes the favicon according to the player's state.
+`PLUGIN` that changes the favicon according to the player's state.
 
 
 </td></tr>
@@ -226,7 +226,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** `PLUGIN` that displays useful statistics regarding the playback as well as the network quality estimation.
+`PLUGIN` that displays useful statistics regarding the playback as well as the network quality estimation.
 
 
 </td></tr>
@@ -237,7 +237,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** `PLUGIN` that enables picture in picture mode.
+`PLUGIN` that enables picture-in-picture mode.
 
 
 </td></tr>
@@ -270,7 +270,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** `PLUGIN` that displays a poster image in the background and a big play button on top when playback is stopped
+`PLUGIN` that displays a poster image in the background and a big play button on top when playback is stopped
 
 
 </td></tr>
@@ -281,7 +281,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** `PLUGIN` that provides a UI to select the desired quality level of the playback.
+`PLUGIN` that provides a UI to select the desired quality level of the playback.
 
 
 </td></tr>
@@ -314,7 +314,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** `PLUGIN` that allows skipping time by tapping on the left or right side of the video.
+`PLUGIN` that allows skipping time by tapping on the left or right side of the video.
 
 
 </td></tr>
@@ -395,7 +395,6 @@ Description
 
 </td><td>
 
-**_(BETA)_**
 
 
 </td></tr>
@@ -406,7 +405,6 @@ Description
 
 </td><td>
 
-**_(BETA)_**
 
 
 </td></tr>
@@ -417,7 +415,6 @@ Description
 
 </td><td>
 
-**_(BETA)_**
 
 
 </td></tr>
@@ -428,7 +425,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Extended events for the [MediaControl](./player.mediacontrol.md) plugin
+Extended events for the [MediaControl](./player.mediacontrol.md) plugin
 
 
 </td></tr>
@@ -439,7 +436,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Events triggered by the plugin
+Events triggered by the plugin
 
 
 </td></tr>
@@ -494,7 +491,7 @@ Custom events emitted by the plugin
 
 </td><td>
 
-**_(BETA)_** Events emitted by the VolumeFade plugin.
+Events emitted by the VolumeFade plugin.
 
 
 </td></tr>
@@ -546,7 +543,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Config options for the [ClapprStats](./player.clapprstats.md) plugin
+Config options for the [ClapprStats](./player.clapprstats.md) plugin
 
 
 </td></tr>
@@ -557,7 +554,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Configuration options for the [Clips](./player.clips.md) plugin.
+Configuration options for the [Clips](./player.clips.md) plugin.
 
 
 </td></tr>
@@ -568,7 +565,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Config options for the [CmcdConfig](./player.cmcdconfig.md) plugin
+Config options for the [CmcdConfig](./player.cmcdconfig.md) plugin
 
 
 </td></tr>
@@ -590,7 +587,6 @@ Description
 
 </td><td>
 
-**_(BETA)_**
 
 
 </td></tr>
@@ -645,7 +641,7 @@ Describes a media source with its MIME type and URL.
 
 </td><td>
 
-**_(BETA)_** Config options for the [Poster](./player.poster.md) plugin
+Config options for the [Poster](./player.poster.md) plugin
 
 
 </td></tr>
@@ -667,7 +663,7 @@ A level of quality within a media source/representation.
 
 </td><td>
 
-**_(BETA)_** Configuration options for the [QualityLevels](./player.qualitylevels.md) plugin.
+Configuration options for the [QualityLevels](./player.qualitylevels.md) plugin.
 
 
 </td></tr>
@@ -748,7 +744,6 @@ Description
 
 </td><td>
 
-**_(BETA)_**
 
 
 </td></tr>
@@ -759,7 +754,6 @@ Description
 
 </td><td>
 
-**_(BETA)_**
 
 
 </td></tr>
@@ -770,7 +764,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Configuration options for the [ClosedCaptions](./player.closedcaptions.md) plugin.
+Configuration options for the [ClosedCaptions](./player.closedcaptions.md) plugin.
 
 
 </td></tr>
@@ -875,15 +869,6 @@ An ISO 639-1 language code.
 </td></tr>
 <tr><td>
 
-[MediaControlPluginSettings](./player.mediacontrolpluginsettings.md)
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
 [MediaControlSettings](./player.mediacontrolsettings.md)
 
 
@@ -911,7 +896,6 @@ An ISO 639-1 language code.
 
 </td><td>
 
-**_(BETA)_**
 
 
 </td></tr>
@@ -933,7 +917,6 @@ Module to perform the playback.
 
 </td><td>
 
-**_(BETA)_**
 
 
 </td></tr>
@@ -944,7 +927,6 @@ Module to perform the playback.
 
 </td><td>
 
-**_(BETA)_**
 
 
 </td></tr>
@@ -1179,7 +1161,6 @@ Preferred streaming media delivery protocol
 
 </td><td>
 
-**_(BETA)_**
 
 
 </td></tr>
@@ -1190,7 +1171,7 @@ Preferred streaming media delivery protocol
 
 </td><td>
 
-**_(BETA)_** [Zepto query result](https://zeptojs.com/#$())
+[Zepto query result](https://zeptojs.com/#$())
 
 
 </td></tr>

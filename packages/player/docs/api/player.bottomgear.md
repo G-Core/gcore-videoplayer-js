@@ -4,9 +4,6 @@
 
 ## BottomGear class
 
-> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
-> 
-
 `PLUGIN` that adds a button to extend the media controls UI with extra options.
 
 **Signature:**
@@ -110,7 +107,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Adds a custom option to the gear menu
+Adds a custom option to the gear menu
 
 
 </td></tr>
@@ -124,7 +121,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Collapses any submenu open back to the gear menu.
+Collapses any submenu open back to the gear menu.
 
 
 </td></tr>

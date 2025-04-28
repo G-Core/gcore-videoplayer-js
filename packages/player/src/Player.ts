@@ -159,9 +159,6 @@ export class Player {
    * ```
    */
   attachTo(playerElement: HTMLElement): void {
-    trace(`${T} attachTo`, {
-      player: !!this.player,
-    })
     assert.ok(!this.player, 'Player already initialized')
     assert.ok(playerElement, 'Player container element is required')
     if (this.config.debug === 'all' || this.config.debug === 'clappr') {
@@ -169,9 +166,6 @@ export class Player {
     }
     const coreOpts = this.buildCoreOptions(playerElement)
     const { core, container } = Player.getRegisteredPlugins()
-    trace(`${T} init`, {
-      registeredPlaybacks: Loader.registeredPlaybacks.map((p) => p.prototype.name),
-    })
     coreOpts.plugins = {
       core: Object.values(core),
       container: Object.values(container),
@@ -184,9 +178,6 @@ export class Player {
    * Destroys the player, releasing all resources and unmounting its UI from the DOM.
    */
   destroy() {
-    trace(`${T} destroy`, {
-      player: !!this.player,
-    })
     if (this.player) {
       this.player.destroy()
       this.player = null
@@ -397,12 +388,6 @@ export class Player {
   }
 
   private initPlayer(coreOptions: CoreOptions): void {
-    trace(`${T} initPlayer`, {
-      autoPlay: coreOptions.autoPlay,
-      sources: coreOptions.sources,
-      player: !!this.player,
-      // TODO selected options
-    })
     const player = new PlayerClappr(coreOptions)
     this.player = player
     this.bindCoreListeners()
@@ -563,13 +548,6 @@ export class Player {
     core.on(
       ClapprEvents.CORE_SCREEN_ORIENTATION_CHANGED,
       ({ orientation }: { orientation: 'landscape' | 'portrait' }) => {
-        trace(`${T} on CORE_SCREEN_ORIENTATION_CHANGED`, {
-          orientation,
-          rootNode: {
-            width: this.rootNode?.clientWidth,
-            height: this.rootNode?.clientHeight,
-          },
-        })
         if (Browser.isiOS && this.rootNode) {
           core?.resize({
             width: this.rootNode.clientWidth,
@@ -582,10 +560,6 @@ export class Player {
     core.on(
       ClapprEvents.CORE_RESIZE,
       ({ width, height }: { width: number; height: number }) => {
-        trace(`${T} on CORE_RESIZE`, {
-          width,
-          height,
-        })
         this.safeTriggerEvent(PlayerEvent.Resize, { width, height })
       },
       null,
@@ -593,9 +567,6 @@ export class Player {
     core.on(
       ClapprEvents.CORE_FULLSCREEN,
       (isFullscreen: boolean) => {
-        trace(`${T} CORE_FULLSCREEN`, {
-          isFullscreen,
-        })
         this.safeTriggerEvent(PlayerEvent.Fullscreen, isFullscreen)
       },
       null,

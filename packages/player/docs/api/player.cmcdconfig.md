@@ -4,9 +4,6 @@
 
 ## CmcdConfig class
 
-> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
-> 
-
 A `PLUGIN` that configures [CMCD](https://cdn.cta.tech/cta/media/media/resources/standards/pdfs/cta-5004-final.pdf) for playback
 
 **Signature:**
@@ -64,7 +61,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Constructs a new instance of the `CmcdConfig` class
+Constructs a new instance of the `CmcdConfig` class
 
 
 </td></tr>
@@ -98,7 +95,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Returns the current `sid` and `cid` values. Useful when the auto-generated values need to be known.
+Returns the current `sid` and `cid` values. Useful when the auto-generated values need to be known.
 
 
 </td></tr>

@@ -4,10 +4,7 @@
 
 ## PictureInPicture class
 
-> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
-> 
-
-`PLUGIN` that enables picture in picture mode.
+`PLUGIN` that enables picture-in-picture mode.
 
 **Signature:**
 
@@ -22,7 +19,7 @@ Depends on:
 
 - [MediaControl](./player.mediacontrol.md)
 
-It renders a button to toggle picture in picture mode in the media control UI.
+It renders a button to toggle picture-in-picture mode in the media control UI.
 
 ## Properties
 
@@ -63,8 +60,6 @@ Description
 
 
 </td><td>
-
-**_(BETA)_**
 
 
 </td></tr>

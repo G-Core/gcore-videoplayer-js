@@ -436,7 +436,6 @@ export default class DashPlayback extends BasePlayback {
   }
 
   private _onDASHJSSError = (event: DashErrorEvent) => {
-    trace(`${T} _onDASHJSSError`, { event })
     this._stopTimeUpdateTimer()
 
     // Note that the other error types are deprecated
@@ -475,8 +474,6 @@ export default class DashPlayback extends BasePlayback {
   private triggerError(
     error: Pick<PlaybackError, 'code' | 'message' | 'description' | 'level'>,
   ) {
-    trace(`${T} triggerError`, { error })
-
     // this triggers Events.ERROR to be handled by the UI
     this.trigger(
       Events.PLAYBACK_ERROR,
@@ -525,14 +522,8 @@ export default class DashPlayback extends BasePlayback {
 
   get dvrEnabled() {
     if (!this._dash) {
-      trace(`${T} dvrEnable no dash player instance`)
       return false
     }
-    trace(`${T} get.dvrEnabled`, {
-      dvrWindowSize: this._dash?.getDVRWindowSize(),
-      minDvrSize: this._minDvrSize,
-      playbackType: this.getPlaybackType(),
-    })
     return (
       this._dash?.getDVRWindowSize() >= this._minDvrSize &&
       this.getPlaybackType() === Playback.LIVE
@@ -556,7 +547,6 @@ export default class DashPlayback extends BasePlayback {
   }
 
   override play() {
-    trace(`${T} play`, { dash: !!this._dash })
     !this._dash && this._setup()
     super.play()
     this._startTimeUpdateTimer()
@@ -663,7 +653,6 @@ export default class DashPlayback extends BasePlayback {
 
   // @ts-expect-error
   get currentAudioTrack(): AudioTrack | null {
-    trace(`${T} get currentAudioTrack`)
     assert.ok(this._dash, 'DASH.js MediaPlayer is not initialized')
     const t = this._dash.getCurrentTrackFor('audio')
     if (!t) {

@@ -6,7 +6,7 @@ import '../../../assets/context-menu/context_menu.scss'
 import templateHtml from '../../../assets/context-menu/context_menu.ejs'
 
 /**
- * @beta
+ * @public
  */
 export type MenuOption = {
   /**

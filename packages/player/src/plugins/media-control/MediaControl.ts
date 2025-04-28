@@ -15,7 +15,7 @@ import {
   $,
   Core,
 } from '@clappr/core'
-import { reportError, trace } from '@gcorevideo/utils'
+import { reportError/* , trace */ } from '@gcorevideo/utils'
 
 import { type TimeProgress } from '../../playback.types.js'
 
@@ -119,11 +119,11 @@ const INITIAL_SETTINGS: MediaControlSettings = {
   seekEnabled: false,
 }
 
-const T = 'plugins.media_control'
+// const T = 'plugins.media_control'
 
 /**
  * Extended events for the {@link MediaControl} plugin
- * @beta
+ * @public
  */
 export enum ExtendedEvents {
   MEDIACONTROL_VOLUME = 'mediacontrol:volume',
@@ -131,10 +131,6 @@ export enum ExtendedEvents {
 }
 
 const { Config, Fullscreen, formatTime, extend, removeArrayItem } = Utils
-
-export type MediaControlPluginSettings = {
-  hideMediaControlDelay?: number
-}
 
 /**
  * `PLUGIN` that provides framework for building media control UI.
@@ -251,7 +247,7 @@ export class MediaControl extends UICorePlugin {
 
   /**
    * @returns  Default media control layout settings
-   * @remark
+   * @remarks
    * The method can be used to change the default dashboard layout, for example, removing the standard UI elements
    * @example
    * ```ts
@@ -532,7 +528,6 @@ export class MediaControl extends UICorePlugin {
    * Hides the media control UI
    */
   override disable() {
-    trace(`${T} disable`)
     this.userDisabled = true // TODO distinguish between user and system (e.g., unplayable) disabled?
     this.hide()
     this.unbindKeyEvents()
@@ -543,7 +538,6 @@ export class MediaControl extends UICorePlugin {
    * Reenables the plugin disabled earlier with the {@link MediaControl.disable} method
    */
   override enable() {
-    trace(`${T} enable`)
     if (this.options.chromeless) {
       return
     }

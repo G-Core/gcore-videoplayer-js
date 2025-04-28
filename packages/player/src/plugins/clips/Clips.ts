@@ -1,5 +1,5 @@
 import { Container, Events, UICorePlugin, $, template } from '@clappr/core'
-import { trace } from '@gcorevideo/utils'
+// import { trace } from '@gcorevideo/utils'
 import assert from 'assert'
 
 import { TimeProgress, TimeValue } from '../../playback.types.js'
@@ -9,11 +9,11 @@ import { ClipDesc } from './types.js'
 import { buildSvg, parseClips } from './utils.js'
 import clipsHTML from '../../../assets/clips/clips.ejs'
 
-const T = 'plugins.clips'
+// const T = 'plugins.clips'
 
 /**
  * Configuration options for the {@link Clips} plugin.
- * @beta
+ * @public
  */
 export interface ClipsPluginSettings {
   /**
@@ -30,7 +30,7 @@ const COMPACT_WIDTH = 495
 
 /**
  * `PLUGIN` that allows marking up the timeline of the video
- * @beta
+ * @public
  * @remarks
  * The plugin decorates the seekbar with notches to indicate the clips of the video and displays current clip text in the left panel
  *
@@ -129,7 +129,6 @@ export class Clips extends UICorePlugin {
   }
 
   private onCoreReady() {
-    trace(`${T} onCoreReady`)
     const mediaControl = this.core.getPlugin('media_control')
     assert(mediaControl, 'media_control plugin is required')
 
@@ -138,12 +137,10 @@ export class Clips extends UICorePlugin {
   }
 
   private onMcRender() {
-    trace(`${T} onMcRender`)
     this.core.getPlugin('media_control')?.slot('clips', this.$el)
   }
 
   private onContainerChanged() {
-    trace(`${T} onContainerChanged`)
     // TODO figure out the conditions of changing the container (without destroying the previous one)
     // probably it is the case with the MultiCamera plugin
     if (this.oldContainer) {

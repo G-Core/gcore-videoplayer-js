@@ -5,7 +5,7 @@ import {
   $,
   Container,
 } from '@clappr/core'
-import { trace } from '@gcorevideo/utils'
+// import { trace } from '@gcorevideo/utils'
 import assert from 'assert'
 
 import { CLAPPR_VERSION } from '../../build.js'
@@ -20,14 +20,13 @@ import { ExtendedEvents } from '../media-control/MediaControl.js'
 
 const VERSION = '2.19.12'
 
-const T = 'plugins.bottom_gear'
+// const T = 'plugins.bottom_gear'
 
-const MENU_VMARGIN = 12
 const MENU_BACKLINK_HEIGHT = 44
 
 /**
  * Events triggered by the plugin
- * @beta
+ * @public
  */
 export enum GearEvents {
   /**
@@ -38,7 +37,7 @@ export enum GearEvents {
 
 /**
  * `PLUGIN` that adds a button to extend the media controls UI with extra options.
- * @beta
+ * @public
  * @remarks
  * The plugin renders small gear icon to the right of the media controls.
  * It provides a base for attaching custom settings UI in the gear menu
@@ -184,14 +183,12 @@ export class BottomGear extends UICorePlugin {
   addItem(name: string, $subMenu?: ZeptoResult): ZeptoResult {
     const $existingItem = this.$el.find(`#gear-options li[data-${name}]`)
     if ($existingItem.length) {
-      trace(`${T} addItem already exists`, { name })
       return $existingItem
     }
     const $item = $('<li></li>')
       .attr(`data-${name}`, '')
       .appendTo(this.$el.find('#gear-options'))
     if ($subMenu) {
-      trace(`${T} addItem adding submenu`, { name })
       $subMenu
         .addClass('gear-sub-menu-wrapper')
         .hide()
@@ -220,7 +217,6 @@ export class BottomGear extends UICorePlugin {
   }
 
   private highDefinitionUpdate(isHd: boolean) {
-    trace(`${T} highDefinitionUpdate`, { isHd })
     this.hd = isHd
     this.$el.find('#gear-button').html(isHd ? gearHdIcon : gearIcon)
   }

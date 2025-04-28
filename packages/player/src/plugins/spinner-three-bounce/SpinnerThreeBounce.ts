@@ -10,7 +10,7 @@ import {
   UIContainerPlugin,
   template,
 } from '@clappr/core'
-import { trace } from '@gcorevideo/utils'
+// import { trace } from '@gcorevideo/utils'
 
 import { PlaybackError, PlaybackErrorCode } from '../../playback.types.js'
 import spinnerHTML from '../../../assets/spinner-three-bounce/spinner.ejs'
@@ -18,7 +18,7 @@ import '../../../assets/spinner-three-bounce/spinner.scss'
 import { TimerId } from '../../utils/types.js'
 import { CLAPPR_VERSION } from '../../build.js'
 
-const T = 'plugins.spinner'
+// const T = 'plugins.spinner'
 
 /**
  * Custom events emitted by the plugin
@@ -108,24 +108,15 @@ export class SpinnerThreeBounce extends UIContainerPlugin {
   }
 
   private onPlay() {
-    trace(`${T} onPlay`)
     this._hide()
   }
 
   private onStop() {
-    trace(`${T} onStop`, {
-      hasFatalError: this.hasFatalError,
-    })
     this._hide()
   }
 
   private onError(e: PlaybackError) {
     this.hasFatalError = e.code === PlaybackErrorCode.MediaSourceUnavailable
-    trace(`${T} onError`, {
-      e,
-      hasFatalError: this.hasFatalError,
-      error: e.code,
-    })
     this._hide()
   }
 
@@ -137,7 +128,6 @@ export class SpinnerThreeBounce extends UIContainerPlugin {
    * @param delay - The delay in milliseconds before the spinner is shown.
    */
   show(delay = 300) {
-    trace(`${T} show`)
     this.userShown = true
     this._show(delay)
   }
@@ -160,9 +150,6 @@ export class SpinnerThreeBounce extends UIContainerPlugin {
   }
 
   private _hide() {
-    trace(`${T} _hide`, {
-      userShown: this.userShown,
-    })
     if (this.userShown) {
       return
     }
@@ -178,9 +165,6 @@ export class SpinnerThreeBounce extends UIContainerPlugin {
    * @internal
    */
   override render() {
-    trace(`${T} render`, {
-      buffering: this.container.buffering,
-    })
     this.$el.html(this.template())
     this.el.firstElementChild?.addEventListener('animationiteration', () => {
       this.trigger(SpinnerEvents.SYNC)

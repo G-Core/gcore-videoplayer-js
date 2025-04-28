@@ -4,9 +4,6 @@
 
 ## QualityLevelsPluginSettings interface
 
-> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
-> 
-
 Configuration options for the [QualityLevels](./player.qualitylevels.md) plugin.
 
 **Signature:**
@@ -53,7 +50,7 @@ Record&lt;number, string&gt;
 
 </td><td>
 
-**_(BETA)_** _(Optional)_ The labels to show in the level selector.
+_(Optional)_ The labels to show in the level selector.
 
 
 </td></tr>
@@ -72,7 +69,7 @@ number
 
 </td><td>
 
-**_(BETA)_** _(Optional)_ The maximum resolution to allow in the level selector.
+_(Optional)_ The maximum resolution to allow in the level selector.
 
 
 </td></tr>

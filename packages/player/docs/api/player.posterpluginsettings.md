@@ -4,9 +4,6 @@
 
 ## PosterPluginSettings interface
 
-> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
-> 
-
 Config options for the [Poster](./player.poster.md) plugin
 
 **Signature:**
@@ -53,7 +50,7 @@ string
 
 </td><td>
 
-**_(BETA)_** _(Optional)_ Custom CSS background
+_(Optional)_ Custom CSS background
 
 
 </td></tr>
@@ -72,7 +69,7 @@ boolean
 
 </td><td>
 
-**_(BETA)_** _(Optional)_ Whether to show the poster image when the playback is noop (i.e., when there is no appropriate video playback engine for current media sources set or the media sources are not set at all)
+_(Optional)_ Whether to show the poster image when the playback is noop (i.e., when there is no appropriate video playback engine for current media sources set or the media sources are not set at all)
 
 
 </td></tr>
@@ -91,7 +88,7 @@ boolean
 
 </td><td>
 
-**_(BETA)_** _(Optional)_ Whether to show the poster after playback has ended, by default `true`
+_(Optional)_ Whether to show the poster after playback has ended, by default `true`
 
 
 </td></tr>
@@ -110,7 +107,7 @@ string
 
 </td><td>
 
-**_(BETA)_** _(Optional)_ Poster image URL
+_(Optional)_ Poster image URL
 
 
 </td></tr>

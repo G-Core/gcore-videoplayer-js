@@ -9,7 +9,7 @@ import {
   UIContainerPlugin,
   template,
 } from '@clappr/core'
-import { trace } from '@gcorevideo/utils'
+// import { trace } from '@gcorevideo/utils'
 
 import { CLAPPR_VERSION } from '../../build.js'
 import type { ZeptoResult } from '../../types.js'
@@ -21,7 +21,7 @@ import { PlaybackError } from '../../playback.types.js'
 
 /**
  * Config options for the {@link Poster} plugin
- * @beta
+ * @public
  */
 export interface PosterPluginSettings {
   /**
@@ -42,11 +42,11 @@ export interface PosterPluginSettings {
   showOnVideoEnd?: boolean
 }
 
-const T = 'plugins.poster'
+// const T = 'plugins.poster'
 
 /**
  * `PLUGIN` that displays a poster image in the background and a big play button on top when playback is stopped
- * @beta
+ * @public
  * @remarks
  * When the playback is stopped or not yet started, the media control UI is disabled and hidden.
  * Media control gets activated once the metadata is loaded after playback is initiated.
@@ -157,7 +157,6 @@ export class Poster extends UIContainerPlugin {
    * Reenables earlier disabled plugin
    */
   override enable() {
-    trace(`${T} enable`)
     super.enable()
     this.playing = this.container.playback.isPlaying()
     this.update()
@@ -167,17 +166,12 @@ export class Poster extends UIContainerPlugin {
    * Disables the plugin, unmounting it from the DOM
    */
   override disable() {
-    trace(`${T} disable`)
     this.playing = false
     this.playRequested = false
     super.disable()
   }
 
   private onError(error: PlaybackError) {
-    trace(`${T} onError`, {
-      error,
-      enabled: this.enabled,
-    })
     if (this.hasFatalError) {
       return
     }
@@ -186,27 +180,23 @@ export class Poster extends UIContainerPlugin {
   }
 
   private onPlay() {
-    trace(`${T} onPlay`)
     this.playing = true
     this.playRequested = false
     this.update()
   }
 
   private onPlayIntent() {
-    trace(`${T} onPlayIntent`)
     this.playRequested = true
     this.update()
   }
 
   private onStop() {
-    trace(`${T} onStop`)
     this.playing = false
     this.playRequested = false
     this.update()
   }
 
   private updatePlayButton() {
-    trace(`${T} updatePlayButton`)
     const show =
       !this.isNoOp &&
       !(this.options.chromeless && !this.options.allowUserInteraction) &&
@@ -223,20 +213,17 @@ export class Poster extends UIContainerPlugin {
   }
 
   private showPlayButton() {
-    trace(`${T} showPlayButton`)
     this.$el.find('#poster-play').show()
     this.$el.addClass('clickable')
     this.container.$el.addClass('container-with-poster-clickable')
   }
 
   private hidePlayButton() {
-    trace(`${T} hidePlayButton`)
     this.$el.find('#poster-play').hide()
     this.$el.removeClass('clickable')
   }
 
   private clicked(e: MouseEvent) {
-    trace(`${T} clicked`)
     e.preventDefault()
     e.stopPropagation()
     if (this.options.chromeless && !this.options.allowUserInteraction) {
@@ -256,14 +243,11 @@ export class Poster extends UIContainerPlugin {
   }
 
   private update() {
-    trace(`${T} update`)
-
     this.updatePlayButton()
     this.updatePoster()
   }
 
   private updatePoster() {
-    trace(`${T} updatePoster`)
     if (!this.playing) {
       this.showPoster()
     } else {
@@ -277,7 +261,6 @@ export class Poster extends UIContainerPlugin {
   }
 
   private hidePoster() {
-    trace(`${T} hidePoster`)
     if (!this.options.disableMediaControl) {
       this.container.enableMediaControl()
     }

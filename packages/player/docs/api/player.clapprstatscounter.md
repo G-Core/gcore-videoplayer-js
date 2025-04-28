@@ -4,9 +4,6 @@
 
 ## ClapprStatsCounter enum
 
-> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
-> 
-
 
 **Signature:**
 
@@ -44,8 +41,6 @@ Buffering
 
 </td><td>
 
-**_(BETA)_**
-
 
 </td></tr>
 <tr><td>
@@ -59,8 +54,6 @@ ChangeLevel
 
 
 </td><td>
-
-**_(BETA)_**
 
 
 </td></tr>
@@ -76,8 +69,6 @@ DecodedFrames
 
 </td><td>
 
-**_(BETA)_**
-
 
 </td></tr>
 <tr><td>
@@ -91,8 +82,6 @@ DroppedFrames
 
 
 </td><td>
-
-**_(BETA)_**
 
 
 </td></tr>
@@ -108,8 +97,6 @@ DvrUsage
 
 </td><td>
 
-**_(BETA)_**
-
 
 </td></tr>
 <tr><td>
@@ -123,8 +110,6 @@ Error
 
 
 </td><td>
-
-**_(BETA)_**
 
 
 </td></tr>
@@ -140,8 +125,6 @@ Fps
 
 </td><td>
 
-**_(BETA)_**
-
 
 </td></tr>
 <tr><td>
@@ -155,8 +138,6 @@ Fullscreen
 
 
 </td><td>
-
-**_(BETA)_**
 
 
 </td></tr>
@@ -172,8 +153,6 @@ Pause
 
 </td><td>
 
-**_(BETA)_**
-
 
 </td></tr>
 <tr><td>
@@ -188,8 +167,6 @@ Play
 
 </td><td>
 
-**_(BETA)_**
-
 
 </td></tr>
 <tr><td>
@@ -203,8 +180,6 @@ Seek
 
 
 </td><td>
-
-**_(BETA)_**
 
 
 </td></tr>

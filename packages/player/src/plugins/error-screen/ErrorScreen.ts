@@ -131,9 +131,6 @@ export class ErrorScreen extends UICorePlugin {
   }
 
   private onActiveContainerChanged() {
-    trace(`${T} onActiveContainerChanged`, {
-      reloading: this.core.options.reloading,
-    })
     this.err = null
     this.listenTo(
       this.core.activeContainer.playback,

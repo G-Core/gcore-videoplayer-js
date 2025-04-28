@@ -13,14 +13,14 @@ const VERSION = '0.0.1';
 const T = `plugins.pip`;
 
 /**
- * `PLUGIN` that enables picture in picture mode.
- * @beta
+ * `PLUGIN` that enables picture-in-picture mode.
+ * @public
  * @remarks
  * Depends on:
  *
  * - {@link MediaControl}
  *
- * It renders a button to toggle picture in picture mode in the media control UI.
+ * It renders a button to toggle picture-in-picture mode in the media control UI.
  */
 export class PictureInPicture extends UICorePlugin {
   /**

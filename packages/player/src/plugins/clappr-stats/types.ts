@@ -1,5 +1,5 @@
 /**
- * @beta
+ * @public
  */
 export enum ClapprStatsChronograph {
   Startup = 'startup',
@@ -11,7 +11,7 @@ export enum ClapprStatsChronograph {
 }
 
 /**
- * @beta
+ * @public
  */
 export enum ClapprStatsCounter {
   Play = 'play',
@@ -28,7 +28,7 @@ export enum ClapprStatsCounter {
 }
 
 /**
- * @beta
+ * @public
  */
 export type ClapprStatsMetrics = {
   /**
@@ -87,7 +87,7 @@ export type ClapprStatsMetrics = {
 }
 
 /**
- * @beta
+ * @public
  */
 export type ClapprStatsBitrateTrack = {
   start: number
@@ -97,7 +97,7 @@ export type ClapprStatsBitrateTrack = {
 }
 
 /**
- * @beta
+ * @public
  */
 export enum ClapprStatsEvents {
   /**

@@ -28,7 +28,7 @@ const CMCD_KEYS = [
 
 /**
  * Config options for the {@link CmcdConfig} plugin
- * @beta
+ * @public
  */
 export interface CmcdConfigOptions {
   /**
@@ -46,7 +46,7 @@ export interface CmcdConfigOptions {
 
 /**
  * A `PLUGIN` that configures {@link https://cdn.cta.tech/cta/media/media/resources/standards/pdfs/cta-5004-final.pdf | CMCD} for playback
- * @beta
+ * @public
  * @remarks
  * Configuration options - {@link CmcdConfigOptions}.
  * @example

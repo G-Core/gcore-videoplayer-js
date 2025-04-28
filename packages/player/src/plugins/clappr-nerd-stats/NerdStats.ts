@@ -6,7 +6,7 @@ import {
   Container,
   Playback,
 } from '@clappr/core'
-import { reportError, trace } from '@gcorevideo/utils'
+import { reportError/* , trace */ } from '@gcorevideo/utils'
 import Mousetrap from 'mousetrap'
 import assert from 'assert'
 
@@ -59,11 +59,11 @@ type Metrics = PerfMetrics & {
   }
 }
 
-const T = 'plugins.nerd_stats'
+// const T = 'plugins.nerd_stats'
 
 /**
  * `PLUGIN` that displays useful statistics regarding the playback as well as the network quality estimation.
- * @beta
+ * @public
  *
  * @remarks
  * Depends on:
@@ -446,7 +446,6 @@ export class NerdStats extends UICorePlugin {
   }
 
   private attach() {
-    trace(`${T} attach`)
     const gear = this.core.getPlugin('bottom_gear') as BottomGear
     gear
       .addItem('nerd_stats')
@@ -463,7 +462,6 @@ export class NerdStats extends UICorePlugin {
   }
 
   private clearSpeedtestMetrics() {
-    trace(`${T} clearSpeedtestMetrics`);
     const clapprStats = this.container?.getPlugin('clappr_stats')
 
     this.speedtestMetrics.connectionSpeed = 0

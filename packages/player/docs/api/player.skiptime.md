@@ -4,9 +4,6 @@
 
 ## SkipTime class
 
-> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
-> 
-
 `PLUGIN` that allows skipping time by tapping on the left or right side of the video.
 
 **Signature:**
@@ -56,8 +53,6 @@ any
 
 </td><td>
 
-**_(BETA)_**
-
 
 </td></tr>
 <tr><td>
@@ -77,8 +72,6 @@ string
 
 </td><td>
 
-**_(BETA)_**
-
 
 </td></tr>
 <tr><td>
@@ -97,8 +90,6 @@ string
 
 
 </td><td>
-
-**_(BETA)_**
 
 
 </td></tr>

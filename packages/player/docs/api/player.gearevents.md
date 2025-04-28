@@ -4,9 +4,6 @@
 
 ## GearEvents enum
 
-> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
-> 
-
 Events triggered by the plugin
 
 **Signature:**
@@ -45,7 +42,7 @@ RENDERED
 
 </td><td>
 
-**_(BETA)_** Subscribe to this event to accurately attach an item to the gear menu
+Subscribe to this event to accurately attach an item to the gear menu
 
 
 </td></tr>
