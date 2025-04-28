@@ -4,9 +4,6 @@
 
 ## MediaControlSettings type
 
-> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
-> 
-
 Specifies the layout of media control elements. Actual elements will be rendered according to the playback settings. Custom elements rendered by the plugins will be mounted at the specified locations.
 
 **Signature:**

@@ -33,7 +33,7 @@ export type VolumeFadeSettings = {
 
 /**
  * `PLUGIN` that mutes the sound and fades it in when the mouse is over the player.
- * @beta
+ * @public
  *
  * @remarks
  * When the user moves the mouse over and away from the player, the sound is unmuted and unmuted with a fade effect.

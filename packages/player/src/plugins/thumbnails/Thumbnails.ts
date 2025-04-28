@@ -23,7 +23,7 @@ import { loadImageDimensions } from './utils.js'
 
 /**
  * Plugin configuration options for the thumbnails plugin.
- * @beta
+ * @public
  */
 export type ThumbnailsPluginSettings = {
   backdropHeight?: number
@@ -49,7 +49,7 @@ const T = 'plugins.thumbnails'
 
 /**
  * `PLUGIN` that displays the thumbnails of the video when available.
- * @beta
+ * @public
  * @remarks
  * The plugin needs specially crafted VTT file with a thumbnail sprite sheet to work.
  * The VTT consist of timestamp records followed by a thumbnail area

@@ -14,12 +14,11 @@ import '../../../assets/seek-time/seek-time.scss'
 
 /**
  * Configuration options for the SeekTime plugin.
- * @beta
+ * @public
  */
 export type SeekTimeSettings = {
   /**
    * Whether to show the duration of the video. Applies only to the VOD streams.
-   * @beta
    */
   duration?: boolean
 }
@@ -30,7 +29,7 @@ const { formatTime } = Utils
 
 /**
  * `PLUGIN` that adds a seek time indicator when the mouse pointer is over the seek bar.
- * @beta
+ * @public
  * @remarks
  * Configuration options - {@link SeekTimeSettings}
  */

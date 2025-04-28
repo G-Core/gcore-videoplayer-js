@@ -16,7 +16,7 @@ const VERSION: string = '2.22.4'
 
 /**
  * `PLUGIN` that makes possible to switch audio tracks via the media control UI.
- * @beta
+ * @public
  * @remarks
  * The plugin is activated when there are multiple audio tracks available.
  * The plugin adds a button showing the current audio track and a dropdown to switch to another audio track.

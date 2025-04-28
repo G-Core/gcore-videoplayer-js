@@ -50,7 +50,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** `PLUGIN` that makes possible to switch audio tracks via the media control UI.
+`PLUGIN` that makes possible to switch audio tracks via the media control UI.
 
 
 </td></tr>
@@ -138,7 +138,7 @@ A `PLUGIN` that configures [CMCD](https://cdn.cta.tech/cta/media/media/resources
 
 </td><td>
 
-**_(BETA)_** `PLUGIN` that displays a small context menu when clicked on the player container.
+`PLUGIN` that displays a small context menu when clicked on the player container.
 
 
 </td></tr>
@@ -204,7 +204,7 @@ A `PLUGIN` that configures [CMCD](https://cdn.cta.tech/cta/media/media/resources
 
 </td><td>
 
-**_(BETA)_** `PLUGIN` that provides framework for building media control UI.
+`PLUGIN` that provides framework for building media control UI.
 
 
 </td></tr>
@@ -248,7 +248,7 @@ A `PLUGIN` that configures [CMCD](https://cdn.cta.tech/cta/media/media/resources
 
 </td><td>
 
-**_(BETA)_** `PLUGIN` that allows changing the playback speed of the video.
+`PLUGIN` that allows changing the playback speed of the video.
 
 
 </td></tr>
@@ -292,7 +292,7 @@ A `PLUGIN` that configures [CMCD](https://cdn.cta.tech/cta/media/media/resources
 
 </td><td>
 
-**_(BETA)_** `PLUGIN` that adds a seek time indicator when the mouse pointer is over the seek bar.
+`PLUGIN` that adds a seek time indicator when the mouse pointer is over the seek bar.
 
 
 </td></tr>
@@ -358,7 +358,7 @@ A `PLUGIN` that configures [CMCD](https://cdn.cta.tech/cta/media/media/resources
 
 </td><td>
 
-**_(BETA)_** `PLUGIN` that displays the thumbnails of the video when available.
+`PLUGIN` that displays the thumbnails of the video when available.
 
 
 </td></tr>
@@ -369,7 +369,7 @@ A `PLUGIN` that configures [CMCD](https://cdn.cta.tech/cta/media/media/resources
 
 </td><td>
 
-**_(BETA)_** `PLUGIN` that mutes the sound and fades it in when the mouse is over the player.
+`PLUGIN` that mutes the sound and fades it in when the mouse is over the player.
 
 
 </td></tr>
@@ -576,7 +576,7 @@ Config options for the [CmcdConfig](./player.cmcdconfig.md) plugin
 
 </td><td>
 
-**_(BETA)_** Context menu plugin settings
+Context menu plugin settings
 
 
 </td></tr>
@@ -863,7 +863,7 @@ An ISO 639-1 language code.
 
 </td><td>
 
-**_(BETA)_** Media control element. Each element's token in the media control layout settings determines where the element is rendered.
+Media control element. Each element's token in the media control layout settings determines where the element is rendered.
 
 
 </td></tr>
@@ -874,7 +874,7 @@ An ISO 639-1 language code.
 
 </td><td>
 
-**_(BETA)_** Specifies the layout of media control elements. Actual elements will be rendered according to the playback settings. Custom elements rendered by the plugins will be mounted at the specified locations.
+Specifies the layout of media control elements. Actual elements will be rendered according to the playback settings. Custom elements rendered by the plugins will be mounted at the specified locations.
 
 
 </td></tr>
@@ -885,7 +885,7 @@ An ISO 639-1 language code.
 
 </td><td>
 
-**_(BETA)_** Identifies a location for mounting custom media control elements.
+Identifies a location for mounting custom media control elements.
 
 
 </td></tr>
@@ -1030,7 +1030,7 @@ A media source to fetch the media data from
 
 </td><td>
 
-**_(BETA)_** Configuration options for the SeekTime plugin.
+Configuration options for the SeekTime plugin.
 
 
 </td></tr>
@@ -1041,7 +1041,7 @@ A media source to fetch the media data from
 
 </td><td>
 
-**_(BETA)_** Built-in media control elements.
+Built-in media control elements.
 
 
 </td></tr>
@@ -1085,7 +1085,7 @@ A media source to fetch the media data from
 
 </td><td>
 
-**_(BETA)_** Plugin configuration options for the thumbnails plugin.
+Plugin configuration options for the thumbnails plugin.
 
 
 </td></tr>

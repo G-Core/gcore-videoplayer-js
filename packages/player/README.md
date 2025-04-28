@@ -10,7 +10,7 @@ npm install @gcorevideo/player
 Or use a script on the CDN directly in your HTML:
 
 ```html
-<script src="https://player.gvideo.co/v2/assets/player/2.19.6/index.js"></script>
+<script src="https://player.gvideo.co/v2/assets/2.26.1/index.js"></script>
 ```
 
 ## Usage
@@ -22,7 +22,7 @@ See the complete example app on Vercel: [https://github.com/dmitritz/gcore-video
 ```html
 <html>
 <head>
-    <link rel="stylesheet" href="https://player.gvideo.co/v2/assets/player/2.19.6/index.css" />
+    <link rel="stylesheet" href="https://player.gvideo.co/v2/assets/2.26.1/index.css" />
     ...
     <style>
       #container {
@@ -49,7 +49,7 @@ See the complete example app on Vercel: [https://github.com/dmitritz/gcore-video
     MediaControl,
     SourceController,
     Spinner,
-  } from 'https://player.gvideo.co/v2/assets/player/2.19.6/index.js'
+  } from 'https://player.gvideo.co/v2/assets/2.26.1/index.js'
 
   Player.registerPlugin(MediaControl)
   Player.registerPlugin(SourceController)
@@ -59,10 +59,10 @@ See the complete example app on Vercel: [https://github.com/dmitritz/gcore-video
     autoPlay: true,
     mute: true,
     sources: [{
-      source: 'https://demo.gvideo.io/cmaf/2675_19146/index.mpd,
+      source: 'https://demo-public.gvideo.io/cmaf/2675_21960/index.mpd,
       type: 'application/dash+xml',
     }, {
-      source: 'https://demo.gvideo.io/cmaf/2675_19146/master.m3u8',
+      source: 'https://demo-public.gvideo.io/cmaf/2675_21960/master.m3u8',
       type: 'application/x-mpegURL',
     }],
     spinner: {

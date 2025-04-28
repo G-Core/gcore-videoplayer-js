@@ -4,9 +4,6 @@
 
 ## Thumbnails class
 
-> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
-> 
-
 `PLUGIN` that displays the thumbnails of the video when available.
 
 **Signature:**
@@ -71,7 +68,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Constructs a new instance of the `Thumbnails` class
+Constructs a new instance of the `Thumbnails` class
 
 
 </td></tr>
@@ -104,8 +101,6 @@ Description
 
 
 </td><td>
-
-**_(BETA)_**
 
 
 </td></tr>

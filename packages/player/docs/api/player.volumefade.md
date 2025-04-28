@@ -4,9 +4,6 @@
 
 ## VolumeFade class
 
-> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
-> 
-
 `PLUGIN` that mutes the sound and fades it in when the mouse is over the player.
 
 **Signature:**
@@ -50,7 +47,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Constructs a new instance of the `VolumeFade` class
+Constructs a new instance of the `VolumeFade` class
 
 
 </td></tr>

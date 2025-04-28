@@ -4,9 +4,6 @@
 
 ## MediaControl.toggleElement() method
 
-> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
-> 
-
 Toggle the visibility of a media control element
 
 **Signature:**

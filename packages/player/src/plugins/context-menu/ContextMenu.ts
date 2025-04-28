@@ -33,7 +33,7 @@ export type MenuOption = {
 
 /**
  * Context menu plugin settings
- * @beta
+ * @public
  */
 export interface ContextMenuPluginSettings {
   options?: MenuOption[]
@@ -43,7 +43,7 @@ const T = 'plugins.context_menu'
 
 /**
  * `PLUGIN` that displays a small context menu when clicked on the player container.
- * @beta
+ * @public
  * @remarks
  * Configuration options - {@link ContextMenuPluginSettings}
  *

@@ -4,9 +4,6 @@
 
 ## MediaControl class
 
-> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
-> 
-
 `PLUGIN` that provides framework for building media control UI.
 
 **Signature:**
@@ -58,7 +55,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Constructs a new instance of the `MediaControl` class
+Constructs a new instance of the `MediaControl` class
 
 
 </td></tr>
@@ -104,8 +101,6 @@ number
 
 </td><td>
 
-**_(BETA)_**
-
 
 </td></tr>
 <tr><td>
@@ -125,7 +120,7 @@ boolean
 
 </td><td>
 
-**_(BETA)_** Muted state
+Muted state
 
 
 </td></tr>
@@ -146,7 +141,7 @@ number
 
 </td><td>
 
-**_(BETA)_** Current volume \[0..100\]
+Current volume \[0..100\]
 
 
 </td></tr>
@@ -182,8 +177,6 @@ Description
 
 </td><td>
 
-**_(BETA)_**
-
 
 </td></tr>
 <tr><td>
@@ -196,7 +189,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Hides the media control UI
+Hides the media control UI
 
 
 </td></tr>
@@ -210,7 +203,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Reenables the plugin disabled earlier with the [MediaControl.disable()](./player.mediacontrol.disable.md) method
+Reenables the plugin disabled earlier with the [MediaControl.disable()](./player.mediacontrol.disable.md) method
 
 
 </td></tr>
@@ -226,7 +219,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Extend the default media control layout settings
+Extend the default media control layout settings
 
 
 </td></tr>
@@ -240,8 +233,6 @@ Description
 
 </td><td>
 
-**_(BETA)_**
-
 
 </td></tr>
 <tr><td>
@@ -253,8 +244,6 @@ Description
 
 
 </td><td>
-
-**_(BETA)_**
 
 
 </td></tr>
@@ -268,7 +257,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Mounts a media control element at a specific location
+Mounts a media control element at a specific location
 
 
 </td></tr>
@@ -282,7 +271,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Set the initial volume, which is preserved when playback is interrupted by an advertisement
+Set the initial volume, which is preserved when playback is interrupted by an advertisement
 
 
 </td></tr>
@@ -296,7 +285,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Set the volume
+Set the volume
 
 
 </td></tr>
@@ -310,7 +299,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Mount a media control to its configured location
+Mount a media control to its configured location
 
 
 </td></tr>
@@ -324,7 +313,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Toggle the visibility of a media control element
+Toggle the visibility of a media control element
 
 
 </td></tr>

@@ -48,7 +48,7 @@ const T = 'plugins.playback_rate'
 
 /**
  * `PLUGIN` that allows changing the playback speed of the video.
- * @beta
+ * @public
  *
  * @remarks
  * Depends on:

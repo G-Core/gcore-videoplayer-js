@@ -4,9 +4,6 @@
 
 ## ContextMenu class
 
-> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
-> 
-
 `PLUGIN` that displays a small context menu when clicked on the player container.
 
 **Signature:**
@@ -50,7 +47,7 @@ Description
 
 </td><td>
 
-**_(BETA)_** Constructs a new instance of the `ContextMenu` class
+Constructs a new instance of the `ContextMenu` class
 
 
 </td></tr>

@@ -4,9 +4,6 @@
 
 ## SeekTime class
 
-> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
-> 
-
 `PLUGIN` that adds a seek time indicator when the mouse pointer is over the seek bar.
 
 **Signature:**
@@ -60,8 +57,6 @@ Description
 
 </td><td>
 
-**_(BETA)_**
-
 
 </td></tr>
 <tr><td>
@@ -81,8 +76,6 @@ string
 
 </td><td>
 
-**_(BETA)_**
-
 
 </td></tr>
 <tr><td>
@@ -101,8 +94,6 @@ string
 
 
 </td><td>
-
-**_(BETA)_**
 
 
 </td></tr>

@@ -4,9 +4,6 @@
 
 ## MediaControl.enable() method
 
-> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
-> 
-
 Reenables the plugin disabled earlier with the [MediaControl.disable()](./player.mediacontrol.disable.md) method
 
 **Signature:**

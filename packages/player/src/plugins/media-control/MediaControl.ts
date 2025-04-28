@@ -53,7 +53,7 @@ const MENU_VMARGIN = 12
 
 /**
  * Built-in media control elements.
- * @beta
+ * @public
  */
 export type StandardMediaControlElement =
   | 'duration'
@@ -67,7 +67,7 @@ export type StandardMediaControlElement =
 
 /**
  * Identifies a location for mounting custom media control elements.
- * @beta
+ * @public
  */
 export type MediaControlSlotMountPoint =
   | 'root'
@@ -80,7 +80,7 @@ export type MediaControlSlotMountPoint =
 /**
  * Media control element.
  * Each element's token in the media control layout settings determines where the element is rendered.
- * @beta
+ * @public
  * @remarks
  * Standard media control elements are defined in the {@link StandardMediaControlElement} type.
  * Custom media control elements can be identified by a unique token.
@@ -91,7 +91,7 @@ export type MediaControlElement = string
  * Specifies the layout of media control elements.
  * Actual elements will be rendered according to the playback settings. Custom elements rendered by the plugins
  * will be mounted at the specified locations.
- * @beta
+ * @public
  */
 export type MediaControlSettings = {
   left: MediaControlElement[]
@@ -134,7 +134,7 @@ const { Config, Fullscreen, formatTime, extend, removeArrayItem } = Utils
 
 /**
  * `PLUGIN` that provides framework for building media control UI.
- * @beta
+ * @public
  * @remarks
  * The methods exposed are to be used by the other plugins that extend the media control UI.
  *

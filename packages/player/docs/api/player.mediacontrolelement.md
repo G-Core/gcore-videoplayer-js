@@ -4,9 +4,6 @@
 
 ## MediaControlElement type
 
-> This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
-> 
-
 Media control element. Each element's token in the media control layout settings determines where the element is rendered.
 
 **Signature:**
