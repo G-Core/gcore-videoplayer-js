@@ -293,6 +293,7 @@ export class BottomGear extends UICorePlugin {
     this.listenTo(mediaControl, ClapprEvents.MEDIACONTROL_HIDE, this.collapse)
     this.listenTo(
       mediaControl,
+      // TODO ACTIVE_CONTAINER_CHANGED?
       ClapprEvents.MEDIACONTROL_CONTAINERCHANGED,
       () => {
         this.bindContainerEvents(mediaControl.container)

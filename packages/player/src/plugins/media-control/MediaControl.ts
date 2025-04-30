@@ -15,7 +15,7 @@ import {
   $,
   Core,
 } from '@clappr/core'
-import { reportError/* , trace */ } from '@gcorevideo/utils'
+import { reportError, trace } from '@gcorevideo/utils'
 
 import { type TimeProgress } from '../../playback.types.js'
 
@@ -119,7 +119,7 @@ const INITIAL_SETTINGS: MediaControlSettings = {
   seekEnabled: false,
 }
 
-// const T = 'plugins.media_control'
+const T = 'plugins.media_control'
 
 /**
  * Extended events for the {@link MediaControl} plugin
@@ -659,8 +659,8 @@ export class MediaControl extends UICorePlugin {
 
   private changeTogglePlay() {
     this.$playPauseToggle?.html('')
-
     this.$playStopToggle?.html('')
+
     if (this.container && this.container.isPlaying()) {
       this.$playPauseToggle?.append(pauseIcon)
       this.$playStopToggle?.append(pauseIcon)
@@ -927,7 +927,10 @@ export class MediaControl extends UICorePlugin {
     } else {
       this.hideVolumeId = setTimeout(() => {
         this.hideVolumeId = null
-        this.$volumeBarContainer.addClass('volume-bar-hide')
+        trace(`${T} hideVolumeBar`, {
+          volumeBarContainer: !!this.$volumeBarContainer,
+        })
+        this.$volumeBarContainer?.addClass('volume-bar-hide')
       }, timeout)
     }
   }
@@ -1473,10 +1476,8 @@ export class MediaControl extends UICorePlugin {
     const timeout = this.options.hideMediaControlDelay || 2000
 
     this.$el.html(MediaControl.template({ settings: this.settings }))
-    // const style = Styler.getStyleFor(mediaControlStyle, { baseUrl: this.options.baseUrl });
-    // this.$el.append(style[0]);
-    this.createCachedElements()
 
+    this.createCachedElements()
     this.drawDurationAndPosition()
 
     this.$playPauseToggle?.addClass('paused')

@@ -256,7 +256,7 @@ export class QualityLevels extends UICorePlugin {
 
   private get pluginOptions(): QualityLevelsPluginSettings {
     return (
-      this.core.options.qualityLevels || this.core.options.levelSelector || {}
+      this.core.options.qualityLevels ?? this.core.options.levelSelector ?? {}
     )
   }
 
