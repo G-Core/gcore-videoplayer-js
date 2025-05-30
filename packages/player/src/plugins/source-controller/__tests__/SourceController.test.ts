@@ -4,11 +4,14 @@ import FakeTimers from '@sinonjs/fake-timers'
 import { SourceController } from '../SourceController'
 import { PlaybackErrorCode } from '../../../playback.types.js'
 import {
+  createMockContainer,
   createMockCore,
   createMockPlayback,
   createMockPlugin,
   createSpinnerPlugin,
 } from '../../../testUtils.js'
+import { Events } from '@clappr/core'
+import { SpinnerEvents } from '../../spinner-three-bounce/SpinnerThreeBounce.js'
 
 // import { LogTracer, Logger, setTracer } from '@gcorevideo/utils'
 
@@ -77,19 +80,22 @@ describe('SourceController', () => {
   describe('on fatal playback failure', () => {
     let core: any
     let nextPlayback: any
+    let nextContainer: any
     describe('basically', () => {
       beforeEach(() => {
         core = createMockCore({
           sources: MOCK_SOURCES,
         })
         const _ = new SourceController(core)
-        core.emit('core:ready')
-        core.emit('core:active:container:changed')
-        core.activePlayback.emit('playback:error', {
+        core.emit(Events.CORE_READY)
+        core.emit(Events.CORE_ACTIVE_CONTAINER_CHANGED)
+        core.activePlayback.emit(Events.PLAYBACK_ERROR, {
           code: PlaybackErrorCode.MediaSourceUnavailable,
         })
-        nextPlayback = createMockPlayback()
+        nextContainer = createMockContainer()
+        nextPlayback = nextContainer.playback
         core.activePlayback = nextPlayback
+        core.activeContainer = nextContainer
       })
       it('should load the next source after a delay', async () => {
         expect(core.load).not.toHaveBeenCalled()
@@ -124,7 +130,7 @@ describe('SourceController', () => {
               return spinner
             }
           })
-          core.emit('core:active:container:changed')
+          core.emit(Events.CORE_ACTIVE_CONTAINER_CHANGED)
         })
         it('should disable the poster', async () => {
           expect(poster.disable).toHaveBeenCalled()
@@ -147,18 +153,22 @@ describe('SourceController', () => {
           }
         })
         const _ = new SourceController(core)
-        core.emit('core:ready')
-        core.emit('core:active:container:changed')
-        core.activePlayback.emit('playback:error', {
+        core.emit(Events.CORE_READY)
+        core.emit(Events.CORE_ACTIVE_CONTAINER_CHANGED)
+        core.activePlayback.emit(Events.PLAYBACK_ERROR, {
           code: PlaybackErrorCode.MediaSourceUnavailable,
         })
-        nextPlayback = createMockPlayback()
+        nextContainer = createMockContainer()
+        nextPlayback = nextContainer.playback
         core.activePlayback = nextPlayback
+        core.activeContainer = nextContainer
       })
       it('should sync with the spinner before reloading the source', async () => {
         await clock.tickAsync(1000)
         expect(core.load).not.toHaveBeenCalled()
-        spinner.emit('plugins:spinner:sync')
+        spinner.emit(SpinnerEvents.SYNC, {
+          elapsedTime: 1000,
+        })
         expect(core.load).toHaveBeenCalled()
       })
     })
@@ -171,14 +181,16 @@ describe('SourceController', () => {
           sources: MOCK_SOURCES,
         })
         const _ = new SourceController(core)
-        core.emit('core:ready')
-        core.emit('core:active:container:changed')
-        core.activePlayback.emit('playback:error', {
+        core.emit(Events.CORE_READY)
+        core.emit(Events.CORE_ACTIVE_CONTAINER_CHANGED)
+        core.activePlayback.emit(Events.PLAYBACK_ERROR, {
           code: PlaybackErrorCode.MediaSourceUnavailable,
         })
         await clock.tickAsync(1000)
-        nextPlayback = createMockPlayback()
+        nextContainer = createMockContainer()
+        nextPlayback = nextContainer.playback
         core.activePlayback = nextPlayback
+        core.activeContainer = nextContainer
         poster = createMockPlugin()
         spinner = createSpinnerPlugin()
         core.activeContainer.getPlugin.mockImplementation((name: string) => {
@@ -189,9 +201,10 @@ describe('SourceController', () => {
             return spinner
           }
         })
-        core.emit('core:ready')
-        core.emit('core:active:container:changed')
-        nextPlayback.emit('playback:play')
+        core.emit(Events.CORE_READY)
+        core.emit(Events.CORE_ACTIVE_CONTAINER_CHANGED)
+        nextPlayback.emit(Events.PLAYBACK_PLAY)
+        nextContainer.emit(Events.CONTAINER_PLAY, 'Container', {})
       })
       it('should enable the poster', async () => {
         expect(poster.enable).toHaveBeenCalled()
@@ -206,7 +219,7 @@ describe('SourceController', () => {
         it('should do nothing', async () => {
           nextPlayback.emit(event)
           await clock.tickAsync(1000)
-          nextPlayback.emit('playback:play')
+          nextPlayback.emit(Events.PLAYBACK_PLAY)
           await clock.tickAsync(1000)
           expect(poster.enable).toHaveBeenCalledTimes(1)
           expect(spinner.hide).toHaveBeenCalledTimes(1)

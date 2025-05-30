@@ -225,25 +225,21 @@ export class SourceController extends CorePlugin {
         }
       },
     )
-    this.core.activePlayback.on(Events.PLAYBACK_PLAY, () => {
-      trace(`${T} on PLAYBACK_PLAY`, {
-        currentSource: this.sourcesList[this.currentSourceIndex],
-        retrying: this.active,
-      })
-      if (this.active) {
-        this.reset()
-        this.core.activeContainer?.getPlugin('poster')?.enable()
-        this.core.activeContainer?.getPlugin('spinner')?.hide()
-      }
-    })
     this.listenTo(
       this.core.activeContainer,
       Events.CONTAINER_PLAY,
       (_: string, { autoPlay }: { autoPlay?: boolean }) => {
         trace(`${T} onContainerPlay`, {
           autoPlay,
+          currentSource: this.sourcesList[this.currentSourceIndex],
+          retrying: this.active,
         })
         this.autoPlay = !!autoPlay
+        if (this.active) {
+          this.reset()
+          this.core.activeContainer?.getPlugin('poster')?.enable()
+          this.core.activeContainer?.getPlugin('spinner')?.hide()
+        }
       },
     )
   }
@@ -275,6 +271,7 @@ export class SourceController extends CorePlugin {
         setTimeout(() => {
           trace(`${T} retryPlayback playing`, {
             autoPlay: this.autoPlay,
+            nextSource,
           })
           this.core.activeContainer.play({
             autoPlay: this.autoPlay,
