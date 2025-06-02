@@ -124,9 +124,9 @@ export class SeekTime extends UICorePlugin {
     this.update()
   }
 
-  private showTime(event: MouseEvent) {
+  private showTime(_: MouseEvent, pos: number) {
     this.hoveringOverSeekBar = true
-    this.calculateHoverPosition(event)
+    this.calculateHoverPosition(pos)
     this.update()
   }
 
@@ -135,16 +135,8 @@ export class SeekTime extends UICorePlugin {
     this.update()
   }
 
-  // TODO delegate calculation to the MediaControl plugin
-  private calculateHoverPosition(event: MouseEvent) {
-    const mediaControl = this.core.getPlugin('media_control')
-    const offset = event.pageX - mediaControl.$seekBarContainer.offset().left
-
-    // proportion into the seek bar that the mouse is hovered over 0-1
-    this.hoverPosition = Math.min(
-      1,
-      Math.max(offset / mediaControl.$seekBarContainer.width(), 0),
-    )
+  private calculateHoverPosition(pos: number) {
+    this.hoverPosition = pos
   }
 
   private getSeekTime() {

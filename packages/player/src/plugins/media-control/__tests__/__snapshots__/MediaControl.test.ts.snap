@@ -347,9 +347,9 @@ exports[`MediaControl > rendering timing > once metadata is loaded > should wait
                 <div class="bar-fill-2 gcore-skin-main-color" data-seekbar="" style="width: 0%;"></div>
                 <div class="bar-hover" data-seekbar=""></div>
             </div>
-        </div>
-        <div class="bar-scrubber" data-seekbar="" style="left: 0%;">
-            <div class="bar-scrubber-icon gcore-skin-main-color" data-seekbar=""></div>
+            <div class="bar-scrubber" data-seekbar="" style="left: 0%;">
+                <div class="bar-scrubber-icon gcore-skin-main-color" data-seekbar=""></div>
+            </div>
         </div>
     
         </div>
@@ -413,9 +413,9 @@ exports[`MediaControl > seekbar > should render 1`] = `
                 <div class="bar-fill-2 gcore-skin-main-color" data-seekbar="" style="width: 0%;"></div>
                 <div class="bar-hover" data-seekbar=""></div>
             </div>
-        </div>
-        <div class="bar-scrubber" data-seekbar="" style="left: 0%;">
-            <div class="bar-scrubber-icon gcore-skin-main-color" data-seekbar=""></div>
+            <div class="bar-scrubber" data-seekbar="" style="left: 0%;">
+                <div class="bar-scrubber-icon gcore-skin-main-color" data-seekbar=""></div>
+            </div>
         </div>
     
         </div>

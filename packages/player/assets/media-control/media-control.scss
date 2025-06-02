@@ -256,15 +256,10 @@
     }
   }
 
-  .bar-container[data-seekbar].seek-disabled+.bar-scrubber[data-seekbar] {
-    cursor: default;
-    display: none;
-  }
-
   .bar-scrubber[data-seekbar] {
     position: absolute;
     transform: translateX(-50%);
-    top: -11.5px;
+    top: 0;
     left: 0;
     width: 20px;
     height: 20px;
