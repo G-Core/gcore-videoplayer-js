@@ -24,13 +24,28 @@ import { loadImageDimensions } from './utils.js'
 /**
  * Plugin configuration options for the thumbnails plugin.
  * @public
+ * @remarks
+ * Example of a VTT file:
+ * ```text
+ * 1
+ * 00:00:00,000 --> 00:00:10,000
+ * 3dk4NsRt6vWsffEr_sprite.jpg#xywh=0,0,100,56
+ *
+ * 2
+ * 00:00:10,000 --> 00:00:20,000
+ * 3dk4NsRt6vWsffEr_sprite.jpg#xywh=100,0,100,56
+ *
+ * ```
  */
-export type ThumbnailsPluginSettings = {
+export interface ThumbnailsPluginSettings {
   backdropHeight?: number
   backdropMaxOpacity?: number
   backdropMinOpacity?: number
   spotlightHeight?: number
   sprite: string
+  /**
+   * The VTT file to use for the thumbnails.
+   */
   vtt: string
 }
 
@@ -73,6 +88,7 @@ const T = 'plugins.thumbnails'
  *      'https://static.gvideo.co/videoplatform/sprites/2675/2452164_3dk4NsRt6vWsffEr.mp4_sprite.jpg',
  *   },
  * })
+
  * ```
  */
 export class Thumbnails extends UICorePlugin {
@@ -257,7 +273,7 @@ export class Thumbnails extends UICorePlugin {
   private mount() {
     const mediaControl = this.core.getPlugin('media_control') as MediaControl
     mediaControl.$el.find('.seek-time').css('bottom', 56) // TODO check the offset
-    mediaControl.$el.first().after(this.$el);
+    mediaControl.$el.first().after(this.$el)
   }
 
   private onMouseMoveSeekbar(_: MouseEvent, pos: number) {
@@ -279,7 +295,8 @@ export class Thumbnails extends UICorePlugin {
     $ref?: ZeptoResult,
   ) {
     const scaleFactor = height / thumb.h
-    const $container = $ref && $ref.length ? $ref : $('<div />').addClass('thumbnail-container')
+    const $container =
+      $ref && $ref.length ? $ref : $('<div />').addClass('thumbnail-container')
 
     $container.css('width', thumb.w * scaleFactor)
     $container.css('height', height)

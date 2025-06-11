@@ -2,19 +2,164 @@
 
 [Home](./index.md) &gt; [@gcorevideo/player](./player.md) &gt; [ThumbnailsPluginSettings](./player.thumbnailspluginsettings.md)
 
-## ThumbnailsPluginSettings type
+## ThumbnailsPluginSettings interface
 
 Plugin configuration options for the thumbnails plugin.
 
 **Signature:**
 
 ```typescript
-export type ThumbnailsPluginSettings = {
-    backdropHeight?: number;
-    backdropMaxOpacity?: number;
-    backdropMinOpacity?: number;
-    spotlightHeight?: number;
-    sprite: string;
-    vtt: string;
-};
+export interface ThumbnailsPluginSettings 
 ```
+
+## Remarks
+
+Example of a VTT file:
+
+```text
+1
+00:00:00,000 --> 00:00:10,000
+3dk4NsRt6vWsffEr_sprite.jpg#xywh=0,0,100,56
+
+2
+00:00:10,000 --> 00:00:20,000
+3dk4NsRt6vWsffEr_sprite.jpg#xywh=100,0,100,56
+
+```
+
+## Properties
+
+<table><thead><tr><th>
+
+Property
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[backdropHeight?](./player.thumbnailspluginsettings.backdropheight.md)
+
+
+</td><td>
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+_(Optional)_
+
+
+</td></tr>
+<tr><td>
+
+[backdropMaxOpacity?](./player.thumbnailspluginsettings.backdropmaxopacity.md)
+
+
+</td><td>
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+_(Optional)_
+
+
+</td></tr>
+<tr><td>
+
+[backdropMinOpacity?](./player.thumbnailspluginsettings.backdropminopacity.md)
+
+
+</td><td>
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+_(Optional)_
+
+
+</td></tr>
+<tr><td>
+
+[spotlightHeight?](./player.thumbnailspluginsettings.spotlightheight.md)
+
+
+</td><td>
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+_(Optional)_
+
+
+</td></tr>
+<tr><td>
+
+[sprite](./player.thumbnailspluginsettings.sprite.md)
+
+
+</td><td>
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[vtt](./player.thumbnailspluginsettings.vtt.md)
+
+
+</td><td>
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+The VTT file to use for the thumbnails.
+
+
+</td></tr>
+</tbody></table>

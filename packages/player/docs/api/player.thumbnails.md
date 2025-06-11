@@ -38,6 +38,7 @@ new Player({
      'https://static.gvideo.co/videoplatform/sprites/2675/2452164_3dk4NsRt6vWsffEr.mp4_sprite.jpg',
   },
 })
+
 ```
 
 ## Constructors

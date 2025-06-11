@@ -702,6 +702,17 @@ Configuration options for the [QualityLevels](./player.qualitylevels.md) plugin.
 </td></tr>
 <tr><td>
 
+[ThumbnailsPluginSettings](./player.thumbnailspluginsettings.md)
+
+
+</td><td>
+
+Plugin configuration options for the thumbnails plugin.
+
+
+</td></tr>
+<tr><td>
+
 [TimePosition](./player.timeposition.md)
 
 
@@ -1075,17 +1086,6 @@ Built-in media control elements.
 </td><td>
 
 **_(BETA)_** Callback to send the telemetry record to the storage.
-
-
-</td></tr>
-<tr><td>
-
-[ThumbnailsPluginSettings](./player.thumbnailspluginsettings.md)
-
-
-</td><td>
-
-Plugin configuration options for the thumbnails plugin.
 
 
 </td></tr>
