@@ -257,21 +257,25 @@ export class Player {
     if (mediaSources.length === 0) {
       throw new Error('No media sources provided')
     }
+    trace('load', {
+      mediaSources,
+      player: !!this.player,
+    })
+    if (!this.player) {
+      this.configure({
+        sources: mediaSources,
+      })
+      return
+    }
     const ms = mediaSources.map((s) => wrapSource(s))
-    const sourceController = this.player?.core.activePlayback.getPlugin(
+    const sourceController = this.player?.core.getPlugin(
       'source_controller',
     ) as SourceController
     if (sourceController) {
       sourceController.setMediaSource(ms)
       return
     }
-    if (this.player) {
-      this.player.load(ms, ms[0].mimeType ?? '')
-      return
-    }
-    this.configure({
-      sources: mediaSources,
-    })
+    this.player?.load(ms, ms[0].mimeType ?? '')
   }
 
   /**

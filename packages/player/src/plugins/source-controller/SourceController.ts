@@ -168,6 +168,9 @@ export class SourceController extends CorePlugin {
    * Triggers a reload of the playback module, container and all container plugins.
    */
   setMediaSource(sourcesList: PlayerMediaSourceDesc[]) {
+    trace('setMediaSource', {
+      sourcesList,
+    })
     this.sourcesList = sourcesList
     this.core.load(sourcesList, this.core.options.mimeType)
   }
