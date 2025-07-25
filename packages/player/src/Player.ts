@@ -367,7 +367,9 @@ export class Player {
    * @param name - name of the plugin
    */
   static unregisterPlugin(name: string) {
-    Player.corePlugins = Player.corePlugins.filter((p) => p.prototype.name !== name)
+    Player.corePlugins = Player.corePlugins.filter(
+      (p) => p.prototype.name !== name,
+    )
     Loader.unregisterPlugin(name)
   }
 

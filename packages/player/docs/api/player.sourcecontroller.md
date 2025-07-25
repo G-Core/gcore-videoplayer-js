@@ -52,7 +52,6 @@ sources_list:
                  +-------------------+
 
 ```
-This plugin does not expose any public methods apart from required by the Clappr plugin interface. It is supposed to work autonomously.
 
 ## Example
 
@@ -92,6 +91,40 @@ Description
 </td><td>
 
 Constructs a new instance of the `SourceController` class
+
+
+</td></tr>
+</tbody></table>
+
+## Methods
+
+<table><thead><tr><th>
+
+Method
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[setMediaSource(sourcesList)](./player.sourcecontroller.setmediasource.md)
+
+
+</td><td>
+
+
+</td><td>
+
+**_(BETA)_** Set new media source.
 
 
 </td></tr>

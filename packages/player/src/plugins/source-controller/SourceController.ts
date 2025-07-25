@@ -69,9 +69,6 @@ function noSync(cb: () => void) {
  *
  * ```
  *
- * This plugin does not expose any public methods apart from required by the Clappr plugin interface.
- * It is supposed to work autonomously.
- *
  * @example
  * ```ts
  * import { SourceController } from '@gcorevideo/player'
@@ -156,9 +153,23 @@ export class SourceController extends CorePlugin {
     if (this.core.options.source !== undefined) {
       // prevent Clappr from loading all sources simultaneously
       this.core.options.sources = [this.core.options.source]
+      this.core.options.source = undefined // TODO test
     } else {
       this.core.options.sources = this.core.options.sources.slice(0, 1)
     }
+  }
+
+  /**
+   * Set new media source.
+   *
+   * @param sourcesList - The list of new media source URLs
+   * @beta
+   * @remarks
+   * Triggers a reload of the playback module, container and all container plugins.
+   */
+  setMediaSource(sourcesList: PlayerMediaSourceDesc[]) {
+    this.sourcesList = sourcesList
+    this.core.load(sourcesList, this.core.options.mimeType)
   }
 
   /**

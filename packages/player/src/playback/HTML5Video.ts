@@ -48,6 +48,7 @@ export default class HTML5Video extends BasePlayback {
   }
 
   override _handleBufferingEvents() {
+    // TODO use the logic from the base class to detect if it's stalled or resumed, because in the latter case the current behavior is not correct
     if (!this.stallTimerId) {
       this.stallTimerId = setTimeout(() => {
         this.stallTimerId = null

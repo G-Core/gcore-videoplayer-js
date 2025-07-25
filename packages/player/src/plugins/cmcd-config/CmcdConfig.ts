@@ -92,16 +92,17 @@ export class CmcdConfig extends CorePlugin {
   constructor(core: Core) {
     super(core)
     this.sid = this.options.cmcd?.sessionId ?? generateSessionId()
-    this.cid = this.options.cmcd?.contentId ?? this.generateContentId()
+    this.setContentId()
   }
 
   /**
    * @internal
    */
   override bindEvents() {
-    this.listenTo(this.core, Events.CORE_CONTAINERS_CREATED, () =>
-      this.updateSettings(this.core.containers[0]),
-    )
+    this.listenTo(this.core, Events.CORE_CONTAINERS_CREATED, () => {
+      this.setContentId()
+      this.updateSettings(this.core.containers[0])
+    })
   }
 
   /**
@@ -128,7 +129,7 @@ export class CmcdConfig extends CorePlugin {
                 sid: this.sid,
                 cid: this.cid,
               },
-            }
+            },
           },
         })
         break
@@ -152,5 +153,9 @@ export class CmcdConfig extends CorePlugin {
     return new URL(
       this.core.options.source ?? this.core.options.sources[0].source,
     ).pathname.slice(0, 64)
+  }
+
+  private setContentId() {
+    this.cid = this.options.cmcd?.contentId ?? this.generateContentId()
   }
 }
