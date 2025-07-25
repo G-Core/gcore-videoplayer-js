@@ -17,6 +17,7 @@ import type {
 } from './internal.types.js'
 import type {
   ContainerSize,
+  PlayerMediaSource,
   PlayerMediaSourceDesc,
   PlayerPluginConstructor,
 } from './types.js'
@@ -24,6 +25,7 @@ import { PlayerConfig, PlayerEvent } from './types.js'
 import { buildMediaSourcesList, wrapSource } from './utils/mediaSources.js'
 import { registerPlaybacks } from './playback/index.js'
 import { PlaybackError, TimePosition } from './playback.types.js'
+import { SourceController } from './plugins/source-controller/SourceController.js'
 
 /**
  * @public
@@ -244,6 +246,32 @@ export class Player {
    */
   isPlaying(): boolean {
     return this.player?.isPlaying() ?? false
+  }
+
+  /**
+   * Loads new media source
+   * @param mediaSources - list of media sources to use
+   * @beta
+   */
+  load(mediaSources: PlayerMediaSource[]) {
+    if (mediaSources.length === 0) {
+      throw new Error('No media sources provided')
+    }
+    const ms = mediaSources.map((s) => wrapSource(s))
+    const sourceController = this.player?.core.activePlayback.getPlugin(
+      'source_controller',
+    ) as SourceController
+    if (sourceController) {
+      sourceController.setMediaSource(ms)
+      return
+    }
+    if (this.player) {
+      this.player.load(ms, ms[0].mimeType ?? '')
+      return
+    }
+    this.configure({
+      sources: mediaSources,
+    })
   }
 
   /**

@@ -210,6 +210,20 @@ Indicates the playing state.
 </td></tr>
 <tr><td>
 
+[load(mediaSources)](./player.player.load.md)
+
+
+</td><td>
+
+
+</td><td>
+
+**_(BETA)_** Loads new media source
+
+
+</td></tr>
+<tr><td>
+
 [mute()](./player.player.mute.md)
 
 
