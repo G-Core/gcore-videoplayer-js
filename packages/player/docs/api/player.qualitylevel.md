@@ -112,3 +112,4 @@ Width of the video frame, pixels.
 
 </td></tr>
 </tbody></table>
+

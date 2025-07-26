@@ -74,3 +74,4 @@ Total duration of the media content (or DVR window size or segment duration for 
 
 </td></tr>
 </tbody></table>
+

@@ -163,3 +163,4 @@ The VTT file to use for the thumbnails.
 
 </td></tr>
 </tbody></table>
+

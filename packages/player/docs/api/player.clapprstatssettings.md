@@ -55,3 +55,4 @@ _(Optional)_ The interval in milliseconds of periodic measurements. The plugin w
 
 </td></tr>
 </tbody></table>
+

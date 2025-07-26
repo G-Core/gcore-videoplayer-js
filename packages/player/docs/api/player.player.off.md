@@ -63,6 +63,7 @@ a callback attached earlier to that event type
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 void

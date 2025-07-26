@@ -261,3 +261,4 @@ _(Optional)_ Localization strings for the player UI.
 
 </td></tr>
 </tbody></table>
+

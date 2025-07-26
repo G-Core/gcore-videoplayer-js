@@ -79,3 +79,4 @@ Reenables earlier disabled plugin
 
 </td></tr>
 </tbody></table>
+
