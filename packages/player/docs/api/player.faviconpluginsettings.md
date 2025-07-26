@@ -54,3 +54,4 @@ _(Optional)_ CSS color of the favicon.
 
 </td></tr>
 </tbody></table>
+

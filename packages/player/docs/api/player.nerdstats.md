@@ -58,3 +58,4 @@ Constructs a new instance of the `NerdStats` class
 
 </td></tr>
 </tbody></table>
+

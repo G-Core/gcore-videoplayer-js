@@ -47,6 +47,7 @@ The time to get the text for
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 string \| undefined

@@ -47,6 +47,7 @@ new size of the player
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 void
