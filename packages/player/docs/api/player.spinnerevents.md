@@ -47,3 +47,4 @@ Emitted at the end of the spinner animation cycle to facilitate smooth UI update
 
 </td></tr>
 </tbody></table>
+

@@ -47,3 +47,4 @@ The Clappr core instance.
 
 </td></tr>
 </tbody></table>
+

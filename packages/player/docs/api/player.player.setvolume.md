@@ -47,6 +47,7 @@ a number between 0 and 1
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 void

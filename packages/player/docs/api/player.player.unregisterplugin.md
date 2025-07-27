@@ -47,6 +47,7 @@ name of the plugin
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 void

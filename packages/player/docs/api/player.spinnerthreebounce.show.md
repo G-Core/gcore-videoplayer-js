@@ -49,6 +49,7 @@ _(Optional)_ The delay in milliseconds before the spinner is shown.
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 void

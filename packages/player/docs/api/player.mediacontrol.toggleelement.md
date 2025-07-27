@@ -61,6 +61,7 @@ Visibility state
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 void

@@ -395,3 +395,4 @@ Unregisters a plugin registered earlier with [Player.registerPlugin()](./player.
 
 </td></tr>
 </tbody></table>
+
