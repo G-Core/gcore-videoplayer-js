@@ -47,6 +47,7 @@ DOM element to host the player
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 void

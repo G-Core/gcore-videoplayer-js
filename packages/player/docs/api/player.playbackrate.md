@@ -75,3 +75,4 @@ Constructs a new instance of the `PlaybackRate` class
 
 </td></tr>
 </tbody></table>
+

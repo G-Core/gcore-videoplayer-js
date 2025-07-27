@@ -126,3 +126,4 @@ Collapses any submenu open back to the gear menu.
 
 </td></tr>
 </tbody></table>
+
