@@ -51,6 +51,7 @@ Additional settings
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 { left: string\[\]; right: string\[\]; default: string\[\]; }
