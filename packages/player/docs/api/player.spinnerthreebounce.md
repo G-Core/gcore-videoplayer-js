@@ -100,3 +100,4 @@ The method call prevents spinner's built-in logic from automatically hiding it u
 
 </td></tr>
 </tbody></table>
+

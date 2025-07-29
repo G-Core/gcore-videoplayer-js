@@ -52,3 +52,4 @@ Constructs a new instance of the `VolumeFade` class
 
 </td></tr>
 </tbody></table>
+

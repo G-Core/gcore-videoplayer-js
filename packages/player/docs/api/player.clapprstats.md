@@ -96,3 +96,4 @@ Returns the collected metrics.
 
 </td></tr>
 </tbody></table>
+
