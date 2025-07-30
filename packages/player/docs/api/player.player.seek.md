@@ -47,6 +47,7 @@ time to seek to in seconds (since the beginning of the stream)
 
 </td></tr>
 </tbody></table>
+
 **Returns:**
 
 void
