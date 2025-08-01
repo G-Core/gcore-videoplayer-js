@@ -74,3 +74,4 @@ _(Optional)_ The maximum resolution to allow in the level selector.
 
 </td></tr>
 </tbody></table>
+

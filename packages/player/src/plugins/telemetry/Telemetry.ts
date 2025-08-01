@@ -18,7 +18,11 @@ const T = 'plugins.telemetry'
  * Telemetry event data
  * @beta
  */
-export type TelemetryEventData = StallEventData | InitEventData | StartEventData | WatchEventData
+export type TelemetryEventData =
+  | StallEventData
+  | InitEventData
+  | StartEventData
+  | WatchEventData
 
 /**
  * Playback stall event data
@@ -70,7 +74,7 @@ export interface WatchEventData {
  */
 export type TelemetryRecord = {
   type: PlaybackType
-} & TelemetryEventData;
+} & TelemetryEventData
 
 /**
  * Callback to send the telemetry record to the storage.
@@ -107,15 +111,15 @@ export enum TelemetryEvent {
  * @beta
  * @remarks
  * This plugin is experimental and its API is likely to change.
- * 
+ *
  * Configuration options {@link TelemetryPluginSettings}
- * 
+ *
  * @example
  * ```ts
  * import { Statistics } from '@gcorevideo/player'
- * 
+ *
  * Player.registerPlugin(Statistics)
- * 
+ *
  * const player = new Player({
  *   statistics: {
  *     send: (data) => {
@@ -171,7 +175,7 @@ export class Telemetry extends ContainerPlugin {
 
   constructor(container: Container) {
     super(container)
-    
+
     assert(
       this.options.telemetry &&
         typeof this.options.telemetry.send === 'function',
@@ -257,11 +261,11 @@ export class Telemetry extends ContainerPlugin {
   }
 
   private sendInit() {
-    this.send({event: TelemetryEvent.Init})
+    this.send({ event: TelemetryEvent.Init })
   }
 
   private send(event: TelemetryEventData) {
-    (this.options.telemetry as TelemetryPluginSettings).send({
+    ;(this.options.telemetry as TelemetryPluginSettings).send({
       type: this.container.getPlaybackType(),
       ...event,
     })
