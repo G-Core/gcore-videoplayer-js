@@ -23,7 +23,7 @@
     "typescript": "^5.7.3"
   },
   "dependencies": {
-    "@sentry/types": "^9.5.0",
+    "@sentry/types": "^10.5.0",
     "event-lite": "^1.0.0"
   }
 }
