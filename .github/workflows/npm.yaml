@@ -1,0 +1,23 @@
+name: Upload new version to NPM
+
+# Version is taken from the package.json on the current commit, if the version is already published, the operation will fail
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: packages/player/package-lock.json
+      - name: Install dependencies
+        run: npm -C packages/player ci
+      - name: Run build and publish
+        # TODO NPM_TOKEN
+        run: npm -C packages/player run ship
