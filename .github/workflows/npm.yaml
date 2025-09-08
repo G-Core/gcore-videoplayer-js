@@ -19,5 +19,4 @@ jobs:
       - name: Install dependencies
         run: npm -C packages/player ci
       - name: Run build and publish
-        # TODO NPM_TOKEN
         run: npm -C packages/player run ship

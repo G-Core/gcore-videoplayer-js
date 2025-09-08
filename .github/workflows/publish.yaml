@@ -61,7 +61,7 @@ jobs:
             --bucket player \
             . \
             $VERSION
-          if [ "$latest" = true ]; then
+          if [ "${{ inputs.latest }}" = true ]; then
             python $LIBDIR/upload-s3.py \
               --endpoint https://$S3_HOSTNAME \
               --bucket player \
