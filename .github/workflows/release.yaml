@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: npm
     steps:
-      - uses: ./publish.yaml
+      - uses: ./.github/workflows/publish.yaml
         with:
           version: ${{ github.ref_name }}
           latest: true
