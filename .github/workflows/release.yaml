@@ -9,7 +9,7 @@ jobs:
   npm:
     runs-on: ubuntu-latest
     steps:
-      - uses: ./npm.yaml
+      - uses: ./.github/workflows/npm.yaml
   cdn:
     runs-on: ubuntu-latest
     needs: npm
