@@ -19,7 +19,7 @@
     "docs:build": "api-documenter markdown --input-folder=temp --output-folder=docs/api",
     "format": "prettier --write src/",
     "lint": "oxlint -c ../../.oxlintrc.json --tsconfig=./tsconfig.json --fix --ignore-path=../../.gitignore src",
-    "ship": "npm run build && npm run build:bundle && npm publish --access public",
+    "ship": "npm run build && npm publish --access public",
     "test": "NODE_OPTIONS='--trace-deprecation' vitest --dom"
   },
   "repository": {
