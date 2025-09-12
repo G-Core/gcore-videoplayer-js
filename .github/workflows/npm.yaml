@@ -26,7 +26,9 @@ jobs:
         run: npm -C packages/player run build
       - name: Publish
         run: |
+          echo "$NODE_AUTH_TOKEN"
           cd packages/player
           npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
