@@ -25,4 +25,6 @@ jobs:
       - name: Build
         run: npm -C packages/player run build
       - name: Publish
-        run: npm -C packages/player publish --access public
+        run: |
+          cd packages/player
+          npm publish --access public
