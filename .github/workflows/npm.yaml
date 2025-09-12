@@ -1,4 +1,4 @@
-name: Upload new version to NPM
+name: Upload to NPM
 
 # Version is taken from the package.json on the current commit, if the version is already published, the operation will fail
 
@@ -28,3 +28,5 @@ jobs:
         run: |
           cd packages/player
           npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
