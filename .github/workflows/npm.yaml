@@ -40,6 +40,7 @@ jobs:
           cache: 'npm'
           cache-dependency-path: packages/player/package-lock.json
           registry-url: https://registry.npmjs.org/
+          scope: '@gcorevideo'
       - name: Check version
         id: version
         run: |
