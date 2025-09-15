@@ -65,12 +65,14 @@ jobs:
             --bucket player \
             . \
             $VERSION
+          echo "OK published as https://player.gvideo.co/v2/assets/$VERSION/index.js"
           if [ "${{ inputs.latest }}" = true ]; then
             python $LIBDIR/upload-s3.py \
               --endpoint https://$S3_HOSTNAME \
               --bucket player \
               . \
               latest
+            echo "OK published https://player.gvideo.co/v2/assets/latest/[...] -> https://player.gvideo.co/v2/assets/$VERSION/[...]"
           fi
         env:
           S3_HOSTNAME: ${{ secrets.S3_HOSTNAME }}
