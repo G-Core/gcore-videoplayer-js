@@ -40,7 +40,7 @@ jobs:
         id: version
         run: |
           version=${{ inputs.version }}
-          pkg_version=$(cat packages/player/package.json | jq -r '.version')
+          pkg_version=$(jq -r '.version' packages/player/package.json)
           if [ -z "$version" || "$version" = "latest"  || "$version" = "$pkg_version" ]; then
             echo "version=$pkg_version" >> $GITHUB_OUTPUT
             exit 0
