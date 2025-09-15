@@ -25,6 +25,7 @@ jobs:
   cdn:
     needs: npm
     uses: ./.github/workflows/publish.yaml
+    secrets: inherit
     with:
       version: ${{ needs.npm.outputs.version }}
       latest: true
