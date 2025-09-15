@@ -20,15 +20,16 @@ jobs:
           node-version: 22
           cache: 'npm'
           cache-dependency-path: packages/player/package-lock.json
+          registry-url: https://registry.npmjs.org/
       - name: Install dependencies
         run: npm -C packages/player ci
       - name: Build
         run: npm -C packages/player run build
       - name: Publish
         run: |
-          echo "$NODE_AUTH_TOKEN"
+          cat .npmrc
           cd packages/player
-          npm publish --access public
+          npm publish --access public --provenance
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
