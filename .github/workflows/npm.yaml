@@ -12,6 +12,10 @@ on:
         type: boolean
         description: 'Skip the NPM upload step'
         default: false
+    outputs:
+      version:
+        value: ${{ jobs.build.outputs.version }}
+        description: 'The version number from the package.json'
   workflow_dispatch:
     inputs:
       version:
@@ -43,6 +47,7 @@ jobs:
           pkg_version=$(jq -r '.version' packages/player/package.json)
           case "$version" in
             "" | "latest" | "$pkg_version")
+              echo "INFO current version is '$pkg_version'"
               echo "version=$pkg_version" >> $GITHUB_OUTPUT
               exit 0
             ;;
