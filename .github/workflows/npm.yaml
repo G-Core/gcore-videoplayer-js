@@ -4,8 +4,23 @@ name: Upload to NPM
 
 on:
   workflow_call:
+    inputs:
+      version:
+        type: string
+        description: 'Version number, if provided, must match the package.json version'
+      dry_run:
+        type: boolean
+        description: 'Skip the NPM upload step'
+        default: false
   workflow_dispatch:
-
+    inputs:
+      version:
+        type: string
+        description: 'Version number, if provided, must match the package.json version'
+      dry_run:
+        type: boolean
+        description: 'Skip the NPM upload step'
+        default: false
 permissions:
   id-token: write # Required for OIDC
   contents: read
@@ -21,15 +36,27 @@ jobs:
           cache: 'npm'
           cache-dependency-path: packages/player/package-lock.json
           registry-url: https://registry.npmjs.org/
+      - name: Check version
+        id: version
+        run: |
+          version=${{ inputs.version }}
+          pkg_version=$(jq -r '.version' packages/player/package.json)
+          if [ -z "$version" || "$version" = "latest" || "$version" = "$pkg_version" ]; then
+            echo "version=$pkg_version" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          echo "ERR Version given is '$version' but version in package.json is '$pkg_version'"
+          exit 1
       - name: Install dependencies
         run: npm -C packages/player ci
       - name: Build
         run: npm -C packages/player run build
       - name: Publish
+        if: inputs.dry_run != true
         run: |
-          # cat .npmrc
           cd packages/player
           npm publish --access public --provenance
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+    outputs:
+      version: ${{ steps.version.outputs.version }}

@@ -4,17 +4,34 @@ on:
   push:
     tags:
       - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        type: choice
+        description: 'Select the version to release'
+        options:
+          - 'latest'
+      skip_npm:
+        type: boolean
+        description: 'Skip the NPM upload step'
+        default: false
 
 jobs:
   npm:
     runs-on: ubuntu-latest
     steps:
       - uses: ./.github/workflows/npm.yaml
+        id: npm
+        with:
+          version: ${{ inputs.version || github.ref_name }}
+          dry_run: ${{ inputs.skip_npm }}
+    outputs:
+      version: ${{ steps.npm.outputs.version }}
   cdn:
     runs-on: ubuntu-latest
     needs: npm
     steps:
       - uses: ./.github/workflows/publish.yaml
         with:
-          version: ${{ github.ref_name }}
+          version: ${{ inputs.version || github.ref_name }}
           latest: true
