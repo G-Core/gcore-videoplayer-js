@@ -41,12 +41,16 @@ jobs:
         run: |
           version=${{ inputs.version }}
           pkg_version=$(jq -r '.version' packages/player/package.json)
-          if [ -z "$version" || "$version" = "latest" || "$version" = "$pkg_version" ]; then
-            echo "version=$pkg_version" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-          echo "ERR Version given is '$version' but version in package.json is '$pkg_version'"
-          exit 1
+          case "$version" in
+            "" | "latest" | "$pkg_version")
+              echo "version=$pkg_version" >> $GITHUB_OUTPUT
+              exit 0
+            ;;
+            *)
+              echo "ERR Version given is '$version' but version in package.json is '$pkg_version'"
+              exit 1
+            ;;
+          esac
       - name: Install dependencies
         run: npm -C packages/player ci
       - name: Build
