@@ -66,7 +66,7 @@ jobs:
         run: |
           cd packages/player
           npm publish --access public --provenance
-        # env:
-        #   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
     outputs:
       version: ${{ steps.version.outputs.version }}
