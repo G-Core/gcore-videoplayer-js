@@ -27,7 +27,7 @@ jobs:
         run: npm -C packages/player run build
       - name: Publish
         run: |
-          cat .npmrc
+          # cat .npmrc
           cd packages/player
           npm publish --access public --provenance
         env:
