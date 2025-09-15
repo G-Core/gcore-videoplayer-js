@@ -19,6 +19,7 @@ on:
 jobs:
   npm:
     uses: ./.github/workflows/npm.yaml
+    secrets: inherit
     with:
       version: ${{ inputs.version || github.ref_name }}
       dry_run: ${{ inputs.skip_npm }}
