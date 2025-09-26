@@ -48,21 +48,22 @@ export default class HTML5Video extends BasePlayback {
   }
 
   override _handleBufferingEvents() {
-    // TODO use the logic from the base class to detect if it's stalled or resumed, because in the latter case the current behavior is not correct
-    if (!this.stallTimerId) {
-      this.stallTimerId = setTimeout(() => {
-        this.stallTimerId = null
-        const error = this.createError({
-          code: PlaybackErrorCode.MediaSourceUnavailable,
-          level: PlayerError.Levels.FATAL,
-          message: 'Stall timeout',
-          description: 'Playback stalled for too long',
-        })
-        this.trigger(ClapprEvents.PLAYBACK_ERROR, error)
-        setTimeout(() => this.stop(), 0)
-      }, STALL_TIMEOUT)
-    }
     super._handleBufferingEvents()
+    // TODO test case: playback stalled and then resumed. The should be no MediaSourceUnavailable/"Stall timeout" error
+    if (!this._isBuffering || this.stallTimerId) {
+      return
+    }
+    this.stallTimerId = setTimeout(() => {
+      this.stallTimerId = null
+      const error = this.createError({
+        code: PlaybackErrorCode.MediaSourceUnavailable,
+        level: PlayerError.Levels.FATAL,
+        message: 'Stall timeout',
+        description: 'Playback stalled for too long',
+      })
+      this.trigger(ClapprEvents.PLAYBACK_ERROR, error)
+      setTimeout(() => this.stop(), 0)
+    }, STALL_TIMEOUT)
   }
 
   override _onPlaying() {
