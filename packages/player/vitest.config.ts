@@ -4,6 +4,7 @@ import viteRawPlugin from './build/vite-raw-plugin'
 export default defineConfig({
   build: {
     assetsInlineLimit: 0,
+    target: 'esnext',
   },
   plugins: [
     viteRawPlugin({
