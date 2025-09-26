@@ -84,7 +84,11 @@ export class BigMuteButton extends UICorePlugin {
     )
     this.listenTo(this.core.activeContainer, Events.CONTAINER_PLAY, this.onPlay)
     this.listenTo(this.core.activeContainer, Events.CONTAINER_STOP, this.onStop)
-    this.listenTo(this.core.activeContainer, Events.CONTAINER_PAUSE, this.onPause)
+    this.listenTo(
+      this.core.activeContainer,
+      Events.CONTAINER_PAUSE,
+      this.onPause,
+    )
   }
 
   private onPlay(_: string, { autoPlay }: { autoPlay?: boolean }) {
@@ -106,7 +110,8 @@ export class BigMuteButton extends UICorePlugin {
     }
   }
 
-  private onStop(_: string, { ui }: { ui?: boolean }) {
+  private onStop(_: string, metadata?: { ui?: boolean }) {
+    const ui = metadata?.ui
     trace(`${T} onStop`, { ui })
     if (ui) {
       this.destroy()
