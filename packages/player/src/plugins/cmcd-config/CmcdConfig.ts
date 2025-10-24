@@ -78,7 +78,7 @@ export class CmcdConfig extends CorePlugin {
   /**
    * @internal
    */
-  get version() {
+  static get version() {
     return '0.1.0'
   }
 
