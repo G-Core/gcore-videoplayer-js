@@ -92,7 +92,7 @@ export class CmcdConfig extends CorePlugin {
   constructor(core: Core) {
     super(core)
     this.sid = this.options.cmcd?.sessionId ?? generateSessionId()
-    this.setContentId()
+    // this.setContentId()
   }
 
   /**
@@ -150,9 +150,12 @@ export class CmcdConfig extends CorePlugin {
   }
 
   private generateContentId() {
-    return new URL(
-      this.core.options.source ?? this.core.options.sources[0].source,
-    ).pathname.slice(0, 64)
+    const src =
+      this.core.options.source ??
+      (typeof this.core.options.sources[0] == 'string'
+        ? this.core.options.sources[0]
+        : this.core.options.sources[0].source)
+    return new URL(src).pathname.slice(0, 64)
   }
 
   private setContentId() {
