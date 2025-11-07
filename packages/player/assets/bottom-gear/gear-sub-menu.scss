@@ -1,4 +1,6 @@
-*, :focus, :visited {
+*,
+:focus,
+:visited {
   outline: none !important;
 }
 
@@ -22,9 +24,13 @@
     }
   }
 
+  .gear-options-list,
+  .gear-sub-menu {
+    list-style-type: none;
+  }
+
   ul.gear-sub-menu {
     width: 100%;
-    list-style-type: none;
     min-width: 60px;
     border-top: 2px solid rgb(36 36 36);
     overflow-y: auto;
