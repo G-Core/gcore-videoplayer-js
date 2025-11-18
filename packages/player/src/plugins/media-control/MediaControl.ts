@@ -51,6 +51,8 @@ const STANDARD_MEDIA_CONTROL_ELEMENTS: string[] = [
 
 const MENU_VMARGIN = 12
 
+const DEFAULT_HIDE_DELAY = 2000
+
 /**
  * Built-in media control elements.
  * @public
@@ -415,9 +417,7 @@ export class MediaControl extends UICorePlugin {
       this.onActiveContainerChanged,
     )
     this.listenTo(this.core, Events.CORE_MOUSE_MOVE, this.show)
-    this.listenTo(this.core, Events.CORE_MOUSE_LEAVE, () =>
-      this.hide(this.options.hideMediaControlDelay),
-    )
+    this.listenTo(this.core, Events.CORE_MOUSE_LEAVE, this.delayHide)
     this.listenTo(this.core, Events.CORE_FULLSCREEN, this.show)
     this.listenTo(this.core, Events.CORE_OPTIONS_CHANGE, this.configure)
     this.listenTo(this.core, Events.CORE_RESIZE, this.playerResize)
@@ -522,6 +522,8 @@ export class MediaControl extends UICorePlugin {
     this.listenTo(this.core, Events.CONTAINER_DESTROYED, () => {
       this.cancelRenderTimer()
     })
+    this.listenTo(this.core.activeContainer, Events.CONTAINER_MOUSE_ENTER, this.show)
+    this.listenTo(this.core.activeContainer, Events.CONTAINER_MOUSE_LEAVE, this.delayHide)
   }
 
   /**
@@ -717,6 +719,14 @@ export class MediaControl extends UICorePlugin {
     this.$el.removeClass('w370')
     this.$el.removeClass('w270')
     this.verticalVolume = false
+    trace(`${T} playerResize`, {
+      size,
+      width: this.container.$el.width(),
+      height: this.container.$el.height(),
+      hideVolumeBar: this.options.hideVolumeBar,
+      isMobile: Browser.isMobile,
+    })
+
     try {
       const skinWidth = this.container.$el.width() || size.width
 
@@ -1038,7 +1048,7 @@ export class MediaControl extends UICorePlugin {
       return
     }
 
-    const timeout = 2000
+    const timeout = DEFAULT_HIDE_DELAY
     const mousePointerMoved =
       event &&
       event.clientX !== this.lastMouseX &&
@@ -1068,6 +1078,17 @@ export class MediaControl extends UICorePlugin {
   }
 
   private hide(delay = 0) {
+    trace(`${T} hide`, {
+      delay,
+      visible: this.isVisible(),
+      disabled: this.disabled,
+      hideMediaControl: this.options.hideMediaControl,
+      userKeepVisible: this.userKeepVisible,
+      keepVisible: this.keepVisible,
+      draggingSeekBar: this.draggingSeekBar,
+      draggingVolumeBar: this.draggingVolumeBar,
+    })
+
     if (!this.isVisible()) {
       return
     }
@@ -1473,7 +1494,7 @@ export class MediaControl extends UICorePlugin {
     if (!this.hasUpdate || !this.metadataLoaded) {
       return this
     }
-    const timeout = this.options.hideMediaControlDelay || 2000
+    const timeout = this.options.hideMediaControlDelay || DEFAULT_HIDE_DELAY
 
     this.$el.html(MediaControl.template({ settings: this.settings }))
 
@@ -1624,6 +1645,13 @@ export class MediaControl extends UICorePlugin {
     } else {
       this.$el.removeClass('dvr')
     }
+  }
+
+  private delayHide(e: unknown) {
+    trace(`${T} delayHide`, {
+      e,
+    })
+    this.hide(this.options.hideMediaControlDelay || DEFAULT_HIDE_DELAY)
   }
 }
 

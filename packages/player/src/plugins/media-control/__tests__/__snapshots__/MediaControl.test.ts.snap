@@ -325,7 +325,7 @@ exports[`MediaControl > rendering timing > once metadata is loaded > should wait
                 <span class="drawer-text" data-volume=""></span>
             </div>
             
-    <div class="bar-container volume-bar-hide" data-volume="">
+    <div class="bar-container" data-volume="">
         <div class="bar-background" data-volume="">
             <div class="bar-fill-1 gcore-skin-main-color" data-volume="" style="width: 100%;"></div>
         </div>

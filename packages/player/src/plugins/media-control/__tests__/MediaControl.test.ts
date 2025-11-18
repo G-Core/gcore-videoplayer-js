@@ -57,10 +57,10 @@ describe('MediaControl', () => {
         core.activePlayback.emit(Events.PLAYBACK_LOADEDMETADATA)
         core.activeContainer.emit(Events.CONTAINER_LOADEDMETADATA)
       })
-      // TODO review why delay is needed
+      // TODO review why such a short delay is needed
       it('should wait a delay before rendering anything', async () => {
         expect(mediaControl.el.innerHTML).toBe('')
-        await new Promise((resolve) => setTimeout(resolve, 50))
+        await new Promise((resolve) => setTimeout(resolve, 25))
         expect(mediaControl.el.innerHTML).toMatchSnapshot()
         expect(
           mediaControl.$el.find('.media-control-left-panel [data-playpause]')
