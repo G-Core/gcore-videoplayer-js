@@ -422,8 +422,8 @@ export class MediaControl extends UICorePlugin {
     this.listenTo(this.core, Events.CORE_OPTIONS_CHANGE, this.configure)
     this.listenTo(this.core, Events.CORE_RESIZE, this.playerResize)
 
-    this.listenTo(this.core, 'core:advertisement:start', this.onStartAd)
-    this.listenTo(this.core, 'core:advertisement:finish', this.onFinishAd)
+    // this.listenTo(this.core, 'core:advertisement:start', this.onStartAd)
+    // this.listenTo(this.core, 'core:advertisement:finish', this.onFinishAd)
 
     // const has360 = this.core?.getPlugin('video_360');
 
@@ -467,6 +467,14 @@ export class MediaControl extends UICorePlugin {
       this.core.activeContainer,
       Events.CONTAINER_DBLCLICK,
       this.toggleFullscreen,
+    )
+    const clk = clickaway(() => {
+      this.resetUserKeepVisible()
+    }, this.core.activeContainer.$el[0])
+    this.listenTo(
+      this.core.activeContainer,
+      Events.CONTAINER_CLICK,
+      clk,
     )
     this.listenTo(
       this.core.activeContainer,
@@ -530,16 +538,21 @@ export class MediaControl extends UICorePlugin {
    * Hides the media control UI
    */
   override disable() {
+    trace(`${T} disable`)
     this.userDisabled = true // TODO distinguish between user and system (e.g., unplayable) disabled?
     this.hide()
     this.unbindKeyEvents()
-    this.$el.hide() // TODO why?
+    this.$el.hide()
   }
 
   /**
    * Reenables the plugin disabled earlier with the {@link MediaControl.disable} method
    */
   override enable() {
+    trace(`${T} enable`, {
+      chromeless: this.options.chromeless,
+      userDisabled: this.userDisabled,
+    })
     if (this.options.chromeless) {
       return
     }
@@ -729,7 +742,6 @@ export class MediaControl extends UICorePlugin {
 
     try {
       const skinWidth = this.container.$el.width() || size.width
-
       if (skinWidth <= 370 || this.options.hideVolumeBar) {
         this.$el.addClass('w370')
       }
@@ -1032,10 +1044,16 @@ export class MediaControl extends UICorePlugin {
   }
 
   private setUserKeepVisible() {
+    trace(`${T} setUserKeepVisible`, {
+      userKeepVisible: this.userKeepVisible,
+    })
     this.userKeepVisible = true
   }
 
   private resetUserKeepVisible() {
+    trace(`${T} resetUserKeepVisible`, {
+      userKeepVisible: this.userKeepVisible,
+    })
     this.userKeepVisible = false
   }
 
@@ -1044,6 +1062,11 @@ export class MediaControl extends UICorePlugin {
   }
 
   private show(event?: MouseEvent) {
+    trace(`${T} show`, {
+      disabled: this.disabled,
+      disableControlPanel: this.options.disableControlPanel,
+      event,
+    })
     if (this.disabled || this.options.disableControlPanel) {
       return
     }
@@ -1574,28 +1597,6 @@ export class MediaControl extends UICorePlugin {
     this.resetUserKeepVisible()
   }
 
-  // TODO manage by the ads plugin
-  private onStartAd() {
-    // this.advertisementPlaying = true
-    this.disable()
-  }
-
-  // TODO manage by the ads plugin
-  private onFinishAd() {
-    // this.advertisementPlaying = false
-    this.enable()
-  }
-
-  // TODO remove
-  private hideControllAds() {
-    if (
-      this.container.advertisement &&
-      this.container.advertisement.type !== 'idle'
-    ) {
-      this.hide()
-    }
-  }
-
   private static getPageX(event: MouseEvent | TouchEvent): number {
     return getPageX(event)
   }
@@ -1705,4 +1706,16 @@ function mergeElements(
     }
     return acc
   }, a)
+}
+
+function clickaway(callback: () => void, element: Node) {
+  const handler = (event: MouseEvent | TouchEvent) => {
+    if (!element.contains(event.target as Node)) {
+      callback()
+      window.removeEventListener('click', handler)
+    }
+  }
+  return () => {
+    window.addEventListener('click', handler)
+  }
 }

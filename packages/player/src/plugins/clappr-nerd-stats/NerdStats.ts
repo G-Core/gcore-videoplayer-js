@@ -35,6 +35,7 @@ import statsIcon from '../../../assets/icons/new/stats.svg'
 import { BottomGear, GearEvents } from '../bottom-gear/BottomGear.js'
 import { drawSummary, getPingQuality } from './utils.js'
 import { getDownloadQuality } from './utils.js'
+import { trace } from '@gcorevideo/utils'
 
 const PLAYBACK_NAMES: Record<string, string> = {
   dash: 'DASH.js',
@@ -59,7 +60,7 @@ type Metrics = PerfMetrics & {
   }
 }
 
-// const T = 'plugins.nerd_stats'
+const T = 'plugins.nerd_stats'
 
 /**
  * `PLUGIN` that displays useful statistics regarding the playback as well as the network quality estimation.
@@ -233,6 +234,9 @@ export class NerdStats extends UICorePlugin {
   }
 
   private toggle = () => {
+    trace(`${T} toggle`, {
+      open: this.open,
+    })
     if (this.open) {
       this.hide()
     } else {
@@ -242,7 +246,7 @@ export class NerdStats extends UICorePlugin {
 
   private show() {
     this.$el.show()
-    this.statsBoxElem.scrollTop(this.statsBoxElem.scrollTop())
+    this.statsBoxElem.scrollTop(this.statsBoxElem?.scrollTop())
     this.open = true
 
     initSpeedTest(this.speedtestMetrics)
@@ -251,11 +255,15 @@ export class NerdStats extends UICorePlugin {
       })
       .catch((e) => {
         reportError(e)
+        trace(`${T} speedtest error`, {
+          error: e,
+        })
         this.disable()
       })
   }
 
   private hide() {
+    trace(`${T} hide`)
     this.$el.hide()
     this.open = false
     stopSpeedtest()

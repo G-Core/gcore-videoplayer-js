@@ -122,12 +122,14 @@ export const initSpeedTest = (customMetrics: SpeedtestMetrics): Promise<void> =>
         }
       }
     };
-    // getElementById('dlText').textContent = DEFAULT_DOWNLOAD_SPEED;
 
-    await fetch('https://iam.gcdn.co/info/json')
+    const myinfoUrl = 'https://gcore.com/.well-known/cdn-debug/json'
+    // await fetch('https://iam.gcdn.co/info/json')
+    await fetch(myinfoUrl)
       .then(r => r.json())
       .then(data => {
-        const country = data['Server Country code'].toLowerCase();
+        // const country = data['Server Country code'].toLowerCase();
+        const country = getCountryCodeFromClientHeaders(data.client_headers)
         const server = serversList.find(s => s.country === country) || serversList[0];
         if (!server) {
           throw new Error('Failed to select a server');
@@ -180,4 +182,14 @@ function rankConnectionSpeed(dlSpeed: number): ConnectionSpeed {
     return 1;
   }
   return 0;
+}
+
+function getCountryCodeFromClientHeaders(clientHeaders: Record<string, string>): string {
+  if (clientHeaders && clientHeaders['country']) {
+    const m = clientHeaders['country'].match(/'code':\s*'([A-Za-z]{2})'/);
+    if (m) {
+      return m[1].toLowerCase();
+    }
+  }
+  return 'lu';
 }
