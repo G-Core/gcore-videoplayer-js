@@ -468,13 +468,12 @@ export class MediaControl extends UICorePlugin {
       Events.CONTAINER_DBLCLICK,
       this.toggleFullscreen,
     )
-    const clk = clickaway(() => {
-      this.resetUserKeepVisible()
-    }, this.core.activeContainer.$el[0])
     this.listenTo(
       this.core.activeContainer,
       Events.CONTAINER_CLICK,
-      clk,
+      () => {
+        this.clickaway(this.core.activeContainer.$el[0])
+      },
     )
     this.listenTo(
       this.core.activeContainer,
@@ -532,13 +531,16 @@ export class MediaControl extends UICorePlugin {
     })
     this.listenTo(this.core.activeContainer, Events.CONTAINER_MOUSE_ENTER, this.show)
     this.listenTo(this.core.activeContainer, Events.CONTAINER_MOUSE_LEAVE, this.delayHide)
+
+    this.listenTo(this.core.activeContainer, Events.CONTAINER_DESTROYED, () => {
+      this.clickaway(null)
+    })
   }
 
   /**
    * Hides the media control UI
    */
   override disable() {
-    trace(`${T} disable`)
     this.userDisabled = true // TODO distinguish between user and system (e.g., unplayable) disabled?
     this.hide()
     this.unbindKeyEvents()
@@ -1050,7 +1052,7 @@ export class MediaControl extends UICorePlugin {
     this.userKeepVisible = true
   }
 
-  private resetUserKeepVisible() {
+  private resetUserKeepVisible = () => {
     trace(`${T} resetUserKeepVisible`, {
       userKeepVisible: this.userKeepVisible,
     })
@@ -1654,6 +1656,8 @@ export class MediaControl extends UICorePlugin {
     })
     this.hide(this.options.hideMediaControlDelay || DEFAULT_HIDE_DELAY)
   }
+
+  private clickaway = clickaway(this.resetUserKeepVisible)
 }
 
 MediaControl.extend = function (properties) {
@@ -1708,14 +1712,24 @@ function mergeElements(
   }, a)
 }
 
-function clickaway(callback: () => void, element: Node) {
-  const handler = (event: MouseEvent | TouchEvent) => {
-    if (!element.contains(event.target as Node)) {
-      callback()
-      window.removeEventListener('click', handler)
+function clickaway(callback: () => void) {
+  let handler = (event: MouseEvent | TouchEvent) => {}
+
+  return (node: HTMLElement | null) => {
+    window.removeEventListener('click', handler)
+    if (!node) {
+      return
     }
-  }
-  return () => {
+    handler = (event: MouseEvent | TouchEvent) => {
+      trace(`${T} clickaway`, {
+        node,
+        event,
+      })
+      if (!node.contains(event.target as Node)) {
+        callback()
+        window.removeEventListener('click', handler)
+      }
+    }
     window.addEventListener('click', handler)
   }
 }
