@@ -951,9 +951,6 @@ export class MediaControl extends UICorePlugin {
     } else {
       this.hideVolumeId = setTimeout(() => {
         this.hideVolumeId = null
-        trace(`${T} hideVolumeBar`, {
-          volumeBarContainer: !!this.$volumeBarContainer,
-        })
         this.$volumeBarContainer?.addClass('volume-bar-hide')
       }, timeout)
     }
@@ -1045,17 +1042,12 @@ export class MediaControl extends UICorePlugin {
     this.setSeekPercentage(pos)
   }
 
-  private setUserKeepVisible() {
-    trace(`${T} setUserKeepVisible`, {
-      userKeepVisible: this.userKeepVisible,
-    })
+  private setUserKeepVisible(e?: MouseEvent) {
     this.userKeepVisible = true
+    this.clickaway(this.core.activeContainer.$el[0])
   }
 
-  private resetUserKeepVisible = () => {
-    trace(`${T} resetUserKeepVisible`, {
-      userKeepVisible: this.userKeepVisible,
-    })
+  private resetUserKeepVisible = (e?: MouseEvent) => {
     this.userKeepVisible = false
   }
 
@@ -1064,11 +1056,6 @@ export class MediaControl extends UICorePlugin {
   }
 
   private show(event?: MouseEvent) {
-    trace(`${T} show`, {
-      disabled: this.disabled,
-      disableControlPanel: this.options.disableControlPanel,
-      event,
-    })
     if (this.disabled || this.options.disableControlPanel) {
       return
     }
@@ -1103,17 +1090,6 @@ export class MediaControl extends UICorePlugin {
   }
 
   private hide(delay = 0) {
-    trace(`${T} hide`, {
-      delay,
-      visible: this.isVisible(),
-      disabled: this.disabled,
-      hideMediaControl: this.options.hideMediaControl,
-      userKeepVisible: this.userKeepVisible,
-      keepVisible: this.keepVisible,
-      draggingSeekBar: this.draggingSeekBar,
-      draggingVolumeBar: this.draggingVolumeBar,
-    })
-
     if (!this.isVisible()) {
       return
     }
@@ -1650,14 +1626,13 @@ export class MediaControl extends UICorePlugin {
     }
   }
 
-  private delayHide(e: unknown) {
-    trace(`${T} delayHide`, {
-      e,
-    })
+  private delayHide() {
     this.hide(this.options.hideMediaControlDelay || DEFAULT_HIDE_DELAY)
   }
 
-  private clickaway = clickaway(this.resetUserKeepVisible)
+  // 2 seconds delay is needed since on mobile devices mouse(touch)move events are not dispatched immediately
+  // as opposed to the click event
+  private clickaway = clickaway(() => setTimeout(this.resetUserKeepVisible, 0))
 }
 
 MediaControl.extend = function (properties) {
@@ -1721,13 +1696,9 @@ function clickaway(callback: () => void) {
       return
     }
     handler = (event: MouseEvent | TouchEvent) => {
-      trace(`${T} clickaway`, {
-        node,
-        event,
-      })
       if (!node.contains(event.target as Node)) {
-        callback()
         window.removeEventListener('click', handler)
+        callback()
       }
     }
     window.addEventListener('click', handler)
