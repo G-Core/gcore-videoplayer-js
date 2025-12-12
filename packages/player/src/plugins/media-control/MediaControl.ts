@@ -471,9 +471,7 @@ export class MediaControl extends UICorePlugin {
     this.listenTo(
       this.core.activeContainer,
       Events.CONTAINER_CLICK,
-      () => {
-        this.clickaway(this.core.activeContainer.$el[0])
-      },
+      () => this.clickaway(this.core.activeContainer.$el[0]),
     )
     this.listenTo(
       this.core.activeContainer,
@@ -1632,7 +1630,11 @@ export class MediaControl extends UICorePlugin {
 
   // 2 seconds delay is needed since on mobile devices mouse(touch)move events are not dispatched immediately
   // as opposed to the click event
-  private clickaway = clickaway(() => setTimeout(this.resetUserKeepVisible, 0))
+  private clickaway = clickaway(() => {
+    if (Browser.isMobile) {
+      setTimeout(this.resetUserKeepVisible, 0)
+    }
+  })
 }
 
 MediaControl.extend = function (properties) {

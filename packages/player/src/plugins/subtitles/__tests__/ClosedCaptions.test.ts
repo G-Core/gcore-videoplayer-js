@@ -132,6 +132,7 @@ describe('ClosedCaptions', () => {
     describe('when subtitle is changed', () => {
       beforeEach(async () => {
         emitSubtitleAvailable(core)
+        cc.$el.find('#gplayer-cc-button').click()
         await new Promise((resolve) => setTimeout(resolve, 100))
         core.activePlayback.getCurrentTime = vi.fn().mockReturnValue(7)
         core.activeContainer.getCurrentTime = vi.fn().mockReturnValue(7)
@@ -167,11 +168,16 @@ describe('ClosedCaptions', () => {
               ),
           },
         ]
+        cc.$el.find('#gplayer-cc-menu li:nth-child(2) a').click()
+        await new Promise((resolve) => setTimeout(resolve, 100))
+        // TODO test explicitly that PLAYBACK_SUBTITLE_CHANGED event does not cause track switch
         core.activePlayback.emit(Events.PLAYBACK_SUBTITLE_CHANGED, { id: 2 })
+        await new Promise((resolve) => setTimeout(resolve, 100))
+
       })
       it('should activate subtitle track', () => {
         expect(core.activePlayback.closedCaptionsTracks[1].track.mode).toBe(
-          'showing',
+          'hidden',
         )
         expect(core.activePlayback.closedCaptionsTracks[0].track.mode).toBe(
           'hidden',
@@ -188,8 +194,8 @@ describe('ClosedCaptions', () => {
         emitSubtitleAvailable(core)
         cc.$el.find('#gplayer-cc-menu li:nth-child(2) a').click()
       })
-      it('should activate subtitle track', () => {
-        expect(core.activePlayback.closedCaptionsTrackId).toEqual(2)
+      it('should deactivate native subtitles track', () => {
+        expect(core.activePlayback.closedCaptionsTrackId).toEqual(-1)
       })
       it('should highlight selected menu item', () => {
         expect(

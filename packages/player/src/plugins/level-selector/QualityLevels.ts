@@ -217,6 +217,7 @@ export class QualityLevels extends UICorePlugin {
    */
   override render() {
     if (!this.shouldRender()) {
+      this.$el.hide()
       return this
     }
     this.renderDropdown()
@@ -241,6 +242,9 @@ export class QualityLevels extends UICorePlugin {
   }
 
   private updateButton() {
+    if (!this.shouldRender()) {
+      return
+    }
     ;(this.core.getPlugin('bottom_gear') as BottomGear)
       ?.addItem('quality', this.$el)
       .html(

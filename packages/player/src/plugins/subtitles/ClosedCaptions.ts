@@ -124,11 +124,10 @@ export class ClosedCaptions extends UICorePlugin {
     }
   }
 
-  private get preselectedLanguage(): string {
+  private get preselectedLanguage(): string | undefined {
     return (
       this.core.options.cc?.language ??
-      this.core.options.subtitles?.language ??
-      ''
+      this.core.options.subtitles?.language
     )
   }
 
@@ -218,14 +217,17 @@ export class ClosedCaptions extends UICorePlugin {
     this.mount()
   }
 
-  private onSubtitleChanged({ id }: { id: number }) {
-    trace(`${T} onSubtitleChanged`, { id })
+  private onSubtitleChanged({ id: _ }: { id: number }) {
+    // ignoring the subtitle selected by the playback engine or user agent
+    const id = this.track?.id ?? -1
     if (id === -1) {
       this.clearSubtitleText()
     }
     for (const track of this.tracks) {
+      // Native subtitles are always hidden
+      track.track.mode = 'hidden'
       if (track.id === id) {
-        track.track.mode = 'showing'
+        // track.track.mode = 'showing'
 
         this.setSubtitleText(this.getSubtitleText(track.track))
 
@@ -244,7 +246,7 @@ export class ClosedCaptions extends UICorePlugin {
         }
       } else {
         track.track.oncuechange = null
-        track.track.mode = 'hidden'
+        // track.track.mode = 'hidden'
       }
     }
   }
@@ -408,16 +410,15 @@ export class ClosedCaptions extends UICorePlugin {
   private applyPreselectedSubtitles() {
     if (!this.isPreselectedApplied) {
       this.isPreselectedApplied = true
-      if (!this.preselectedLanguage) {
-        return
-      }
+      // if the language is undefined, then let the engine decide
+      // to hide the subtitles forcefully, set the language to 'none'
       setTimeout(() => {
         this.selectItem(
           this.tracks.find(
             (t) => t.track.language === this.preselectedLanguage,
           ) ?? null,
         )
-      }, 300) // TODO why delay?
+      }, 0)
     }
   }
 
@@ -452,7 +453,9 @@ export class ClosedCaptions extends UICorePlugin {
   private selectSubtitles() {
     const trackId = this.track ? this.track.id : -1
 
-    this.core.activePlayback.closedCaptionsTrackId = trackId // TODO test
+    // TODO find out if this is needed
+    // this.core.activePlayback.closedCaptionsTrackId = trackId
+    this.core.activePlayback.closedCaptionsTrackId = -1
   }
 
   private getSubtitleText(track: TextTrack) {
