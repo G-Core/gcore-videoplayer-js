@@ -9,6 +9,7 @@ import pluginHtml from '../../../assets/audio-tracks/template.ejs'
 import audioArrow from '../../../assets/icons/old/quality-arrow.svg'
 import { ZeptoResult } from '../../types.js'
 import { ExtendedEvents, MediaControl } from '../media-control/MediaControl.js'
+import { mediaControlClickaway } from '../../utils/clickaway.js'
 
 const VERSION: string = '2.22.4'
 
@@ -132,6 +133,9 @@ export class AudioTracks extends UICorePlugin {
     this.listenTo(this.core.activeContainer, Events.CONTAINER_CLICK, () => {
       this.hideMenu()
     })
+    this.listenTo(this.core.activeContainer, Events.CONTAINER_DESTROYED, () => {
+      this.clickaway(null)
+    })
   }
 
   private shouldRender() {
@@ -179,6 +183,7 @@ export class AudioTracks extends UICorePlugin {
     this.open = false
     this.$el.find('#gplayer-audiotracks-menu').hide()
     this.$el.find('#gplayer-audiotracks-button').attr('aria-expanded', 'false')
+    this.setKeepVisible(false)
   }
 
   private toggleMenu() {
@@ -195,6 +200,13 @@ export class AudioTracks extends UICorePlugin {
     this.$el
       .find('#gplayer-audiotracks-button')
       .attr('aria-expanded', this.open)
+
+    this.setKeepVisible(this.open)
+  }
+
+  private setKeepVisible(keepVisible: boolean) {
+    this.core.getPlugin('media_control').setKeepVisible(keepVisible)
+    this.clickaway(keepVisible ? this.core.activeContainer.$el[0] : null)
   }
 
   private buttonElement(): ZeptoResult {
@@ -209,7 +221,7 @@ export class AudioTracks extends UICorePlugin {
     return (
       this.$(
         '#gplayer-audiotracks-menu a' +
-          (id !== undefined ? `[data-item="${id}"]` : ''),
+        (id !== undefined ? `[data-item="${id}"]` : ''),
       ) as ZeptoResult
     ).parent()
   }
@@ -253,4 +265,6 @@ export class AudioTracks extends UICorePlugin {
       this.core.getPlugin('media_control')?.slot('audiotracks', this.$el)
     }
   }
+
+  private clickaway = mediaControlClickaway(() => this.hideMenu())
 }
