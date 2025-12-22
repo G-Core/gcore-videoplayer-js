@@ -37,6 +37,7 @@ import volumeMaxIcon from '../../../assets/icons/new/volume-max.svg'
 import volumeOffIcon from '../../../assets/icons/new/volume-off.svg'
 import fullscreenOffIcon from '../../../assets/icons/new/fullscreen-off.svg'
 import fullscreenOnIcon from '../../../assets/icons/new/fullscreen-on.svg'
+import { mediaControlClickaway } from '../../utils/clickaway.js'
 
 const STANDARD_MEDIA_CONTROL_ELEMENTS: string[] = [
   'duration',
@@ -399,6 +400,7 @@ export class MediaControl extends UICorePlugin {
 
   /**
    * @internal
+   * The methods declared here will be exposed via the main player object API
    */
   override getExternalInterface() {
     return {
@@ -1267,6 +1269,23 @@ export class MediaControl extends UICorePlugin {
     mountTo(this.getMountParent(name), element)
   }
 
+  /**
+   * Set or reset the keep visibility state
+   *
+   * Keep visibility state controls whether the media control is hidden automatically after a delay.
+   * Keep visibility prevents the the auto-hide behaviour
+   *
+   * @param keepVisible - The state
+   */
+  setKeepVisible(keepVisible: boolean) {
+    this.keepVisible = keepVisible
+    if (keepVisible) {
+      this.clickaway(this.core.activeContainer.$el[0])
+    } else {
+      this.clickaway(null)
+    }
+  }
+
   private getMountParent(name: MediaControlSlotMountPoint): ZeptoResult {
     switch (name) {
       case 'root':
@@ -1628,13 +1647,7 @@ export class MediaControl extends UICorePlugin {
     this.hide(this.options.hideMediaControlDelay || DEFAULT_HIDE_DELAY)
   }
 
-  // 2 seconds delay is needed since on mobile devices mouse(touch)move events are not dispatched immediately
-  // as opposed to the click event
-  private clickaway = clickaway(() => {
-    if (Browser.isMobile) {
-      setTimeout(this.resetUserKeepVisible, 0)
-    }
-  })
+  private clickaway = mediaControlClickaway(() => this.resetUserKeepVisible())
 }
 
 MediaControl.extend = function (properties) {
@@ -1687,22 +1700,4 @@ function mergeElements(
     }
     return acc
   }, a)
-}
-
-function clickaway(callback: () => void) {
-  let handler = (event: MouseEvent | TouchEvent) => {}
-
-  return (node: HTMLElement | null) => {
-    window.removeEventListener('click', handler)
-    if (!node) {
-      return
-    }
-    handler = (event: MouseEvent | TouchEvent) => {
-      if (!node.contains(event.target as Node)) {
-        window.removeEventListener('click', handler)
-        callback()
-      }
-    }
-    window.addEventListener('click', handler)
-  }
 }

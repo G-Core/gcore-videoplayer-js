@@ -17,6 +17,7 @@ import gearIcon from '../../../assets/icons/new/gear.svg'
 import gearHdIcon from '../../../assets/icons/new/gear-hd.svg'
 import { ZeptoResult } from '../../types.js'
 import { ExtendedEvents } from '../media-control/MediaControl.js'
+import { mediaControlClickaway } from '../../utils/clickaway.js'
 
 const VERSION = '2.19.12'
 
@@ -214,6 +215,9 @@ export class BottomGear extends UICorePlugin {
     this.listenTo(container, ClapprEvents.CONTAINER_CLICK, () => {
       this.collapse()
     })
+    this.listenTo(container, ClapprEvents.CONTAINER_DESTROYED, () => {
+      this.clickaway(null)
+    })
   }
 
   private highDefinitionUpdate(isHd: boolean) {
@@ -272,6 +276,12 @@ export class BottomGear extends UICorePlugin {
     this.$el
       .find('#gear-button')
       .attr('aria-expanded', (!this.collapsed).toString())
+    this.setKeepVisible(!this.collapsed)
+  }
+
+  private setKeepVisible(keepVisible: boolean) {
+    this.core.getPlugin('media_control').setKeepVisible(keepVisible)
+    this.clickaway(keepVisible ? this.core.activeContainer.$el[0] : null)
   }
 
   private collapse() {
@@ -280,6 +290,7 @@ export class BottomGear extends UICorePlugin {
     this.$el.find('#gear-button').attr('aria-expanded', 'false')
     // TODO hide submenus
     this.collapseSubmenus()
+    this.setKeepVisible(false)
   }
 
   private onCoreReady() {
@@ -328,4 +339,6 @@ export class BottomGear extends UICorePlugin {
       .find('.gear-sub-menu')
       .css('max-height', `${availableHeight - MENU_BACKLINK_HEIGHT}px`)
   }
+
+  private clickaway = mediaControlClickaway(() => this.collapse())
 }

@@ -14,6 +14,7 @@ import stringHTML from '../../../assets/subtitles/string.ejs'
 import { isFullscreen } from '../utils/fullscreen.js'
 import type { ZeptoResult } from '../../types.js'
 import { ExtendedEvents } from '../media-control/MediaControl.js'
+import { mediaControlClickaway } from '../../utils/clickaway.js'
 
 const VERSION: string = '2.19.14'
 
@@ -172,6 +173,9 @@ export class ClosedCaptions extends UICorePlugin {
       Events.CONTAINER_RESIZE,
       this.onContainerResize,
     )
+    this.listenTo(this.core.activeContainer, Events.CONTAINER_DESTROYED, () => {
+      this.clickaway(null)
+    })
     this.listenTo(
       this.core.activeContainer,
       'container:advertisement:start',
@@ -426,6 +430,7 @@ export class ClosedCaptions extends UICorePlugin {
     this.open = false
     this.$el.find('#gplayer-cc-menu').hide()
     this.$el.find('#gplayer-cc-button').attr('aria-expanded', 'false')
+    this.setKeepVisible(false)
   }
 
   private toggleMenu() {
@@ -439,6 +444,14 @@ export class ClosedCaptions extends UICorePlugin {
       this.$el.find('#gplayer-cc-menu').hide()
     }
     this.$el.find('#gplayer-cc-button').attr('aria-expanded', this.open)
+    this.setKeepVisible(this.open)
+  }
+
+  private setKeepVisible(keepVisible: boolean) {
+    if (this.shouldKeepVisible) {
+      this.core.getPlugin('media_control').setKeepVisible(keepVisible)
+      this.clickaway(keepVisible ? this.core.activeContainer.$el[0] : null)
+    }
   }
 
   private itemElement(id: number): ZeptoResult {
@@ -529,4 +542,10 @@ export class ClosedCaptions extends UICorePlugin {
       mediaControl.slot('cc', this.$el)
     }
   }
+
+  private get shouldKeepVisible() {
+    return !!this.options.cc?.keepVisible
+  }
+
+  private clickaway = mediaControlClickaway(() => this.hideMenu())
 }
