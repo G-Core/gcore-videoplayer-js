@@ -6,7 +6,7 @@ import {
   Container,
   Core,
 } from '@clappr/core'
-import { trace } from '@gcorevideo/utils'
+import { reportError, trace } from '@gcorevideo/utils'
 import { WebVTT } from 'videojs-vtt.js'
 import assert from 'assert'
 
@@ -531,7 +531,8 @@ type ParsedVTT = {
 
 
 function parseVTT(vtt: string): ParsedVTT[] {
-  const correctedVTT = vtt.startsWith('WEBVTT') ? vtt : 'WEBVTT\n\n' + vtt;
+  const correctedVTT = (vtt.startsWith('WEBVTT') ? vtt : 'WEBVTT\n\n' + vtt)
+    .replace(/(\d+:\d+:\d+),(\d+)/g, '$1.$2');
   const parser = new WebVTT.Parser(window);
   const cues: ParsedVTT[] = [];
   (parser as any).oncue = (cue: any) => {
@@ -542,6 +543,7 @@ function parseVTT(vtt: string): ParsedVTT[] {
       text: cue.text
     });
   };
+  (parser as any).onparsingerror = reportError
 
   // TextEncoder is available in all modern browsers and Node >=v11
   const uint8Array = typeof TextEncoder !== 'undefined'

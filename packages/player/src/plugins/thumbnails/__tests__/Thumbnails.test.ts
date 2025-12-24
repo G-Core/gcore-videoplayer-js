@@ -72,6 +72,15 @@ sprite.png#xywh=0,0,100,100
 sprite.png#xywh=100,0,100,100
 `
 
+const anomalousTimestampsVTT = `WEBVTT
+
+00:00:00,000 --> 00:00:01,000 align:start size:100%
+sprite.png#xywh=0,0,100,100
+
+00:00:01,000 --> 00:00:02,000 align:center size:100%
+sprite.png#xywh=100,0,100,100
+`
+
 describe('Thumbnails', () => {
   let core: any
   let mediaControl: any
@@ -82,6 +91,7 @@ describe('Thumbnails', () => {
     ['VTT with a WebVTT header', headerfulVTT],
     ['VTT with NOTE and STYLE blocks', blockfulVTT],
     ['VTT where cues have settings', richcueVTT],
+    ['VTT with anomalous timestamps', anomalousTimestampsVTT],
   ])('%s', (name, vtt) => {
     beforeEach(() => {
       core = createMockCore({
