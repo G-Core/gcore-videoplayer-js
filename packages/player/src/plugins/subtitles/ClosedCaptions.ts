@@ -448,10 +448,8 @@ export class ClosedCaptions extends UICorePlugin {
   }
 
   private setKeepVisible(keepVisible: boolean) {
-    if (this.shouldKeepVisible) {
-      this.core.getPlugin('media_control').setKeepVisible(keepVisible)
-      this.clickaway(keepVisible ? this.core.activeContainer.$el[0] : null)
-    }
+    this.core.getPlugin('media_control').setKeepVisible(keepVisible)
+    this.clickaway(keepVisible ? this.core.activeContainer.$el[0] : null)
   }
 
   private itemElement(id: number): ZeptoResult {
@@ -541,10 +539,6 @@ export class ClosedCaptions extends UICorePlugin {
       const mediaControl = this.core.getPlugin('media_control')
       mediaControl.slot('cc', this.$el)
     }
-  }
-
-  private get shouldKeepVisible() {
-    return !!this.options.cc?.keepVisible
   }
 
   private clickaway = mediaControlClickaway(() => this.hideMenu())

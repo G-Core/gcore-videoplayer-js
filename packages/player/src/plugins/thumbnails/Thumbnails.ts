@@ -7,7 +7,7 @@ import {
   Core,
 } from '@clappr/core'
 import { trace } from '@gcorevideo/utils'
-import parseSRT, { type ParsedSRT } from 'parse-srt'
+import { WebVTT } from 'videojs-vtt.js'
 import assert from 'assert'
 
 import { TimeValue } from '../../playback.types.js'
@@ -67,7 +67,7 @@ const T = 'plugins.thumbnails'
  * @public
  * @remarks
  * The plugin needs specially crafted VTT file with a thumbnail sprite sheet to work.
- * The VTT consist of timestamp records followed by a thumbnail area
+ * The VTT cues refer to a thumbnail, an area within the sprite sheet, to associate with a time span.
  *
  * Configuration options - {@link ThumbnailsPluginSettings}
  *
@@ -152,7 +152,7 @@ export class Thumbnails extends UICorePlugin {
    * startTime- The time (in seconds) that the first thumbnail represents. (defaults to 0)
    */
   private buildSpriteConfig(
-    vtt: ParsedSRT[],
+    vtt: ParsedVTT[],
     baseUrl: string,
   ): ThumbnailDesc[] {
     const thumbs: ThumbnailDesc[] = []
@@ -216,7 +216,7 @@ export class Thumbnails extends UICorePlugin {
       return
     }
     const { sprite: spriteSheet, vtt } = this.options.thumbnails
-    this.thumbs = this.buildSpriteConfig(parseSRT(vtt), spriteSheet)
+    this.thumbs = this.buildSpriteConfig(parseVTT(vtt), spriteSheet)
     if (!this.thumbs.length) {
       trace(`${T} failed to parse the sprite sheet`)
       this.destroy()
@@ -520,4 +520,35 @@ export class Thumbnails extends UICorePlugin {
 
     return this
   }
+}
+
+type ParsedVTT = {
+  id: string;
+  start: number;
+  end: number;
+  text: string;
+}
+
+
+function parseVTT(vtt: string): ParsedVTT[] {
+  const correctedVTT = vtt.startsWith('WEBVTT') ? vtt : 'WEBVTT\n\n' + vtt;
+  const parser = new WebVTT.Parser(window);
+  const cues: ParsedVTT[] = [];
+  (parser as any).oncue = (cue: any) => {
+    cues.push({
+      id: cue.id,
+      start: cue.startTime,
+      end: cue.endTime,
+      text: cue.text
+    });
+  };
+
+  // TextEncoder is available in all modern browsers and Node >=v11
+  const uint8Array = typeof TextEncoder !== 'undefined'
+    ? new TextEncoder().encode(correctedVTT)
+    : Buffer.from(correctedVTT, 'utf-8');
+  parser.parse(uint8Array as any);
+  parser.flush();
+
+  return cues;
 }

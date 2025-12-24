@@ -1,6 +1,42 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Thumbnails > loading > should render 1`] = `
+exports[`Thumbnails > VTT where cues are without ids > loading > should render 1`] = `
+"<div class="thumbnails-text" id="thumbnails-text"></div>
+<div class="backdrop" id="thumbnails-backdrop" style="height: 100px;">
+    <div class="carousel" id="thumbnails-carousel"><div class="thumbnail-container" style="width: 100px; height: 100px; background-image: url(&quot;https://example.com/sprite.png&quot;); background-size: 600px 900px; background-position: 0px 0px;"></div><div class="thumbnail-container" style="width: 100px; height: 100px; background-image: url(&quot;https://example.com/sprite.png&quot;); background-size: 600px 900px; background-position: -100px 0px;"></div></div>
+</div>
+<div class="spotlight" id="thumbnails-spotlight" style="height: 100px;"></div>
+"
+`;
+
+exports[`Thumbnails > VTT where cues have settings > loading > should render 1`] = `
+"<div class="thumbnails-text" id="thumbnails-text"></div>
+<div class="backdrop" id="thumbnails-backdrop" style="height: 100px;">
+    <div class="carousel" id="thumbnails-carousel"><div class="thumbnail-container" style="width: 100px; height: 100px; background-image: url(&quot;https://example.com/sprite.png&quot;); background-size: 600px 900px; background-position: 0px 0px;"></div><div class="thumbnail-container" style="width: 100px; height: 100px; background-image: url(&quot;https://example.com/sprite.png&quot;); background-size: 600px 900px; background-position: -100px 0px;"></div></div>
+</div>
+<div class="spotlight" id="thumbnails-spotlight" style="height: 100px;"></div>
+"
+`;
+
+exports[`Thumbnails > VTT with NOTE and STYLE blocks > loading > should render 1`] = `
+"<div class="thumbnails-text" id="thumbnails-text"></div>
+<div class="backdrop" id="thumbnails-backdrop" style="height: 100px;">
+    <div class="carousel" id="thumbnails-carousel"><div class="thumbnail-container" style="width: 100px; height: 100px; background-image: url(&quot;https://example.com/sprite.png&quot;); background-size: 600px 900px; background-position: 0px 0px;"></div><div class="thumbnail-container" style="width: 100px; height: 100px; background-image: url(&quot;https://example.com/sprite.png&quot;); background-size: 600px 900px; background-position: -100px 0px;"></div></div>
+</div>
+<div class="spotlight" id="thumbnails-spotlight" style="height: 100px;"></div>
+"
+`;
+
+exports[`Thumbnails > VTT with a WebVTT header > loading > should render 1`] = `
+"<div class="thumbnails-text" id="thumbnails-text"></div>
+<div class="backdrop" id="thumbnails-backdrop" style="height: 100px;">
+    <div class="carousel" id="thumbnails-carousel"><div class="thumbnail-container" style="width: 100px; height: 100px; background-image: url(&quot;https://example.com/sprite.png&quot;); background-size: 600px 900px; background-position: 0px 0px;"></div><div class="thumbnail-container" style="width: 100px; height: 100px; background-image: url(&quot;https://example.com/sprite.png&quot;); background-size: 600px 900px; background-position: -100px 0px;"></div></div>
+</div>
+<div class="spotlight" id="thumbnails-spotlight" style="height: 100px;"></div>
+"
+`;
+
+exports[`Thumbnails > baseline VTT > loading > should render 1`] = `
 "<div class="thumbnails-text" id="thumbnails-text"></div>
 <div class="backdrop" id="thumbnails-backdrop" style="height: 100px;">
     <div class="carousel" id="thumbnails-carousel"><div class="thumbnail-container" style="width: 100px; height: 100px; background-image: url(&quot;https://example.com/sprite.png&quot;); background-size: 600px 900px; background-position: 0px 0px;"></div><div class="thumbnail-container" style="width: 100px; height: 100px; background-image: url(&quot;https://example.com/sprite.png&quot;); background-size: 600px 900px; background-position: -100px 0px;"></div></div>
