@@ -235,10 +235,10 @@ describe('ClosedCaptions', () => {
       it('should deactivate subtitle track', () => {
         expect(core.activePlayback.closedCaptionsTrackId).toEqual(-1)
         expect(core.activePlayback.closedCaptionsTracks[0].track.mode).toBe(
-          'hidden',
+          'disabled',
         )
         expect(core.activePlayback.closedCaptionsTracks[1].track.mode).toBe(
-          'hidden',
+          'disabled',
         )
       })
       it('should select menu item', () => {

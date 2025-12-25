@@ -684,6 +684,14 @@ export default class DashPlayback extends BasePlayback {
       this.trigger(Events.PLAYBACK_AUDIO_AVAILABLE, tracks.map(toClapprTrack))
     }
   }
+
+  /**
+   * @override
+   */
+  _handleTextTrackChange() {
+    super._handleTextTrackChange()
+    this._dash?.setTextTrack(this.closedCaptionsTrackId)
+  }
 }
 
 DashPlayback.canPlay = function (resource, mimeType) {

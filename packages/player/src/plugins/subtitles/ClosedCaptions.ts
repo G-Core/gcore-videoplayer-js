@@ -137,6 +137,13 @@ export class ClosedCaptions extends UICorePlugin {
     )
   }
 
+  private isPreselectedLanguage(language: string): boolean {
+    if (!this.preselectedLanguage) {
+      return false
+    }
+    return language.startsWith(this.preselectedLanguage)
+  }
+
   /**
    * @internal
    */
@@ -228,12 +235,20 @@ export class ClosedCaptions extends UICorePlugin {
     this.mount()
   }
 
-  private onSubtitleChanged({ id: _ }: { id: number }) {
+  private onSubtitleChanged({ id: changedId }: { id: number }) {
     // ignoring the subtitle selected by the playback engine or user agent
     const id = this.track?.id ?? -1
+    trace(`${T} onSubtitleChanged`, {
+      changedId,
+      id,
+    })
     if (id === -1) {
       this.clearSubtitleText()
     }
+    this.activateTrack(id)
+  }
+
+  private activateTrack(id: number) {
     for (const track of this.tracks) {
       if (track.id === id) {
         if (this.useNativeSubtitles) {
@@ -404,8 +419,12 @@ export class ClosedCaptions extends UICorePlugin {
   private selectItem(item: TextTrackItem | null) {
     this.clearSubtitleText()
     this.track = item
+    const trackId = item?.id ?? -1
+    this.core.activePlayback.closedCaptionsTrackId = trackId
 
     this.updateSelection()
+
+    this.activateTrack(trackId)
   }
 
   private onItemSelect(event: MouseEvent) {
@@ -428,7 +447,7 @@ export class ClosedCaptions extends UICorePlugin {
       setTimeout(() => {
         this.selectItem(
           this.tracks.find(
-            (t) => t.track.language === this.preselectedLanguage,
+            (t) => this.isPreselectedLanguage(t.track.language),
           ) ?? null,
         )
       }, 0)
@@ -551,6 +570,9 @@ export class ClosedCaptions extends UICorePlugin {
   }
 
   private get useNativeSubtitles() {
+    if (this.core.activePlayback?.name === 'dash') {
+      return true
+    }
     const mode = this.core.options.cc?.mode ?? this.core.options.subtitles?.mode ?? 'custom'
     // TODO or Safari? or iOS?
     return mode === 'native'
