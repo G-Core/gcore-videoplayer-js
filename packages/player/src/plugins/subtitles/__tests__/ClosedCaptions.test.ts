@@ -175,12 +175,12 @@ describe('ClosedCaptions', () => {
         await new Promise((resolve) => setTimeout(resolve, 100))
 
       })
-      it('should activate subtitle track', () => {
+      it('should activate selected track', () => {
         expect(core.activePlayback.closedCaptionsTracks[1].track.mode).toBe(
           'hidden',
         )
         expect(core.activePlayback.closedCaptionsTracks[0].track.mode).toBe(
-          'hidden',
+          'disabled',
         )
       })
       it('should show active subtitle text', () => {
@@ -194,8 +194,8 @@ describe('ClosedCaptions', () => {
         emitSubtitleAvailable(core)
         cc.$el.find('#gplayer-cc-menu li:nth-child(2) a').click()
       })
-      it('should deactivate native subtitles track', () => {
-        expect(core.activePlayback.closedCaptionsTrackId).toEqual(-1)
+      it('should activate native subtitles track', () => {
+        expect(core.activePlayback.closedCaptionsTrackId).toEqual(2)
       })
       it('should highlight selected menu item', () => {
         expect(

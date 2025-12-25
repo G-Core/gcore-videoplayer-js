@@ -53,14 +53,15 @@
   }
 }
 
-// ::cue {
-//   visibility: hidden !important;
-//   font-size: 0 !important;
-// }
-// .ios-fullscreen::cue {
-//   visibility: visible !important;
-//   font-size: 1em !important;
-// }
+::cue {
+  visibility: hidden !important;
+  font-size: 0 !important;
+}
+
+.ios-fullscreen::cue {
+  visibility: visible !important;
+  font-size: 1em !important;
+}
 
 .container {
   .gplayer-cc-line {

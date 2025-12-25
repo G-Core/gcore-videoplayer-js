@@ -31,6 +31,11 @@ export type ClosedCaptionsPluginSettings = {
    * Initially selected subtitles language.
    */
   language?: string
+
+  /**
+   * Whether to use builtin subtitles.
+   */
+  mode?: 'native' | 'custom'
 }
 
 /**
@@ -176,11 +181,11 @@ export class ClosedCaptions extends UICorePlugin {
     this.listenTo(this.core.activeContainer, Events.CONTAINER_DESTROYED, () => {
       this.clickaway(null)
     })
-    this.listenTo(
-      this.core.activeContainer,
-      'container:advertisement:start',
-      this.onStartAd,
-    )
+    // this.listenTo(
+    //   this.core.activeContainer,
+    //   'container:advertisement:start',
+    //   this.onStartAd,
+    // )
     this.listenTo(
       this.core.activePlayback,
       Events.PLAYBACK_SUBTITLE_AVAILABLE,
@@ -211,6 +216,8 @@ export class ClosedCaptions extends UICorePlugin {
         video.classList.remove('ios-fullscreen')
       }
     })
+
+    this.isPreselectedApplied = false
   }
 
   private onSubtitleAvailable() {
@@ -228,10 +235,12 @@ export class ClosedCaptions extends UICorePlugin {
       this.clearSubtitleText()
     }
     for (const track of this.tracks) {
-      // Native subtitles are always hidden
-      track.track.mode = 'hidden'
       if (track.id === id) {
-        // track.track.mode = 'showing'
+        if (this.useNativeSubtitles) {
+          track.track.mode = 'showing'
+        } else {
+          track.track.mode = 'hidden'
+        }
 
         this.setSubtitleText(this.getSubtitleText(track.track))
 
@@ -250,7 +259,7 @@ export class ClosedCaptions extends UICorePlugin {
         }
       } else {
         track.track.oncuechange = null
-        // track.track.mode = 'hidden'
+        track.track.mode = 'disabled'
       }
     }
   }
@@ -265,25 +274,25 @@ export class ClosedCaptions extends UICorePlugin {
     }
   }
 
-  private onStartAd() {
-    if (this.active && this.core.activeContainer) {
-      this.hide()
-      this.listenTo(
-        this.core.activeContainer,
-        'container:advertisement:finish',
-        this.onFinishAd,
-      )
-    }
-  }
+  // private onStartAd() {
+  //   if (this.active && this.core.activeContainer) {
+  //     this.hide()
+  //     this.listenTo(
+  //       this.core.activeContainer,
+  //       'container:advertisement:finish',
+  //       this.onFinishAd,
+  //     )
+  //   }
+  // }
 
-  private onFinishAd() {
-    this.show()
-    this.stopListening(
-      this.core.activeContainer,
-      'container:advertisement:finish',
-      this.onFinishAd,
-    )
-  }
+  // private onFinishAd() {
+  //   this.show()
+  //   this.stopListening(
+  //     this.core.activeContainer,
+  //     'container:advertisement:finish',
+  //     this.onFinishAd,
+  //   )
+  // }
 
   private onContainerResize() {
     const shouldShow =
@@ -334,7 +343,7 @@ export class ClosedCaptions extends UICorePlugin {
       isFullscreen(this.core.activeContainer.el) &&
       this.track &&
       this.track.track.mode &&
-      Browser.isiOS
+      (Browser.isiOS || this.useNativeSubtitles)
     ) {
       this.$line.hide()
       this.track.track.mode = 'showing'
@@ -405,7 +414,7 @@ export class ClosedCaptions extends UICorePlugin {
       ((event.target ?? event.currentTarget) as HTMLElement).dataset?.item ??
       '-1'
 
-    localStorage.setItem(LOCAL_STORAGE_CC_ID, id) // TODO store language instead
+    localStorage.setItem(LOCAL_STORAGE_CC_ID, id) // TODO store language instead?
     this.selectItem(this.findById(Number(id)))
     this.hideMenu()
     return false
@@ -465,8 +474,8 @@ export class ClosedCaptions extends UICorePlugin {
     const trackId = this.track ? this.track.id : -1
 
     // TODO find out if this is needed
-    // this.core.activePlayback.closedCaptionsTrackId = trackId
-    this.core.activePlayback.closedCaptionsTrackId = -1
+    this.core.activePlayback.closedCaptionsTrackId = trackId
+    // this.core.activePlayback.closedCaptionsTrackId = -1
   }
 
   private getSubtitleText(track: TextTrack) {
@@ -539,6 +548,12 @@ export class ClosedCaptions extends UICorePlugin {
       const mediaControl = this.core.getPlugin('media_control')
       mediaControl.slot('cc', this.$el)
     }
+  }
+
+  private get useNativeSubtitles() {
+    const mode = this.core.options.cc?.mode ?? this.core.options.subtitles?.mode ?? 'custom'
+    // TODO or Safari? or iOS?
+    return mode === 'native'
   }
 
   private clickaway = mediaControlClickaway(() => this.hideMenu())
