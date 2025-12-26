@@ -1,4 +1,5 @@
 export {
+  ChainedTracer,
   LogTracer,
   Logger,
   SentryTracer,
