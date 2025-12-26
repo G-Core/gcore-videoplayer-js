@@ -1,6 +1,6 @@
 {
   "name": "@gcorevideo/player",
-  "version": "2.28.26",
+  "version": "2.28.27",
   "description": "Gcore JavaScript video player",
   "main": "dist/index.js",
   "type": "module",
@@ -62,7 +62,7 @@
     "@gcorevideo/utils": "^0.7.1",
     "@sentry/types": "^8.47.0",
     "dashjs": "^4.7.4",
-    "hls.js": "^1.5.17",
+    "hls.js": "^1.6.15",
     "human-format": "^1.2.1",
     "mousetrap": "^1.6.5",
     "videojs-vtt.js": "^0.15.5"

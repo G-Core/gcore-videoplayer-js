@@ -2,6 +2,7 @@ export {
   ChainedTracer,
   LogTracer,
   Logger,
+  RemoteTracer,
   SentryTracer,
   reportError,
   setTracer,
