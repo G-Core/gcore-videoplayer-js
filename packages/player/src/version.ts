@@ -1,5 +1,5 @@
-import * as pkg from '../package.json' with { "type": "json" };
-import * as lock from '../package-lock.json' with { "type": "json" };
+import * as pkg from '../package.json' with { type: 'json' }
+import * as lock from '../package-lock.json' with { type: 'json' }
 
 /**
  * Version information about the gplayer and its main dependencies

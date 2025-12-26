@@ -523,34 +523,35 @@ export class Thumbnails extends UICorePlugin {
 }
 
 type ParsedVTT = {
-  id: string;
-  start: number;
-  end: number;
-  text: string;
+  id: string
+  start: number
+  end: number
+  text: string
 }
 
-
 function parseVTT(vtt: string): ParsedVTT[] {
-  const correctedVTT = (vtt.startsWith('WEBVTT') ? vtt : 'WEBVTT\n\n' + vtt)
-    .replace(/(\d+:\d+:\d+),(\d+)/g, '$1.$2');
-  const parser = new WebVTT.Parser(window);
-  const cues: ParsedVTT[] = [];
-  (parser as any).oncue = (cue: any) => {
+  const correctedVTT = (
+    vtt.startsWith('WEBVTT') ? vtt : 'WEBVTT\n\n' + vtt
+  ).replace(/(\d+:\d+:\d+),(\d+)/g, '$1.$2')
+  const parser = new WebVTT.Parser(window)
+  const cues: ParsedVTT[] = []
+  ;(parser as any).oncue = (cue: any) => {
     cues.push({
       id: cue.id,
       start: cue.startTime,
       end: cue.endTime,
-      text: cue.text
-    });
-  };
-  (parser as any).onparsingerror = reportError
+      text: cue.text,
+    })
+  }
+  ;(parser as any).onparsingerror = reportError
 
   // TextEncoder is available in all modern browsers and Node >=v11
-  const uint8Array = typeof TextEncoder !== 'undefined'
-    ? new TextEncoder().encode(correctedVTT)
-    : Buffer.from(correctedVTT, 'utf-8');
-  parser.parse(uint8Array as any);
-  parser.flush();
+  const uint8Array =
+    typeof TextEncoder !== 'undefined'
+      ? new TextEncoder().encode(correctedVTT)
+      : Buffer.from(correctedVTT, 'utf-8')
+  parser.parse(uint8Array as any)
+  parser.flush()
 
-  return cues;
+  return cues
 }

@@ -332,8 +332,9 @@ export class BottomGear extends UICorePlugin {
   }
 
   private clampPopup($subMenu: ZeptoResult) {
-    const availableHeight =
-      this.core.getPlugin('media_control').getAvailablePopupHeight()
+    const availableHeight = this.core
+      .getPlugin('media_control')
+      .getAvailablePopupHeight()
     $subMenu.css('max-height', `${availableHeight}px`)
     $subMenu
       .find('.gear-sub-menu')

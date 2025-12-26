@@ -27,7 +27,11 @@ export function parseClips(text: string): ClipDesc[] {
   }))
 }
 
-export function buildSvg(clips: ClipDesc[], duration: number, barWidth: number): string {
+export function buildSvg(
+  clips: ClipDesc[],
+  duration: number,
+  barWidth: number,
+): string {
   let svg =
     '<svg width="0" height="0">\n' + '<defs>\n' + '<clipPath id="myClip">\n'
   let rightEdge = 0

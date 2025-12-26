@@ -18,11 +18,11 @@ describe('ErrorScreen', () => {
       [
         'targeted at UI',
         {
-          code: "foo",
+          code: 'foo',
           UI: {
             title: 'My error',
             message: 'Lorem ipsum dolor sit amet',
-            icon: '<svg>...</svg>'
+            icon: '<svg>...</svg>',
           },
         },
         true,
@@ -36,7 +36,7 @@ describe('ErrorScreen', () => {
         },
         false,
       ],
-    ])("%s", (_, err, shouldRender) => {
+    ])('%s', (_, err, shouldRender) => {
       beforeEach(() => {
         errorScreen = new ErrorScreen(core)
         core.emit('core:ready')
@@ -66,28 +66,34 @@ describe('ErrorScreen', () => {
             UI: {
               title: 'My error',
               message: 'Lorem ipsum dolor sit amet',
-              icon: '<svg>...</svg>'
+              icon: '<svg>...</svg>',
             },
           })
           core.configure.mockClear()
         })
         describe('when clicked', () => {
           beforeEach(async () => {
-            (errorScreen.el.querySelector('.player-error-screen__reload') as HTMLElement)?.click()
-            return new Promise(resolve => setTimeout(resolve, 0))
+            ;(
+              errorScreen.el.querySelector(
+                '.player-error-screen__reload',
+              ) as HTMLElement
+            )?.click()
+            return new Promise((resolve) => setTimeout(resolve, 0))
           })
           it('should reload the player', () => {
-            expect(core.configure).toHaveBeenCalledWith(expect.objectContaining({
-              reloading: true,
-              source: 'https://222/master.mpd'
-            }))
+            expect(core.configure).toHaveBeenCalledWith(
+              expect.objectContaining({
+                reloading: true,
+                source: 'https://222/master.mpd',
+              }),
+            )
           })
         })
       })
       describe('when disabled', () => {
         beforeEach(() => {
           core.options.errorScreen = {
-            noReload: true
+            noReload: true,
           }
           errorScreen = new ErrorScreen(core)
           core.emit('core:ready')
@@ -97,16 +103,16 @@ describe('ErrorScreen', () => {
             UI: {
               title: 'My error',
               message: 'Lorem ipsum dolor sit amet',
-              icon: '<svg>...</svg>'
+              icon: '<svg>...</svg>',
             },
           })
         })
         it('should not render the reload button', () => {
-          expect(errorScreen.el.querySelector('.player-error-screen__reload')).toBeNull()
+          expect(
+            errorScreen.el.querySelector('.player-error-screen__reload'),
+          ).toBeNull()
         })
       })
     })
   })
 })
-
-

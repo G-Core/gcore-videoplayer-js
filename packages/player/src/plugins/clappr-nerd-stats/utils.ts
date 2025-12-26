@@ -1,5 +1,5 @@
-import { ZeptoResult } from "../../types"
-import { SpeedtestMetrics } from "./speedtest/types"
+import { ZeptoResult } from '../../types'
+import { SpeedtestMetrics } from './speedtest/types'
 
 const qualityClasses = [
   'speedtest-quality-value-1',

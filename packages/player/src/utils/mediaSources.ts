@@ -19,11 +19,12 @@ export function buildMediaSourcesList(
     })
   }
   const [preferred, rest] = sources.reduce(
-    ([preferred, rest]: [PlayerMediaSourceDesc[], PlayerMediaSourceDesc[]], item: PlayerMediaSourceDesc): [PlayerMediaSourceDesc[], PlayerMediaSourceDesc[]] => {
+    (
+      [preferred, rest]: [PlayerMediaSourceDesc[], PlayerMediaSourceDesc[]],
+      item: PlayerMediaSourceDesc,
+    ): [PlayerMediaSourceDesc[], PlayerMediaSourceDesc[]] => {
       for (const p of playbacks) {
-        if ([
-          'html5_audio', 'html_img', 'no_op'
-        ].includes(p.prototype.name)) {
+        if (['html5_audio', 'html_img', 'no_op'].includes(p.prototype.name)) {
           continue
         }
         const canPlay = p.canPlay(item.source, item.mimeType)

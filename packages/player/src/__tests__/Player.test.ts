@@ -37,7 +37,10 @@ vi.mock('@clappr/core', async () => {
       name: 'dash',
     },
     canPlay(source, mimeType) {
-      return this._supported && (mimeType === 'application/dash+xml' || source.endsWith('.mpd'))
+      return (
+        this._supported &&
+        (mimeType === 'application/dash+xml' || source.endsWith('.mpd'))
+      )
     },
   }
   const MockHlsPlayback = {
@@ -46,7 +49,13 @@ vi.mock('@clappr/core', async () => {
       name: 'hls',
     },
     canPlay(source, mimeType) {
-      return this._supported && (['application/vnd.apple.mpegurl', 'application/x-mpegurl'].includes(mimeType) || source.endsWith('.m3u8'))
+      return (
+        this._supported &&
+        (['application/vnd.apple.mpegurl', 'application/x-mpegurl'].includes(
+          mimeType,
+        ) ||
+          source.endsWith('.m3u8'))
+      )
     },
   }
   const MockHTML5VideoPlayback = {
@@ -55,7 +64,10 @@ vi.mock('@clappr/core', async () => {
       name: 'html5_video',
     },
     canPlay(source, mimeType) {
-      return this._supported && ['video/mp4', 'application/vnd.apple.mpegurl'].includes(mimeType)
+      return (
+        this._supported &&
+        ['video/mp4', 'application/vnd.apple.mpegurl'].includes(mimeType)
+      )
     },
   }
   return {
@@ -73,7 +85,11 @@ vi.mock('@clappr/core', async () => {
     Events: imported.Events,
     Loader: {
       registerPlugin: vi.fn(),
-      registeredPlaybacks: [MockDashPlayback, MockHlsPlayback, MockHTML5VideoPlayback],
+      registeredPlaybacks: [
+        MockDashPlayback,
+        MockHlsPlayback,
+        MockHTML5VideoPlayback,
+      ],
       registeredPlugins: { core: [], container: [] },
       unregisterPlugin: vi.fn(),
     },
@@ -155,7 +171,7 @@ describe('Player', () => {
   describe('autoPlay', () => {
     describe('initially', () => {
       it('should reset to false', () => {
-        const player = new Player({autoPlay: true, sources: []})
+        const player = new Player({ autoPlay: true, sources: [] })
         const node = document.createElement('div')
         player.attachTo(node)
         expect(PlayerClappr).toHaveBeenCalledWith(
@@ -173,19 +189,26 @@ describe('Player', () => {
           return 'media_control'
         }
       }
-      (MockMediaControl as any).type = 'core';
+      ;(MockMediaControl as any).type = 'core'
       class MockMediaControlButtonPlugin {
         get name() {
           return 'media_control_button'
         }
       }
-      (MockMediaControlButtonPlugin as any).type = 'core'
-      Player.registerPlugin(MockMediaControlButtonPlugin as unknown as CorePluginConstructor)
-      Player.registerPlugin(MockMediaControl as unknown as CorePluginConstructor)
+      ;(MockMediaControlButtonPlugin as any).type = 'core'
+      Player.registerPlugin(
+        MockMediaControlButtonPlugin as unknown as CorePluginConstructor,
+      )
+      Player.registerPlugin(
+        MockMediaControl as unknown as CorePluginConstructor,
+      )
       const player = new Player({ sources: [] })
       player.attachTo(document.createElement('div'))
       expect(Loader.registerPlugin).toHaveBeenNthCalledWith(1, MockMediaControl)
-      expect(Loader.registerPlugin).toHaveBeenNthCalledWith(2, MockMediaControlButtonPlugin)
+      expect(Loader.registerPlugin).toHaveBeenNthCalledWith(
+        2,
+        MockMediaControlButtonPlugin,
+      )
     })
   })
 })

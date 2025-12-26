@@ -1,5 +1,5 @@
-import '@clappr/core';
+import '@clappr/core'
 
-declare module "@clappr/core" {
-    declare interface Playback extends ErrorMixin { }
+declare module '@clappr/core' {
+  declare interface Playback extends ErrorMixin {}
 }

@@ -166,11 +166,14 @@ export class SpinnerThreeBounce extends UIContainerPlugin {
    */
   override render() {
     this.$el.html(this.template())
-    this.el.firstElementChild?.addEventListener('animationiteration', (event) => {
-      this.trigger(SpinnerEvents.SYNC, {
-        elapsedTime: (event as AnimationEvent).elapsedTime,
-      })
-    })
+    this.el.firstElementChild?.addEventListener(
+      'animationiteration',
+      (event) => {
+        this.trigger(SpinnerEvents.SYNC, {
+          elapsedTime: (event as AnimationEvent).elapsedTime,
+        })
+      },
+    )
     this.container.$el.append(this.$el[0])
     if (this.container.buffering) {
       this._show()

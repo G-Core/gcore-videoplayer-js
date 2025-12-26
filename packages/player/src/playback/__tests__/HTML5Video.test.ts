@@ -33,14 +33,20 @@ describe('HTML5Video', () => {
         }
         const html5Video = new HTML5Video({}, i18n, playerError)
         html5Video.load('https://example.com/video.mp4')
-        vi.spyOn(html5Video.el as HTMLVideoElement, 'error', 'get').mockReturnValue({
+        vi.spyOn(
+          html5Video.el as HTMLVideoElement,
+          'error',
+          'get',
+        ).mockReturnValue({
           code: MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED,
           message: 'Media source not supported',
         } as any)
         html5Video.el.dispatchEvent(new Event('error', { bubbles: true }))
-        expect(playerError.createError).toHaveBeenCalledWith(expect.objectContaining({
-          code: PlaybackErrorCode.MediaSourceUnavailable,
-        }))
+        expect(playerError.createError).toHaveBeenCalledWith(
+          expect.objectContaining({
+            code: PlaybackErrorCode.MediaSourceUnavailable,
+          }),
+        )
       })
     })
   })

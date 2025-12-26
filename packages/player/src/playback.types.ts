@@ -1,6 +1,6 @@
 /**
  * Playback time position in seconds since the beginning of the stream.
- * For the live streams this is limited to the length of a segment. When DVR is enabled, this refers to the 
+ * For the live streams this is limited to the length of a segment. When DVR is enabled, this refers to the
  * @public
  */
 export type TimeValue = number
@@ -144,4 +144,3 @@ export interface PlaybackError {
     icon?: string
   }
 }
-

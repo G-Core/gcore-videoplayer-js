@@ -1,51 +1,63 @@
-import { $, Browser, Container, ContainerPlugin, Core, Events, HTML5Video, Log, Playback, UIContainerPlugin, Utils } from '@clappr/core';
-import { reportError } from '@gcorevideo/utils';
-import assert from 'assert';
+import {
+  $,
+  Browser,
+  Container,
+  ContainerPlugin,
+  Core,
+  Events,
+  HTML5Video,
+  Log,
+  Playback,
+  UIContainerPlugin,
+  Utils,
+} from '@clappr/core'
+import { reportError } from '@gcorevideo/utils'
+import assert from 'assert'
 
-import LoaderXML from './loaderxml.js';
-import Roll from './roll.js';
-import { ZeptoResult } from '../../types.js';
-import { AdRollDesc, AdRollItem, AdRollType, VastAdsOptions } from './types.js';
+import LoaderXML from './loaderxml.js'
+import Roll from './roll.js'
+import { ZeptoResult } from '../../types.js'
+import { AdRollDesc, AdRollItem, AdRollType, VastAdsOptions } from './types.js'
 
-type CoreOptions = Record<string, unknown>;
+type CoreOptions = Record<string, unknown>
 
-type ExtensionData = Record<string, unknown>;
+type ExtensionData = Record<string, unknown>
 
 export default class RollManager extends Events {
-  private _allURLRequest = false;
+  private _allURLRequest = false
 
-  private _container: Container;
-  private container: Container;
+  private _container: Container
+  private container: Container
 
-  private _options: CoreOptions;
+  private _options: CoreOptions
 
-  private vastAdsOptions: VastAdsOptions;
+  private vastAdsOptions: VastAdsOptions
 
-  private _playback: Playback;
+  private _playback: Playback
 
-  private _contentElement: HTMLMediaElement;
+  private _contentElement: HTMLMediaElement
 
-  private _posterPlugin: UIContainerPlugin;
+  private _posterPlugin: UIContainerPlugin
 
-  private _clickToPausePlugin: ContainerPlugin;
+  private _clickToPausePlugin: ContainerPlugin
 
-  private adTemplates: AdRollItem[] | null = null;
+  private adTemplates: AdRollItem[] | null = null
 
   // private _adDisplayContainer: HTMLElement | null = null;
 
-  private extension: ExtensionData | null = null;
+  private extension: ExtensionData | null = null
 
-  private firstRemaininTime = 0;
+  private firstRemaininTime = 0
 
-  private _imaContainer: HTMLElement | null = null;
+  private _imaContainer: HTMLElement | null = null
 
-  private isPlaying = false;
+  private isPlaying = false
 
-  private loadXML: LoaderXML | null = null;
+  private loadXML: LoaderXML | null = null
 
-  private _pr: number;
+  private _pr: number
 
-  private roll: Roll | null = null;
+  private roll: Roll | null = null
 
   constructor(
     private core: Core,
@@ -57,28 +69,36 @@ export default class RollManager extends Events {
     private type: AdRollType,
     private countRoll: number,
     private volume: number,
-    private prevVolume: number
+    private prevVolume: number,
   ) {
-    super();
-    this._options = options;
-    this.vastAdsOptions = this._options.vastAds as any;
-    this.container = this.core.activeContainer;
-    this._container = this.container;
+    super()
+    this._options = options
+    this.vastAdsOptions = this._options.vastAds as any
+    this.container = this.core.activeContainer
+    this._container = this.container
     // this.countRoll = countRoll || 0;
-    this.$skipAd = $skipAd;
-    this.type = type;
-    this.$muteIcon = $muteIcon;
-    this.$areaClick = $areaClick;
-    this._playback = this.core.activePlayback;
-    this._contentElement = this._playback.el as HTMLMediaElement;
-    this._posterPlugin = this._container.getPlugin('poster');
-    this._clickToPausePlugin = this._container.getPlugin('click_to_pause');
-    this._adContainer = _adContainer;
-    this._events = {};
-    this._pr = Math.floor(Math.random() * 1000000);
+    this.$skipAd = $skipAd
+    this.type = type
+    this.$muteIcon = $muteIcon
+    this.$areaClick = $areaClick
+    this._playback = this.core.activePlayback
+    this._contentElement = this._playback.el as HTMLMediaElement
+    this._posterPlugin = this._container.getPlugin('poster')
+    this._clickToPausePlugin = this._container.getPlugin('click_to_pause')
+    this._adContainer = _adContainer
+    this._events = {}
+    this._pr = Math.floor(Math.random() * 1000000)
   }
 
-  private initializeRoll({ xml, url, extension }: { xml: any; url: string; extension: any }) {
+  private initializeRoll({
+    xml,
+    url,
+    extension,
+  }: {
+    xml: any
+    url: string
+    extension: any
+  }) {
     try {
       this.roll = new Roll({
         core: this.core,
@@ -87,46 +107,46 @@ export default class RollManager extends Events {
         $areaClick: this.$areaClick,
         mute: !!this.options.mute,
         volume: this.volume,
-        prevVolume: this.prevVolume
-      });
+        prevVolume: this.prevVolume,
+      })
       // @ts-ignore
-      this.roll.on('volume', this.changeVolume.bind(this));
+      this.roll.on('volume', this.changeVolume.bind(this))
       // @ts-ignore
-      this.roll.on('advertisement_started', this.onAdStarted.bind(this));
+      this.roll.on('advertisement_started', this.onAdStarted.bind(this))
       // @ts-ignore
-      this.roll.on('advertisement_played', this.onAdPlayed.bind(this));
+      this.roll.on('advertisement_played', this.onAdPlayed.bind(this))
       // @ts-ignore
-      this.roll.on('continue_ad', this._cleverContinueAd.bind(this));
+      this.roll.on('continue_ad', this._cleverContinueAd.bind(this))
       // @ts-ignore
-      this.roll.on('advertisement_finish', this._playVideoContent.bind(this));
+      this.roll.on('advertisement_finish', this._playVideoContent.bind(this))
 
-      this.roll._requestAd({ xml, url, extension });
+      this.roll._requestAd({ xml, url, extension })
     } catch (error) {
       // LogManager.exception(error);
-      reportError(error);
+      reportError(error)
     }
   }
 
   playerResize(_: { width: number; height: number }) {
     if (this.roll) {
-      this.roll.playerResize();
+      this.roll.playerResize()
     }
   }
 
-  private onAdStarted(_: { url: string}) {
-    this.removeContainer();
+  private onAdStarted(_: { url: string }) {
+    this.removeContainer()
   }
 
   onAdPlayed() {
-    this.isPlaying = true;
+    this.isPlaying = true
   }
 
   private removeContainer() {
-    this.trigger('advertisement_started');
+    this.trigger('advertisement_started')
   }
 
-  private changeVolume(obj: { volume: number; mute: boolean; }) {
-    this.trigger('volume', obj);
+  private changeVolume(obj: { volume: number; mute: boolean }) {
+    this.trigger('volume', obj)
   }
 
   // private _createAdDisplayContainer() {
@@ -136,226 +156,246 @@ export default class RollManager extends Events {
   // }
 
   _createImaContainer() {
-    this._destroyImaContainer();
+    this._destroyImaContainer()
     // IMA does not clean ad container when finished
     // For the sake of simplicity, wrap into a <div> element
     if (this._adContainer) {
-      this._imaContainer = document.createElement('div');
-      this._adContainer.appendChild(this._imaContainer);
+      this._imaContainer = document.createElement('div')
+      this._adContainer.appendChild(this._imaContainer)
     }
   }
 
   _destroyImaContainer() {
     if (this._imaContainer && this._adContainer) {
-      this._adContainer.removeChild(this._imaContainer);
-      this._imaContainer = null;
+      this._adContainer.removeChild(this._imaContainer)
+      this._imaContainer = null
     }
   }
 
   async setupRoll() {
     // TODO: check if this is correct
-    const dataAd = this.vastAdsOptions[this.type] || { data: [] };
-    const { oneByOne = false } = dataAd;
-    let rollList = dataAd.data;
+    const dataAd = this.vastAdsOptions[this.type] || { data: [] }
+    const { oneByOne = false } = dataAd
+    let rollList = dataAd.data
 
     if (this.type === 'middleroll') {
-      const currentStartTime = dataAd.data[this.countRoll].startTimePercent;
+      const currentStartTime = dataAd.data[this.countRoll].startTimePercent
 
       rollList = dataAd.data.filter((el) => {
         if (el.startTimePercent === currentStartTime) {
-          return true;
+          return true
         }
-      });
+      })
     }
     if (this.type === 'repeatableroll') {
-      const currentStartTime = dataAd.data[this.countRoll].startTime;
+      const currentStartTime = dataAd.data[this.countRoll].startTime
 
       rollList = dataAd.data.filter((el) => {
         if (el.startTime === currentStartTime) {
-          return true;
+          return true
         }
-      });
+      })
     }
 
     if (this.type === 'middleroll' || this.type === 'repeatableroll') {
-      this.trigger('change_counter', { type: this.type, value: this.countRoll + rollList.length });
+      this.trigger('change_counter', {
+        type: this.type,
+        value: this.countRoll + rollList.length,
+      })
     }
-    await this.startAd(this.type, { data: rollList, oneByOne });
+    await this.startAd(this.type, { data: rollList, oneByOne })
   }
 
   async startAd(type: AdRollType, roll: AdRollDesc) {
     // TODO
     // Player.player.trigger('advertisementWasStarted');
-    this.core.trigger('core:advertisement:start');
-    this.container.trigger('container:advertisement:start');
-    (this.container as any).advertisement = { type: type };
+    this.core.trigger('core:advertisement:start')
+    this.container.trigger('container:advertisement:start')
+    ;(this.container as any).advertisement = { type: type }
     if (type !== 'middleroll' && type !== 'repeatableroll') {
-      console.warn('disableControls');
-      setTimeout(() => this._disableControls(), 0);
+      console.warn('disableControls')
+      setTimeout(() => this._disableControls(), 0)
     }
 
     if (!this.adTemplates && roll) {
-      this.adTemplates = this.parseAdUrl(roll.data);
+      this.adTemplates = this.parseAdUrl(roll.data)
       if (!this.adTemplates) {
-        this.trigger('disable_plugin', { type: this.type });
+        this.trigger('disable_plugin', { type: this.type })
 
-        return;
+        return
       }
     }
     if (type === 'preroll') {
       if (Browser.isMobile) {
-        this._playback.consent(() => {});
+        this._playback.consent(() => {})
       }
     }
     //чтобы реклама шла одна за другой
-    this._allURLRequest = !!roll.oneByOne;
+    this._allURLRequest = !!roll.oneByOne
     try {
-      const customPosterPlugin = this.container.getPlugin('poster');
+      const customPosterPlugin = this.container.getPlugin('poster')
 
-      customPosterPlugin.hidePlayButton();
+      customPosterPlugin.hidePlayButton()
     } catch (error) {
       // LogManager.exception(error);
-      reportError(error);
+      reportError(error)
     }
 
     if (!this.adTemplates?.length) {
-      this.trigger('advertisement_dont_play', { type: this.type });
+      this.trigger('advertisement_dont_play', { type: this.type })
 
-      return;
+      return
     }
-    Log.debug('Advertisement', 'advertisement will start');
+    Log.debug('Advertisement', 'advertisement will start')
     try {
-      const adTemplate = this.adTemplates.shift();
+      const adTemplate = this.adTemplates.shift()
       // @ts-ignore
-      await this.loadAd(adTemplate.url);
+      await this.loadAd(adTemplate.url)
     } catch (error) {
       // LogManager.exception(error);
-      reportError(error);
+      reportError(error)
     }
   }
 
   _disableControls() {
-    this.container.disableMediaControl();
-    this._clickToPausePlugin?.disable();
+    this.container.disableMediaControl()
+    this._clickToPausePlugin?.disable()
     // @ts-ignore
-    this._posterPlugin?.$playWrapper.hide();
+    this._posterPlugin?.$playWrapper.hide()
   }
 
   private parseAdUrl(arr: any): AdRollItem[] | null {
     if (!Array.isArray(arr)) {
-      return null;
+      return null
     }
 
-    return arr.filter((el) => el.url);
+    return arr.filter((el) => el.url)
   }
 
   paramsUrl(url: string): string {
     try {
-      url = url.replace(/\{width\}/g, this.container.$el.width());
-      url = url.replace(/\{height\}/g, this.container.$el.height());
-      url = url.replace(/\{pr\}/g, String(this._pr));
-      url = url.replace(/\{random\}/g, String(Math.floor(Math.random() * 1000000)));
-      url = url.replace(/\{session_id\}/g, Utils.uniqueId(''));
-      url = url.replace(/\{start_delay\}/g, '0');
+      url = url.replace(/\{width\}/g, this.container.$el.width())
+      url = url.replace(/\{height\}/g, this.container.$el.height())
+      url = url.replace(/\{pr\}/g, String(this._pr))
+      url = url.replace(
+        /\{random\}/g,
+        String(Math.floor(Math.random() * 1000000)),
+      )
+      url = url.replace(/\{session_id\}/g, Utils.uniqueId(''))
+      url = url.replace(/\{start_delay\}/g, '0')
 
       if (this.options.referer) {
-        url = url.replace(new RegExp(/\{referer\}/g, 'g'), String(this.options.referer ?? ''));
+        url = url.replace(
+          new RegExp(/\{referer\}/g, 'g'),
+          String(this.options.referer ?? ''),
+        )
       }
 
-      let playback = 1;
+      let playback = 1
 
       if (this.options.autoPlay && this.options.mute) {
-        playback = 2;
+        playback = 2
       }
 
       if (!this.options.autoPlay) {
-        playback = 3;
+        playback = 3
       }
 
-      url = url.replace(/\{playback\}/g, String(playback));
+      url = url.replace(/\{playback\}/g, String(playback))
     } catch (error) {
       // LogManager.exception(error);
-      reportError(error);
+      reportError(error)
     }
 
-    return url;
+    return url
   }
 
   async loadAd(url: string) {
     if (!url) {
-      return;
+      return
     }
     try {
-      if (!['middleroll', 'repeatableroll'].includes((this.container as any).advertisement.type)) {
-        const spinnerPlugin = this.container.getPlugin('spinner');
+      if (
+        !['middleroll', 'repeatableroll'].includes(
+          (this.container as any).advertisement.type,
+        )
+      ) {
+        const spinnerPlugin = this.container.getPlugin('spinner')
 
-        spinnerPlugin?.show();
+        spinnerPlugin?.show()
       }
     } catch (error) {
       // LogManager.exception(error);
-      reportError(error);
+      reportError(error)
     }
-    url = this.paramsUrl(url);
+    url = this.paramsUrl(url)
 
-    Roll._adContainer = this._adContainer;
-    Roll._contentElement = this._contentElement;
-    Roll.createAdDisplayContainer();
-    this.loadXML = new LoaderXML(url);
-    let data: ExtensionData;
+    Roll._adContainer = this._adContainer
+    Roll._contentElement = this._contentElement
+    Roll.createAdDisplayContainer()
+    this.loadXML = new LoaderXML(url)
+    let data: ExtensionData
 
     try {
-      data = await this.loadXML.startLoad();
+      data = await this.loadXML.startLoad()
     } catch (error) {
       // LogManager.exception(error);
-      reportError(error);
+      reportError(error)
       if (this.adTemplates && this.adTemplates.length > 0) {
-        const adTemplate = this.adTemplates.shift();
+        const adTemplate = this.adTemplates.shift()
         // @ts-ignore
-        await this.loadAd(adTemplate.url);
+        await this.loadAd(adTemplate.url)
       } else {
-        const spinnerPlugin = this.container.getPlugin('spinner');
+        const spinnerPlugin = this.container.getPlugin('spinner')
 
-        spinnerPlugin?.hide();
-        this.trigger('advertisement_dont_play', { type: this.type });
+        spinnerPlugin?.hide()
+        this.trigger('advertisement_dont_play', { type: this.type })
       }
 
-      return;
+      return
     }
     try {
-      this.firstRemaininTime = 0;
-      this.$muteIcon.hide();
-      this.$skipAd.hide();
+      this.firstRemaininTime = 0
+      this.$muteIcon.hide()
+      this.$skipAd.hide()
 
       // this.volume = this._playback.volume;
-      assert(this._playback instanceof HTML5Video);
-      this.volume = (this._playback.el as HTMLMediaElement).volume;
+      assert(this._playback instanceof HTML5Video)
+      this.volume = (this._playback.el as HTMLMediaElement).volume
     } catch (error) {
       // LogManager.exception(error);
-      reportError(error);
+      reportError(error)
     }
-    this.extension = data;
-    this.initializeRoll({ xml: data.config, url: String(data.url || url), extension: data });
+    this.extension = data
+    this.initializeRoll({
+      xml: data.config,
+      url: String(data.url || url),
+      extension: data,
+    })
   }
 
   _onAdError(adErrorEvent: any) {
     try {
-      const googleError = adErrorEvent.getError();
-      const error = new Error(googleError.getMessage() + ' ' + googleError.getErrorCode());
+      const googleError = adErrorEvent.getError()
+      const error = new Error(
+        googleError.getMessage() + ' ' + googleError.getErrorCode(),
+      )
 
-      error.name = googleError.getType();
+      error.name = googleError.getType()
       // LogManager.exception(error);
-      reportError(error);
+      reportError(error)
     } catch (error) {
       // LogManager.exception(error);
-      reportError(error);
+      reportError(error)
     }
-    Log.debug('Advertisement', 'advertisement error');
+    Log.debug('Advertisement', 'advertisement error')
 
-    this._cleverContinueAd(true);
+    this._cleverContinueAd(true)
   }
 
   _imaEvent(eventName: string, e: any) {
-    $.isFunction((this._events as any)[eventName]) && (this._events as any)[eventName](e);
+    $.isFunction((this._events as any)[eventName]) &&
+      (this._events as any)[eventName](e)
   }
 
   /**
@@ -363,41 +403,45 @@ export default class RollManager extends Events {
    *
    */
   async _cleverContinueAd(data: any) {
-    this.destroyRoll();
-    const error = data.error;
+    this.destroyRoll()
+    const error = data.error
 
-    if ((this._allURLRequest || error) && this.adTemplates && this.adTemplates.length > 0) {
-      const adTemplate = this.adTemplates.shift();
+    if (
+      (this._allURLRequest || error) &&
+      this.adTemplates &&
+      this.adTemplates.length > 0
+    ) {
+      const adTemplate = this.adTemplates.shift()
       // @ts-ignore
-      await this.loadAd(adTemplate.url);
+      await this.loadAd(adTemplate.url)
 
-      return;
+      return
     }
-    this._playVideoContent();
+    this._playVideoContent()
   }
 
   _playVideoContent() {
-    this.destroyRoll();
-    Roll.destroyImaContainer();
+    this.destroyRoll()
+    Roll.destroyImaContainer()
 
-    const spinnerPlugin = this.container.getPlugin('spinner');
+    const spinnerPlugin = this.container.getPlugin('spinner')
 
-    spinnerPlugin?.hide();
+    spinnerPlugin?.hide()
 
     if (this.isPlaying) {
-      this.trigger('advertisement_finish', { type: this.type });
+      this.trigger('advertisement_finish', { type: this.type })
     } else {
-      this.trigger('advertisement_dont_play', { type: this.type });
+      this.trigger('advertisement_dont_play', { type: this.type })
     }
   }
 
   destroyRoll() {
     if (!this.roll) {
-      return;
+      return
     }
     // @ts-ignore
-    this.roll.off();
-    this.roll.destroy();
-    this.roll = null;
+    this.roll.off()
+    this.roll.destroy()
+    this.roll = null
   }
 }

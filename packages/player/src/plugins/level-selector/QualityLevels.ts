@@ -267,11 +267,11 @@ export class QualityLevels extends UICorePlugin {
   private get maxLevel() {
     const maxRes = this.pluginOptions.restrictResolution
     return maxRes
-      ? this.levels.find(
+      ? (this.levels.find(
           (level) =>
             (level.height > level.width ? level.width : level.height) ===
             maxRes,
-        )?.level ?? -1
+        )?.level ?? -1)
       : -1
   }
 

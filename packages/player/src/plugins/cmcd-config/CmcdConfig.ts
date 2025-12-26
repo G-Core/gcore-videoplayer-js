@@ -152,7 +152,7 @@ export class CmcdConfig extends CorePlugin {
   private generateContentId() {
     const src =
       this.core.options.source ??
-      (typeof this.core.options.sources[0] == 'string'
+      (typeof this.core.options.sources[0] === 'string'
         ? this.core.options.sources[0]
         : this.core.options.sources[0].source)
     return new URL(src).pathname.slice(0, 64)

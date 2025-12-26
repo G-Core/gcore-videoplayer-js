@@ -25,8 +25,14 @@ export class RemoteTracer implements Tracer {
 
   private timerId: TimerId | null = null
 
-  private delay: number;
+  private delay: number
 
+  /**
+   *
+   * @param baseTracer An additional tracer to be called next to this one. Deprecated. Use {@link ChainedTracer} instead.
+   * @param tags
+   * @param options
+   */
   constructor(
     private baseTracer: Tracer | undefined,
     private tags: Record<string, unknown> = {},

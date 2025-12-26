@@ -223,7 +223,7 @@ export class VastAds extends UICorePlugin {
           )
         } else {
           this.countRepeatableRoll = this.findCloserAdvertisement(
-                this.options.vastAds.repeatableroll,
+            this.options.vastAds.repeatableroll,
             'startTime',
             this.countRepeatableRoll,
             e,
@@ -626,9 +626,7 @@ export class VastAds extends UICorePlugin {
     this._posterPlugin = this._container?.getPlugin('poster')
 
     // Attempt to get click-to-pause plugin. (May interfere with advert click handling)
-    this._clickToPausePlugin = this._container?.getPlugin(
-      'click_to_pause',
-    )
+    this._clickToPausePlugin = this._container?.getPlugin('click_to_pause')
 
     assert(this.playback, 'playback is not defined')
     this._contentElement = this.playback.el
@@ -790,7 +788,8 @@ export class VastAds extends UICorePlugin {
 
     this.currentState = ''
     this.$el.hide()
-    if (!this.options.disableClickOnPause) { // TODO sort out
+    if (!this.options.disableClickOnPause) {
+      // TODO sort out
       this._clickToPausePlugin?.enable()
     }
 

@@ -5,7 +5,6 @@
   "globals": {
     "window": "readonly"
   },
-  "quotes": "single",
   "settings": {},
   "rules": {
     "eqeqeq": "warn"

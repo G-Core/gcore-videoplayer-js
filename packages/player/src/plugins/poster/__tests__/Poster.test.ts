@@ -44,12 +44,9 @@ describe('Poster', () => {
     })
     describe('when playback is about to start', () => {
       describe.each([
-        [
-          Events.CONTAINER_STATE_BUFFERING, 
-        ], [
-          Events.CONTAINER_STATE_BUFFERFULL,
-        ]
-      ])("event %s", (event) => {
+        [Events.CONTAINER_STATE_BUFFERING],
+        [Events.CONTAINER_STATE_BUFFERFULL],
+      ])('event %s', (event) => {
         beforeEach(() => {
           core.activeContainer.buffering = true
           core.activeContainer.trigger(event)
@@ -62,7 +59,7 @@ describe('Poster', () => {
     describe('when playback is started', () => {
       beforeEach(() => {
         core.activeContainer.trigger(Events.CONTAINER_PLAY)
-            core.activeContainer.playback.trigger(Events.PLAYBACK_PLAY)
+        core.activeContainer.playback.trigger(Events.PLAYBACK_PLAY)
       })
       it('should hide poster', () => {
         expect(poster.el.style.display).toBe('none')
@@ -78,7 +75,9 @@ describe('Poster', () => {
         expect(poster.el.style.display).not.toBe('none')
       })
       it('should show button', () => {
-        expect(poster.$el.find('#poster-play')[0].style.display).not.toBe('none')
+        expect(poster.$el.find('#poster-play')[0].style.display).not.toBe(
+          'none',
+        )
       })
       it('should add clickable class', () => {
         expect(poster.el.classList.contains('clickable')).toBe(true)

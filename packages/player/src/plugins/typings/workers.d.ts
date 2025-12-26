@@ -1,3 +1,3 @@
-declare module "*.worker.js" {
-    export default string;
+declare module '*.worker.js' {
+  export default string
 }

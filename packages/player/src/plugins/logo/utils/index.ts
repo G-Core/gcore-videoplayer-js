@@ -1,46 +1,53 @@
-
 type CalculateSizeInput = {
   dom: {
-    width: number;
-    height: number;
-  };
+    width: number
+    height: number
+  }
   media: {
-    width: number;
-    height: number;
-  };
+    width: number
+    height: number
+  }
 }
 export function calculateSize(original: CalculateSizeInput) {
   const transformed = {
     media: {
       width: 0,
-      height: 0
+      height: 0,
     },
     letterboxing: {
       horizontal: 0,
-      vertical: 0
-    }
-  };
+      vertical: 0,
+    },
+  }
 
   // Freeze viewport height and scale video to fit vertically
-  transformed.media.width = (original.media.width * original.dom.height / original.media.height);
-  transformed.media.height = (original.media.height * transformed.media.width / original.media.width);
+  transformed.media.width =
+    (original.media.width * original.dom.height) / original.media.height
+  transformed.media.height =
+    (original.media.height * transformed.media.width) / original.media.width
 
   // If it didnt't fit, freeze viewport width and scale video to fit horizontally
   if (transformed.media.width > original.dom.width) {
-    transformed.media.height = (original.media.height * original.dom.width / original.media.width);
-    transformed.media.width = (original.media.width * transformed.media.height / original.media.height);
+    transformed.media.height =
+      (original.media.height * original.dom.width) / original.media.width
+    transformed.media.width =
+      (original.media.width * transformed.media.height) / original.media.height
   }
   // Calculate paddings for vertical or horizontal letterboxing
   if (transformed.media.width < original.dom.width) {
-    transformed.letterboxing.horizontal = Math.floor((original.dom.width - transformed.media.width ) / 2);
+    transformed.letterboxing.horizontal = Math.floor(
+      (original.dom.width - transformed.media.width) / 2,
+    )
   } else {
     if (transformed.media.height < original.dom.height) {
-      transformed.letterboxing.vertical = Math.floor((original.dom.height - transformed.media.height) / 2);
+      transformed.letterboxing.vertical = Math.floor(
+        (original.dom.height - transformed.media.height) / 2,
+      )
     }
   }
 
-  transformed.media.width = Math.floor(transformed.media.width);
-  transformed.media.height = Math.floor(transformed.media.height);
+  transformed.media.width = Math.floor(transformed.media.width)
+  transformed.media.height = Math.floor(transformed.media.height)
 
-  return transformed;
+  return transformed
 }

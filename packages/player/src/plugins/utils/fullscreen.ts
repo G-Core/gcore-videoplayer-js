@@ -1,5 +1,5 @@
-import { Browser, Utils } from '@clappr/core';
-import { reportError } from '@gcorevideo/utils';
+import { Browser, Utils } from '@clappr/core'
+import { reportError } from '@gcorevideo/utils'
 
 export const fullscreenEnabled = Utils.Fullscreen.fullscreenEnabled
 

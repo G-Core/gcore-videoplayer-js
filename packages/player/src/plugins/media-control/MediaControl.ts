@@ -470,10 +470,8 @@ export class MediaControl extends UICorePlugin {
       Events.CONTAINER_DBLCLICK,
       this.toggleFullscreen,
     )
-    this.listenTo(
-      this.core.activeContainer,
-      Events.CONTAINER_CLICK,
-      () => this.clickaway(this.core.activeContainer.$el[0]),
+    this.listenTo(this.core.activeContainer, Events.CONTAINER_CLICK, () =>
+      this.clickaway(this.core.activeContainer.$el[0]),
     )
     this.listenTo(
       this.core.activeContainer,
@@ -529,8 +527,16 @@ export class MediaControl extends UICorePlugin {
     this.listenTo(this.core, Events.CONTAINER_DESTROYED, () => {
       this.cancelRenderTimer()
     })
-    this.listenTo(this.core.activeContainer, Events.CONTAINER_MOUSE_ENTER, this.show)
-    this.listenTo(this.core.activeContainer, Events.CONTAINER_MOUSE_LEAVE, this.delayHide)
+    this.listenTo(
+      this.core.activeContainer,
+      Events.CONTAINER_MOUSE_ENTER,
+      this.show,
+    )
+    this.listenTo(
+      this.core.activeContainer,
+      Events.CONTAINER_MOUSE_LEAVE,
+      this.delayHide,
+    )
 
     this.listenTo(this.core.activeContainer, Events.CONTAINER_DESTROYED, () => {
       this.clickaway(null)

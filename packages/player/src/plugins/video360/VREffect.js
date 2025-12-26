@@ -1,335 +1,427 @@
-import { Matrix4, PerspectiveCamera, Quaternion, Vector3 } from 'three';
-import LogManager from '../../utils/LogManager';
+import { Matrix4, PerspectiveCamera, Quaternion, Vector3 } from 'three'
+import LogManager from '../../utils/LogManager'
 // import { SentryLogLevel } from '../../constants';
 
 export class VREffect {
   constructor(renderer, onError) {
-    let vrDisplay, vrDisplays;
-    const eyeTranslationL = new Vector3();
-    const eyeTranslationR = new Vector3();
-    let renderRectL, renderRectR;
-    const headMatrix = new Matrix4();
-    const eyeMatrixL = new Matrix4();
-    const eyeMatrixR = new Matrix4();
+    let vrDisplay, vrDisplays
+    const eyeTranslationL = new Vector3()
+    const eyeTranslationR = new Vector3()
+    let renderRectL, renderRectR
+    const headMatrix = new Matrix4()
+    const eyeMatrixL = new Matrix4()
+    const eyeMatrixR = new Matrix4()
 
-    let frameData = null;
+    let frameData = null
 
     if ('VRFrameData' in window) {
-      frameData = new window.VRFrameData();
+      frameData = new window.VRFrameData()
     }
 
     function gotVRDisplays(displays) {
-      vrDisplays = displays;
+      vrDisplays = displays
 
       if (displays.length > 0) {
-        vrDisplay = displays[0];
+        vrDisplay = displays[0]
       } else {
         if (onError) {
-          onError('HMD not available');
+          onError('HMD not available')
         }
       }
     }
 
     if (navigator.getVRDisplays) {
-      navigator.getVRDisplays().then(gotVRDisplays).catch(function () {
-        console.warn('THREE.VREffect: Unable to get VR Displays');
-        LogManager.message('THREE.VREffect: Unable to get VR Displays', SentryLogLevel.WARNING);
-      });
+      navigator
+        .getVRDisplays()
+        .then(gotVRDisplays)
+        .catch(function () {
+          console.warn('THREE.VREffect: Unable to get VR Displays')
+          LogManager.message(
+            'THREE.VREffect: Unable to get VR Displays',
+            SentryLogLevel.WARNING,
+          )
+        })
     }
 
-    this.isPresenting = false;
+    this.isPresenting = false
 
-    const scope = this;
+    const scope = this
 
-    let rendererSize = renderer.getSize();
-    let rendererUpdateStyle = false;
-    let rendererPixelRatio = renderer.getPixelRatio();
+    let rendererSize = renderer.getSize()
+    let rendererUpdateStyle = false
+    let rendererPixelRatio = renderer.getPixelRatio()
 
     this.getVRDisplay = function () {
-      return vrDisplay;
-    };
+      return vrDisplay
+    }
 
     this.setVRDisplay = function (value) {
-      vrDisplay = value;
-    };
+      vrDisplay = value
+    }
 
     this.getVRDisplays = function () {
-      console.warn('THREE.VREffect: getVRDisplays() is being deprecated.');
+      console.warn('THREE.VREffect: getVRDisplays() is being deprecated.')
 
-      return vrDisplays;
-    };
+      return vrDisplays
+    }
 
     this.setSize = function (width, height, updateStyle) {
-      rendererSize = { width: width, height: height };
-      rendererUpdateStyle = updateStyle;
+      rendererSize = { width: width, height: height }
+      rendererUpdateStyle = updateStyle
 
       if (scope.isPresenting) {
-        const eyeParamsL = vrDisplay.getEyeParameters('left');
+        const eyeParamsL = vrDisplay.getEyeParameters('left')
 
-        renderer.setPixelRatio(1);
-        renderer.setSize(eyeParamsL.renderWidth * 2, eyeParamsL.renderHeight, false);
+        renderer.setPixelRatio(1)
+        renderer.setSize(
+          eyeParamsL.renderWidth * 2,
+          eyeParamsL.renderHeight,
+          false,
+        )
       } else {
-        renderer.setPixelRatio(rendererPixelRatio);
-        renderer.setSize(width, height, updateStyle);
-      }
-    };
-
-    // VR presentation
-    const canvas = renderer.domElement;
-    const defaultLeftBounds = [0.0, 0.0, 0.5, 1.0];
-    const defaultRightBounds = [0.5, 0.0, 0.5, 1.0];
-
-    function onVRDisplayPresentChange() {
-      const wasPresenting = scope.isPresenting;
-
-      scope.isPresenting = vrDisplay !== undefined && vrDisplay.isPresenting;
-
-      if (scope.isPresenting) {
-        const eyeParamsL = vrDisplay.getEyeParameters('left');
-        const eyeWidth = eyeParamsL.renderWidth;
-        const eyeHeight = eyeParamsL.renderHeight;
-
-        if (!wasPresenting) {
-          rendererPixelRatio = renderer.getPixelRatio();
-          rendererSize = renderer.getSize();
-
-          renderer.setPixelRatio(1);
-          renderer.setSize(eyeWidth * 2, eyeHeight, false);
-        }
-      } else if (wasPresenting) {
-        renderer.setPixelRatio(rendererPixelRatio);
-        renderer.setSize(rendererSize.width, rendererSize.height, rendererUpdateStyle);
+        renderer.setPixelRatio(rendererPixelRatio)
+        renderer.setSize(width, height, updateStyle)
       }
     }
 
-    window.addEventListener('vrdisplaypresentchange', onVRDisplayPresentChange, false);
+    // VR presentation
+    const canvas = renderer.domElement
+    const defaultLeftBounds = [0.0, 0.0, 0.5, 1.0]
+    const defaultRightBounds = [0.5, 0.0, 0.5, 1.0]
+
+    function onVRDisplayPresentChange() {
+      const wasPresenting = scope.isPresenting
+
+      scope.isPresenting = vrDisplay !== undefined && vrDisplay.isPresenting
+
+      if (scope.isPresenting) {
+        const eyeParamsL = vrDisplay.getEyeParameters('left')
+        const eyeWidth = eyeParamsL.renderWidth
+        const eyeHeight = eyeParamsL.renderHeight
+
+        if (!wasPresenting) {
+          rendererPixelRatio = renderer.getPixelRatio()
+          rendererSize = renderer.getSize()
+
+          renderer.setPixelRatio(1)
+          renderer.setSize(eyeWidth * 2, eyeHeight, false)
+        }
+      } else if (wasPresenting) {
+        renderer.setPixelRatio(rendererPixelRatio)
+        renderer.setSize(
+          rendererSize.width,
+          rendererSize.height,
+          rendererUpdateStyle,
+        )
+      }
+    }
+
+    window.addEventListener(
+      'vrdisplaypresentchange',
+      onVRDisplayPresentChange,
+      false,
+    )
 
     this.setFullScreen = function (boolean) {
       return new Promise(function (resolve, reject) {
         if (vrDisplay === undefined) {
-          reject(new Error('No VR hardware found.'));
+          reject(new Error('No VR hardware found.'))
 
-          return;
+          return
         }
 
         if (scope.isPresenting === boolean) {
-          resolve();
+          resolve()
 
-          return;
+          return
         }
 
         if (boolean) {
-          resolve(vrDisplay.requestPresent([{ source: canvas }]));
+          resolve(vrDisplay.requestPresent([{ source: canvas }]))
         } else {
-          resolve(vrDisplay.exitPresent());
+          resolve(vrDisplay.exitPresent())
         }
-      });
-    };
+      })
+    }
 
     this.requestPresent = function () {
-      return this.setFullScreen(true);
-    };
+      return this.setFullScreen(true)
+    }
 
     this.exitPresent = function () {
-      return this.setFullScreen(false);
-    };
+      return this.setFullScreen(false)
+    }
 
     this.requestAnimationFrame = function (f) {
       if (vrDisplay !== undefined) {
-        return vrDisplay.requestAnimationFrame(f);
+        return vrDisplay.requestAnimationFrame(f)
       } else {
-        return window.requestAnimationFrame(f);
+        return window.requestAnimationFrame(f)
       }
-    };
+    }
 
     this.cancelAnimationFrame = function (h) {
       if (vrDisplay !== undefined) {
-        vrDisplay.cancelAnimationFrame(h);
+        vrDisplay.cancelAnimationFrame(h)
       } else {
-        window.cancelAnimationFrame(h);
+        window.cancelAnimationFrame(h)
       }
-    };
+    }
 
     this.submitFrame = function () {
       if (vrDisplay !== undefined && scope.isPresenting) {
-        vrDisplay.submitFrame();
+        vrDisplay.submitFrame()
       }
-    };
+    }
 
-    this.autoSubmitFrame = true;
+    this.autoSubmitFrame = true
 
     // render
-    const cameraL = new PerspectiveCamera();
+    const cameraL = new PerspectiveCamera()
 
-    cameraL.layers.enable(1);
+    cameraL.layers.enable(1)
 
-    const cameraR = new PerspectiveCamera();
+    const cameraR = new PerspectiveCamera()
 
-    cameraR.layers.enable(2);
+    cameraR.layers.enable(2)
 
     this.render = function (scene, camera, renderTarget, forceClear) {
       if (vrDisplay && scope.isPresenting) {
-        const autoUpdate = scene.autoUpdate;
+        const autoUpdate = scene.autoUpdate
 
         if (autoUpdate) {
-          scene.updateMatrixWorld();
-          scene.autoUpdate = false;
+          scene.updateMatrixWorld()
+          scene.autoUpdate = false
         }
 
         if (Array.isArray(scene)) {
-          console.warn('THREE.VREffect.render() no longer supports arrays. Use object.layers instead.');
-          scene = scene[0];
+          console.warn(
+            'THREE.VREffect.render() no longer supports arrays. Use object.layers instead.',
+          )
+          scene = scene[0]
         }
 
         // When rendering we don't care what the recommended size is, only what the actual size
         // of the backbuffer is.
-        const size = renderer.getSize();
-        const layers = vrDisplay.getLayers();
-        let leftBounds;
-        let rightBounds;
+        const size = renderer.getSize()
+        const layers = vrDisplay.getLayers()
+        let leftBounds
+        let rightBounds
 
         if (layers.length) {
-          const layer = layers[0];
+          const layer = layers[0]
 
-          leftBounds = layer.leftBounds && layer.leftBounds.length === 4 ? layer.leftBounds : defaultLeftBounds;
-          rightBounds = layer.rightBounds && layer.rightBounds.length === 4 ? layer.rightBounds : defaultRightBounds;
+          leftBounds =
+            layer.leftBounds && layer.leftBounds.length === 4
+              ? layer.leftBounds
+              : defaultLeftBounds
+          rightBounds =
+            layer.rightBounds && layer.rightBounds.length === 4
+              ? layer.rightBounds
+              : defaultRightBounds
         } else {
-          leftBounds = defaultLeftBounds;
-          rightBounds = defaultRightBounds;
+          leftBounds = defaultLeftBounds
+          rightBounds = defaultRightBounds
         }
 
         renderRectL = {
           x: Math.round(size.width * leftBounds[0]),
           y: Math.round(size.height * leftBounds[1]),
           width: Math.round(size.width * leftBounds[2]),
-          height: Math.round(size.height * leftBounds[3])
-        };
+          height: Math.round(size.height * leftBounds[3]),
+        }
         renderRectR = {
           x: Math.round(size.width * rightBounds[0]),
           y: Math.round(size.height * rightBounds[1]),
           width: Math.round(size.width * rightBounds[2]),
-          height: Math.round(size.height * rightBounds[3])
-        };
+          height: Math.round(size.height * rightBounds[3]),
+        }
 
         if (renderTarget) {
-          renderer.setRenderTarget(renderTarget);
-          renderTarget.scissorTest = true;
+          renderer.setRenderTarget(renderTarget)
+          renderTarget.scissorTest = true
         } else {
-          renderer.setRenderTarget(null);
-          renderer.setScissorTest(true);
+          renderer.setRenderTarget(null)
+          renderer.setScissorTest(true)
         }
 
         if (renderer.autoClear || forceClear) {
-          renderer.clear();
+          renderer.clear()
         }
 
         if (camera.parent === null) {
-          camera.updateMatrixWorld();
+          camera.updateMatrixWorld()
         }
 
-        camera.matrixWorld.decompose(cameraL.position, cameraL.quaternion, cameraL.scale);
+        camera.matrixWorld.decompose(
+          cameraL.position,
+          cameraL.quaternion,
+          cameraL.scale,
+        )
 
-        cameraR.position.copy(cameraL.position);
-        cameraR.quaternion.copy(cameraL.quaternion);
-        cameraR.scale.copy(cameraL.scale);
+        cameraR.position.copy(cameraL.position)
+        cameraR.quaternion.copy(cameraL.quaternion)
+        cameraR.scale.copy(cameraL.scale)
 
         if (vrDisplay.getFrameData) {
-          vrDisplay.depthNear = camera.near;
-          vrDisplay.depthFar = camera.far;
+          vrDisplay.depthNear = camera.near
+          vrDisplay.depthFar = camera.far
 
-          vrDisplay.getFrameData(frameData);
+          vrDisplay.getFrameData(frameData)
 
-          cameraL.projectionMatrix.elements = frameData.leftProjectionMatrix;
-          cameraR.projectionMatrix.elements = frameData.rightProjectionMatrix;
+          cameraL.projectionMatrix.elements = frameData.leftProjectionMatrix
+          cameraR.projectionMatrix.elements = frameData.rightProjectionMatrix
 
-          getEyeMatrices(frameData);
+          getEyeMatrices(frameData)
 
-          cameraL.updateMatrix();
-          cameraL.matrix.multiply(eyeMatrixL);
-          cameraL.matrix.decompose(cameraL.position, cameraL.quaternion, cameraL.scale);
+          cameraL.updateMatrix()
+          cameraL.matrix.multiply(eyeMatrixL)
+          cameraL.matrix.decompose(
+            cameraL.position,
+            cameraL.quaternion,
+            cameraL.scale,
+          )
 
-          cameraR.updateMatrix();
-          cameraR.matrix.multiply(eyeMatrixR);
-          cameraR.matrix.decompose(cameraR.position, cameraR.quaternion, cameraR.scale);
+          cameraR.updateMatrix()
+          cameraR.matrix.multiply(eyeMatrixR)
+          cameraR.matrix.decompose(
+            cameraR.position,
+            cameraR.quaternion,
+            cameraR.scale,
+          )
         } else {
-          const eyeParamsL = vrDisplay.getEyeParameters('left');
-          const eyeParamsR = vrDisplay.getEyeParameters('right');
+          const eyeParamsL = vrDisplay.getEyeParameters('left')
+          const eyeParamsR = vrDisplay.getEyeParameters('right')
 
-          cameraL.projectionMatrix = fovToProjection(eyeParamsL.fieldOfView, true, camera.near, camera.far);
-          cameraR.projectionMatrix = fovToProjection(eyeParamsR.fieldOfView, true, camera.near, camera.far);
+          cameraL.projectionMatrix = fovToProjection(
+            eyeParamsL.fieldOfView,
+            true,
+            camera.near,
+            camera.far,
+          )
+          cameraR.projectionMatrix = fovToProjection(
+            eyeParamsR.fieldOfView,
+            true,
+            camera.near,
+            camera.far,
+          )
 
-          eyeTranslationL.fromArray(eyeParamsL.offset);
-          eyeTranslationR.fromArray(eyeParamsR.offset);
+          eyeTranslationL.fromArray(eyeParamsL.offset)
+          eyeTranslationR.fromArray(eyeParamsR.offset)
 
-          cameraL.translateOnAxis(eyeTranslationL, cameraL.scale.x);
-          cameraR.translateOnAxis(eyeTranslationR, cameraR.scale.x);
+          cameraL.translateOnAxis(eyeTranslationL, cameraL.scale.x)
+          cameraR.translateOnAxis(eyeTranslationR, cameraR.scale.x)
         }
 
         // render left eye
         if (renderTarget) {
-          renderTarget.viewport.set(renderRectL.x, renderRectL.y, renderRectL.width, renderRectL.height);
-          renderTarget.scissor.set(renderRectL.x, renderRectL.y, renderRectL.width, renderRectL.height);
+          renderTarget.viewport.set(
+            renderRectL.x,
+            renderRectL.y,
+            renderRectL.width,
+            renderRectL.height,
+          )
+          renderTarget.scissor.set(
+            renderRectL.x,
+            renderRectL.y,
+            renderRectL.width,
+            renderRectL.height,
+          )
         } else {
-          renderer.setViewport(renderRectL.x, renderRectL.y, renderRectL.width, renderRectL.height);
-          renderer.setScissor(renderRectL.x, renderRectL.y, renderRectL.width, renderRectL.height);
+          renderer.setViewport(
+            renderRectL.x,
+            renderRectL.y,
+            renderRectL.width,
+            renderRectL.height,
+          )
+          renderer.setScissor(
+            renderRectL.x,
+            renderRectL.y,
+            renderRectL.width,
+            renderRectL.height,
+          )
         }
-        renderer.render(scene, cameraL, renderTarget, forceClear);
+        renderer.render(scene, cameraL, renderTarget, forceClear)
 
         // render right eye
         if (renderTarget) {
-          renderTarget.viewport.set(renderRectR.x, renderRectR.y, renderRectR.width, renderRectR.height);
-          renderTarget.scissor.set(renderRectR.x, renderRectR.y, renderRectR.width, renderRectR.height);
+          renderTarget.viewport.set(
+            renderRectR.x,
+            renderRectR.y,
+            renderRectR.width,
+            renderRectR.height,
+          )
+          renderTarget.scissor.set(
+            renderRectR.x,
+            renderRectR.y,
+            renderRectR.width,
+            renderRectR.height,
+          )
         } else {
-          renderer.setViewport(renderRectR.x, renderRectR.y, renderRectR.width, renderRectR.height);
-          renderer.setScissor(renderRectR.x, renderRectR.y, renderRectR.width, renderRectR.height);
+          renderer.setViewport(
+            renderRectR.x,
+            renderRectR.y,
+            renderRectR.width,
+            renderRectR.height,
+          )
+          renderer.setScissor(
+            renderRectR.x,
+            renderRectR.y,
+            renderRectR.width,
+            renderRectR.height,
+          )
         }
-        renderer.render(scene, cameraR, renderTarget, forceClear);
+        renderer.render(scene, cameraR, renderTarget, forceClear)
 
         if (renderTarget) {
-          renderTarget.viewport.set(0, 0, size.width, size.height);
-          renderTarget.scissor.set(0, 0, size.width, size.height);
-          renderTarget.scissorTest = false;
-          renderer.setRenderTarget(null);
+          renderTarget.viewport.set(0, 0, size.width, size.height)
+          renderTarget.scissor.set(0, 0, size.width, size.height)
+          renderTarget.scissorTest = false
+          renderer.setRenderTarget(null)
         } else {
-          renderer.setViewport(0, 0, size.width, size.height);
-          renderer.setScissorTest(false);
+          renderer.setViewport(0, 0, size.width, size.height)
+          renderer.setScissorTest(false)
         }
 
         if (autoUpdate) {
-          scene.autoUpdate = true;
+          scene.autoUpdate = true
         }
 
         if (scope.autoSubmitFrame) {
-          scope.submitFrame();
+          scope.submitFrame()
         }
 
-        return;
+        return
       }
 
       // Regular render mode if not HMD
-      renderer.render(scene, camera, renderTarget, forceClear);
-    };
+      renderer.render(scene, camera, renderTarget, forceClear)
+    }
 
     this.dispose = function () {
-      window.removeEventListener('vrdisplaypresentchange', onVRDisplayPresentChange, false);
-    };
+      window.removeEventListener(
+        'vrdisplaypresentchange',
+        onVRDisplayPresentChange,
+        false,
+      )
+    }
 
-    const poseOrientation = new Quaternion();
-    const posePosition = new Vector3();
+    const poseOrientation = new Quaternion()
+    const posePosition = new Vector3()
 
     // Compute model matrices of the eyes with respect to the head.
     function getEyeMatrices(frameData) {
       // Compute the matrix for the position of the head based on the pose
       if (frameData.pose.orientation) {
-        poseOrientation.fromArray(frameData.pose.orientation);
-        headMatrix.makeRotationFromQuaternion(poseOrientation);
+        poseOrientation.fromArray(frameData.pose.orientation)
+        headMatrix.makeRotationFromQuaternion(poseOrientation)
       } else {
-        headMatrix.identity();
+        headMatrix.identity()
       }
 
       if (frameData.pose.position) {
-        posePosition.fromArray(frameData.pose.position);
-        headMatrix.setPosition(posePosition);
+        posePosition.fromArray(frameData.pose.position)
+        headMatrix.setPosition(posePosition)
       }
 
       // The view matrix transforms vertices from sitting space to eye space.
@@ -341,82 +433,82 @@ export class VREffect {
       // So when we multiply the view matrix with headMatrix, we're left with headToEyeMatrix:
       // viewMatrix * headMatrix = headToEyeMatrix * sittingToHeadMatrix * headMatrix = headToEyeMatrix
 
-      eyeMatrixL.fromArray(frameData.leftViewMatrix);
-      eyeMatrixL.multiply(headMatrix);
-      eyeMatrixR.fromArray(frameData.rightViewMatrix);
-      eyeMatrixR.multiply(headMatrix);
+      eyeMatrixL.fromArray(frameData.leftViewMatrix)
+      eyeMatrixL.multiply(headMatrix)
+      eyeMatrixR.fromArray(frameData.rightViewMatrix)
+      eyeMatrixR.multiply(headMatrix)
 
       // The eye's model matrix in head space is the inverse of headToEyeMatrix we calculated above.
 
-      eyeMatrixL.getInverse(eyeMatrixL);
-      eyeMatrixR.getInverse(eyeMatrixR);
+      eyeMatrixL.getInverse(eyeMatrixL)
+      eyeMatrixR.getInverse(eyeMatrixR)
     }
 
     function fovToNDCScaleOffset(fov) {
-      const pxscale = 2.0 / (fov.leftTan + fov.rightTan);
-      const pxoffset = (fov.leftTan - fov.rightTan) * pxscale * 0.5;
-      const pyscale = 2.0 / (fov.upTan + fov.downTan);
-      const pyoffset = (fov.upTan - fov.downTan) * pyscale * 0.5;
+      const pxscale = 2.0 / (fov.leftTan + fov.rightTan)
+      const pxoffset = (fov.leftTan - fov.rightTan) * pxscale * 0.5
+      const pyscale = 2.0 / (fov.upTan + fov.downTan)
+      const pyoffset = (fov.upTan - fov.downTan) * pyscale * 0.5
 
-      return { scale: [pxscale, pyscale], offset: [pxoffset, pyoffset] };
+      return { scale: [pxscale, pyscale], offset: [pxoffset, pyoffset] }
     }
 
     function fovPortToProjection(fov, rightHanded, zNear, zFar) {
-      rightHanded = rightHanded === undefined ? true : rightHanded;
-      zNear = zNear === undefined ? 0.01 : zNear;
-      zFar = zFar === undefined ? 10000.0 : zFar;
+      rightHanded = rightHanded === undefined ? true : rightHanded
+      zNear = zNear === undefined ? 0.01 : zNear
+      zFar = zFar === undefined ? 10000.0 : zFar
 
-      const handednessScale = rightHanded ? -1.0 : 1.0;
+      const handednessScale = rightHanded ? -1.0 : 1.0
 
       // start with an identity matrix
-      const mobj = new Matrix4();
-      const m = mobj.elements;
+      const mobj = new Matrix4()
+      const m = mobj.elements
 
       // and with scale/offset info for normalized device coords
-      const scaleAndOffset = fovToNDCScaleOffset(fov);
+      const scaleAndOffset = fovToNDCScaleOffset(fov)
 
       // X result, map clip edges to [-w,+w]
-      m[0 * 4 + 0] = scaleAndOffset.scale[0];
-      m[0 * 4 + 1] = 0.0;
-      m[0 * 4 + 2] = scaleAndOffset.offset[0] * handednessScale;
-      m[0 * 4 + 3] = 0.0;
+      m[0 * 4 + 0] = scaleAndOffset.scale[0]
+      m[0 * 4 + 1] = 0.0
+      m[0 * 4 + 2] = scaleAndOffset.offset[0] * handednessScale
+      m[0 * 4 + 3] = 0.0
 
       // Y result, map clip edges to [-w,+w]
       // Y offset is negated because this proj matrix transforms from world coords with Y=up,
       // but the NDC scaling has Y=down (thanks D3D?)
-      m[1 * 4 + 0] = 0.0;
-      m[1 * 4 + 1] = scaleAndOffset.scale[1];
-      m[1 * 4 + 2] = -scaleAndOffset.offset[1] * handednessScale;
-      m[1 * 4 + 3] = 0.0;
+      m[1 * 4 + 0] = 0.0
+      m[1 * 4 + 1] = scaleAndOffset.scale[1]
+      m[1 * 4 + 2] = -scaleAndOffset.offset[1] * handednessScale
+      m[1 * 4 + 3] = 0.0
 
       // Z result (up to the app)
-      m[2 * 4 + 0] = 0.0;
-      m[2 * 4 + 1] = 0.0;
-      m[2 * 4 + 2] = zFar / (zNear - zFar) * -handednessScale;
-      m[2 * 4 + 3] = (zFar * zNear) / (zNear - zFar);
+      m[2 * 4 + 0] = 0.0
+      m[2 * 4 + 1] = 0.0
+      m[2 * 4 + 2] = (zFar / (zNear - zFar)) * -handednessScale
+      m[2 * 4 + 3] = (zFar * zNear) / (zNear - zFar)
 
       // W result (= Z in)
-      m[3 * 4 + 0] = 0.0;
-      m[3 * 4 + 1] = 0.0;
-      m[3 * 4 + 2] = handednessScale;
-      m[3 * 4 + 3] = 0.0;
+      m[3 * 4 + 0] = 0.0
+      m[3 * 4 + 1] = 0.0
+      m[3 * 4 + 2] = handednessScale
+      m[3 * 4 + 3] = 0.0
 
-      mobj.transpose();
+      mobj.transpose()
 
-      return mobj;
+      return mobj
     }
 
     function fovToProjection(fov, rightHanded, zNear, zFar) {
-      const DEG2RAD = Math.PI / 180.0;
+      const DEG2RAD = Math.PI / 180.0
 
       const fovPort = {
         upTan: Math.tan(fov.upDegrees * DEG2RAD),
         downTan: Math.tan(fov.downDegrees * DEG2RAD),
         leftTan: Math.tan(fov.leftDegrees * DEG2RAD),
-        rightTan: Math.tan(fov.rightDegrees * DEG2RAD)
-      };
+        rightTan: Math.tan(fov.rightDegrees * DEG2RAD),
+      }
 
-      return fovPortToProjection(fovPort, rightHanded, zNear, zFar);
+      return fovPortToProjection(fovPort, rightHanded, zNear, zFar)
     }
   }
 }

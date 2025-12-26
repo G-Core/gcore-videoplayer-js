@@ -1,4 +1,4 @@
-import { $, Container, Core } from "@clappr/core";
+import { $, Container, Core } from '@clappr/core'
 
 /**
  * Describes a media source with its MIME type and URL.
@@ -63,7 +63,9 @@ export type PlayerPlugin = {
 /**
  * @public
  */
-export type PlayerPluginConstructor = CorePluginConstructor | ContainerPluginConstructor
+export type PlayerPluginConstructor =
+  | CorePluginConstructor
+  | ContainerPluginConstructor
 
 /**
  * @public
@@ -302,4 +304,4 @@ export enum PlayerEvent {
  * {@link https://zeptojs.com/#$() | Zepto query result}
  * @public
  */
-export type ZeptoResult = ReturnType<typeof $>;
+export type ZeptoResult = ReturnType<typeof $>

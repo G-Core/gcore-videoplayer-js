@@ -173,7 +173,6 @@ describe('ClosedCaptions', () => {
         // TODO test explicitly that PLAYBACK_SUBTITLE_CHANGED event does not cause track switch
         core.activePlayback.emit(Events.PLAYBACK_SUBTITLE_CHANGED, { id: 2 })
         await new Promise((resolve) => setTimeout(resolve, 100))
-
       })
       it('should activate selected track', () => {
         expect(core.activePlayback.closedCaptionsTracks[1].track.mode).toBe(

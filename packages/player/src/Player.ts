@@ -34,16 +34,16 @@ export type PlayerEventParams<E extends PlayerEvent> =
   E extends PlayerEvent.Seek
     ? [number]
     : E extends PlayerEvent.VolumeUpdate
-    ? [number]
-    : E extends PlayerEvent.TimeUpdate
-    ? [TimePosition]
-    : E extends PlayerEvent.Resize
-    ? [{ width: number; height: number }]
-    : E extends PlayerEvent.Fullscreen
-    ? [boolean]
-    : E extends PlayerEvent.Error
-    ? [PlaybackError]
-    : []
+      ? [number]
+      : E extends PlayerEvent.TimeUpdate
+        ? [TimePosition]
+        : E extends PlayerEvent.Resize
+          ? [{ width: number; height: number }]
+          : E extends PlayerEvent.Fullscreen
+            ? [boolean]
+            : E extends PlayerEvent.Error
+              ? [PlaybackError]
+              : []
 
 /**
  * Type of a listener callback function for a player event.

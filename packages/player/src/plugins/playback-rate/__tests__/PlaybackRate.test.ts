@@ -55,7 +55,10 @@ describe('PlaybackRate', () => {
     })
     describe('until media source is loaded', () => {
       it('should not attach to the media control', () => {
-        expect(bottomGear.addItem).not.toHaveBeenCalledWith('rate', expect.anything())
+        expect(bottomGear.addItem).not.toHaveBeenCalledWith(
+          'rate',
+          expect.anything(),
+        )
       })
     })
     describe('after media source is loaded', () => {
@@ -67,11 +70,17 @@ describe('PlaybackRate', () => {
           core.activeContainer.emit(Events.CONTAINER_LOADEDMETADATA)
         })
         it('should not attach to the media control immediately', () => {
-          expect(bottomGear.addItem).not.toHaveBeenCalledWith('rate', expect.anything())
+          expect(bottomGear.addItem).not.toHaveBeenCalledWith(
+            'rate',
+            expect.anything(),
+          )
         })
         it('should attach to the media control after a short delay', async () => {
           await new Promise((resolve) => setTimeout(resolve, 25))
-          expect(bottomGear.addItem).toHaveBeenCalledWith('rate', playbackRate.$el)
+          expect(bottomGear.addItem).toHaveBeenCalledWith(
+            'rate',
+            playbackRate.$el,
+          )
           expect(
             bottomGear.$el.find('li[data-rate]').text(),
             // @ts-ignore
@@ -84,10 +93,13 @@ describe('PlaybackRate', () => {
           core.activeContainer.emit(Events.CONTAINER_LOADEDMETADATA)
         })
         it('should not attach to the media control', () => {
-          expect(bottomGear.addItem).not.toHaveBeenCalledWith('rate', expect.anything())
+          expect(bottomGear.addItem).not.toHaveBeenCalledWith(
+            'rate',
+            expect.anything(),
+          )
         })
       })
-    });
+    })
     describe('on playback rate select', () => {
       beforeEach(async () => {
         core.activePlayback.dvrEnabled = true
@@ -159,7 +171,9 @@ describe('PlaybackRate', () => {
         playbackRate.$el.find('[data-rate="1.5"]').parent().hasClass('current'),
       ).toBe(true)
       expect(
-        playbackRate.$el.find('[data-rate="1.5"]').hasClass('gcore-skin-active'),
+        playbackRate.$el
+          .find('[data-rate="1.5"]')
+          .hasClass('gcore-skin-active'),
       ).toBe(true)
     })
     it('should render proper gear box option label', () => {
@@ -175,11 +189,11 @@ expect.extend({
   toMatchPlaybackRateLabel(received, expected) {
     const { isNot } = this
     return {
-      pass:
-        received
-          .replace(/\/assets.*\.svg/g, '')
-          .replace(/\s+/g, ' ')
-          .trim().includes(`playback_rate ${expected}`),
+      pass: received
+        .replace(/\/assets.*\.svg/g, '')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .includes(`playback_rate ${expected}`),
       message: () => `${received} does${isNot ? '' : ' not'} match ${expected}`,
     }
   },

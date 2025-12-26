@@ -1,5 +1,5 @@
 export type SpeedtestMetrics = {
-  ping: number;
-  jitter: number;
-  connectionSpeed: number;
+  ping: number
+  jitter: number
+  connectionSpeed: number
 }

@@ -1,5 +1,3 @@
 import '@clappr/core'
 
-declare module '@clappr/core' {
-    
-}
+declare module '@clappr/core' {}

@@ -56,7 +56,11 @@ export class SkipTime extends UICorePlugin {
    */
   override bindEvents() {
     this.listenTo(this.core, Events.CORE_READY, this.render)
-    this.listenTo(this.core, Events.CORE_ACTIVE_CONTAINER_CHANGED, this.onContainerChanged)
+    this.listenTo(
+      this.core,
+      Events.CORE_ACTIVE_CONTAINER_CHANGED,
+      this.onContainerChanged,
+    )
   }
 
   private onContainerChanged() {

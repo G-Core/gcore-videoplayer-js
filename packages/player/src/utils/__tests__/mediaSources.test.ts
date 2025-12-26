@@ -1,7 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { Loader } from '@clappr/core'
 
-import { isDashSource, isHlsSource, buildMediaSourcesList } from '../mediaSources'
+import {
+  isDashSource,
+  isHlsSource,
+  buildMediaSourcesList,
+} from '../mediaSources'
 import { TransportPreference } from '../../types'
 import { canPlayDash, canPlayHls } from '../../playback/index'
 
@@ -11,10 +15,13 @@ vi.mock('@clappr/core', () => ({
       {
         _supported: true,
         prototype: {
-        name: 'dash',
+          name: 'dash',
         },
         canPlay(source, mimeType) {
-          return this._supported && (mimeType === 'application/dash+xml' || source.endsWith('.mpd'))
+          return (
+            this._supported &&
+            (mimeType === 'application/dash+xml' || source.endsWith('.mpd'))
+          )
         },
       },
       {
@@ -23,7 +30,14 @@ vi.mock('@clappr/core', () => ({
           name: 'hls',
         },
         canPlay(source, mimeType) {
-          return this._supported && (['application/vnd.apple.mpegurl', 'application/x-mpegurl'].includes(mimeType) || source.endsWith('.m3u8'))
+          return (
+            this._supported &&
+            ([
+              'application/vnd.apple.mpegurl',
+              'application/x-mpegurl',
+            ].includes(mimeType) ||
+              source.endsWith('.m3u8'))
+          )
         },
       },
       {
@@ -199,28 +213,30 @@ describe('mediaSources', () => {
             mimeType: 'application/dash+xml',
           },
         ],
-        ],
       ],
-    )('prefer %s, dash=%s,hls=%s', (preference, dash, hls, sources, expected) => {
-      beforeEach(() => {
-        if (!dash) {
-          Loader.registeredPlaybacks[0]._supported = false
-        }
-        if (!hls) {
-          Loader.registeredPlaybacks[1]._supported = false
-        }
-      })
-      afterEach(() => {
-        Loader.registeredPlaybacks[0]._supported = true
-        Loader.registeredPlaybacks[1]._supported = true
-      })
-      it('should build the ordered list of available sources', () => {
-        const ordered = buildMediaSourcesList(
-          sources,
-          preference as TransportPreference,
-        )
-        expect(ordered).toEqual(expect.objectContaining(expected))
-      })
-    })
+    ])(
+      'prefer %s, dash=%s,hls=%s',
+      (preference, dash, hls, sources, expected) => {
+        beforeEach(() => {
+          if (!dash) {
+            Loader.registeredPlaybacks[0]._supported = false
+          }
+          if (!hls) {
+            Loader.registeredPlaybacks[1]._supported = false
+          }
+        })
+        afterEach(() => {
+          Loader.registeredPlaybacks[0]._supported = true
+          Loader.registeredPlaybacks[1]._supported = true
+        })
+        it('should build the ordered list of available sources', () => {
+          const ordered = buildMediaSourcesList(
+            sources,
+            preference as TransportPreference,
+          )
+          expect(ordered).toEqual(expect.objectContaining(expected))
+        })
+      },
+    )
   })
 })

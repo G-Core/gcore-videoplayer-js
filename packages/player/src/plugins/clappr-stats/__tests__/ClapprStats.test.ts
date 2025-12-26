@@ -4,7 +4,11 @@ import FakeTimers from '@sinonjs/fake-timers'
 
 import { ClapprStats } from '../ClapprStats'
 import { createMockCore } from '../../../testUtils'
-import { ClapprStatsChronograph, ClapprStatsCounter, ClapprStatsEvents } from '../types'
+import {
+  ClapprStatsChronograph,
+  ClapprStatsCounter,
+  ClapprStatsEvents,
+} from '../types'
 
 describe('ClapprStats', () => {
   let core: any
@@ -86,13 +90,15 @@ describe('ClapprStats', () => {
         core.activeContainer.trigger(CoreEvents.CONTAINER_STOP)
       })
       it('should measure', () => {
-        expect(onReport).toHaveBeenCalledWith(expect.objectContaining({
-          chrono: expect.objectContaining({
-            [ClapprStatsChronograph.Session]: 60200,
+        expect(onReport).toHaveBeenCalledWith(
+          expect.objectContaining({
+            chrono: expect.objectContaining({
+              [ClapprStatsChronograph.Session]: 60200,
+            }),
           }),
-        }))
+        )
       })
-    })  
+    })
   })
   describe('fps measurements', () => {
     beforeEach(async () => {
@@ -114,20 +120,26 @@ describe('ClapprStats', () => {
       core.activeContainer.trigger(CoreEvents.CONTAINER_STOP)
     })
     it('should measure fps', () => {
-      expect(onReport).toHaveBeenNthCalledWith(1, expect.objectContaining({
-        counters: expect.objectContaining({
-          [ClapprStatsCounter.DecodedFrames]: 126,
-          [ClapprStatsCounter.DroppedFrames]: 3,
-          [ClapprStatsCounter.Fps]: expect.closeTo(25, 0),
+      expect(onReport).toHaveBeenNthCalledWith(
+        1,
+        expect.objectContaining({
+          counters: expect.objectContaining({
+            [ClapprStatsCounter.DecodedFrames]: 126,
+            [ClapprStatsCounter.DroppedFrames]: 3,
+            [ClapprStatsCounter.Fps]: expect.closeTo(25, 0),
+          }),
         }),
-      }))
-      expect(onReport).toHaveBeenNthCalledWith(2, expect.objectContaining({
-        counters: expect.objectContaining({
-          [ClapprStatsCounter.DecodedFrames]: 275,
-          [ClapprStatsCounter.DroppedFrames]: 4,
-          [ClapprStatsCounter.Fps]: expect.closeTo(30, 0),
+      )
+      expect(onReport).toHaveBeenNthCalledWith(
+        2,
+        expect.objectContaining({
+          counters: expect.objectContaining({
+            [ClapprStatsCounter.DecodedFrames]: 275,
+            [ClapprStatsCounter.DroppedFrames]: 4,
+            [ClapprStatsCounter.Fps]: expect.closeTo(30, 0),
+          }),
         }),
-      }))
+      )
     })
   })
 })

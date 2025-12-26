@@ -2,7 +2,6 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 
 import { Events } from '@clappr/core'
 
-
 import { createMockCore, createMockMediaControl } from '../../../testUtils'
 
 import { Thumbnails } from '../Thumbnails'
@@ -108,13 +107,13 @@ describe('Thumbnails', () => {
           case 'media_control':
             return mediaControl
         }
-      });
+      })
       thumbnails = new Thumbnails(core)
     })
     describe('loading', () => {
       beforeEach(async () => {
         core.emit(Events.CORE_READY)
-        await new Promise(resolve => setTimeout(resolve, 1))
+        await new Promise((resolve) => setTimeout(resolve, 1))
       })
       it('should render', () => {
         expect(thumbnails.$el.html()).toMatchSnapshot()
@@ -123,10 +122,14 @@ describe('Thumbnails', () => {
         expect(core.$el.find('.scrub-thumbnails')).toHaveLength(1)
       })
       it('should load image dimensions', () => {
-        expect(loadImageDimensions).toHaveBeenCalledWith('https://example.com/sprite.png')
+        expect(loadImageDimensions).toHaveBeenCalledWith(
+          'https://example.com/sprite.png',
+        )
       })
       it('should parse sprite sheet and create thumbnails', () => {
-        const thumbs = thumbnails.$el.find('#thumbnails-carousel .thumbnail-container')
+        const thumbs = thumbnails.$el.find(
+          '#thumbnails-carousel .thumbnail-container',
+        )
         expect(thumbs).toHaveLength(2)
       })
       it('should hide', () => {
@@ -137,7 +140,7 @@ describe('Thumbnails', () => {
       describe('when mouse pointer is over the scrubber', () => {
         beforeEach(async () => {
           core.emit(Events.CORE_READY)
-          await new Promise(resolve => setTimeout(resolve, 1))
+          await new Promise((resolve) => setTimeout(resolve, 1))
           mediaControl.container.getDuration.mockReturnValue(5)
           vi.spyOn(thumbnails.$el, 'width').mockReturnValue(300)
           mediaControl.trigger(Events.MEDIACONTROL_MOUSEMOVE_SEEKBAR, {}, 0.5)
@@ -146,7 +149,11 @@ describe('Thumbnails', () => {
           expect(thumbnails.$el.hasClass('hidden')).toBe(false)
         })
         it('should show the matching spotlight thumbnail', () => {
-          expect(thumbnails.$el.find('#thumbnails-spotlight .thumbnail-container').css('background-position')).toBe('-100px 0px')
+          expect(
+            thumbnails.$el
+              .find('#thumbnails-spotlight .thumbnail-container')
+              .css('background-position'),
+          ).toBe('-100px 0px')
         })
       })
     })

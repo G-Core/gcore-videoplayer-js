@@ -1,4 +1,3 @@
-
 export enum PlaybackEvents {
   /**
    * Emitted when the playback rate changes.

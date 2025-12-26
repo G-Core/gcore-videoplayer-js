@@ -132,8 +132,7 @@ export class ClosedCaptions extends UICorePlugin {
 
   private get preselectedLanguage(): string | undefined {
     return (
-      this.core.options.cc?.language ??
-      this.core.options.subtitles?.language
+      this.core.options.cc?.language ?? this.core.options.subtitles?.language
     )
   }
 
@@ -446,8 +445,8 @@ export class ClosedCaptions extends UICorePlugin {
       // to hide the subtitles forcefully, set the language to 'none'
       setTimeout(() => {
         this.selectItem(
-          this.tracks.find(
-            (t) => this.isPreselectedLanguage(t.track.language),
+          this.tracks.find((t) =>
+            this.isPreselectedLanguage(t.track.language),
           ) ?? null,
         )
       }, 0)
@@ -573,7 +572,10 @@ export class ClosedCaptions extends UICorePlugin {
     if (this.core.activePlayback?.name === 'dash') {
       return true
     }
-    const mode = this.core.options.cc?.mode ?? this.core.options.subtitles?.mode ?? 'custom'
+    const mode =
+      this.core.options.cc?.mode ??
+      this.core.options.subtitles?.mode ??
+      'custom'
     // TODO or Safari? or iOS?
     return mode === 'native'
   }

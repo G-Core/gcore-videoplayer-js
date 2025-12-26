@@ -1,16 +1,16 @@
-import { UICorePlugin, template, Events } from '@clappr/core';
-import { trace } from '@gcorevideo/utils';
+import { UICorePlugin, template, Events } from '@clappr/core'
+import { trace } from '@gcorevideo/utils'
 
-import { CLAPPR_VERSION } from '../../build.js';
+import { CLAPPR_VERSION } from '../../build.js'
 
-import pipIcon from '../../../assets/icons/new/pip.svg';
-import buttonHtml from '../../../assets/picture-in-picture/button.ejs';
-import '../../../assets/picture-in-picture/style.scss';
-import assert from 'assert';
+import pipIcon from '../../../assets/icons/new/pip.svg'
+import buttonHtml from '../../../assets/picture-in-picture/button.ejs'
+import '../../../assets/picture-in-picture/style.scss'
+import assert from 'assert'
 
-const VERSION = '0.0.1';
+const VERSION = '0.0.1'
 
-const T = `plugins.pip`;
+const T = `plugins.pip`
 
 /**
  * `PLUGIN` that enables picture-in-picture mode.
@@ -27,24 +27,24 @@ export class PictureInPicture extends UICorePlugin {
    * @internal
    */
   get name() {
-    return 'pip';
+    return 'pip'
   }
 
   /**
    * @internal
    */
   get supportedVersion() {
-    return { min: CLAPPR_VERSION };
+    return { min: CLAPPR_VERSION }
   }
 
   /**
    * @internal
    */
   static get version() {
-    return VERSION;
+    return VERSION
   }
 
-  private static buttonTemplate = template(buttonHtml);
+  private static buttonTemplate = template(buttonHtml)
 
   /**
    * @internal
@@ -52,17 +52,17 @@ export class PictureInPicture extends UICorePlugin {
   override get events() {
     return {
       'click button': 'togglePictureInPicture',
-    };
+    }
   }
 
   override get attributes() {
     return {
-      'class': 'media-control-pip',
-    };
+      class: 'media-control-pip',
+    }
   }
 
   private get videoElement() {
-    return this.core.activePlayback.el;
+    return this.core.activePlayback.el
   }
 
   /**
@@ -70,19 +70,23 @@ export class PictureInPicture extends UICorePlugin {
    */
   override bindEvents() {
     this.listenToOnce(this.core, Events.CORE_READY, () => {
-      const mediaControl = this.core.getPlugin('media_control');
-      assert(mediaControl, 'media_control plugin is required');
-      this.listenTo(mediaControl, Events.MEDIACONTROL_RENDERED, this.render);
-    });
+      const mediaControl = this.core.getPlugin('media_control')
+      assert(mediaControl, 'media_control plugin is required')
+      this.listenTo(mediaControl, Events.MEDIACONTROL_RENDERED, this.render)
+    })
   }
 
   private isPiPSupported() {
     trace(`${T} isPiPSupported`, {
       pictureInPictureEnabled: !!document.pictureInPictureEnabled,
-      requestPictureInPicture: !!HTMLVideoElement.prototype.requestPictureInPicture,
-    });
+      requestPictureInPicture:
+        !!HTMLVideoElement.prototype.requestPictureInPicture,
+    })
 
-    return document.pictureInPictureEnabled && !!HTMLVideoElement.prototype.requestPictureInPicture;
+    return (
+      document.pictureInPictureEnabled &&
+      !!HTMLVideoElement.prototype.requestPictureInPicture
+    )
   }
 
   /**
@@ -90,37 +94,37 @@ export class PictureInPicture extends UICorePlugin {
    */
   override render() {
     if (!this.isPiPSupported()) {
-      return this;
+      return this
     }
 
-    this.$el.html(PictureInPicture.buttonTemplate({ pipIcon }));
+    this.$el.html(PictureInPicture.buttonTemplate({ pipIcon }))
 
-    const mediaControl = this.core.getPlugin('media_control');
+    const mediaControl = this.core.getPlugin('media_control')
     if (mediaControl) {
-      mediaControl.slot('pip', this.$el);
+      mediaControl.slot('pip', this.$el)
     }
 
-    return this;
+    return this
   }
 
   private togglePictureInPicture() {
-    trace(`${T} togglePictureInPicture`);
+    trace(`${T} togglePictureInPicture`)
     if (this.videoElement !== document.pictureInPictureElement) {
-      this.requestPictureInPicture();
+      this.requestPictureInPicture()
     } else {
-      this.exitPictureInPicture();
+      this.exitPictureInPicture()
     }
   }
 
   private requestPictureInPicture() {
     trace(`${T} requestPictureInPicture`, {
       videoElement: !!this.videoElement,
-    });
-    this.videoElement.requestPictureInPicture();
+    })
+    this.videoElement.requestPictureInPicture()
   }
 
   private exitPictureInPicture() {
-    trace(`${T} exitPictureInPicture`);
-    document.exitPictureInPicture();
+    trace(`${T} exitPictureInPicture`)
+    document.exitPictureInPicture()
   }
 }

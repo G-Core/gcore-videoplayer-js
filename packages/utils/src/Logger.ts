@@ -1,47 +1,55 @@
-const APP_NAME = "_";
+const APP_NAME = '_'
 
 /**
  * @beta
  */
-export type WriteFn = (...args: any[]) => void;
+export type WriteFn = (...args: any[]) => void
 
 class DebuggerWrapper {
-  private currentWriter: WriteFn;
+  private currentWriter: WriteFn
 
-  constructor(private writer: WriteFn, public readonly namespace: string, enabled = true) {
-    this.currentWriter = enabled ? writer : nullWriter;
+  constructor(
+    private writer: WriteFn,
+    public readonly namespace: string,
+    enabled = true,
+  ) {
+    this.currentWriter = enabled ? writer : nullWriter
   }
 
   enable() {
-    this.currentWriter = this.writer;
+    this.currentWriter = this.writer
   }
 
   disable() {
-    this.currentWriter = nullWriter;
+    this.currentWriter = nullWriter
   }
 
   write = (m: any, ...args: any[]) => {
-    const tokens = args.map((_) => "%s");
-    if (typeof m === "string" || args.length > 0) {
-      tokens.unshift("%s");
+    const tokens = args.map((_) => '%s')
+    if (typeof m === 'string' || args.length > 0) {
+      tokens.unshift('%s')
     }
-    this.currentWriter(`${this.namespace}: ${tokens.join(' ')}`, m, ...args.map(a => JSON.stringify(a)));
+    this.currentWriter(
+      `${this.namespace}: ${tokens.join(' ')}`,
+      m,
+      ...args.map((a) => JSON.stringify(a)),
+    )
   }
 }
 
-type Pattern = RegExp;
+type Pattern = RegExp
 
-const currentPatterns: Pattern[] = [];
+const currentPatterns: Pattern[] = []
 
 function parsePattern(pattern: string): Pattern {
-  if (pattern === "*") {
-    return /.?/;
+  if (pattern === '*') {
+    return /.?/
   }
-  return new RegExp("^" + pattern.replace(/\*/g, "[@\\w-]+"), "i");
+  return new RegExp('^' + pattern.replace(/\*/g, '[@\\w-]+'), 'i')
 }
 
 function pass(namespace: string): boolean {
-  return currentPatterns.some((p) => p.test(namespace));
+  return currentPatterns.some((p) => p.test(namespace))
 }
 
 function nullWriter() {}
@@ -51,32 +59,48 @@ function nullWriter() {}
  * @beta
  */
 export class Logger {
-  public readonly info: WriteFn;
-  public readonly warn: WriteFn;
-  public readonly error: WriteFn;
-  public readonly debug: WriteFn;
+  public readonly info: WriteFn
+  public readonly warn: WriteFn
+  public readonly error: WriteFn
+  public readonly debug: WriteFn
 
-  private static items: DebuggerWrapper[] = [];
+  private static items: DebuggerWrapper[] = []
 
-  constructor(appName = APP_NAME, namespace = "") {
-    const ns = namespace ? `:${namespace}` : "";
+  constructor(appName = APP_NAME, namespace = '') {
+    const ns = namespace ? `:${namespace}` : ''
 
-    const info = new DebuggerWrapper(console.info.bind(console), `${appName}:INFO${ns}`, pass(namespace));
-    this.info = info.write;
-    
-    const warn = new DebuggerWrapper(console.warn.bind(console), `${appName}:WARN${ns}`, pass(namespace));
-    this.warn = warn.write;
-    
-    const error = new DebuggerWrapper(console.error.bind(console), `${appName}:ERROR${ns}`, pass(namespace));
-    this.error = error.write;
-    
-    const debug = new DebuggerWrapper(console.debug.bind(console), `${appName}:DEBUG${ns}`, pass(namespace));
-    this.debug = debug.write;
+    const info = new DebuggerWrapper(
+      console.info.bind(console),
+      `${appName}:INFO${ns}`,
+      pass(namespace),
+    )
+    this.info = info.write
 
-    Logger.items.push(warn);
-    Logger.items.push(info);
-    Logger.items.push(error);
-    Logger.items.push(debug);
+    const warn = new DebuggerWrapper(
+      console.warn.bind(console),
+      `${appName}:WARN${ns}`,
+      pass(namespace),
+    )
+    this.warn = warn.write
+
+    const error = new DebuggerWrapper(
+      console.error.bind(console),
+      `${appName}:ERROR${ns}`,
+      pass(namespace),
+    )
+    this.error = error.write
+
+    const debug = new DebuggerWrapper(
+      console.debug.bind(console),
+      `${appName}:DEBUG${ns}`,
+      pass(namespace),
+    )
+    this.debug = debug.write
+
+    Logger.items.push(warn)
+    Logger.items.push(info)
+    Logger.items.push(error)
+    Logger.items.push(debug)
   }
 
   /**
@@ -86,21 +110,21 @@ export class Logger {
     currentPatterns.splice(
       0,
       currentPatterns.length,
-      ...patterns.split(",").filter(Boolean).map(parsePattern),
-    );
-    Logger.toggleItems();
+      ...patterns.split(',').filter(Boolean).map(parsePattern),
+    )
+    Logger.toggleItems()
   }
 
   static disable() {
-    currentPatterns.splice(0, currentPatterns.length);
+    currentPatterns.splice(0, currentPatterns.length)
   }
 
   private static toggleItems() {
     for (const w of Logger.items) {
       if (pass(w.namespace)) {
-        w.enable();
+        w.enable()
       } else {
-        w.disable();
+        w.disable()
       }
     }
   }

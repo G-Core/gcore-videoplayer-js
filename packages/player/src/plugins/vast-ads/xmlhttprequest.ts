@@ -1,44 +1,49 @@
-import { reportError } from '@gcorevideo/utils';
-import assert from "assert";
+import { reportError } from '@gcorevideo/utils'
+import assert from 'assert'
 
 export default class XHRURLHandler {
   static xhrCreate(): XMLHttpRequest | false {
-    const xhr = new window.XMLHttpRequest();
+    const xhr = new window.XMLHttpRequest()
 
-    if ('withCredentials' in xhr) { // check CORS support
-      return xhr;
+    if ('withCredentials' in xhr) {
+      // check CORS support
+      return xhr
     }
 
-    return false;
+    return false
   }
 
   static supported() {
-    return !!this.xhrCreate();
+    return !!this.xhrCreate()
   }
 
-  static get(url: string, options: any, cb: (err: Error | null, response?: any) => void) {
+  static get(
+    url: string,
+    options: any,
+    cb: (err: Error | null, response?: any) => void,
+  ) {
     try {
-      const xhr = this.xhrCreate();
-      assert(xhr, 'XHRURLHandler: XMLHttpRequest is not supported');
+      const xhr = this.xhrCreate()
+      assert(xhr, 'XHRURLHandler: XMLHttpRequest is not supported')
 
-      xhr.open('GET', url);
-      xhr.timeout = options.timeout || 0;
-      xhr.withCredentials = options.withCredentials || false;
-      xhr.onreadystatechange = function() {
+      xhr.open('GET', url)
+      xhr.timeout = options.timeout || 0
+      xhr.withCredentials = options.withCredentials || false
+      xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
           if (xhr.status === 200) {
-            return cb(null, xhr.response);
+            return cb(null, xhr.response)
           } else {
-            return cb(new Error(`XHRURLHandler: ${xhr.statusText}`));
+            return cb(new Error(`XHRURLHandler: ${xhr.statusText}`))
           }
         }
-      };
+      }
 
-      return xhr.send();
+      return xhr.send()
     } catch (error) {
       // LogManager.exception(error);
-      reportError(error);
-      return cb(new Error('XHRURLHandler: Unexpected error'));
+      reportError(error)
+      return cb(new Error('XHRURLHandler: Unexpected error'))
     }
   }
 }

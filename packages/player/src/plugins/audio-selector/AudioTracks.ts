@@ -221,7 +221,7 @@ export class AudioTracks extends UICorePlugin {
     return (
       this.$(
         '#gplayer-audiotracks-menu a' +
-        (id !== undefined ? `[data-item="${id}"]` : ''),
+          (id !== undefined ? `[data-item="${id}"]` : ''),
       ) as ZeptoResult
     ).parent()
   }

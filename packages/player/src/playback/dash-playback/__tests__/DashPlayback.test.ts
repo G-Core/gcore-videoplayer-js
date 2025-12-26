@@ -27,17 +27,9 @@ describe('DashPlayback', () => {
         globalThis.WebKitMediaSource = undefined
       })
       describe.each([
-        [
-          'http://example.com/test.mpd',
-          undefined,
-          false
-        ],
-        [
-          'http://example.com/123123_1232',
-          'application/dash+xml',
-          false
-        ],
-      ])("%s %s", (resource, mimeType, expected) => {
+        ['http://example.com/test.mpd', undefined, false],
+        ['http://example.com/123123_1232', 'application/dash+xml', false],
+      ])('%s %s', (resource, mimeType, expected) => {
         it('should return false', () => {
           expect(DashPlayback.canPlay(resource, mimeType)).toBe(expected)
         })
@@ -51,32 +43,12 @@ describe('DashPlayback', () => {
         }
       })
       describe.each([
-        [
-          'http://example.com/test.mpd',
-          undefined,
-          true
-        ],
-        [
-          'http://example.com/123123_1232',
-          'application/dash+xml',
-          true
-        ],
-        [
-          'http://example.com/123123_1232.mpd',
-          'video/mp4',
-          false
-        ],
-        [
-          'http://example.com/123123_1232.m3u8',
-          'application/dash+xml',
-          true
-        ],
-        [
-          'http://example.com/123123_1232',
-          undefined,
-          false
-        ],
-      ])("%s %s", (resource, mimeType, expected) => {
+        ['http://example.com/test.mpd', undefined, true],
+        ['http://example.com/123123_1232', 'application/dash+xml', true],
+        ['http://example.com/123123_1232.mpd', 'video/mp4', false],
+        ['http://example.com/123123_1232.m3u8', 'application/dash+xml', true],
+        ['http://example.com/123123_1232', undefined, false],
+      ])('%s %s', (resource, mimeType, expected) => {
         it('should respect the mime type if present and the file extention otherwise', () => {
           expect(DashPlayback.canPlay(resource, mimeType)).toBe(expected)
         })

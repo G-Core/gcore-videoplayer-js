@@ -6,7 +6,7 @@ import {
   Container,
   Playback,
 } from '@clappr/core'
-import { reportError/* , trace */ } from '@gcorevideo/utils'
+import { reportError /* , trace */ } from '@gcorevideo/utils'
 import Mousetrap from 'mousetrap'
 import assert from 'assert'
 
