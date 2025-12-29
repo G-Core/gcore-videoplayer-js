@@ -6,13 +6,20 @@
 import { Events, Log, Playback, PlayerError, Utils, $ } from '@clappr/core'
 import { trace } from '@gcorevideo/utils'
 import assert from 'assert'
-import DASHJS, {
+import {
   ErrorEvent as DashErrorEvent,
   MediaPlayerErrorEvent,
   PlaybackErrorEvent as DashPlaybackErrorEvent,
   type BitrateInfo as DashBitrateInfo,
   MetricEvent as DashMetricEvent,
   IManifestInfo,
+  MediaPlayerClass,
+  MediaPlayer,
+  PlaybackRateChangedEvent,
+  TrackChangeRenderedEvent,
+  MediaInfo,
+  Representation,
+  QualityChangeRenderedEvent,
 } from 'dashjs'
 
 import {
@@ -47,9 +54,9 @@ type LocalTimeCorrelation = {
 const T = 'playback.dash'
 
 export default class DashPlayback extends BasePlayback {
-  _levels: QualityLevel[] | null = null
+  _levels: QualityLevel[] = []
 
-  _currentLevel: number | null = null
+  _currentLevel: number = AUTO
 
   // true when the actual duration is longer than hlsjs's live sync point
   // when this is false playableRegionDuration will be the actual duration
@@ -78,7 +85,7 @@ export default class DashPlayback extends BasePlayback {
 
   _programDateTime: TimeValue = 0
 
-  _dash: DASHJS.MediaPlayerClass | null = null
+  _dash: MediaPlayerClass | null = null
 
   _extrapolatedWindowDuration: number = 0
 
@@ -105,14 +112,10 @@ export default class DashPlayback extends BasePlayback {
   }
 
   get levels(): QualityLevel[] {
-    return this._levels || []
+    return this._levels
   }
 
   get currentLevel(): number {
-    if (this._currentLevel === null) {
-      return AUTO
-    }
-    // 0 is a valid level ID
     return this._currentLevel
   }
 
@@ -143,7 +146,7 @@ export default class DashPlayback extends BasePlayback {
 
     dash.updateSettings(settings)
     if (id !== -1) {
-      this._dash.setQualityFor('video', id)
+      this._dash.setRepresentationForTypeByIndex('video', id)
     }
     if (this._playbackType === Playback.VOD) {
       const curr_time = this._dash.time()
@@ -226,7 +229,7 @@ export default class DashPlayback extends BasePlayback {
   }
 
   _setup() {
-    const dash = DASHJS.MediaPlayer().create()
+    const dash = MediaPlayer().create()
     this._dash = dash
     this._dash.initialize()
 
@@ -245,29 +248,30 @@ export default class DashPlayback extends BasePlayback {
       this._dash.updateSettings(settings)
     }
 
+    assert.ok(this.el instanceof HTMLMediaElement, 'el must be an HTMLMediaElement')
     this._dash.attachView(this.el)
 
     this._dash.setAutoPlay(false)
     this._dash.attachSource(this.options.src)
 
-    this._dash.on(DASHJS.MediaPlayer.events.ERROR, this._onDASHJSSError)
+    this._dash.on(MediaPlayer.events.ERROR, this._onDASHJSSError)
     this._dash.on(
-      DASHJS.MediaPlayer.events.PLAYBACK_ERROR,
+      MediaPlayer.events.PLAYBACK_ERROR,
       this._onPlaybackError,
     )
 
-    this._dash.on(DASHJS.MediaPlayer.events.STREAM_INITIALIZED, () => {
-      const bitrates = dash.getBitrateInfoListFor('video')
+    this._dash.on(MediaPlayer.events.STREAM_INITIALIZED, () => {
+      const bitrates = dash.getRepresentationsByType('video')
 
       this._updatePlaybackType()
       this._fillLevels(bitrates)
-      const currentLevel = dash.getQualityFor('video')
-      if (currentLevel !== -1) {
-        this.trigger(Events.PLAYBACK_BITRATE, this.getLevel(currentLevel))
+      const currentLevel = dash.getCurrentRepresentationForType('video')
+      if (currentLevel) {
+        this.trigger(Events.PLAYBACK_BITRATE, this.getLevel(currentLevel.index))
       }
 
-      dash.on(DASHJS.MediaPlayer.events.QUALITY_CHANGE_REQUESTED, (evt) => {
-        const newLevel = this.getLevel(evt.newQuality)
+      dash.on(MediaPlayer.events.QUALITY_CHANGE_REQUESTED, (evt) => {
+        const newLevel = this.getLevel(evt.newRepresentation.index)
         this.onLevelSwitch(newLevel)
       })
 
@@ -275,15 +279,15 @@ export default class DashPlayback extends BasePlayback {
     })
 
     this._dash.on(
-      DASHJS.MediaPlayer.events.QUALITY_CHANGE_RENDERED,
-      (evt: DASHJS.QualityChangeRenderedEvent) => {
-        const currentLevel = this.getLevel(evt.newQuality)
+      MediaPlayer.events.QUALITY_CHANGE_RENDERED,
+      (evt: QualityChangeRenderedEvent) => {
+        const currentLevel = this.getLevel(evt.newRepresentation.index)
         this.onLevelSwitchEnd(currentLevel)
       },
     )
 
     this._dash.on(
-      DASHJS.MediaPlayer.events.METRIC_ADDED,
+      MediaPlayer.events.METRIC_ADDED,
       (e: DashMetricEvent) => {
         // Listen for the first manifest request in order to update player UI
         if ((e.metric as string) === 'DVRInfo') {
@@ -302,14 +306,14 @@ export default class DashPlayback extends BasePlayback {
     )
 
     this._dash.on(
-      DASHJS.MediaPlayer.events.PLAYBACK_RATE_CHANGED,
-      (e: DASHJS.PlaybackRateChangedEvent) => {
+      MediaPlayer.events.PLAYBACK_RATE_CHANGED,
+      (e: PlaybackRateChangedEvent) => {
         this.trigger(PlaybackEvents.PLAYBACK_RATE_CHANGED, e.playbackRate)
       },
     )
 
-    this._dash.on(DASHJS.MediaPlayer.events.TRACK_CHANGE_RENDERED, (e: any) => {
-      if ((e as DASHJS.TrackChangeRenderedEvent).mediaType === 'audio') {
+    this._dash.on(MediaPlayer.events.TRACK_CHANGE_RENDERED, (e: any) => {
+      if ((e as TrackChangeRenderedEvent).mediaType === 'audio') {
         this.trigger(
           Events.PLAYBACK_AUDIO_CHANGED,
           toClapprTrack(e.newMediaInfo),
@@ -442,17 +446,17 @@ export default class DashPlayback extends BasePlayback {
     const e = (event as MediaPlayerErrorEvent).error
     switch (e.code) {
       // TODO test handling of these errors
-      case DASHJS.MediaPlayer.errors.MANIFEST_LOADER_PARSING_FAILURE_ERROR_CODE:
-      case DASHJS.MediaPlayer.errors.MANIFEST_LOADER_LOADING_FAILURE_ERROR_CODE:
-      case DASHJS.MediaPlayer.errors.DOWNLOAD_ERROR_ID_MANIFEST_CODE:
-      case DASHJS.MediaPlayer.errors.DOWNLOAD_ERROR_ID_CONTENT_CODE:
-      case DASHJS.MediaPlayer.errors.DOWNLOAD_ERROR_ID_INITIALIZATION_CODE:
+      case MediaPlayer.errors.MANIFEST_LOADER_PARSING_FAILURE_ERROR_CODE:
+      case MediaPlayer.errors.MANIFEST_LOADER_LOADING_FAILURE_ERROR_CODE:
+      case MediaPlayer.errors.DOWNLOAD_ERROR_ID_MANIFEST_CODE:
+      case MediaPlayer.errors.DOWNLOAD_ERROR_ID_CONTENT_CODE:
+      case MediaPlayer.errors.DOWNLOAD_ERROR_ID_INITIALIZATION_CODE:
       // TODO these probably indicate a broken manifest and should be treated by removing the source
-      case DASHJS.MediaPlayer.errors.MANIFEST_ERROR_ID_NOSTREAMS_CODE:
-      case DASHJS.MediaPlayer.errors.MANIFEST_ERROR_ID_PARSE_CODE:
-      case DASHJS.MediaPlayer.errors.MANIFEST_ERROR_ID_MULTIPLEXED_CODE:
-      case DASHJS.MediaPlayer.errors.MEDIASOURCE_TYPE_UNSUPPORTED_CODE:
-      case DASHJS.MediaPlayer.errors.SEGMENT_BASE_LOADER_ERROR_CODE:
+      case MediaPlayer.errors.MANIFEST_ERROR_ID_NOSTREAMS_CODE:
+      case MediaPlayer.errors.MANIFEST_ERROR_ID_PARSE_CODE:
+      case MediaPlayer.errors.MANIFEST_ERROR_ID_MULTIPLEXED_CODE:
+      case MediaPlayer.errors.MEDIASOURCE_TYPE_UNSUPPORTED_CODE:
+      case MediaPlayer.errors.SEGMENT_BASE_LOADER_ERROR_CODE:
         this.triggerError({
           code: PlaybackErrorCode.MediaSourceUnavailable,
           message: e.message,
@@ -525,7 +529,7 @@ export default class DashPlayback extends BasePlayback {
       return false
     }
     return (
-      this._dash?.getDVRWindowSize() >= this._minDvrSize &&
+      this._dash?.getDvrWindow()?.size >= this._minDvrSize &&
       this.getPlaybackType() === Playback.LIVE
     )
   }
@@ -572,13 +576,13 @@ export default class DashPlayback extends BasePlayback {
 
   private destroyInstance() {
     if (this._dash) {
-      this._dash.off(DASHJS.MediaPlayer.events.ERROR, this._onDASHJSSError)
+      this._dash.off(MediaPlayer.events.ERROR, this._onDASHJSSError)
       this._dash.off(
-        DASHJS.MediaPlayer.events.PLAYBACK_ERROR,
+        MediaPlayer.events.PLAYBACK_ERROR,
         this._onPlaybackError,
       )
       this._dash.off(
-        DASHJS.MediaPlayer.events.MANIFEST_LOADED,
+        MediaPlayer.events.MANIFEST_LOADED,
         this.getDuration,
       )
       this._dash.reset()
@@ -601,12 +605,13 @@ export default class DashPlayback extends BasePlayback {
     }
   }
 
-  _fillLevels(levels: DashBitrateInfo[]) {
-    // TOOD check that levels[i].qualityIndex === i
+  _fillLevels(levels: Representation[]) {
+    // TOOD check that levels[i].index === i
+    trace(`${T} _fillLevels`, { levels })
     this._levels = levels.map((level) => {
       return {
-        level: level.qualityIndex,
-        bitrate: level.bitrate,
+        level: level.index,
+        bitrate: level.bitrateInKbit * 1000,
         width: level.width,
         height: level.height,
       }
@@ -635,10 +640,10 @@ export default class DashPlayback extends BasePlayback {
     return this._playbackType === Playback.VOD || this.dvrEnabled
   }
 
-  private getLevel(quality: number) {
-    const ret = this.levels.find((level) => level.level === quality)
-    assert.ok(ret, 'Invalid quality level')
-    return ret
+  private getLevel(quality: number): QualityLevel {
+    const level = this.levels.find((level) => level.level === quality)
+    assert.ok(level, 'Invalid quality level')
+    return level
   }
 
   setPlaybackRate(rate: number) {
@@ -707,7 +712,7 @@ DashPlayback.canPlay = function (resource, mimeType) {
   return typeof ctor === 'function'
 }
 
-function toClapprTrack(t: DASHJS.MediaInfo): AudioTrack {
+function toClapprTrack(t: MediaInfo): AudioTrack {
   return {
     id: t.id,
     kind: t.roles && t.roles?.length > 0 ? t.roles[0] : 'main', // TODO

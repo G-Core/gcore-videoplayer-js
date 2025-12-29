@@ -305,7 +305,7 @@ export default class HlsPlayback extends BasePlayback {
     // added/removed every 5.
     this._extrapolatedWindowNumSegments =
       !this.options.playback ||
-      typeof this.options.playback.extrapolatedWindowNumSegments === 'undefined'
+        typeof this.options.playback.extrapolatedWindowNumSegments === 'undefined'
         ? 2
         : this.options.playback.extrapolatedWindowNumSegments
 
@@ -527,7 +527,7 @@ export default class HlsPlayback extends BasePlayback {
   }
 
   // this playback manages the src on the video element itself
-  protected override _setupSrc(srcUrl: string) {} // eslint-disable-line no-unused-vars
+  protected override _setupSrc(srcUrl: string) { } // eslint-disable-line no-unused-vars
 
   private _startTimeUpdateTimer() {
     if (this._timeUpdateTimer) {
@@ -592,7 +592,7 @@ export default class HlsPlayback extends BasePlayback {
     // assume live if time within 3 seconds of end of stream
     this.dvrEnabled && this._updateDvr(time < this.getDuration() - 3)
     time += this._startTime
-    ;(this.el as HTMLMediaElement).currentTime = time
+      ; (this.el as HTMLMediaElement).currentTime = time
   }
 
   seekToLivePoint() {
@@ -781,12 +781,12 @@ export default class HlsPlayback extends BasePlayback {
           start: Math.max(
             0,
             (this.el as HTMLMediaElement).buffered.start(i) -
-              this._playableRegionStartTime,
+            this._playableRegionStartTime,
           ),
           end: Math.max(
             0,
             (this.el as HTMLMediaElement).buffered.end(i) -
-              this._playableRegionStartTime,
+            this._playableRegionStartTime,
           ),
         },
       ]
@@ -826,7 +826,7 @@ export default class HlsPlayback extends BasePlayback {
     if (!this._hls) {
       return
     }
-    ;(this.el as HTMLMediaElement).pause()
+    ; (this.el as HTMLMediaElement).pause()
     if (this.dvrEnabled) {
       this._updateDvr(true)
     }
@@ -942,7 +942,7 @@ export default class HlsPlayback extends BasePlayback {
               Math.max(
                 fragments[0].start,
                 previousPlayableRegionStartTime +
-                  this._extrapolatedWindowDuration,
+                this._extrapolatedWindowDuration,
               ) * 1000,
           }
         }
