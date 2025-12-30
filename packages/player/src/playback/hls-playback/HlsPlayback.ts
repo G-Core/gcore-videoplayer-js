@@ -19,6 +19,8 @@ import HLSJS, {
   MediaPlaylist,
   AudioTracksUpdatedData,
   AudioTrackSwitchedData,
+  ErrorDetails,
+  ErrorTypes,
 } from 'hls.js'
 
 import {
@@ -41,7 +43,6 @@ const { now } = Utils
 const AUTO = -1
 const DEFAULT_RECOVER_ATTEMPTS = 16
 
-Events.register('PLAYBACK_FRAGMENT_CHANGED')
 Events.register('PLAYBACK_FRAGMENT_PARSING_METADATA')
 
 const T = 'playback.hls'
@@ -431,11 +432,6 @@ export default class HlsPlayback extends BasePlayback {
         this._onLevelSwitched(evt, data),
     )
     this._hls.on(
-      HLSJS.Events.FRAG_CHANGED,
-      (evt: HlsEvents.FRAG_CHANGED, data: FragChangedData) =>
-        this._onFragmentChanged(evt, data),
-    )
-    this._hls.on(
       HLSJS.Events.FRAG_LOADED,
       (evt: HlsEvents.FRAG_LOADED, data: FragLoadedData) =>
         this._onFragmentLoaded(evt, data),
@@ -645,20 +641,20 @@ export default class HlsPlayback extends BasePlayback {
       if (this._recoverAttemptsRemaining > 0) {
         this._recoverAttemptsRemaining -= 1
         switch (data.type) {
-          case HLSJS.ErrorTypes.NETWORK_ERROR:
+          case ErrorTypes.NETWORK_ERROR:
             switch (data.details) {
               // The following network errors cannot be recovered with HLS.startLoad()
               // For more details, see https://github.com/video-dev/hls.js/blob/master/doc/design.md#error-detection-and-handling
               // For "level load" fatal errors, see https://github.com/video-dev/hls.js/issues/1138
               // TODO test handling of these errors
-              case HLSJS.ErrorDetails.MANIFEST_LOAD_ERROR:
-              case HLSJS.ErrorDetails.MANIFEST_LOAD_TIMEOUT:
-              case HLSJS.ErrorDetails.MANIFEST_PARSING_ERROR:
+              case ErrorDetails.MANIFEST_LOAD_ERROR:
+              case ErrorDetails.MANIFEST_LOAD_TIMEOUT:
+              case ErrorDetails.MANIFEST_PARSING_ERROR:
               // TODO sort out the errors below, perhaps some of them are recoverable
-              case HLSJS.ErrorDetails.LEVEL_LOAD_ERROR:
-              case HLSJS.ErrorDetails.LEVEL_LOAD_TIMEOUT:
-              case HLSJS.ErrorDetails.FRAG_LOAD_ERROR:
-              case HLSJS.ErrorDetails.FRAG_LOAD_TIMEOUT:
+              case ErrorDetails.LEVEL_LOAD_ERROR:
+              case ErrorDetails.LEVEL_LOAD_TIMEOUT:
+              case ErrorDetails.FRAG_LOAD_ERROR:
+              case ErrorDetails.FRAG_LOAD_TIMEOUT:
                 Log.error('hlsjs: unrecoverable network fatal error.', {
                   evt,
                   data,
@@ -682,7 +678,7 @@ export default class HlsPlayback extends BasePlayback {
                 break
             }
             break
-          case HLSJS.ErrorTypes.MEDIA_ERROR:
+          case ErrorTypes.MEDIA_ERROR:
             Log.warn('hlsjs: trying to recover from media error.', {
               evt,
               data,
@@ -731,8 +727,8 @@ export default class HlsPlayback extends BasePlayback {
 
   private _keyIsDenied(data: HlsErrorData) {
     return (
-      data.type === HLSJS.ErrorTypes.NETWORK_ERROR &&
-      data.details === HLSJS.ErrorDetails.KEY_LOAD_ERROR &&
+      data.type === ErrorTypes.NETWORK_ERROR &&
+      data.details === ErrorDetails.KEY_LOAD_ERROR &&
       data.response &&
       data.response.code &&
       data.response.code >= 400
@@ -1025,12 +1021,6 @@ export default class HlsPlayback extends BasePlayback {
     // immediately
     durationChanged && this._onDurationChange()
     startTimeChanged && this._onProgress()
-  }
-
-  _onFragmentChanged(evt: HlsEvents.FRAG_CHANGED, data: FragChangedData) {
-    this._currentFragment = data.frag
-    // @ts-ignore
-    this.trigger(Events.Custom.PLAYBACK_FRAGMENT_CHANGED, data)
   }
 
   _onFragmentLoaded(evt: HlsEvents.FRAG_LOADED, data: FragLoadedData) {
