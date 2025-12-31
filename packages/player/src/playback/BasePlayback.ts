@@ -1,6 +1,7 @@
 import { ErrorOptions, Events, HTML5Video, PlayerError } from '@clappr/core'
 
 import { PlaybackErrorCode } from '../playback.types.js'
+import { TextTrackItem } from 'src/internal.types.js'
 
 /**
  * This class adds common behaviors to all playback modules.
@@ -42,7 +43,7 @@ export class BasePlayback extends HTML5Video {
    * @param rate - The playback rate to set.
    */
   setPlaybackRate(rate: number) {
-    ;(this.el as HTMLMediaElement).playbackRate = rate
+    ; (this.el as HTMLMediaElement).playbackRate = rate
   }
 
   override _onPlaying() {

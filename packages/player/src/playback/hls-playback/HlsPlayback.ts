@@ -10,9 +10,6 @@ import HLSJS, {
   HlsListeners,
   type ErrorData as HlsErrorData,
   type Fragment,
-  type FragChangedData,
-  type FragLoadedData,
-  type FragParsingMetadataData,
   type LevelUpdatedData,
   type LevelLoadedData,
   type LevelSwitchingData,
@@ -29,6 +26,7 @@ import {
   PlayerComponentType,
   QualityLevel,
   TimePosition,
+  VTTCueInfo,
 } from '../../playback.types.js'
 import { PlaybackType } from '../../types.js'
 import { isHlsSource } from '../../utils/mediaSources.js'
@@ -72,8 +70,6 @@ type CustomListener = {
 }
 
 export default class HlsPlayback extends BasePlayback {
-  private _ccIsSetup = false
-
   private _ccTracksUpdated = false
 
   private _currentFragment: Fragment | null = null
@@ -119,6 +115,14 @@ export default class HlsPlayback extends BasePlayback {
   private _segmentTargetDuration: number | null = null
 
   private _timeUpdateTimer: TimerId | null = null
+
+  oncueenter: ((e: VTTCueInfo) => void) | null = null
+
+  oncueexit: ((e: { id: string }) => void) | null = null
+
+  private cues: VTTCueInfo[] = [] // TODO check the list size and use BST if needed
+
+  private currentCueId: string | null = null
 
   /**
    * @internal
@@ -357,7 +361,7 @@ export default class HlsPlayback extends BasePlayback {
       return
     }
     this._manifestParsed = false
-    this._ccIsSetup = false
+    // this._ccIsSetup = false
     this._ccTracksUpdated = false
     this._setInitialState()
     this._hls.destroy()
@@ -371,6 +375,7 @@ export default class HlsPlayback extends BasePlayback {
         maxBufferLength: 2,
         maxMaxBufferLength: 4,
         autoStartLoad: false,
+        renderTextTracksNatively: false,
       },
       this.options.playback.hlsjsConfig,
     )
@@ -388,7 +393,7 @@ export default class HlsPlayback extends BasePlayback {
     if (!this._hls) {
       return
     }
-    this._hls.once(HLSJS.Events.MEDIA_ATTACHED, () => {
+    this._hls.once(HlsEvents.MEDIA_ATTACHED, () => {
       assert.ok(this._hls, 'HLS.js is not initialized')
       this.options.hlsPlayback.preload && this._hls.loadSource(this.options.src)
     })
@@ -406,53 +411,50 @@ export default class HlsPlayback extends BasePlayback {
 
     this.el.addEventListener('playing', onPlaying)
 
-    this._hls.on(HLSJS.Events.MANIFEST_PARSED, () => {
+    this._hls.on(HlsEvents.MANIFEST_PARSED, () => {
       this._manifestParsed = true
-      this._hls!.startLoad(-1)
+      this.reload()
     })
     this._hls.on(
-      HLSJS.Events.LEVEL_LOADED,
+      HlsEvents.LEVEL_LOADED,
       (evt: HlsEvents.LEVEL_LOADED, data: LevelLoadedData) => {
         this._updatePlaybackType(evt, data)
       },
     )
     this._hls.on(
-      HLSJS.Events.LEVEL_UPDATED,
+      HlsEvents.LEVEL_UPDATED,
       (evt: HlsEvents.LEVEL_UPDATED, data: LevelUpdatedData) =>
         this._onLevelUpdated(evt, data),
     )
     this._hls.on(
-      HLSJS.Events.LEVEL_SWITCHING,
+      HlsEvents.LEVEL_SWITCHING,
       (evt: HlsEvents.LEVEL_SWITCHING, data: LevelSwitchingData) =>
         this._onLevelSwitch(evt, data),
     )
     this._hls.on(
-      HLSJS.Events.LEVEL_SWITCHED,
+      HlsEvents.LEVEL_SWITCHED,
       (evt: HlsEvents.LEVEL_SWITCHED, data: { level: number }) =>
         this._onLevelSwitched(evt, data),
     )
-    this._hls.on(
-      HLSJS.Events.FRAG_LOADED,
-      (evt: HlsEvents.FRAG_LOADED, data: FragLoadedData) =>
-        this._onFragmentLoaded(evt, data),
-    )
-    this._hls.on(
-      HLSJS.Events.FRAG_PARSING_METADATA,
-      (evt: HlsEvents.FRAG_PARSING_METADATA, data: FragParsingMetadataData) =>
-        this._onFragmentParsingMetadata(evt, data),
-    )
-    this._hls.on(HLSJS.Events.ERROR, (evt, data) =>
+    this._hls.on(HlsEvents.ERROR, (evt, data) =>
       this._onHLSJSError(evt, data),
     )
-    // this._hls.on(HLSJS.Events.SUBTITLE_TRACK_LOADED, () =>
-    //   this._onSubtitleLoaded(),
-    // )
     this._hls.on(HlsEvents.AUDIO_TRACKS_UPDATED, (evt, data) =>
       this._onAudioTracksUpdated(evt, data),
     )
     this._hls.on(HlsEvents.AUDIO_TRACK_SWITCHED, (evt, data) =>
       this._onAudioTrackSwitched(evt, data),
     )
+    this._hls.on(HlsEvents.CUES_PARSED, (evt, data) => {
+      data.cues?.forEach((cue: any) => {
+        this.cues.push({
+          id: cue.id,
+          start: cue.startTime,
+          end: cue.endTime,
+          text: cue.text,
+        } as VTTCueInfo)
+      })
+    })
     this.bindCustomListeners()
   }
 
@@ -472,17 +474,6 @@ export default class HlsPlayback extends BasePlayback {
 
       assert.ok(this._hls, 'HLS.js is not initialized')
       requestedEventName && this._hls.off(requestedEventName, item.callback)
-    })
-  }
-
-  private _onFragmentParsingMetadata(
-    evt: HlsEvents.FRAG_PARSING_METADATA,
-    data: FragParsingMetadataData,
-  ) {
-    // @ts-ignore
-    this.trigger(Events.Custom.PLAYBACK_FRAGMENT_PARSING_METADATA, {
-      evt,
-      data,
     })
   }
 
@@ -589,6 +580,8 @@ export default class HlsPlayback extends BasePlayback {
     this.dvrEnabled && this._updateDvr(time < this.getDuration() - 3)
     time += this._startTime
       ; (this.el as HTMLMediaElement).currentTime = time
+
+    this.triggerCues()
   }
 
   seekToLivePoint() {
@@ -674,7 +667,7 @@ export default class HlsPlayback extends BasePlayback {
                   },
                 )
                 error.level = PlayerError.Levels.WARN
-                this._hls?.startLoad()
+                this.reload()
                 break
             }
             break
@@ -725,6 +718,12 @@ export default class HlsPlayback extends BasePlayback {
     }
   }
 
+  private reload() {
+    this.cues = []
+    this.currentCueId = null
+    this._hls?.startLoad(-1)
+  }
+
   private _keyIsDenied(data: HlsErrorData) {
     return (
       data.type === ErrorTypes.NETWORK_ERROR &&
@@ -750,6 +749,7 @@ export default class HlsPlayback extends BasePlayback {
     }
     this._lastTimeUpdate = update
     this.trigger(Events.PLAYBACK_TIMEUPDATE, update, this.name)
+    this.triggerCues()
   }
 
   override _onDurationChange() {
@@ -800,6 +800,20 @@ export default class HlsPlayback extends BasePlayback {
     }
 
     this.trigger(Events.PLAYBACK_PROGRESS, progress, buffered)
+  }
+
+  private triggerCues() {
+    const currentTime = this.getCurrentTime()
+    // const cues = Object.values(this.cues)
+    // TODO build a search tree
+    const cue = this.cues.find((cue: VTTCueInfo) => currentTime >= cue.start && currentTime <= cue.end)
+    if (cue) {
+      this.currentCueId = cue.id
+      this.oncueenter?.(cue)
+    } else if (this.currentCueId) {
+      this.oncueexit?.({ id: this.currentCueId })
+      this.currentCueId = null
+    }
   }
 
   override load(url: string) {
@@ -1023,24 +1037,6 @@ export default class HlsPlayback extends BasePlayback {
     startTimeChanged && this._onProgress()
   }
 
-  _onFragmentLoaded(evt: HlsEvents.FRAG_LOADED, data: FragLoadedData) {
-    this.trigger(Events.PLAYBACK_FRAGMENT_LOADED, data)
-  }
-
-  // _onSubtitleLoaded() {
-  //   trace(`${T} _onSubtitleLoaded`)
-  //   // This event may be triggered multiple times
-  //   // Setup CC only once (disable CC by default)
-  //   if (!this._ccIsSetup) {
-  //     this.trigger(Events.PLAYBACK_SUBTITLE_AVAILABLE)
-  //     const trackId =
-  //       this._playbackType === Playback.LIVE ? -1 : this.closedCaptionsTrackId
-
-  //     this.closedCaptionsTrackId = trackId
-  //     this._ccIsSetup = true
-  //   }
-  // }
-
   _onLevelSwitch(evt: HlsEvents.LEVEL_SWITCHING, data: LevelSwitchingData) {
     if (!this.levels.length) {
       this._fillLevels()
@@ -1136,6 +1132,29 @@ export default class HlsPlayback extends BasePlayback {
     // @ts-ignore
     const track = this._hls.audioTracks[data.id]
     this.trigger(Events.PLAYBACK_AUDIO_CHANGED, toClapprTrack(track))
+  }
+
+  setTextTrack(id: number) {
+    this._hls!.subtitleTrack = id
+  }
+
+  /**
+   * @override
+   */
+  get closedCaptionsTracks() {
+    return this.getTextTracks()
+  }
+
+  getTextTracks() {
+    return this._hls?.subtitleTracks.map((t: MediaPlaylist) => ({
+      id: t.id,
+      name: t.name,
+      track: {
+        id: t.id,
+        label: t.name,
+        language: t.lang,
+      },
+    })) || []
   }
 }
 

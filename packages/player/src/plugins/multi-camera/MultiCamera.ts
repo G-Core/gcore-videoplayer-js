@@ -457,11 +457,11 @@ export class MultiCamera extends UICorePlugin {
   }
 
   private hideSelectLevelMenu() {
-    ;(this.$('.multicamera ul') as ZeptoResult).hide()
+    ; (this.$('.multicamera ul') as ZeptoResult).hide()
   }
 
   private toggleContextMenu() {
-    ;(this.$('.multicamera ul') as ZeptoResult).toggle()
+    ; (this.$('.multicamera ul') as ZeptoResult).toggle()
   }
 
   // private buttonElement(): ZeptoResult {
@@ -475,9 +475,9 @@ export class MultiCamera extends UICorePlugin {
   private levelElement(id?: number): ZeptoResult {
     return this.$(
       '.multicamera ul li > div' +
-        (id !== undefined
-          ? '[data-multicamera-selector-select="' + id + '"]'
-          : ''),
+      (id !== undefined
+        ? '[data-multicamera-selector-select="' + id + '"]'
+        : ''),
     )
   }
 

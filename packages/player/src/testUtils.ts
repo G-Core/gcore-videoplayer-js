@@ -49,6 +49,8 @@ export function createMockPlayback(
   const emitter = new Events()
   return Object.assign(emitter, {
     name,
+    closedCaptionsTrackId: -1,
+    closedCaptionsTracks: [],
     currentLevel: -1,
     el: document.createElement('video'),
     dvrEnabled: false,

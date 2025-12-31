@@ -15,6 +15,7 @@ import { isFullscreen } from '../utils/fullscreen.js'
 import type { ZeptoResult } from '../../types.js'
 import { ExtendedEvents } from '../media-control/MediaControl.js'
 import { mediaControlClickaway } from '../../utils/clickaway.js'
+import { VTTCueInfo } from '../../playback.types.js'
 
 const VERSION: string = '2.19.14'
 
@@ -153,6 +154,8 @@ export class ClosedCaptions extends UICorePlugin {
       Events.CORE_ACTIVE_CONTAINER_CHANGED,
       this.onContainerChanged,
     )
+    this.listenTo(this.core, Events.PLAYBACK_READY, this.onPlaybackReady)
+
   }
 
   private onCoreReady() {
@@ -171,9 +174,11 @@ export class ClosedCaptions extends UICorePlugin {
         }
       },
     )
+    this.onPlaybackReady()
   }
 
   private onContainerChanged() {
+    this.tracks = []
     this.listenTo(
       this.core.activeContainer,
       Events.CONTAINER_FULLSCREEN,
@@ -187,11 +192,6 @@ export class ClosedCaptions extends UICorePlugin {
     this.listenTo(this.core.activeContainer, Events.CONTAINER_DESTROYED, () => {
       this.clickaway(null)
     })
-    // this.listenTo(
-    //   this.core.activeContainer,
-    //   'container:advertisement:start',
-    //   this.onStartAd,
-    // )
     this.listenTo(
       this.core.activePlayback,
       Events.PLAYBACK_SUBTITLE_AVAILABLE,
@@ -226,21 +226,24 @@ export class ClosedCaptions extends UICorePlugin {
     this.isPreselectedApplied = false
   }
 
+  private onPlaybackReady() {
+    trace(`${T} onPlaybackReady`)
+    this.core.activePlayback.oncueenter = (e: VTTCueInfo) => {
+      this.setSubtitleText(e.text)
+    }
+    this.core.activePlayback.oncueexit = () => {
+      this.clearSubtitleText()
+    }
+  }
+
   private onSubtitleAvailable() {
-    trace(`${T} onSubtitleAvailable`, {
-      tracks: this.core.activePlayback.closedCaptionsTracks.length,
-    })
     this.applyTracks()
     this.mount()
   }
 
   private onSubtitleChanged({ id: changedId }: { id: number }) {
     // ignoring the subtitle selected by the playback engine or user agent
-    const id = this.track?.id ?? -1
-    trace(`${T} onSubtitleChanged`, {
-      changedId,
-      id,
-    })
+    const id = this.currentTrack?.id ?? -1
     if (id === -1) {
       this.clearSubtitleText()
     }
@@ -248,7 +251,11 @@ export class ClosedCaptions extends UICorePlugin {
   }
 
   private activateTrack(id: number) {
-    for (const track of this.tracks) {
+    if (['dash', 'hls'].includes(this.core.activePlayback?.name)) {
+      this.core.activePlayback.setTextTrack(id)
+      return
+    }
+    for (const track of this.currentTracks) {
       if (track.id === id) {
         if (this.useNativeSubtitles) {
           track.track.mode = 'showing'
@@ -272,7 +279,7 @@ export class ClosedCaptions extends UICorePlugin {
           }
         }
       } else {
-        track.track.oncuechange = null
+        track.track.oncuechange = () => { }
         track.track.mode = 'disabled'
       }
     }
@@ -280,7 +287,8 @@ export class ClosedCaptions extends UICorePlugin {
 
   private applyTracks() {
     try {
-      this.tracks = this.core.activePlayback.closedCaptionsTracks
+      // TODO ensure to apply only once
+      this.currentTracks = this.core.activePlayback.closedCaptionsTracks
       this.applyPreselectedSubtitles()
       this.render()
     } catch (error) {
@@ -288,32 +296,12 @@ export class ClosedCaptions extends UICorePlugin {
     }
   }
 
-  // private onStartAd() {
-  //   if (this.active && this.core.activeContainer) {
-  //     this.hide()
-  //     this.listenTo(
-  //       this.core.activeContainer,
-  //       'container:advertisement:finish',
-  //       this.onFinishAd,
-  //     )
-  //   }
-  // }
-
-  // private onFinishAd() {
-  //   this.show()
-  //   this.stopListening(
-  //     this.core.activeContainer,
-  //     'container:advertisement:finish',
-  //     this.onFinishAd,
-  //   )
-  // }
-
   private onContainerResize() {
     const shouldShow =
       this.core.activeContainer &&
       isFullscreen(this.core.activeContainer.el) &&
-      this.track &&
-      this.track.track.mode &&
+      this.currentTrack &&
+      this.currentTrack.track.mode &&
       Browser.isiOS &&
       this.active
 
@@ -339,10 +327,8 @@ export class ClosedCaptions extends UICorePlugin {
     this.$el.find('#gplayer-cc-menu').hide()
     this.$el.find('#gplayer-cc-button').attr('aria-expanded', 'false')
     this.$line.hide()
-    if (this.tracks) {
-      for (const t of this.tracks) {
-        t.track.mode = 'hidden'
-      }
+    for (const track of this.currentTracks) {
+      track.track.mode = 'hidden'
     }
   }
 
@@ -355,19 +341,20 @@ export class ClosedCaptions extends UICorePlugin {
     if (
       this.core.activeContainer &&
       isFullscreen(this.core.activeContainer.el) &&
-      this.track &&
-      this.track.track.mode &&
+      this.currentTrack &&
+      // this.currentTrack.track.mode &&
       (Browser.isiOS || this.useNativeSubtitles)
     ) {
       this.$line.hide()
-      this.track.track.mode = 'showing'
+      this.currentTrack.track.mode = 'showing'
     } else {
       this.$line.show()
     }
   }
 
   private shouldRender() {
-    return this.tracks?.length > 0
+    // this might not have been fully initialized yet since `render` is called from the parent class constructor
+    return this.currentTracks?.length > 0
   }
 
   private resizeFont() {
@@ -384,15 +371,18 @@ export class ClosedCaptions extends UICorePlugin {
    * @internal
    */
   override render() {
+    if (!this.shouldRender()) {
+      return this
+    }
     if (!this.core.activeContainer) {
       return this
     }
 
     this.$el.html(
       ClosedCaptions.templateControl({
-        tracks: this.tracks ?? [],
+        tracks: this.currentTracks,
         i18n: this.core.i18n,
-        current: this.track?.id ?? -1,
+        current: this.currentTrack?.id ?? -1,
       }),
     )
     this.$el.find('#gplayer-cc-menu').hide()
@@ -411,13 +401,13 @@ export class ClosedCaptions extends UICorePlugin {
     return this
   }
 
-  private findById(id: number) {
-    return this.tracks.find((track) => track.id === id) ?? null
+  private findById(id: number): TextTrackItem | null {
+    return this.currentTracks.find((track) => track.id === id) || null
   }
 
   private selectItem(item: TextTrackItem | null) {
     this.clearSubtitleText()
-    this.track = item
+    this.currentTrack = item
     const trackId = item?.id ?? -1
     this.core.activePlayback.closedCaptionsTrackId = trackId
 
@@ -489,7 +479,7 @@ export class ClosedCaptions extends UICorePlugin {
   }
 
   private selectSubtitles() {
-    const trackId = this.track ? this.track.id : -1
+    const trackId = this.currentTrack?.id ?? -1
 
     // TODO find out if this is needed
     this.core.activePlayback.closedCaptionsTrackId = trackId
@@ -522,7 +512,7 @@ export class ClosedCaptions extends UICorePlugin {
   }
 
   private updateSelection() {
-    if (!this.track) {
+    if (!this.currentTrack) {
       this.hide()
     } else {
       this.show()
@@ -539,7 +529,7 @@ export class ClosedCaptions extends UICorePlugin {
       .attr('aria-checked', 'false')
 
     const currentLevelElement = this.itemElement(
-      this.track ? this.track.id : -1,
+      this.currentTrack?.id ?? -1,
     )
     currentLevelElement
       .addClass('current')
@@ -569,15 +559,32 @@ export class ClosedCaptions extends UICorePlugin {
   }
 
   private get useNativeSubtitles() {
-    if (this.core.activePlayback?.name === 'dash') {
-      return true
-    }
     const mode =
       this.core.options.cc?.mode ??
       this.core.options.subtitles?.mode ??
       'custom'
     // TODO or Safari? or iOS?
     return mode === 'native'
+  }
+
+  private get currentTracks(): TextTrackItem[] {
+    return this.tracks
+  }
+
+  private get currentTrack(): TextTrackItem | null {
+    return this.track
+  }
+
+  private set currentTrack(track: TextTrackItem | null) {
+    this.track = track
+  }
+
+  private set currentTracks(tracks: TextTrackItem[]) {
+    this.tracks = tracks.map(track => ({
+      id: track.id,
+      name: !track.name || track.name === "null" ? track.track.language : track.name,
+      track: track.track,
+    }))
   }
 
   private clickaway = mediaControlClickaway(() => this.hideMenu())

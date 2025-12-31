@@ -1,9 +1,21 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`ClosedCaptions > basically > should render 1`] = `
+exports[`ClosedCaptions > basically > when subtitle tracks are available > should render 1`] = `
 "<button class="media-control-button media-control-icon gcore-skin-button-color media-control-dd" id="gplayer-cc-button" aria-haspopup="menu" aria-expanded="false" aria-controls="gplayer-cc-menu">/assets/icons/new/subtitles-off.svg</button>
 
 <ul class="gcore-skin-bg-color media-control-dd__popup" id="gplayer-cc-menu" role="menu" style="display: none; max-height: 211px;">
+    
+        <li class="">
+            <a href="#" class="gcore-skin-text-color" data-item="1" role="menuitemradio" aria-checked="false">
+                English
+            </a>
+        </li>
+    
+        <li class="">
+            <a href="#" class="gcore-skin-text-color" data-item="2" role="menuitemradio" aria-checked="false">
+                Spanish
+            </a>
+        </li>
     
     <li class="current">
         <a href="#" class="gcore-skin-text-color gcore-skin-active" data-item="-1" role="menuitemradio" aria-checked="true">

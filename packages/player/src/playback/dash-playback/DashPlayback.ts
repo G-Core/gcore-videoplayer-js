@@ -8,18 +8,20 @@ import { trace } from '@gcorevideo/utils'
 import assert from 'assert'
 import {
   ErrorEvent as DashErrorEvent,
+  MediaPlayer,
+  MediaPlayerClass,
   MediaPlayerErrorEvent,
   PlaybackErrorEvent as DashPlaybackErrorEvent,
-  type BitrateInfo as DashBitrateInfo,
+  MediaInfo as DashMediaInfo,
   MetricEvent as DashMetricEvent,
   IManifestInfo,
-  MediaPlayerClass,
-  MediaPlayer,
-  PlaybackRateChangedEvent,
-  TrackChangeRenderedEvent,
   MediaInfo,
-  Representation,
   QualityChangeRenderedEvent,
+  TrackChangeRenderedEvent,
+  PlaybackRateChangedEvent,
+  Representation,
+  CueEnterEvent,
+  CueExitEvent,
 } from 'dashjs'
 
 import {
@@ -28,6 +30,7 @@ import {
   QualityLevel,
   TimePosition,
   TimeValue,
+  VTTCueInfo,
 } from '../../playback.types.js'
 import { isDashSource } from '../../utils/mediaSources.js'
 import { BasePlayback } from '../BasePlayback.js'
@@ -107,6 +110,10 @@ export default class DashPlayback extends BasePlayback {
 
   _timeUpdateTimer: ReturnType<typeof setInterval> | null = null
 
+  oncueenter: ((e: VTTCueInfo) => void) | null = null
+
+  oncueexit: ((e: { id: string }) => void) | null = null
+
   get name() {
     return 'dash'
   }
@@ -162,6 +169,7 @@ export default class DashPlayback extends BasePlayback {
   }
 
   get _startTime() {
+    // TODO review
     if (
       this._playbackType === Playback.LIVE &&
       this._playlistType !== 'EVENT'
@@ -240,6 +248,7 @@ export default class DashPlayback extends BasePlayback {
           streaming: {
             text: {
               defaultEnabled: false,
+              dispatchForManualRendering: true,
             },
           },
         },
@@ -248,8 +257,7 @@ export default class DashPlayback extends BasePlayback {
       this._dash.updateSettings(settings)
     }
 
-    assert.ok(this.el instanceof HTMLMediaElement, 'el must be an HTMLMediaElement')
-    this._dash.attachView(this.el)
+    this._dash.attachView(this.el as HTMLMediaElement)
 
     this._dash.setAutoPlay(false)
     this._dash.attachSource(this.options.src)
@@ -319,6 +327,20 @@ export default class DashPlayback extends BasePlayback {
           toClapprTrack(e.newMediaInfo),
         )
       }
+    })
+
+    this._dash.on(MediaPlayer.events.CUE_ENTER, (e: CueEnterEvent) => {
+      this.oncueenter?.({
+        end: e.end,
+        id: e.id,
+        start: e.start,
+        text: e.text,
+      })
+    })
+    this._dash.on(MediaPlayer.events.CUE_EXIT, (e: CueExitEvent) => {
+      this.oncueexit?.({
+        id: e.id,
+      })
     })
   }
 
@@ -435,8 +457,7 @@ export default class DashPlayback extends BasePlayback {
   }
 
   private _onPlaybackError = (event: DashPlaybackErrorEvent) => {
-    // TODO
-    trace(`${T} _onPlaybackError`, { event })
+    trace(`${T} _onPlaybackError`, { type: event.type, code: event.error.code, message: event.error.message })
   }
 
   private _onDASHJSSError = (event: DashErrorEvent) => {
@@ -585,7 +606,14 @@ export default class DashPlayback extends BasePlayback {
         MediaPlayer.events.MANIFEST_LOADED,
         this.getDuration,
       )
+      const tracks = this._dash.getTracksFor('text')
+      tracks.forEach(track => {
+        if (track.id) {
+          this._dash!.removeExternalSubtitleById(track.id)
+        }
+      })
       this._dash.reset()
+      this._dash.destroy()
       this._dash = null
     }
   }
@@ -605,9 +633,7 @@ export default class DashPlayback extends BasePlayback {
     }
   }
 
-  _fillLevels(levels: Representation[]) {
-    // TOOD check that levels[i].index === i
-    trace(`${T} _fillLevels`, { levels })
+  private _fillLevels(levels: Representation[]) {
     this._levels = levels.map((level) => {
       return {
         level: level.index,
@@ -697,6 +723,35 @@ export default class DashPlayback extends BasePlayback {
     super._handleTextTrackChange()
     this._dash?.setTextTrack(this.closedCaptionsTrackId)
   }
+
+  setTextTrack(id: number) {
+    this._dash?.setTextTrack(id)
+  }
+
+  /**
+   * @override
+   */
+  get closedCaptionsTracks() {
+    const tt = this.getTextTracks()
+    return tt;
+  }
+
+  private getTextTracks() {
+    return this._dash?.getTracksFor('text').map((t: DashMediaInfo, index: number) => ({
+      id: index,
+      name: getTextTrackLabel(t) || "",
+      track: {
+        id: index,
+        label: getTextTrackLabel(t) || "",
+        language: t.lang,
+        mode: "hidden",
+      },
+    })) || []
+  }
+}
+
+function getTextTrackLabel(t: DashMediaInfo) {
+  return t.labels.find((l) => !l.lang || l.lang === t.lang)?.text
 }
 
 DashPlayback.canPlay = function (resource, mimeType) {
