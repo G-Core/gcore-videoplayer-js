@@ -23,6 +23,7 @@ export function createMockCore(
     configure: vi.fn(),
     getPlaybackType: vi.fn(),
     getPlugin: vi.fn(),
+    isFullscreen: vi.fn().mockReturnValue(false),
     load: vi.fn(),
     trigger: emitter.emit,
   })

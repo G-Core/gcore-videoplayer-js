@@ -237,41 +237,38 @@ describe('MediaControl', () => {
         )
         expect(el.length).toEqual(0)
       })
-      it(`should ${
-        settings.seekEnabled ? '' : 'not '
-      }render the seek bar`, () => {
-        const seekbar = mediaControl.$el.find(
-          '.media-control-center-panel [data-seekbar]',
-        )
-        expect(seekbar.length).toBeGreaterThan(1)
-        if (settings.seekEnabled) {
-          expect(seekbar.hasClass('seek-disabled')).toBe(false)
-        } else {
-          expect(seekbar.hasClass('seek-disabled')).toBe(true)
-        }
-      })
-      it(`should ${
-        settings.left.includes('volume') ? '' : 'not '
-      }render the volume control`, () => {
-        const volume = mediaControl.$el.find('.drawer-container[data-volume]')
-        if (settings.left.includes('volume')) {
-          expect(volume.length).toEqual(1)
-        } else {
-          expect(volume.length).toEqual(0)
-        }
-      })
-      it(`should ${
-        settings.right.includes('fullscreen') ? '' : 'not '
-      }render the fullscreen control`, () => {
-        const fullscreen = mediaControl.$el.find(
-          '.media-control-right-panel [data-fullscreen]',
-        )
-        if (settings.right.includes('fullscreen')) {
-          expect(fullscreen.length).toEqual(1)
-        } else {
-          expect(fullscreen.length).toEqual(0)
-        }
-      })
+      it(`should ${settings.seekEnabled ? '' : 'not '
+        }render the seek bar`, () => {
+          const seekbar = mediaControl.$el.find(
+            '.media-control-center-panel [data-seekbar]',
+          )
+          expect(seekbar.length).toBeGreaterThan(1)
+          if (settings.seekEnabled) {
+            expect(seekbar.hasClass('seek-disabled')).toBe(false)
+          } else {
+            expect(seekbar.hasClass('seek-disabled')).toBe(true)
+          }
+        })
+      it(`should ${settings.left.includes('volume') ? '' : 'not '
+        }render the volume control`, () => {
+          const volume = mediaControl.$el.find('.drawer-container[data-volume]')
+          if (settings.left.includes('volume')) {
+            expect(volume.length).toEqual(1)
+          } else {
+            expect(volume.length).toEqual(0)
+          }
+        })
+      it(`should ${settings.right.includes('fullscreen') ? '' : 'not '
+        }render the fullscreen control`, () => {
+          const fullscreen = mediaControl.$el.find(
+            '.media-control-right-panel [data-fullscreen]',
+          )
+          if (settings.right.includes('fullscreen')) {
+            expect(fullscreen.length).toEqual(1)
+          } else {
+            expect(fullscreen.length).toEqual(0)
+          }
+        })
     })
     describe('basically', () => {
       let handler: MockedFunction<() => void>
@@ -336,6 +333,37 @@ describe('MediaControl', () => {
     })
     it('should render', () => {
       expect(mediaControl.el.innerHTML).toMatchSnapshot()
+    })
+  })
+  describe('auto-hide', () => {
+    beforeEach(async () => {
+      mediaControl = new MediaControl(core)
+      core.emit(Events.CORE_READY)
+      core.emit(Events.CORE_ACTIVE_CONTAINER_CHANGED, core.activeContainer)
+      await runMetadataLoaded(core)
+    })
+    describe('when rendered', () => {
+      it('should auto-hide', async () => {
+        expect(mediaControl.$el.hasClass('media-control-hide')).toBe(false)
+        await new Promise((resolve) => setTimeout(resolve, 2000))
+        expect(mediaControl.$el.hasClass('media-control-hide')).toBe(true)
+      })
+    })
+    describe('after rendered', () => {
+      beforeEach(async () => {
+        await new Promise((resolve) => setTimeout(resolve, 2000))
+      })
+      describe('after user interaction', () => {
+        beforeEach(async () => {
+          core.activeContainer.trigger(Events.CONTAINER_MOUSE_ENTER)
+          await new Promise((resolve) => setTimeout(resolve, 0))
+        })
+        it('should auto-hide', async () => {
+          expect(mediaControl.$el.hasClass('media-control-hide')).toBe(false)
+          await new Promise((resolve) => setTimeout(resolve, 2000))
+          expect(mediaControl.$el.hasClass('media-control-hide')).toBe(true)
+        })
+      })
     })
   })
 })

@@ -26,6 +26,8 @@ import { CLAPPR_VERSION } from '../../build.js'
 import { ZeptoResult } from '../../types.js'
 import { getPageX } from '../utils.js'
 import { fullscreenEnabled, isFullscreen } from '../utils/fullscreen.js'
+import { isMobile } from '../utils/mobile.js'
+import { mediaControlClickaway } from '../../utils/clickaway.js'
 
 import '../../../assets/media-control/media-control.scss'
 
@@ -37,7 +39,6 @@ import volumeMaxIcon from '../../../assets/icons/new/volume-max.svg'
 import volumeOffIcon from '../../../assets/icons/new/volume-off.svg'
 import fullscreenOffIcon from '../../../assets/icons/new/fullscreen-off.svg'
 import fullscreenOnIcon from '../../../assets/icons/new/fullscreen-on.svg'
-import { mediaControlClickaway } from '../../utils/clickaway.js'
 
 const STANDARD_MEDIA_CONTROL_ELEMENTS: string[] = [
   'duration',
@@ -352,8 +353,6 @@ export class MediaControl extends UICorePlugin {
       'touchmove .bar-container[data-seekbar]': 'mousemoveOnSeekBar',
       'mouseleave .bar-container[data-seekbar]': 'mouseleaveOnSeekBar',
       'touchend .bar-container[data-seekbar]': 'mouseleaveOnSeekBar',
-      'mouseenter .media-control-layer[data-controls]': 'setUserKeepVisible',
-      'mouseleave .media-control-layer[data-controls]': 'resetUserKeepVisible',
     }
   }
 
@@ -470,9 +469,6 @@ export class MediaControl extends UICorePlugin {
       Events.CONTAINER_DBLCLICK,
       this.toggleFullscreen,
     )
-    this.listenTo(this.core.activeContainer, Events.CONTAINER_CLICK, () =>
-      this.clickaway(this.core.activeContainer.$el[0]),
-    )
     this.listenTo(
       this.core.activeContainer,
       Events.CONTAINER_TIMEUPDATE,
@@ -526,6 +522,7 @@ export class MediaControl extends UICorePlugin {
     )
     this.listenTo(this.core, Events.CONTAINER_DESTROYED, () => {
       this.cancelRenderTimer()
+      this.setKeepVisible(false)
     })
     this.listenTo(
       this.core.activeContainer,
@@ -537,10 +534,6 @@ export class MediaControl extends UICorePlugin {
       Events.CONTAINER_MOUSE_LEAVE,
       this.delayHide,
     )
-
-    this.listenTo(this.core.activeContainer, Events.CONTAINER_DESTROYED, () => {
-      this.clickaway(null)
-    })
   }
 
   /**
@@ -692,7 +685,7 @@ export class MediaControl extends UICorePlugin {
       this.$playPauseToggle?.append(playIcon)
       this.$playStopToggle?.append(playIcon)
       this.trigger(Events.MEDIACONTROL_NOTPLAYING)
-      if (Browser.isMobile) {
+      if (isMobile()) {
         this.show()
       }
     }
@@ -745,7 +738,7 @@ export class MediaControl extends UICorePlugin {
       width: this.container.$el.width(),
       height: this.container.$el.height(),
       hideVolumeBar: this.options.hideVolumeBar,
-      isMobile: Browser.isMobile,
+      isMobile: isMobile(),
     })
 
     try {
@@ -754,7 +747,7 @@ export class MediaControl extends UICorePlugin {
         this.$el.addClass('w370')
       }
 
-      if (skinWidth <= 270 && !Browser.isMobile) {
+      if (skinWidth <= 270 && !isMobile()) {
         this.verticalVolume = true
         this.$el.addClass('w270')
       }
@@ -767,6 +760,18 @@ export class MediaControl extends UICorePlugin {
     this.container.isPlaying() ? this.container.pause() : this.container.play()
 
     return false
+  }
+
+  private play() {
+    this.container && this.container.play()
+  }
+
+  private pause() {
+    this.container && this.container.pause()
+  }
+
+  private stop() {
+    this.container && this.container.stop()
   }
 
   private togglePlayStop() {
@@ -893,11 +898,11 @@ export class MediaControl extends UICorePlugin {
   }
 
   private toggleFullscreen() {
-    if (!Browser.isMobile) {
+    if (!isMobile()) {
       this.trigger(Events.MEDIACONTROL_FULLSCREEN, this.name)
       this.core.activeContainer.fullscreen()
       this.core.toggleFullscreen()
-      this.resetUserKeepVisible()
+      // this.resetUserKeepVisible()
     }
   }
 
@@ -1048,15 +1053,6 @@ export class MediaControl extends UICorePlugin {
     this.setSeekPercentage(pos)
   }
 
-  private setUserKeepVisible(e?: MouseEvent) {
-    this.userKeepVisible = true
-    this.clickaway(this.core.activeContainer.$el[0])
-  }
-
-  private resetUserKeepVisible = (e?: MouseEvent) => {
-    this.userKeepVisible = false
-  }
-
   private isVisible() {
     return !this.$el.hasClass('media-control-hide')
   }
@@ -1066,7 +1062,6 @@ export class MediaControl extends UICorePlugin {
       return
     }
 
-    const timeout = DEFAULT_HIDE_DELAY
     const mousePointerMoved =
       event &&
       event.clientX !== this.lastMouseX &&
@@ -1077,6 +1072,8 @@ export class MediaControl extends UICorePlugin {
         clearTimeout(this.hideId)
         this.hideId = null
       }
+      this.hideId = setTimeout(() => this.hide(), DEFAULT_HIDE_DELAY)
+
       this.$el.show()
       this.trigger(Events.MEDIACONTROL_SHOW, this.name)
       this.core.activeContainer?.trigger(
@@ -1084,15 +1081,13 @@ export class MediaControl extends UICorePlugin {
         this.name,
       )
       this.$el.removeClass('media-control-hide')
-      this.hideId = setTimeout(() => this.hide(), timeout)
       if (event) {
         this.lastMouseX = event.clientX
         this.lastMouseY = event.clientY
       }
     }
-    const showing = true
 
-    this.updateCursorStyle(showing)
+    this.updateCursorStyle(true)
   }
 
   private hide(delay = 0) {
@@ -1100,10 +1095,9 @@ export class MediaControl extends UICorePlugin {
       return
     }
 
-    const timeout = delay || 2000
-
     if (this.hideId !== null) {
       clearTimeout(this.hideId)
+      this.hideId = null
     }
 
     if (!this.disabled && this.options.hideMediaControl === false) {
@@ -1117,7 +1111,7 @@ export class MediaControl extends UICorePlugin {
       !this.disabled &&
       (delay || hasKeepVisibleRequested || hasDraggingAction)
     ) {
-      this.hideId = setTimeout(() => this.hide(), timeout)
+      this.hideId = setTimeout(() => this.hide(), delay || 2000)
     } else {
       if (!this.options.controlsDontHide || isFullscreen(this.container.el)) {
         this.trigger(Events.MEDIACONTROL_HIDE, this.name)
@@ -1278,18 +1272,13 @@ export class MediaControl extends UICorePlugin {
   /**
    * Set or reset the keep visibility state
    *
-   * Keep visibility state controls whether the media control is hidden automatically after a delay.
-   * Keep visibility prevents the the auto-hide behaviour
+   * Keep visibility state controls whether the media control is hidden automatically after a delay, which is a default behaviour.
    *
    * @param keepVisible - The state
    */
   setKeepVisible(keepVisible: boolean) {
     this.keepVisible = keepVisible
-    if (keepVisible) {
-      this.clickaway(this.core.activeContainer.$el[0])
-    } else {
-      this.clickaway(null)
-    }
+    this.clickaway(keepVisible ? this.core.activeContainer.$el[0] : null)
   }
 
   private getMountParent(name: MediaControlSlotMountPoint): ZeptoResult {
@@ -1390,7 +1379,7 @@ export class MediaControl extends UICorePlugin {
   }
 
   private bindKeyEvents() {
-    if (Browser.isMobile || this.options.disableKeyboardShortcuts) {
+    if (isMobile() || this.options.disableKeyboardShortcuts) {
       return
     }
 
@@ -1491,6 +1480,7 @@ export class MediaControl extends UICorePlugin {
    * @internal
    */
   override destroy() {
+    this.cancelTimers()
     this.cancelRenderTimer()
     $(document).unbind('mouseup', this.stopDrag)
     $(document).unbind('mousemove', this.updateDrag)
@@ -1498,6 +1488,18 @@ export class MediaControl extends UICorePlugin {
     $(document).unbind('touchmove', this.updateDrag)
     this.unbindKeyEvents()
     return super.destroy()
+  }
+
+  private cancelTimers() {
+    if (this.hideId !== null) {
+      clearTimeout(this.hideId)
+      this.hideId = null
+    }
+    if (this.hideVolumeId !== null) {
+      clearTimeout(this.hideVolumeId)
+      this.hideVolumeId = null
+    }
+    this.cancelRenderTimer()
   }
 
   private cancelRenderTimer() {
@@ -1537,7 +1539,7 @@ export class MediaControl extends UICorePlugin {
 
     // Video volume cannot be changed with Safari on mobile devices
     // Display mute/unmute icon only if Safari version >= 10
-    if (Browser.isSafari && Browser.isMobile) {
+    if (Browser.isSafari && isMobile()) {
       if (Browser.version < 10) {
         this.$volumeContainer?.css({ display: 'none' })
       } else {
@@ -1557,7 +1559,7 @@ export class MediaControl extends UICorePlugin {
     setTimeout(() => {
       !this.settings.seekEnabled &&
         this.$seekBarContainer?.addClass('seek-disabled')
-      !Browser.isMobile &&
+      !isMobile() &&
         !this.options.disableKeyboardShortcuts &&
         this.bindKeyEvents()
       this.playerResize({
@@ -1587,6 +1589,7 @@ export class MediaControl extends UICorePlugin {
     this.container.fullscreen()
     // TODO: fix after it full screen will be fixed on iOS
     if (Browser.isiOS) {
+      // TODO use isFullscreen utility function
       if (this.core.isFullscreen()) {
         Fullscreen.cancelFullscreen(this.core.el)
       } else {
@@ -1595,7 +1598,6 @@ export class MediaControl extends UICorePlugin {
     } else {
       this.core.toggleFullscreen()
     }
-    this.resetUserKeepVisible()
   }
 
   private static getPageX(event: MouseEvent | TouchEvent): number {
@@ -1653,7 +1655,7 @@ export class MediaControl extends UICorePlugin {
     this.hide(this.options.hideMediaControlDelay || DEFAULT_HIDE_DELAY)
   }
 
-  private clickaway = mediaControlClickaway(() => this.resetUserKeepVisible())
+  private clickaway = mediaControlClickaway(() => this.setKeepVisible(false))
 }
 
 MediaControl.extend = function (properties) {
