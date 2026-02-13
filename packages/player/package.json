@@ -66,5 +66,8 @@
     "human-format": "^1.2.1",
     "mousetrap": "^1.6.5",
     "videojs-vtt.js": "^0.15.5"
+  },
+  "overrides": {
+    "ua-parser-js": "^1.0.0"
   }
 }
