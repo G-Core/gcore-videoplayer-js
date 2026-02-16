@@ -22,6 +22,6 @@
     "husky": "^9.1.7",
     "license-checker": "^25.0.1",
     "prettier": "^3.8.1",
-    "oxlint": "^1.43.0"
+    "oxlint": "^1.48.0"
   }
 }
