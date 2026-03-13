@@ -277,6 +277,22 @@ Set the initial volume, which is preserved when playback is interrupted by an ad
 </td></tr>
 <tr><td>
 
+[setKeepVisible(keepVisible)](./player.mediacontrol.setkeepvisible.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Set or reset the keep visibility state
+
+Keep visibility state controls whether the media control is hidden automatically after a delay, which is a default behaviour.
+
+
+</td></tr>
+<tr><td>
+
 [setVolume(value, isInitialVolume)](./player.mediacontrol.setvolume.md)
 
 

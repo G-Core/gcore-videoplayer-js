@@ -15,7 +15,7 @@ export declare class Thumbnails extends UICorePlugin
 
 ## Remarks
 
-The plugin needs specially crafted VTT file with a thumbnail sprite sheet to work. The VTT consist of timestamp records followed by a thumbnail area
+The plugin needs specially crafted VTT file with a thumbnail sprite sheet to work. The VTT cues refer to a thumbnail, an area within the sprite sheet, to associate with a time span.
 
 Configuration options - [ThumbnailsPluginSettings](./player.thumbnailspluginsettings.md)
 

@@ -11,5 +11,6 @@ Configuration options for the [ClosedCaptions](./player.closedcaptions.md) plugi
 ```typescript
 export type ClosedCaptionsPluginSettings = {
     language?: string;
+    mode?: 'native' | 'custom';
 };
 ```

@@ -1,5 +1,5 @@
 import { Events, UICorePlugin, Browser, template, $ } from '@clappr/core'
-import { reportError, trace } from '@gcorevideo/utils'
+import { reportError } from '@gcorevideo/utils'
 import assert from 'assert'
 
 import { CLAPPR_VERSION } from '../../build.js'
@@ -19,7 +19,8 @@ import { VTTCueInfo } from '../../playback.types.js'
 
 const VERSION: string = '2.19.14'
 
-const LOCAL_STORAGE_CC_ID = 'gplayer.plugins.cc.selected'
+// TODO review
+// const LOCAL_STORAGE_CC_ID = 'gplayer.plugins.cc.selected'
 
 const T = 'plugins.cc'
 
@@ -35,6 +36,9 @@ export type ClosedCaptionsPluginSettings = {
 
   /**
    * Whether to use builtin subtitles.
+   *
+   * native: video player element renders the subtitles
+   * custom: plugin manages the subtitles rendition
    */
   mode?: 'native' | 'custom'
 }
@@ -75,11 +79,13 @@ export type ClosedCaptionsPluginSettings = {
  * ```
  */
 export class ClosedCaptions extends UICorePlugin {
-  private isPreselectedApplied = false
+  private isSelectedApplied = false
 
   private active = false
 
   private open = false
+
+  private userSelectedItemId: number = -1
 
   private track: TextTrackItem | null = null
 
@@ -223,11 +229,10 @@ export class ClosedCaptions extends UICorePlugin {
       }
     })
 
-    this.isPreselectedApplied = false
+    this.isSelectedApplied = false
   }
 
   private onPlaybackReady() {
-    trace(`${T} onPlaybackReady`)
     this.core.activePlayback.oncueenter = (e: VTTCueInfo) => {
       this.setSubtitleText(e.text)
     }
@@ -251,7 +256,7 @@ export class ClosedCaptions extends UICorePlugin {
   }
 
   private activateTrack(id: number) {
-    if (['dash', 'hls'].includes(this.core.activePlayback?.name)) {
+    if (this.core.activePlayback && ['dash', 'hls'].includes(this.core.activePlayback.name)) {
       this.core.activePlayback.setTextTrack(id)
       return
     }
@@ -289,7 +294,7 @@ export class ClosedCaptions extends UICorePlugin {
     try {
       // TODO ensure to apply only once
       this.currentTracks = this.core.activePlayback.closedCaptionsTracks
-      this.applyPreselectedSubtitles()
+      this.applySelectedSubtitles()
       this.render()
     } catch (error) {
       reportError(error)
@@ -418,29 +423,40 @@ export class ClosedCaptions extends UICorePlugin {
 
   private onItemSelect(event: MouseEvent) {
     // event.target does not exist for some reason in tests
-    const id =
+    const id = Number(
       ((event.target ?? event.currentTarget) as HTMLElement).dataset?.item ??
-      '-1'
+      '-1',
+    )
 
-    localStorage.setItem(LOCAL_STORAGE_CC_ID, id) // TODO store language instead?
-    this.selectItem(this.findById(Number(id)))
+    // TODO review, make configurable, and emit event in addition
+    // localStorage.setItem(LOCAL_STORAGE_CC_ID, id) // TODO store language instead?
+    this.userSelectedItemId = id
+    this.selectItem(this.findById(id))
     this.hideMenu()
     return false
   }
 
-  private applyPreselectedSubtitles() {
-    if (!this.isPreselectedApplied) {
-      this.isPreselectedApplied = true
-      // if the language is undefined, then let the engine decide
-      // to hide the subtitles forcefully, set the language to 'none'
-      setTimeout(() => {
-        this.selectItem(
-          this.tracks.find((t) =>
-            this.isPreselectedLanguage(t.track.language),
-          ) ?? null,
-        )
-      }, 0)
+  private applySelectedSubtitles() {
+    if (this.isSelectedApplied) {
+      return;
     }
+    this.isSelectedApplied = true
+    // If user selected a language, activate that
+    // Otherwise, if there is no configured language, then let the engine decide
+    // To hide the subtitles initially forcefully, set the language to 'none'
+    let matcher: (track: TextTrackItem) => boolean;
+    if (this.userSelectedItemId !== -1) {
+      matcher = (track: TextTrackItem) => track.id === this.userSelectedItemId;
+    } else if (this.preselectedLanguage) {
+      matcher = (track: TextTrackItem) => this.isPreselectedLanguage(track.track.language);
+    } else {
+      return;
+    }
+    setTimeout(() => {
+      this.selectItem(
+        this.tracks.find(matcher) ?? null,
+      )
+    }, 0)
   }
 
   private hideMenu() {
@@ -479,11 +495,9 @@ export class ClosedCaptions extends UICorePlugin {
   }
 
   private selectSubtitles() {
-    const trackId = this.currentTrack?.id ?? -1
-
-    // TODO find out if this is needed
-    this.core.activePlayback.closedCaptionsTrackId = trackId
-    // this.core.activePlayback.closedCaptionsTrackId = -1
+    if (this.currentTrack) {
+      this.core.activePlayback.closedCaptionsTrackId = this.currentTrack.id
+    }
   }
 
   private getSubtitleText(track: TextTrack) {

@@ -1,7 +1,7 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi, afterEach } from 'vitest'
 
 import { ClosedCaptions } from '../ClosedCaptions.js'
-import { createMockCore, createMockMediaControl } from '../../../testUtils.js'
+import { createMockContainer, createMockCore, createMockMediaControl } from '../../../testUtils.js'
 import { ExtendedEvents } from '../../media-control/MediaControl.js'
 
 import { Events } from '@clappr/core'
@@ -254,10 +254,297 @@ describe('ClosedCaptions', () => {
         })
       })
     })
+    describe('when language is configured', () => {
+      describe("and is set to 'none'", () => {
+        beforeEach(() => {
+          vi.useFakeTimers()
+          core.options.cc = { language: 'none' }
+          emitSubtitleAvailable(core)
+          vi.advanceTimersByTime(1)
+        })
+        it('should disable subtitles', () => {
+          expect(core.activePlayback.closedCaptionsTrackId).toEqual(-1)
+          expect(
+            core.activeContainer.$el.find('#gplayer-cc-line').text().trim(),
+          ).toBe('')
+        })
+        it('should have all tracks disabled', () => {
+          expect(core.activePlayback.closedCaptionsTracks[0].track.mode).toBe(
+            'disabled',
+          )
+          expect(core.activePlayback.closedCaptionsTracks[1].track.mode).toBe(
+            'disabled',
+          )
+        })
+        it('should hide subtitles', () => {
+          expect(cc.$el.find('#gplayer-cc-menu').css('display')).toBe('none')
+        })
+      })
+      describe('when language is undefined', () => {
+        // let spyClosedCaptionsTrackId: any // TODO
+        beforeEach(() => {
+          // spyClosedCaptionsTrackId = vi.spyOn(core.activePlayback, 'closedCaptionsTrackId')
+          core.options.cc = {}
+          core.activePlayback.closedCaptionsTrackId = undefined
+          emitSubtitleAvailable(core, 1)
+        })
+        // The native engine will decide
+        it('should not automatically select any track', () => {
+          expect(core.activePlayback.closedCaptionsTrackId).toEqual(undefined)
+        })
+        it('should not activate any tracks', () => {
+          expect(core.activePlayback.closedCaptionsTracks[0].track.mode).toBe(
+            'hidden', // showing is reset to hidden since the plugin manages rendition
+          )
+          expect(core.activePlayback.closedCaptionsTracks[1].track.mode).toBe(
+            'hidden',
+          )
+        })
+      })
+      describe('when language matches a track', () => {
+        beforeEach(() => {
+          vi.useFakeTimers()
+          core.options.cc = { language: 'en' }
+          emitSubtitleAvailable(core)
+          vi.advanceTimersByTime(1)
+        })
+        // afterEach(() => {
+        //   vi.useRealTimers()
+        // })
+        it('should activate the matching track', () => {
+          expect(core.activePlayback.closedCaptionsTrackId).toEqual(1)
+        })
+        it('should set the matching track mode appropriately', () => {
+          // The matching track should be activated
+          expect(core.activePlayback.closedCaptionsTracks[0].track.mode).toBe(
+            'hidden',
+          )
+          expect(core.activePlayback.closedCaptionsTracks[1].track.mode).toBe(
+            'disabled',
+          )
+        })
+        it('should highlight the matching track in menu', () => {
+          expect(
+            cc.$el.find('#gplayer-cc-menu li:nth-child(1)').hasClass('current'),
+          ).toBe(true)
+        })
+      })
+      describe('when language does not match any track', () => {
+        beforeEach(() => {
+          vi.useFakeTimers()
+          core.options.cc = { language: 'fr' }
+          cc = new ClosedCaptions(core)
+          core.emit(Events.CORE_READY)
+          core.activePlayback.el = document.createElement('video')
+          core.emit(Events.CORE_ACTIVE_CONTAINER_CHANGED, core.activeContainer)
+          emitSubtitleAvailable(core)
+          vi.advanceTimersByTime(1)
+        })
+        afterEach(() => {
+          vi.useRealTimers()
+        })
+        it('should disable subtitles', () => {
+          expect(core.activePlayback.closedCaptionsTrackId).toEqual(-1)
+        })
+        it('should have all tracks disabled', () => {
+          expect(core.activePlayback.closedCaptionsTracks[0].track.mode).toBe(
+            'disabled',
+          )
+          expect(core.activePlayback.closedCaptionsTracks[1].track.mode).toBe(
+            'disabled',
+          )
+        })
+        it('should hide subtitle text', () => {
+          expect(
+            core.activeContainer.$el.find('#gplayer-cc-line').text().trim(),
+          ).toBe('')
+        })
+      })
+    })
+    describe('when subtitle available event occurs after user selection', () => {
+      describe('if user selected track before event', () => {
+        beforeEach(() => {
+          vi.useFakeTimers()
+          core.options.cc = { language: 'en' }
+          // First subtitle available event
+          emitSubtitleAvailable(core)
+          vi.advanceTimersByTime(1)
+          cc.$el.find('#gplayer-cc-button').click()
+          vi.advanceTimersByTime(1)
+          // User manually selects Spanish track
+          cc.$el.find('#gplayer-cc-menu li:nth-child(2) a').click()
+          vi.advanceTimersByTime(1)
+
+          core.activeContainer = createMockContainer()
+          // Reset isPreselectedApplied by emitting container changed
+          core.emit(Events.CORE_ACTIVE_CONTAINER_CHANGED, core.activeContainer)
+          // Second subtitle available event (e.g., after source switch)
+          emitSubtitleAvailable(core)
+          vi.advanceTimersByTime(1)
+        })
+        afterEach(() => {
+          vi.useRealTimers()
+        })
+        it('should run preselected language matching algorithm', () => {
+          // Should activate track selected by user
+          expect(core.activePlayback.closedCaptionsTrackId).toEqual(2)
+        })
+        it('should select track based on configured language', () => {
+          expect(
+            cc.$el.find('#gplayer-cc-menu li:nth-child(2)').hasClass('current'),
+          ).toBe(true)
+        })
+        it('should activate the track matching the selected', () => {
+          expect(core.activePlayback.closedCaptionsTracks[0].track.mode).toBe(
+            'disabled',
+          )
+          // not 'showing' because the plugin manages the subtitles rendition
+          expect(core.activePlayback.closedCaptionsTracks[1].track.mode).toBe(
+            'hidden',
+          )
+        })
+      })
+      describe('when multiple subtitle available events occur', () => {
+        beforeEach(() => {
+          vi.useFakeTimers()
+          core.options.cc = { language: 'en' }
+          // cc = new ClosedCaptions(core)
+          // core.emit(Events.CORE_READY)
+          // core.activePlayback.el = document.createElement('video')
+          // core.emit(Events.CORE_ACTIVE_CONTAINER_CHANGED, core.activeContainer)
+          // First subtitle available event
+          emitSubtitleAvailable(core)
+          vi.advanceTimersByTime(1)
+          // User changes selection
+          // cc.$el.find('#gplayer-cc-menu li:nth-child(2) a').click()
+          // Container changed (simulating source switch)
+          core.emit(Events.CORE_ACTIVE_CONTAINER_CHANGED, core.activeContainer)
+          vi.advanceTimersByTime(1)
+          core.activePlayback.closedCaptionsTrackId = undefined
+          // Second subtitle available event
+          emitSubtitleAvailable(core)
+          vi.advanceTimersByTime(1)
+        })
+        afterEach(() => {
+          vi.useRealTimers()
+        })
+        it('should reapply preselected language matching', () => {
+          expect(core.activePlayback.closedCaptionsTrackId).toEqual(1)
+          // Should select English track based on configured language
+          expect(
+            cc.$el.find('#gplayer-cc-menu li:nth-child(1)').hasClass('current'),
+          ).toBe(true)
+        })
+        it('should activate the matching track', () => {
+          expect(core.activePlayback.closedCaptionsTracks[0].track.mode).toBe(
+            'hidden',
+          )
+          expect(core.activePlayback.closedCaptionsTracks[1].track.mode).toBe(
+            'disabled',
+          )
+        })
+      })
+    })
+    describe.each(['dash', 'hls'] as const)(
+      'when playback engine is %s',
+      (playbackEngine) => {
+        beforeEach(() => {
+          // core.emit(Events.CORE_READY)
+          core.activePlayback.el = document.createElement('video')
+          core.activePlayback.name = playbackEngine
+          core.activePlayback.setTextTrack = vi.fn()
+          // core.emit(Events.CORE_ACTIVE_CONTAINER_CHANGED, core.activeContainer)
+        })
+        describe('when language is configured and matches a track', () => {
+          beforeEach(() => {
+            vi.useFakeTimers()
+            core.options.cc = { language: 'en' }
+            // cc = new ClosedCaptions(core)
+            // core.emit(Events.CORE_READY)
+            // core.activePlayback.el = document.createElement('video')
+            // core.activePlayback.name = playbackEngine
+            // core.activePlayback.setTextTrack = vi.fn()
+            // core.emit(Events.CORE_ACTIVE_CONTAINER_CHANGED, core.activeContainer)
+            emitSubtitleAvailable(core)
+            vi.advanceTimersByTime(1)
+          })
+          afterEach(() => {
+            vi.useRealTimers()
+          })
+          it('should call setTextTrack with matching track id', () => {
+            expect(core.activePlayback.setTextTrack).toHaveBeenCalledWith(1)
+          })
+          it('should set closedCaptionsTrackId to matching track id', () => {
+            expect(core.activePlayback.closedCaptionsTrackId).toEqual(1)
+          })
+          it('should not touch native tracks', () => {
+            expect(core.activePlayback.closedCaptionsTracks[0].track.mode).toBe('hidden')
+            expect(core.activePlayback.closedCaptionsTracks[1].track.mode).toBe('hidden')
+          })
+        })
+        describe('when language is configured but does not match any track', () => {
+          beforeEach(() => {
+            vi.useFakeTimers()
+            core.options.cc = { language: 'fr' }
+            cc = new ClosedCaptions(core)
+            core.emit(Events.CORE_READY)
+            core.activePlayback.el = document.createElement('video')
+            core.activePlayback.name = playbackEngine
+            core.activePlayback.setTextTrack = vi.fn()
+            core.emit(Events.CORE_ACTIVE_CONTAINER_CHANGED, core.activeContainer)
+            emitSubtitleAvailable(core)
+            vi.advanceTimersByTime(1)
+          })
+          afterEach(() => {
+            vi.useRealTimers()
+          })
+          it('should disable subtitles', () => {
+            expect(core.activePlayback.setTextTrack).toHaveBeenCalledWith(-1)
+            expect(core.activePlayback.closedCaptionsTrackId).toEqual(-1)
+          })
+        })
+        describe('when user selects a track from menu', () => {
+          beforeEach(() => {
+            core.activePlayback.setTextTrack = vi.fn()
+            emitSubtitleAvailable(core)
+            cc.$el.find('#gplayer-cc-menu li:nth-child(2) a').click()
+          })
+          it('should call setTextTrack with selected track id', () => {
+            // TODO: Implement assertion
+            // expect(core.activePlayback.setTextTrack).toHaveBeenCalledWith(2)
+          })
+          it('should update closedCaptionsTrackId', () => {
+            // TODO: Implement assertion
+            // expect(core.activePlayback.closedCaptionsTrackId).toEqual(2)
+          })
+        })
+        describe('when language is set to none', () => {
+          beforeEach(() => {
+            vi.useFakeTimers()
+            core.options.cc = { language: 'none' }
+            cc = new ClosedCaptions(core)
+            core.emit(Events.CORE_READY)
+            core.activePlayback.el = document.createElement('video')
+            core.activePlayback.name = playbackEngine
+            core.activePlayback.setTextTrack = vi.fn()
+            core.emit(Events.CORE_ACTIVE_CONTAINER_CHANGED, core.activeContainer)
+            emitSubtitleAvailable(core)
+            vi.advanceTimersByTime(1)
+          })
+          afterEach(() => {
+            vi.useRealTimers()
+          })
+          it('should call setTextTrack with -1 to disable subtitles', () => {
+            // TODO: Implement assertion
+            // expect(core.activePlayback.setTextTrack).toHaveBeenCalledWith(-1)
+          })
+        })
+      },
+    )
   })
 })
 
-function emitSubtitleAvailable(core: any) {
+function emitSubtitleAvailable(core: any, selectedTrackId?: number) {
   core.activePlayback.closedCaptionsTracks = [
     {
       id: 1,
@@ -266,7 +553,7 @@ function emitSubtitleAvailable(core: any) {
         language: 'en',
         kind: 'subtitles',
         label: 'English',
-        mode: 'hidden',
+        mode: selectedTrackId === 1 ? 'showing' : 'hidden',
         cues: [],
       },
     },
@@ -276,8 +563,8 @@ function emitSubtitleAvailable(core: any) {
       track: {
         language: 'es',
         kind: 'subtitles',
-        label: 'Spanish',
-        mode: 'hidden',
+        label: 'Español',
+        mode: selectedTrackId === 2 ? 'showing' : 'hidden',
         cues: [],
       },
     },
