@@ -50,4 +50,8 @@ export class BasePlayback extends HTML5Video {
     super._onPlaying()
     this.trigger(Events.PLAYBACK_MEDIACONTROL_ENABLE)
   }
+
+  setTextTrack(id: number) {
+    // noop
+  }
 }

@@ -5,11 +5,11 @@ import assert from 'assert'
 import { CLAPPR_VERSION } from '../../build.js'
 import type { TextTrackItem } from '../../internal.types.js'
 
-import '../../../assets/subtitles/style.scss'
+import '../../../assets/cc/style.scss'
 import subtitlesOffIcon from '../../../assets/icons/new/subtitles-off.svg'
 import subtitlesOnIcon from '../../../assets/icons/new/subtitles-on.svg'
-import comboboxHTML from '../../../assets/subtitles/combobox.ejs'
-import stringHTML from '../../../assets/subtitles/string.ejs'
+import comboboxHTML from '../../../assets/cc/combobox.ejs'
+import stringHTML from '../../../assets/cc/string.ejs'
 
 import { isFullscreen } from '../utils/fullscreen.js'
 import type { ZeptoResult } from '../../types.js'
@@ -22,7 +22,7 @@ const VERSION: string = '2.19.14'
 // TODO review
 // const LOCAL_STORAGE_CC_ID = 'gplayer.plugins.cc.selected'
 
-const T = 'plugins.cc'
+// const T = 'plugins.cc'
 
 /**
  * Configuration options for the {@link ClosedCaptions} plugin.
@@ -168,8 +168,12 @@ export class ClosedCaptions extends UICorePlugin {
     const mediaControl = this.core.getPlugin('media_control')
     assert(mediaControl, 'media_control plugin is required')
     this.listenTo(mediaControl, Events.MEDIACONTROL_RENDERED, this.mount)
+    this.listenTo(mediaControl, Events.MEDIACONTROL_SHOW, () => {
+      this.$line?.removeClass('media-control-cc-pulled')
+    })
     this.listenTo(mediaControl, Events.MEDIACONTROL_HIDE, () => {
       this.hideMenu()
+      this.$line?.addClass('media-control-cc-pulled')
     })
     this.listenTo(
       mediaControl,
@@ -256,24 +260,28 @@ export class ClosedCaptions extends UICorePlugin {
   }
 
   private activateTrack(id: number) {
-    if (this.core.activePlayback && ['dash', 'hls'].includes(this.core.activePlayback.name)) {
-      this.core.activePlayback.setTextTrack(id)
+    const isManaged = this.core.activePlayback?.name === 'hls'
+    this.core.activePlayback.setTextTrack(id)
+    if (isManaged) {
       return
     }
-    for (const track of this.currentTracks) {
-      if (track.id === id) {
+    if (!this.core.activePlayback?.el.textTracks) {
+      return
+    }
+    for (const [index, track] of (Array.from(this.core.activePlayback?.el.textTracks ?? []) as TextTrack[]).entries()) {
+      if (index === id) {
         if (this.useNativeSubtitles) {
-          track.track.mode = 'showing'
+          track.mode = 'showing'
         } else {
-          track.track.mode = 'hidden'
+          track.mode = 'hidden'
         }
 
-        this.setSubtitleText(this.getSubtitleText(track.track))
+        this.setSubtitleText(this.getSubtitleText(track))
 
-        track.track.oncuechange = (e) => {
+        track.oncuechange = () => {
           try {
-            if (track.track.activeCues?.length) {
-              const html = (track.track.activeCues[0] as VTTCue).getCueAsHTML()
+            if (track.activeCues?.length) {
+              const html = (track.activeCues[0] as VTTCue).getCueAsHTML()
 
               this.setSubtitleText(html)
             } else {
@@ -284,8 +292,8 @@ export class ClosedCaptions extends UICorePlugin {
           }
         }
       } else {
-        track.track.oncuechange = () => { }
-        track.track.mode = 'disabled'
+        track.oncuechange = () => { }
+        track.mode = 'disabled'
       }
     }
   }
@@ -332,8 +340,10 @@ export class ClosedCaptions extends UICorePlugin {
     this.$el.find('#gplayer-cc-menu').hide()
     this.$el.find('#gplayer-cc-button').attr('aria-expanded', 'false')
     this.$line.hide()
-    for (const track of this.currentTracks) {
-      track.track.mode = 'hidden'
+    for (const track of this.core.activePlayback.el.textTracks) {
+      if (track.mode === 'showing') {
+        track.mode = 'hidden'
+      }
     }
   }
 
@@ -347,7 +357,6 @@ export class ClosedCaptions extends UICorePlugin {
       this.core.activeContainer &&
       isFullscreen(this.core.activeContainer.el) &&
       this.currentTrack &&
-      // this.currentTrack.track.mode &&
       (Browser.isiOS || this.useNativeSubtitles)
     ) {
       this.$line.hide()
@@ -398,6 +407,10 @@ export class ClosedCaptions extends UICorePlugin {
     this.clampPopup()
 
     this.core.activeContainer.$el.append(this.$line)
+    const mc = this.core.getPlugin('media_control')
+    if (!mc?.isVisible()) {
+      this.$line?.addClass('media-control-cc-pulled')
+    }
 
     this.updateSelection()
 
@@ -452,6 +465,7 @@ export class ClosedCaptions extends UICorePlugin {
     } else {
       return;
     }
+
     setTimeout(() => {
       this.selectItem(
         this.tracks.find(matcher) ?? null,
@@ -526,7 +540,7 @@ export class ClosedCaptions extends UICorePlugin {
   }
 
   private updateSelection() {
-    if (!this.currentTrack) {
+    if (this.core.activePlayback.closedCaptionsTrackId === -1) {
       this.hide()
     } else {
       this.show()

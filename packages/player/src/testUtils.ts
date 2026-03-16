@@ -81,6 +81,7 @@ export function createMockPlayback(
     canAutoPlay: vi.fn().mockImplementation(() => true),
     onResize: vi.fn().mockImplementation(() => true),
     setPlaybackRate: vi.fn(),
+    setTextTrack: vi.fn(),
     switchAudioTrack: vi.fn(),
     trigger: emitter.emit,
   })
@@ -138,6 +139,8 @@ export function createMockMediaControl(core: any) {
   mediaControl.getAvailableHeight = vi.fn().mockReturnValue(300)
   // @ts-ignore
   mediaControl.getAvailablePopupHeight = vi.fn().mockReturnValue(286)
+  // @ts-ignore
+  mediaControl.isVisible = vi.fn().mockReturnValue(true)
   // @ts-ignore
   mediaControl.toggleElement = vi.fn()
   // @ts-ignore

@@ -6,14 +6,14 @@ exports[`ClosedCaptions > basically > when subtitle tracks are available > shoul
 <ul class="gcore-skin-bg-color media-control-dd__popup" id="gplayer-cc-menu" role="menu" style="display: none; max-height: 211px;">
     
         <li class="">
-            <a href="#" class="gcore-skin-text-color" data-item="1" role="menuitemradio" aria-checked="false">
+            <a href="#" class="gcore-skin-text-color" data-item="0" role="menuitemradio" aria-checked="false">
                 English
             </a>
         </li>
     
         <li class="">
-            <a href="#" class="gcore-skin-text-color" data-item="2" role="menuitemradio" aria-checked="false">
-                Spanish
+            <a href="#" class="gcore-skin-text-color" data-item="1" role="menuitemradio" aria-checked="false">
+                Español
             </a>
         </li>
     

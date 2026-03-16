@@ -61,6 +61,8 @@ export default class DashPlayback extends BasePlayback {
 
   _currentLevel: number = AUTO
 
+  _currentTextTrackId: number = -1
+
   // true when the actual duration is longer than hlsjs's live sync point
   // when this is false playableRegionDuration will be the actual duration
   // when this is true playableRegionDuration will exclude the time after the sync point
@@ -248,7 +250,11 @@ export default class DashPlayback extends BasePlayback {
           streaming: {
             text: {
               defaultEnabled: false,
-              dispatchForManualRendering: true,
+              // NOTE: dispatchForManualRendering is not correctly implemented in DASH.js;
+              // it does not work when there are multiple text tracks.
+              // CUE_ENTER and CUE_EXIT events might be dispatched additionally
+              // for a track, other than the currently active one.
+              // dispatchForManualRendering: true, // TODO only when useNativeSubtitles is not true?
             },
           },
         },
@@ -319,29 +325,6 @@ export default class DashPlayback extends BasePlayback {
         this.trigger(PlaybackEvents.PLAYBACK_RATE_CHANGED, e.playbackRate)
       },
     )
-
-    this._dash.on(MediaPlayer.events.TRACK_CHANGE_RENDERED, (e: any) => {
-      if ((e as TrackChangeRenderedEvent).mediaType === 'audio') {
-        this.trigger(
-          Events.PLAYBACK_AUDIO_CHANGED,
-          toClapprTrack(e.newMediaInfo),
-        )
-      }
-    })
-
-    this._dash.on(MediaPlayer.events.CUE_ENTER, (e: CueEnterEvent) => {
-      this.oncueenter?.({
-        end: e.end,
-        id: e.id,
-        start: e.start,
-        text: e.text,
-      })
-    })
-    this._dash.on(MediaPlayer.events.CUE_EXIT, (e: CueExitEvent) => {
-      this.oncueexit?.({
-        id: e.id,
-      })
-    })
   }
 
   render() {
@@ -725,6 +708,7 @@ export default class DashPlayback extends BasePlayback {
   }
 
   setTextTrack(id: number) {
+    this._currentTextTrackId = id
     this._dash?.setTextTrack(id)
   }
 
@@ -732,8 +716,7 @@ export default class DashPlayback extends BasePlayback {
    * @override
    */
   get closedCaptionsTracks() {
-    const tt = this.getTextTracks()
-    return tt;
+    return this.getTextTracks()
   }
 
   private getTextTracks() {
@@ -744,7 +727,7 @@ export default class DashPlayback extends BasePlayback {
         id: index,
         label: getTextTrackLabel(t) || "",
         language: t.lang,
-        mode: "hidden",
+        mode: this._currentTextTrackId === index ? "showing" : "hidden",
       },
     })) || []
   }
