@@ -1,4 +1,5 @@
 # Gcore video player
+
 $
 
 ## Installation
@@ -15,7 +16,7 @@ Or use a script on the CDN directly in your HTML:
 
 ## Usage
 
-See the complete example app on Vercel: [https://github.com/dmitritz/gcore-videoplayer-js-nuxt](https://github.com/dmitritz/gcore-videoplayer-js-nuxt)
+See the complete example app on Vercel: <https://github.com/dmitritz/gcore-videoplayer-js-nuxt>
 
 ### Plain HTML example
 
@@ -83,3 +84,23 @@ See the complete example app on Vercel: [https://github.com/dmitritz/gcore-video
 ## Documentation
 
 - [API reference](./docs/api/index.md)
+
+## Development
+
+### Log level
+
+Detailed logs can be useful in local development while debugging or watching tests output.
+Log level of the player core and components can be controlled by configuring a LogTracer:
+
+```ts
+import { LogTracer, Logger, setTracer } from '@gcorevideo/utils'
+// ...
+Logger.enable('*') // log everything; you can use glob-like patterns, such as 'gplayer', 'plugins.*' or 'playback.*'
+setTracer(new LogTracer('AudioTracks.test'))
+```
+
+When debugging an app that use the player as a dependency,
+
+```ts
+import { LogTracer, Logger, setTracer } from '@gcorevideo/player'
+```

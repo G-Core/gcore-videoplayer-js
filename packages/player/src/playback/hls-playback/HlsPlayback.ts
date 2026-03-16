@@ -1135,7 +1135,11 @@ export default class HlsPlayback extends BasePlayback {
   }
 
   setTextTrack(id: number) {
+    if (id === this._hls!.subtitleTrack) {
+      return
+    }
     this._hls!.subtitleTrack = id
+    this.cues = []
   }
 
   /**
