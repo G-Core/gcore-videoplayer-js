@@ -30,11 +30,10 @@ import {
   QualityLevel,
   TimePosition,
   TimeValue,
-  VTTCueInfo,
 } from '../../playback.types.js'
 import { isDashSource } from '../../utils/mediaSources.js'
 import { BasePlayback } from '../BasePlayback.js'
-import { PlaybackEvents } from '../types.js'
+import { PlaybackEvents, VTTCueInfo } from '../types.js'
 import { AudioTrack } from '@clappr/core/types/base/playback/playback.js'
 
 const AUTO = -1

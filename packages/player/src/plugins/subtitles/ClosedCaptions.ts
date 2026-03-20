@@ -15,7 +15,7 @@ import { isFullscreen } from '../utils/fullscreen.js'
 import type { ZeptoResult } from '../../types.js'
 import { ExtendedEvents } from '../media-control/MediaControl.js'
 import { mediaControlClickaway } from '../../utils/clickaway.js'
-import { VTTCueInfo } from '../../playback.types.js'
+import { VTTCueInfo } from '../../playback/types.js'
 
 const VERSION: string = '2.19.14'
 

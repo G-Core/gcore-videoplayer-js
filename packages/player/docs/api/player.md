@@ -1166,15 +1166,6 @@ Preferred streaming media delivery protocol
 </td></tr>
 <tr><td>
 
-[VTTCueInfo](./player.vttcueinfo.md)
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
 [ZeptoResult](./player.zeptoresult.md)
 
 

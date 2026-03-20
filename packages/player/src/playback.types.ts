@@ -145,9 +145,3 @@ export interface PlaybackError {
   }
 }
 
-export type VTTCueInfo = {
-  id: string
-  start: number
-  end: number
-  text: string
-}

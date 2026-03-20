@@ -26,7 +26,6 @@ import {
   PlayerComponentType,
   QualityLevel,
   TimePosition,
-  VTTCueInfo,
 } from '../../playback.types.js'
 import { PlaybackType } from '../../types.js'
 import { isHlsSource } from '../../utils/mediaSources.js'
@@ -35,6 +34,7 @@ import { BasePlayback } from '../BasePlayback.js'
 
 import { CLAPPR_VERSION } from '../../build.js'
 import { AudioTrack } from '@clappr/core/types/base/playback/playback.js'
+import { VTTCueInfo } from '../types.js'
 
 const { now } = Utils
 
