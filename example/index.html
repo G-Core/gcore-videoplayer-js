@@ -1,0 +1,1026 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
+    <title>Gcore JS Player Native Example</title>
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link
+      rel="stylesheet"
+      href="https://player.gvideo.co/v2/assets/latest/index.css"
+    />
+    <style>
+      :root {
+        --bg: #f4efe5;
+        --surface: rgba(255, 251, 245, 0.92);
+        --surface-strong: #fffdf8;
+        --ink: #1e1b16;
+        --ink-soft: #605647;
+        --line: rgba(42, 35, 27, 0.12);
+        --accent: #b84b32;
+        --accent-soft: #f4d5c8;
+        --accent-strong: #8f3722;
+        --ok: #1f6d4f;
+        --shadow: 0 24px 60px rgba(44, 27, 9, 0.12);
+        --radius: 22px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body,
+      body * {
+        -webkit-user-select: text;
+        user-select: text;
+      }
+
+      button,
+      .player-shell,
+      .player-shell * {
+        -webkit-user-select: none;
+        user-select: none;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "IBM Plex Sans", "Avenir Next", "Segoe UI", sans-serif;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at top left, rgba(184, 75, 50, 0.16), transparent 30%),
+          radial-gradient(circle at top right, rgba(31, 109, 79, 0.12), transparent 28%),
+          linear-gradient(180deg, #fbf6ed 0%, var(--bg) 100%);
+      }
+
+      main {
+        width: min(1320px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 40px 0 48px;
+      }
+
+      .page-header {
+        margin-bottom: 24px;
+      }
+
+      .eyebrow {
+        display: inline-block;
+        margin-bottom: 8px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: rgba(184, 75, 50, 0.12);
+        color: var(--accent-strong);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        margin: 0 0 10px;
+        font-size: clamp(32px, 4vw, 52px);
+        line-height: 0.98;
+        letter-spacing: -0.04em;
+      }
+
+      .intro {
+        max-width: 840px;
+        margin: 0;
+        color: var(--ink-soft);
+        font-size: 16px;
+        line-height: 1.6;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 24px;
+      }
+
+      .panel {
+        position: relative;
+        overflow: hidden;
+        padding: 24px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: var(--surface);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(10px);
+      }
+
+      .panel::after {
+        content: "";
+        position: absolute;
+        inset: auto -10% -40% auto;
+        width: 180px;
+        height: 180px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(184, 75, 50, 0.12), transparent 68%);
+        pointer-events: none;
+      }
+
+      .panel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 16px;
+        margin-bottom: 16px;
+      }
+
+      .panel-title {
+        margin: 0;
+        font-size: 30px;
+        letter-spacing: -0.04em;
+      }
+
+      .panel-copy {
+        margin: 6px 0 0;
+        color: var(--ink-soft);
+        line-height: 1.5;
+      }
+
+      .source-label {
+        min-width: 180px;
+        padding: 10px 12px;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.72);
+        color: var(--ink-soft);
+        font-size: 12px;
+        line-height: 1.5;
+      }
+
+      .source-label strong {
+        display: block;
+        color: var(--ink);
+        font-size: 13px;
+      }
+
+      .tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 16px;
+      }
+
+      .tab-button,
+      .action-button {
+        border: 1px solid transparent;
+        border-radius: 999px;
+        transition:
+          background-color 180ms ease,
+          color 180ms ease,
+          border-color 180ms ease,
+          transform 180ms ease,
+          opacity 180ms ease;
+      }
+
+      .tab-button {
+        padding: 10px 16px;
+        background: rgba(32, 22, 10, 0.06);
+        color: var(--ink);
+        font: inherit;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      .tab-button:hover,
+      .action-button:hover:not(:disabled) {
+        transform: translateY(-1px);
+      }
+
+      .tab-button[aria-pressed="true"] {
+        border-color: rgba(184, 75, 50, 0.2);
+        background: var(--accent);
+        color: #fff9f5;
+      }
+
+      .section-label {
+        margin: 0 0 10px;
+        color: var(--ink-soft);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .player-shell {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        border-radius: 20px;
+        overflow: hidden;
+        background:
+          linear-gradient(140deg, rgba(255, 255, 255, 0.06), transparent),
+          #0e1118;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+      }
+
+      .player-shell > div {
+        width: 100%;
+        height: 100%;
+      }
+
+      .timer-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        margin: 14px 0 12px;
+        padding: 12px 14px;
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.7);
+        border: 1px solid var(--line);
+      }
+
+      .timer-label {
+        color: var(--ink-soft);
+        font-size: 13px;
+      }
+
+      .timer-value {
+        font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+        font-size: 15px;
+        font-weight: 700;
+      }
+
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 12px;
+      }
+
+      .action-button {
+        padding: 10px 18px;
+        background: var(--surface-strong);
+        border-color: rgba(42, 35, 27, 0.14);
+        color: var(--ink);
+        font: inherit;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      .action-button:disabled {
+        opacity: 0.42;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .event-log {
+        width: 100%;
+        min-height: 210px;
+        padding: 14px;
+        border: 1px solid rgba(17, 24, 39, 0.12);
+        border-radius: 18px;
+        resize: vertical;
+        background: #171c24;
+        color: #d4e4ff;
+        font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+        font-size: 12px;
+        line-height: 1.55;
+      }
+
+      .event-log:focus {
+        outline: 2px solid rgba(184, 75, 50, 0.24);
+        outline-offset: 2px;
+      }
+
+      .summary {
+        margin: 12px 0 0;
+        color: var(--ink-soft);
+        font-size: 14px;
+        line-height: 1.6;
+      }
+
+      .summary strong {
+        color: var(--ink);
+      }
+
+      .status-dot {
+        display: inline-block;
+        width: 9px;
+        height: 9px;
+        margin-right: 8px;
+        border-radius: 50%;
+        background: var(--ok);
+        vertical-align: middle;
+      }
+
+      @media (max-width: 980px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+
+        .panel-header {
+          flex-direction: column;
+        }
+
+        .source-label {
+          min-width: 0;
+          width: 100%;
+        }
+      }
+
+      @media (max-width: 640px) {
+        main {
+          width: min(100% - 20px, 1320px);
+          padding-top: 24px;
+        }
+
+        .panel {
+          padding: 18px;
+        }
+
+        .timer-row {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header class="page-header">
+        <span class="eyebrow">Native JS Example</span>
+        <h1>Dual-player control surface for Live and VOD</h1>
+        <p class="intro">
+          This page follows the repo README guidance for native browser usage:
+          the Gcore player is loaded from the Gcore CDN, the built-in stylesheet is
+          included, and the page uses plain JavaScript for source switching,
+          event logging, and external controls. Repo <a target="_blank" href="https://github.com/G-Core/gcore-videoplayer-js">gcore-videoplayer-js</a>.
+        </p>
+      </header>
+
+      <section class="layout">
+        <article class="panel" id="live-panel">
+          <div class="panel-header">
+            <div>
+              <h2 class="panel-title">Live</h2>
+              <p class="panel-copy">
+                Switch between the standard live feed and the low-latency CMAF
+                variant.
+              </p>
+            </div>
+            <div class="source-label" data-role="source-label">
+              <strong>Current source</strong>
+              <span class="status-dot"></span>
+              <span data-role="source-name">Standard latency</span>
+            </div>
+          </div>
+
+          <p class="section-label">Select a stream</p>
+          <div class="tabs" data-role="tabs">
+            <button
+              class="tab-button"
+              type="button"
+              data-source-id="standard"
+              aria-pressed="true"
+            >
+              Standard latency
+            </button>
+            <button
+              class="tab-button"
+              type="button"
+              data-source-id="low-latency"
+              aria-pressed="false"
+            >
+              Low-latency
+            </button>
+          </div>
+
+          <div class="player-shell">
+            <div id="live-player"></div>
+          </div>
+
+          <div class="timer-row">
+            <span class="timer-label">UTC time</span>
+            <span class="timer-value" data-role="timer">0000-00-00 00:00:00</span>
+          </div>
+
+          <p class="section-label">Player actions</p>
+          <div class="controls">
+            <button class="action-button" type="button" data-action="play">
+              Play
+            </button>
+            <button class="action-button" type="button" data-action="pause">
+              Pause
+            </button>
+            <button class="action-button" type="button" data-action="mute">
+              Mute
+            </button>
+            <button class="action-button" type="button" data-action="volume-90">
+              Volume 90%
+            </button>
+          </div>
+
+          <textarea
+            class="event-log"
+            data-role="log"
+            readonly
+            spellcheck="false"
+          ></textarea>
+
+          <p class="summary">
+            <strong>Plugins:</strong> <code>MediaControl</code> keeps the native
+            player UI visible, <code>DvrControls</code> shows the in-player live
+            state, <code>QualityLevels</code> adds quality selection through the
+            gear menu, <code>SourceController</code> makes source reloading
+            predictable, <code>Spinner</code> exposes buffering feedback,
+            <code>BigMuteButton</code> adds a prominent unmute action for muted
+            autoplay, <code>CmcdConfig</code> enables CMCD metadata, and
+            <code>ErrorScreen</code> shows fatal playback errors.
+            <strong>Events:</strong> <code>ready</code>, <code>play</code>,
+            <code>pause</code>, <code>ended</code>, <code>seek</code>,
+            <code>volumeupdate</code>, <code>fullscreen</code>, and
+            <code>error</code> keep the controls and log synchronized.
+          </p>
+        </article>
+
+        <article class="panel" id="vod-panel">
+          <div class="panel-header">
+            <div>
+              <h2 class="panel-title">VOD</h2>
+              <p class="panel-copy">
+                Switch between two VOD playlists while reusing the same external
+                controls and event log.
+              </p>
+            </div>
+            <div class="source-label" data-role="source-label">
+              <strong>Current source</strong>
+              <span class="status-dot"></span>
+              <span data-role="source-name">Blender, Sintel</span>
+            </div>
+          </div>
+
+          <p class="section-label">Select a stream</p>
+          <div class="tabs" data-role="tabs">
+            <button
+              class="tab-button"
+              type="button"
+              data-source-id="sintel"
+              aria-pressed="true"
+            >
+              Blender, Sintel
+            </button>
+            <button
+              class="tab-button"
+              type="button"
+              data-source-id="spring"
+              aria-pressed="false"
+            >
+              Blender, Spring
+            </button>
+          </div>
+
+          <div class="player-shell">
+            <div id="vod-player"></div>
+          </div>
+
+          <div class="timer-row">
+            <span class="timer-label">UTC time</span>
+            <span class="timer-value" data-role="timer">0000-00-00 00:00:00</span>
+          </div>
+
+          <p class="section-label">Player actions</p>
+          <div class="controls">
+            <button class="action-button" type="button" data-action="play">
+              Play
+            </button>
+            <button class="action-button" type="button" data-action="pause">
+              Pause
+            </button>
+            <button class="action-button" type="button" data-action="mute">
+              Mute
+            </button>
+            <button class="action-button" type="button" data-action="volume-90">
+              Volume 90%
+            </button>
+          </div>
+
+          <textarea
+            class="event-log"
+            data-role="log"
+            readonly
+            spellcheck="false"
+          ></textarea>
+
+          <p class="summary">
+            <strong>Plugins:</strong> this VOD panel uses the same
+            <code>MediaControl</code>, <code>QualityLevels</code>,
+            <code>SourceController</code>, <code>Spinner</code>,
+            <code>BigMuteButton</code>, <code>CmcdConfig</code>,
+            <code>Thumbnails</code>, and <code>ErrorScreen</code> stack so the
+            external buttons can coexist with the built-in control bar.
+            <strong>Events:</strong> the log focuses on lifecycle and control
+            events, especially <code>play</code>, <code>pause</code>,
+            <code>volumeupdate</code>, <code>seek</code>, <code>ended</code>,
+            and <code>error</code>.
+          </p>
+        </article>
+      </section>
+    </main>
+
+    <script type="module">
+      import {
+        BigMuteButton,
+        BottomGear,
+        CmcdConfig,
+        DvrControls,
+        ErrorScreen,
+        MediaControl,
+        Player,
+        QualityLevels,
+        Spinner,
+        SourceController,
+        Thumbnails,
+        version,
+      } from "https://player.gvideo.co/v2/assets/latest/index.js";
+
+      function registerPluginsOnce() {
+        if (window.__gcoreExamplePluginsRegistered) {
+          return;
+        }
+
+        if (!CmcdConfig.prototype.version) {
+          Object.defineProperty(CmcdConfig.prototype, "version", {
+            value: CmcdConfig.version || "0.1.0",
+            configurable: true,
+          });
+        }
+
+        Player.registerPlugin(BigMuteButton);
+        Player.registerPlugin(BottomGear);
+        Player.registerPlugin(CmcdConfig);
+        Player.registerPlugin(DvrControls);
+        Player.registerPlugin(MediaControl);
+        Player.registerPlugin(QualityLevels);
+        Player.registerPlugin(SourceController);
+        Player.registerPlugin(Spinner);
+        Player.registerPlugin(Thumbnails);
+        Player.registerPlugin(ErrorScreen);
+        window.__gcoreExamplePluginsRegistered = true;
+      }
+
+      registerPluginsOnce();
+
+      const PLAYER_EVENTS = [
+        "ready",
+        "play",
+        "pause",
+        "stop",
+        "ended",
+        "seek",
+        "volumeupdate",
+        "fullscreen",
+        "error",
+      ];
+      const PLAYER_VERSION_INFO =
+        typeof version === "function"
+          ? version()
+          : { gplayer: version || "unknown" };
+
+      const EMPTY_VOD_THUMBNAILS = {
+        sintel: undefined,
+        spring: undefined,
+      };
+
+      async function loadOptionalVodThumbnails() {
+        try {
+          const module = await import("./vod-thumbnails.js");
+          return module.VOD_THUMBNAILS ?? EMPTY_VOD_THUMBNAILS;
+        } catch (error) {
+          console.warn(
+            "Optional VOD thumbnails were not loaded. Continuing without thumbnails.",
+            error,
+          );
+          return EMPTY_VOD_THUMBNAILS;
+        }
+      }
+
+      const VOD_THUMBNAILS = await loadOptionalVodThumbnails();
+
+      const PANEL_CONFIGS = [
+        {
+          panelId: "live-panel",
+          playerElementId: "live-player",
+          playbackType: "live",
+          defaultSourceId: "standard",
+          summaryLabel: "Live",
+          tabs: {
+            standard: {
+              label: "Standard latency",
+              description: "Live HLS MPEG-TS from quick-start",
+              sources: [
+                {
+                  source:
+                    "https://demo-public.gvideo.io/mpegts/2675_19146/master_mpegts.m3u8",
+                  mimeType: "application/x-mpegurl",
+                },
+              ],
+            },
+            "low-latency": {
+              label: "Low-latency",
+              description: "Live HLS CMAF from quick-start",
+              reloadOnResume: true,
+              sources: [
+                {
+                  source: "https://demo-public.gvideo.io/cmaf/2675_19146/master.m3u8",
+                  mimeType: "application/x-mpegurl",
+                },
+              ],
+            },
+          },
+        },
+        {
+          panelId: "vod-panel",
+          playerElementId: "vod-player",
+          playbackType: "vod",
+          defaultSourceId: "sintel",
+          summaryLabel: "VOD",
+          tabs: {
+            sintel: {
+              label: "Blender, Sintel",
+              description: "VOD HLS MPEG-TS from quick-start",
+              startAt: 4,
+              thumbnails: VOD_THUMBNAILS.sintel,
+              sources: [
+                {
+                  source:
+                    "https://demo-public.gvideo.io/videos/2675_w6nGXEimHz4Z6t1j/master.m3u8",
+                  mimeType: "application/x-mpegurl",
+                },
+              ],
+            },
+            spring: {
+              label: "Blender, Spring",
+              description: "Spring VOD HLS playlist",
+              startAt: 4,
+              thumbnails: VOD_THUMBNAILS.spring,
+              sources: [
+                {
+                  source:
+                    "https://demo-public.gvideo.io/videos/2675_mvsPGvDVx0Hzbog/master.m3u8",
+                  mimeType: "application/x-mpegurl",
+                },
+              ],
+            },
+          },
+        },
+      ];
+
+      function formatUtc(date = new Date()) {
+        return date.toISOString().slice(0, 19).replace("T", " ");
+      }
+
+      function formatNumber(value) {
+        return Number.isFinite(value) ? value.toFixed(2) : "0.00";
+      }
+
+      function normalizeVolumePercent(value) {
+        if (!Number.isFinite(value)) {
+          return 0;
+        }
+
+        return value <= 1 ? value * 100 : value;
+      }
+
+      function buildCmcdConfig(summaryLabel, sourceId) {
+        return {
+          sessionId: crypto.randomUUID(),
+          contentId: `${summaryLabel.toLowerCase()}-${sourceId}`,
+        };
+      }
+
+      function describeError(error) {
+        if (!error) {
+          return "unknown error";
+        }
+
+        return (
+          error.message ||
+          error.description ||
+          error.code ||
+          JSON.stringify(error)
+        );
+      }
+
+      function initializeUtcTimer(panel) {
+        const timerElement = panel.querySelector('[data-role="timer"]');
+
+        const render = () => {
+          timerElement.textContent = formatUtc();
+        };
+
+        render();
+        window.setInterval(render, 1000);
+      }
+
+      function createPanelController(config) {
+        const panel = document.getElementById(config.panelId);
+        const playerNode = document.getElementById(config.playerElementId);
+        const sourceNameNode = panel.querySelector('[data-role="source-name"]');
+        const logNode = panel.querySelector('[data-role="log"]');
+        const playButton = panel.querySelector('[data-action="play"]');
+        const pauseButton = panel.querySelector('[data-action="pause"]');
+        const muteButton = panel.querySelector('[data-action="mute"]');
+        const volumeNinetyButton = panel.querySelector(
+          '[data-action="volume-90"]',
+        );
+        const tabButtons = Array.from(
+          panel.querySelectorAll("[data-source-id]"),
+        );
+        const eventLog = [];
+        let activeSourceId = config.defaultSourceId;
+        let autoplayRetryHandles = [];
+        let pendingStartAt = config.tabs[activeSourceId].startAt ?? null;
+        let cmcdConfig = buildCmcdConfig(config.summaryLabel, activeSourceId);
+        let fullscreenOwnedByPanel = false;
+        const state = {
+          isMuted: true,
+          isPlaying: false,
+          volumePercent: 100,
+        };
+
+        initializeUtcTimer(panel);
+
+        const player = new Player({
+          autoPlay: true,
+          mute: true,
+          playbackType: config.playbackType,
+          sources: config.tabs[activeSourceId].sources,
+          cmcd: cmcdConfig,
+          qualityLevels: {
+            labels: {
+              360: "SD",
+              480: "SD+",
+              720: "HD",
+              1080: "Full HD",
+            },
+          },
+          spinner: {
+            showOnError: true,
+            showOnStart: true,
+          },
+          thumbnails: config.tabs[activeSourceId].thumbnails,
+        });
+
+        function appendLog(eventName, details = "") {
+          const shouldStickToBottom =
+            logNode.scrollTop + logNode.clientHeight >= logNode.scrollHeight - 8;
+          const line = `[${formatUtc()}] ${eventName}${details ? ` | ${details}` : ""}`;
+          eventLog.push(line);
+          if (eventLog.length > 40) {
+            eventLog.splice(0, eventLog.length - 40);
+          }
+          logNode.value = eventLog.join("\n");
+          if (shouldStickToBottom) {
+            logNode.scrollTop = logNode.scrollHeight;
+          }
+        }
+
+        function updateSourceLabel() {
+          const sourceConfig = config.tabs[activeSourceId];
+          sourceNameNode.textContent = `${sourceConfig.label} | ${sourceConfig.description}`;
+        }
+
+        function isPanelFullscreenTarget() {
+          const fullscreenElement = document.fullscreenElement;
+          if (fullscreenElement) {
+            return (
+              playerNode.contains(fullscreenElement) ||
+              fullscreenElement.contains(playerNode)
+            );
+          }
+
+          const video = playerNode.querySelector("video");
+          return Boolean(video?.webkitDisplayingFullscreen);
+        }
+
+        function updateDynamicConfig() {
+          cmcdConfig = buildCmcdConfig(config.summaryLabel, activeSourceId);
+          player.configure({
+            cmcd: cmcdConfig,
+            thumbnails: config.tabs[activeSourceId].thumbnails,
+          });
+        }
+
+        function applyPendingStartAt() {
+          if (
+            config.playbackType !== "vod" ||
+            pendingStartAt === null ||
+            !Number.isFinite(pendingStartAt)
+          ) {
+            return;
+          }
+
+          const startAt = pendingStartAt;
+          pendingStartAt = null;
+          player.seek(startAt);
+          appendLog("seek", `initial start position=${formatNumber(startAt)}s`);
+        }
+
+        function syncStateFromPlayer() {
+          state.isPlaying = player.isPlaying();
+          state.isMuted = player.isMuted();
+          state.volumePercent = normalizeVolumePercent(player.getVolume());
+        }
+
+        function updateButtons() {
+          playButton.disabled = state.isPlaying;
+          pauseButton.disabled = !state.isPlaying;
+          muteButton.disabled = state.isMuted || state.volumePercent <= 0;
+          volumeNinetyButton.disabled =
+            !state.isMuted &&
+            Math.abs(state.volumePercent - 90) < 0.5;
+        }
+
+        function playCurrentSource() {
+          const sourceConfig = config.tabs[activeSourceId];
+
+          if (config.playbackType === "live" && sourceConfig.reloadOnResume) {
+            player.load(sourceConfig.sources);
+            return "External Play button clicked, reloading low-latency stream";
+          }
+
+          if (config.playbackType === "live") {
+            const liveEdge = player.getDuration();
+            if (Number.isFinite(liveEdge) && liveEdge >= 0) {
+              player.seek(liveEdge);
+            }
+            player.play();
+            return "External Play button clicked, seeking to live edge";
+          }
+
+          player.play();
+          return "External Play button clicked";
+        }
+
+        function clearAutoplayRecovery() {
+          autoplayRetryHandles.forEach((handle) => window.clearTimeout(handle));
+          autoplayRetryHandles = [];
+        }
+
+        function scheduleAutoplayRecovery() {
+          clearAutoplayRecovery();
+          autoplayRetryHandles = [150, 700, 1400].map((delay) =>
+            window.setTimeout(() => {
+              if (!player.isPlaying()) {
+                player.play();
+              }
+              updateButtons();
+            }, delay),
+          );
+        }
+
+        function switchSource(sourceId) {
+          if (!config.tabs[sourceId] || sourceId === activeSourceId) {
+            return;
+          }
+
+          activeSourceId = sourceId;
+          pendingStartAt = config.tabs[sourceId].startAt ?? null;
+          updateDynamicConfig();
+          tabButtons.forEach((button) => {
+            button.setAttribute(
+              "aria-pressed",
+              String(button.dataset.sourceId === sourceId),
+            );
+          });
+          updateSourceLabel();
+          appendLog(
+            "source-change",
+            `${config.tabs[sourceId].label} -> ${config.tabs[sourceId].sources[0].source}`,
+          );
+          player.load(config.tabs[sourceId].sources);
+          scheduleAutoplayRecovery();
+          updateButtons();
+        }
+
+        function handleTrackedEvent(eventName, payload) {
+          switch (eventName) {
+            case "ready":
+              syncStateFromPlayer();
+              appendLog("ready", `${config.summaryLabel} player initialized`);
+              appendLog(
+                "cmcd",
+                `sid=${cmcdConfig.sessionId}, cid=${cmcdConfig.contentId}`,
+              );
+              break;
+            case "play":
+              clearAutoplayRecovery();
+              state.isPlaying = true;
+              applyPendingStartAt();
+              appendLog("play", `isPlaying=${state.isPlaying}`);
+              break;
+            case "pause":
+            case "stop":
+            case "ended":
+              state.isPlaying = false;
+              appendLog(eventName, `isPlaying=${state.isPlaying}`);
+              break;
+            case "seek":
+              appendLog(eventName, `position=${formatNumber(payload)}s`);
+              break;
+            case "volumeupdate":
+              state.volumePercent = normalizeVolumePercent(payload);
+              state.isMuted = state.volumePercent <= 0 ? true : player.isMuted();
+              appendLog(
+                "volumeupdate",
+                `volume=${formatNumber(state.volumePercent)}%, muted=${state.isMuted}`,
+              );
+              break;
+            case "fullscreen":
+              if (Boolean(payload)) {
+                if (!isPanelFullscreenTarget()) {
+                  return;
+                }
+                fullscreenOwnedByPanel = true;
+                appendLog("fullscreen", "enabled=true");
+              } else if (fullscreenOwnedByPanel) {
+                fullscreenOwnedByPanel = false;
+                appendLog("fullscreen", "enabled=false");
+              } else {
+                return;
+              }
+              break;
+            case "error":
+              appendLog("error", describeError(payload));
+              break;
+            default:
+              appendLog(eventName);
+          }
+
+          window.requestAnimationFrame(() => {
+            syncStateFromPlayer();
+            updateButtons();
+          });
+          updateButtons();
+        }
+
+        PLAYER_EVENTS.forEach((eventName) => {
+          player.on(eventName, (payload) => handleTrackedEvent(eventName, payload));
+        });
+
+        playButton.addEventListener("click", () => {
+          const playDescription = playCurrentSource();
+          appendLog("ui-play", playDescription);
+          scheduleAutoplayRecovery();
+          updateButtons();
+        });
+
+        pauseButton.addEventListener("click", () => {
+          player.pause();
+          appendLog("ui-pause", "External Pause button clicked");
+          updateButtons();
+        });
+
+        muteButton.addEventListener("click", () => {
+          player.setVolume(0);
+          appendLog("ui-mute", "External Mute button clicked");
+          updateButtons();
+        });
+
+        volumeNinetyButton.addEventListener("click", () => {
+          player.unmute();
+          player.setVolume(90);
+          appendLog("ui-volume-90", "External Volume 90% button clicked");
+          updateButtons();
+        });
+
+        tabButtons.forEach((button) => {
+          button.addEventListener("click", () => {
+            switchSource(button.dataset.sourceId);
+          });
+        });
+
+        updateSourceLabel();
+        syncStateFromPlayer();
+        if (config.playbackType === "vod" && !config.tabs[activeSourceId].thumbnails) {
+          appendLog(
+            "thumbnails",
+            "Optional thumbnail metadata is unavailable. Player continues without previews.",
+          );
+        }
+        appendLog(
+          "version",
+          `gplayer=${PLAYER_VERSION_INFO.gplayer || "unknown"}, clappr=${PLAYER_VERSION_INFO.clappr || "unknown"}, dashjs=${PLAYER_VERSION_INFO.dashjs || "unknown"}, hlsjs=${PLAYER_VERSION_INFO.hlsjs || "unknown"}`,
+        );
+        appendLog(
+          "source-change",
+          `${config.tabs[activeSourceId].label} -> ${config.tabs[activeSourceId].sources[0].source}`,
+        );
+        player.attachTo(playerNode);
+        scheduleAutoplayRecovery();
+        updateButtons();
+      }
+
+      PANEL_CONFIGS.forEach(createPanelController);
+    </script>
+  </body>
+</html>
