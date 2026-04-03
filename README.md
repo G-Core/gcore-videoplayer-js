@@ -10,7 +10,7 @@ The player acts as a unified playback layer over modern engines, including `hls.
 
 ### Live
 
-![Live playback preview (gif)](./docs/demo-live.gif)
+![Live playback preview (gif)](./docs/images/demo-live.gif)
 
 Protocols: HLS MPEG-TS, HLS CMAF, LL-HLS, MPEG-DASH  
 Top features: low latency, adaptive bitrate, broad device coverage  
@@ -18,7 +18,7 @@ More: <https://gcore.com/docs/streaming/live-streams-and-videos-protocols-and-co
 
 ### VOD
 
-![VOD playback preview (gif)](./docs/demo-vod.gif)
+![VOD playback preview (gif)](./docs/images/demo-vod.gif)
 
 Protocols: HLS MPEG-TS, HLS CMAF, MPEG-DASH CMAF, MP4  
 Top features: adaptive bitrate, modern streaming formats, simple MP4 playback  
@@ -50,7 +50,7 @@ More: <https://gcore.com/docs/streaming/video-hosting/hls-and-mp4>
 - Live playback for HLS and MPEG-DASH streams, including workflows that need DVR-style live controls.
 - VOD playback for HLS, MPEG-DASH, and MP4 sources.
 - Framework-agnostic web integration for vanilla JavaScript, React, Vue, Nuxt, and other SPA/MPA setups.
-- Native JavaScript control over play, pause, seek, mute, volume, source loading, resize, and lifecycle.
+- Direct JavaScript control over play, pause, seek, mute, volume, source loading, resize, and lifecycle.
 - Event-driven integrations for player state, playback progress, errors, fullscreen, and volume changes.
 - Extensible UI through plugins for media controls, subtitles, audio track selection, quality selection, playback speed, picture-in-picture, thumbnails, posters, DVR controls, multi-camera, logos, sharing, telemetry, CMCD, and more.
 - Multiple source support with transport preference and automatic source failover logic.
@@ -175,18 +175,20 @@ API details for plugins: [packages/player/docs/api/player.md](./packages/player/
 
 ## Demos
 
-### Simple Native JS demo
+### Vanilla JS demo
 
-Live demo: <https://g-core.github.io/gcore-videoplayer-js/example/>
+Live demo: <https://g-core.github.io/gcore-videoplayer-js/example/index.html>
 
-![Simple Native JS demo](./docs/demo-native-js.png)
+This demo includes both VOD and live streams. The players are embedded directly into the page with custom controls and dedicated log panels, making playback events easy to follow. The demo is available 24/7.
+
+![Vanilla JS demo](./docs/images/demo-native-js.png)
 
 
 ### Interactive demo with plugin settings
 
 Interactive live demo: <https://gcore-videoplayer-js-nuxt.vercel.app/settings>
 
-![Interactive demo with plugin settings](./docs/demo-vercel.png)
+![Interactive demo with plugin settings](./docs/images/demo-vercel.png)
 
 ## Iframe player vs JavaScript player
 
@@ -210,6 +212,10 @@ More about the built-in iframe player: <https://gcore.com/docs/streaming/extra-f
 - Code map: [docs/codemap.md](./docs/codemap.md)
 - Install and configure guide: [docs/install-and-configure.md](./docs/install-and-configure.md)
 - Quick start guide: [docs/quick-start.md](./docs/quick-start.md)
+- Framework integration (React, Vue, Next.js, Nuxt, Svelte): [docs/framework-integration.md](./docs/framework-integration.md)
+- Code examples and recipes: [EXAMPLES.md](./EXAMPLES.md)
+- AI-assisted development guide: [AI-DEVELOPMENT.md](./AI-DEVELOPMENT.md)
+- PlayerConfig JSON Schema: [docs/player-config.schema.json](./docs/player-config.schema.json)
 - Generated API reference: [packages/player/docs/api/player.md](./packages/player/docs/api/player.md)
 
 ## Missing the feature you need?

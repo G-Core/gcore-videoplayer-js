@@ -1,0 +1,254 @@
+# Gcore JavaScript Video Player SDK — Cursor Rules
+
+This is the `@gcorevideo/player` SDK — a TypeScript library for embedding HLS, MPEG-DASH, and MP4 video playback into web applications. Built on Clappr with a plugin-based architecture.
+
+## Project structure
+
+```
+packages/
+  player/
+    src/
+      Player.ts           # Main Player class — public API
+      types.ts            # All public TypeScript types (PlayerConfig, PlayerEvent, etc.)
+      index.ts            # Package entry point
+      index.plugins.ts    # All plugin exports
+      plugins/            # 20+ plugin implementations
+      playback/           # HLS, DASH, HTML5 engines
+    docs/api/             # Generated API reference
+  utils/                  # @gcorevideo/utils — logging, tracing
+docs/
+  framework-integration.md  # React, Vue, Next.js, Nuxt, Svelte
+  architecture.md
+  quick-start.md
+  player-config.schema.json  # JSON Schema for PlayerConfig
+EXAMPLES.md               # Copy-paste recipes
+AI-DEVELOPMENT.md         # AI workflow guide
+llms.txt                  # Machine-readable SDK summary
+```
+
+## Non-negotiable patterns
+
+### 1. Plugin registration BEFORE player instantiation
+
+```ts
+// CORRECT
+Player.registerPlugin(MediaControl)
+Player.registerPlugin(SourceController)
+const player = new Player({ sources: [...] })
+
+// WRONG — plugins registered after have no effect on existing instances
+const player = new Player({ sources: [...] })
+Player.registerPlugin(MediaControl)
+```
+
+### 2. autoPlay always paired with mute
+
+```ts
+// CORRECT
+new Player({ autoPlay: true, mute: true, sources: [...] })
+
+// WRONG — blocked by browser autoplay policy
+new Player({ autoPlay: true, sources: [...] })
+```
+
+### 3. Always destroy on cleanup
+
+```ts
+// React
+useEffect(() => {
+  const player = new Player(config)
+  player.attachTo(ref.current!)
+  return () => player.destroy()
+}, [])
+
+// Vue
+onUnmounted(() => player.destroy())
+
+// Svelte
+onDestroy(() => player.destroy())
+```
+
+### 4. CSS must be imported
+
+```ts
+import '@gcorevideo/player/dist/index.css'
+```
+
+### 5. Container needs real dimensions
+
+```html
+<div id="player" style="width: 640px; height: 360px;"></div>
+<!-- or -->
+<div id="player" style="width: 100%; aspect-ratio: 16/9;"></div>
+```
+
+### 6. SSR: browser-only library
+
+In Next.js / Nuxt, never import at module level on the server:
+```ts
+// Next.js — dynamic import
+const VideoPlayer = dynamic(() => import('./VideoPlayer'), { ssr: false })
+
+// Nuxt — use .client.vue suffix
+// Svelte/SvelteKit — import inside onMount
+```
+
+## Plugin registration is global, not per-instance
+
+`Player.registerPlugin()` is a class-level static call. Call it once at app startup — not inside React components or Vue setup functions.
+
+```ts
+// app.ts / main.ts — call once
+Player.registerPlugin(MediaControl)
+Player.registerPlugin(SourceController)
+Player.registerPlugin(QualityLevels)
+```
+
+## Available plugins
+
+Import all from `@gcorevideo/player`:
+
+**Playback:** `AudioTracks`, `ClickToPause`, `Clips`, `DvrControls`, `MultiCamera`, `PictureInPicture`, `PlaybackRate`, `Poster`, `QualityLevels`, `SeekTime`, `Share`, `SkipTime`, `SourceController`, `ClosedCaptions`, `Thumbnails`
+
+**UI:** `BigMuteButton`, `BottomGear`, `ContextMenu`, `ErrorScreen`, `Favicon`, `Logo`, `MediaControl`, `SpinnerThreeBounce`, `VolumeFade`
+
+**Analytics:** `ClapprStats`, `CmcdConfig`, `GoogleAnalytics`, `NerdStats`, `Telemetry`
+
+## Player API
+
+```ts
+// Lifecycle
+player.attachTo(element: HTMLElement): void
+player.destroy(): void
+player.configure(config: Partial<PlayerConfig>): void
+player.load(sources: PlayerMediaSource[]): void
+
+// Playback
+player.play(): void
+player.pause(): void
+player.stop(): void
+player.seek(seconds: number): void
+
+// State
+player.isPlaying(): boolean
+player.isMuted(): boolean
+player.getCurrentTime(): number
+player.getDuration(): number
+player.isDvrEnabled(): boolean
+
+// Audio
+player.mute(): void
+player.unmute(): void
+player.setVolume(volume: number): void  // 0..1
+
+// Events
+player.on(event: PlayerEvent, handler): void
+player.off(event: PlayerEvent, handler): void
+```
+
+## Events
+
+```ts
+import { PlayerEvent } from '@gcorevideo/player'
+
+PlayerEvent.Ready        // player ready
+PlayerEvent.Play         // started
+PlayerEvent.Pause        // paused
+PlayerEvent.Ended        // reached end
+PlayerEvent.Stop         // stopped
+PlayerEvent.Seek         // handler(seconds: number)
+PlayerEvent.TimeUpdate   // handler({ current, total }: TimePosition)
+PlayerEvent.VolumeUpdate // handler(volume: number)
+PlayerEvent.Fullscreen   // handler(isFullscreen: boolean)
+PlayerEvent.Resize       // handler({ width, height })
+PlayerEvent.Error        // handler(error: PlaybackError)
+```
+
+## PlayerConfig key options
+
+```ts
+interface PlayerConfig {
+  sources: PlayerMediaSource[]      // required — URL strings or { source, mimeType }
+  autoPlay?: boolean                // default: false
+  mute?: boolean                    // default: false
+  loop?: boolean                    // default: false — VOD only
+  playbackType?: 'live' | 'vod'     // set only if known; omit to auto-detect
+  priorityTransport?: 'dash' | 'hls' // default: 'dash'
+  language?: string                 // default: 'en'
+  strings?: TranslationSettings     // localization
+  debug?: 'all' | 'none' | boolean  // default: 'none'
+  poster?: PosterPluginSettings     // { url, showForNoOp, showOnVideoEnd }
+  cmcd?: CmcdConfigOptions          // { sessionId, contentId }
+  dash?: DashSettings               // passed to dash.js
+  // plugin options under their name key: googleAnalytics, logo, playbackRate, etc.
+}
+```
+
+## Source format
+
+```ts
+// Short form — MIME type inferred from extension
+sources: ['https://example.com/video.m3u8']
+
+// Full form — explicit MIME type
+sources: [
+  { source: 'https://example.com/video.mpd', mimeType: 'application/dash+xml' },
+  { source: 'https://example.com/video.m3u8', mimeType: 'application/x-mpegurl' },
+]
+```
+
+## Plugin development pattern
+
+```ts
+import { UICorePlugin, Events } from '@clappr/core'
+
+export class MyPlugin extends UICorePlugin {
+  name = 'my_plugin'       // used as PlayerConfig key for plugin options
+  static type = 'core'     // or 'container' for ContainerPlugin
+
+  bindEvents() {
+    this.listenTo(this.core, Events.PLAYER_PLAY, this.onPlay)
+  }
+
+  private onPlay() { /* ... */ }
+}
+```
+
+Rules for plugins:
+- Extend `UICorePlugin` (core scope) or `ContainerPlugin` (container scope)
+- Use `this.listenTo()` — auto-cleans up on destroy
+- Templates: `assets/[plugin-name]/template.ejs`
+- Styles: `assets/[plugin-name]/[plugin-name].scss`
+- Never reference another plugin directly — use Clappr events
+- Plugin options accessed via `this.options.[pluginName]`
+
+## TypeScript rules
+
+- No `any` — use `unknown` with type guards
+- Export public types from `types.ts`
+- Internal types belong in `internal.types.ts`
+- Plugin option interfaces: `[PluginName]PluginSettings` or `[PluginName]Settings`
+
+## What NOT to generate
+
+- Do not modify Clappr core directly
+- Do not use jQuery — Clappr uses Zepto (`$`)
+- Do not break backward compatibility on public APIs
+- Do not add `any` types
+- Do not import `@gcorevideo/player` at module level in SSR environments
+- Do not register plugins inside React components / Vue setup — register at app level
+
+## Debug logging
+
+```ts
+import { Logger, LogTracer, setTracer } from '@gcorevideo/player'
+Logger.enable('*')
+setTracer(new LogTracer('app-name'))
+```
+
+## Testing
+
+- Framework: Vitest + happy-dom
+- Mock external deps: `dash.js`, `hls.js`, browser APIs
+- Test public API and events — not Clappr internals
+- Run: `npm test` (from `packages/player`)

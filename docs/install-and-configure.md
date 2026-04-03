@@ -15,7 +15,7 @@ The SDK is configured through a single `PlayerConfig` object.
 Use one of these two approaches:
 
 1. Framework/bundler integration for React, Vue, Nuxt, Svelte, and similar frontend apps
-2. Native JavaScript integration for direct browser usage without package installation
+2. Vanilla JavaScript integration for direct browser usage without package installation
 
 ### Framework and bundler usage
 
@@ -66,7 +66,7 @@ The container must exist in the DOM and have real width and height.
 <div id="container" style="width: 640px; height: 360px;"></div>
 ```
 
-### Native JavaScript usage
+### Vanilla JavaScript usage
 
 Use this path when you want direct HTML integration without npm or yarn.
 
@@ -99,7 +99,7 @@ Use this path when you want direct HTML integration without npm or yarn.
 </script>
 ```
 
-#### Native JS container
+#### Vanilla JS container
 
 ```html
 <div id="container" style="width: 640px; height: 360px;"></div>

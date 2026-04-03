@@ -1,0 +1,159 @@
+# Gcore JavaScript Video Player SDK
+
+> JavaScript/TypeScript SDK for embedding HLS, MPEG-DASH, and MP4 video playback into web applications.
+> NPM package: `@gcorevideo/player`
+> Repository: https://github.com/G-Core/gcore-videoplayer-js
+
+## What this is
+
+A production video player SDK built on Clappr. Customers use it instead of an iframe embed when they need native DOM integration, custom UI, event-driven app integration, and an extensible plugin model.
+
+Supports: HLS (`.m3u8`), MPEG-DASH (`.mpd`), MP4. Live and VOD. Framework-agnostic.
+
+## Install
+
+```bash
+npm install @gcorevideo/player
+```
+
+CDN (no build step):
+```html
+<link rel="stylesheet" href="https://player.gvideo.co/v2/assets/latest/index.css" />
+<script type="module">
+  import { Player, MediaControl, SourceController } from 'https://player.gvideo.co/v2/assets/latest/index.js'
+</script>
+```
+
+## Minimal working example
+
+```ts
+import '@gcorevideo/player/dist/index.css'
+import { Player, MediaControl, SourceController } from '@gcorevideo/player'
+
+// 1. Register plugins BEFORE creating any player instance
+Player.registerPlugin(MediaControl)
+Player.registerPlugin(SourceController)
+
+// 2. Create with config
+const player = new Player({
+  autoPlay: true,
+  mute: true,                    // required for autoplay in browsers
+  sources: ['https://demo-public.gvideo.io/videos/2675_w6nGXEimHz4Z6t1j/master.m3u8'],
+})
+
+// 3. Attach to a DOM element with real dimensions
+player.attachTo(document.getElementById('player')!)
+
+// 4. Destroy when done
+// player.destroy()
+```
+
+## The five things every integration needs
+
+1. **CSS import** — `import '@gcorevideo/player/dist/index.css'`
+2. **Plugin registration** — `Player.registerPlugin(...)` before `new Player(...)`
+3. **`sources` array** — at least one URL string or `{ source, mimeType }` object
+4. **DOM element** — `player.attachTo(element)` where element has width and height
+5. **Cleanup** — `player.destroy()` before removing the element from the DOM
+
+## Key PlayerConfig options
+
+| Option | Type | Default | Description |
+|---|---|---|---|
+| `sources` | `PlayerMediaSource[]` | required | Array of source URLs or `{ source, mimeType }` objects |
+| `autoPlay` | `boolean` | `false` | Start playback immediately |
+| `mute` | `boolean` | `false` | Mute audio (pair with autoPlay) |
+| `loop` | `boolean` | `false` | Loop VOD playback |
+| `playbackType` | `'live' \| 'vod'` | `'vod'` | Stream type — set only if known in advance |
+| `priorityTransport` | `'dash' \| 'hls'` | `'dash'` | Preferred protocol when multiple sources given |
+| `poster` | `PosterPluginSettings` | — | Poster image config: `{ url, showForNoOp, showOnVideoEnd }` |
+| `language` | `string` | `'en'` | UI language code |
+| `strings` | `TranslationSettings` | — | Custom localization strings |
+| `debug` | `'all' \| 'none' \| boolean` | `'none'` | Debug log level |
+
+Plugin-specific options are nested under a key matching the plugin name (e.g. `poster`, `cmcd`, `googleAnalytics`).
+
+## Available plugins
+
+### Playback
+`AudioTracks`, `ClickToPause`, `Clips`, `DvrControls`, `MultiCamera`, `PictureInPicture`, `PlaybackRate`, `Poster`, `QualityLevels`, `SeekTime`, `Share`, `SkipTime`, `SourceController`, `ClosedCaptions` (alias: `Subtitles`), `Thumbnails`
+
+### UI
+`BigMuteButton`, `BottomGear`, `ContextMenu`, `ErrorScreen`, `Favicon`, `Logo`, `MediaControl`, `SpinnerThreeBounce` (alias: `Spinner`), `VolumeFade`
+
+### Analytics
+`ClapprStats`, `CmcdConfig`, `GoogleAnalytics`, `NerdStats`, `Telemetry`
+
+## Player methods
+
+```ts
+player.play()           // start playback
+player.pause()          // pause
+player.stop()           // stop
+player.seek(seconds)    // jump to position
+player.mute()
+player.unmute()
+player.setVolume(0..1)
+player.isMuted(): boolean
+player.isPlaying(): boolean
+player.getCurrentTime(): number
+player.getDuration(): number
+player.isDvrEnabled(): boolean
+player.load(sources)    // swap sources without destroying
+player.destroy()        // release all resources
+```
+
+## Events
+
+```ts
+import { PlayerEvent } from '@gcorevideo/player'
+
+player.on(PlayerEvent.Ready, () => {})
+player.on(PlayerEvent.Play, () => {})
+player.on(PlayerEvent.Pause, () => {})
+player.on(PlayerEvent.Ended, () => {})
+player.on(PlayerEvent.TimeUpdate, ({ current, total }) => {})
+player.on(PlayerEvent.VolumeUpdate, (volume: number) => {})
+player.on(PlayerEvent.Seek, (seconds: number) => {})
+player.on(PlayerEvent.Fullscreen, (isFullscreen: boolean) => {})
+player.on(PlayerEvent.Resize, ({ width, height }) => {})
+player.on(PlayerEvent.Error, (error: PlaybackError) => {})
+```
+
+## Documentation index
+
+- Quick start: `docs/quick-start.md`
+- Install guide: `docs/install-and-configure.md`
+- Framework integration (React, Vue, Next.js): `docs/framework-integration.md`
+- Code examples: `EXAMPLES.md`
+- AI development guide: `AI-DEVELOPMENT.md`
+- Architecture: `docs/architecture.md`
+- Code map: `docs/codemap.md`
+- Generated API reference: `packages/player/docs/api/player.md`
+- Public types: `packages/player/src/types.ts`
+- Player class: `packages/player/src/Player.ts`
+- All plugin exports: `packages/player/src/index.plugins.ts`
+
+## Plugin development pattern
+
+```ts
+import { UICorePlugin } from '@clappr/core'
+
+export class MyPlugin extends UICorePlugin {
+  name = 'my_plugin'
+  static type = 'core'   // or 'container' for ContainerPlugin
+
+  bindEvents() {
+    this.listenTo(this.core, Events.PLAYER_PLAY, this.onPlay)
+  }
+
+  private onPlay() { /* ... */ }
+}
+
+Player.registerPlugin(MyPlugin)
+```
+
+Plugin config is passed via `PlayerConfig` under the plugin's `name` key:
+```ts
+new Player({ my_plugin: { someOption: true }, sources: [...] })
+```

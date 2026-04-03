@@ -1,0 +1,77 @@
+---
+description: Rules for writing and modifying player plugins
+globs: ["packages/player/src/plugins/**/*", "assets/**/*"]
+alwaysApply: false
+---
+
+# Plugin Development Rules
+
+## Plugin class structure
+
+```ts
+import { UICorePlugin, Events } from '@clappr/core'
+
+export class MyPlugin extends UICorePlugin {
+  name = 'my_plugin'       // must be unique; used as PlayerConfig key for options
+  static type = 'core'     // 'core' for UICorePlugin, 'container' for ContainerPlugin
+
+  bindEvents() {
+    // Use listenTo — auto-cleans up on destroy; never use addEventListener directly
+    this.listenTo(this.core, Events.PLAYER_PLAY, this.onPlay)
+  }
+
+  private onPlay() { /* ... */ }
+}
+```
+
+## File layout for a new plugin
+
+```
+packages/player/src/plugins/my-feature/
+  MyFeature.ts                          # Plugin class + exported settings interface
+  __tests__/
+    MyFeature.test.ts
+
+assets/my-feature/
+  template.ejs                          # EJS template (if UI)
+  my-feature.scss                       # Styles (if UI)
+```
+
+After creating, export from `packages/player/src/index.plugins.ts`.
+
+## Plugin options
+
+Plugin-specific config is passed via `PlayerConfig` under the plugin's `name` key:
+```ts
+new Player({ my_plugin: { someOption: true }, sources: [...] })
+// accessed inside the plugin as: this.options.my_plugin
+```
+
+Export the options interface publicly:
+```ts
+export interface MyPluginSettings {
+  someOption?: boolean
+}
+```
+
+## Event communication
+
+- Never reference another plugin directly from within a plugin
+- Use Clappr's event system for inter-plugin communication
+- Use `this.listenTo()` not `this.on()` — `listenTo` tracks the binding and cleans up automatically
+
+## Assets
+
+- Import EJS template: `import myTemplate from '../../../assets/my-feature/template.ejs'`
+- Import SCSS: `import '../../../assets/my-feature/my-feature.scss'`
+- Use `template(myTemplate)({})` to render
+
+## Testing plugins
+
+```ts
+import { describe, it, expect, beforeEach, vi } from 'vitest'
+// Mock Clappr core and browser APIs
+// Test: bindEvents wiring, render output, config option handling
+```
+
+Do not test Clappr internals — only test your plugin's public behavior.

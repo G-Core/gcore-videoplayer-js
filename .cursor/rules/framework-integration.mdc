@@ -1,0 +1,137 @@
+---
+description: Rules for integrating the player into React, Vue, Next.js, Nuxt, and Svelte
+globs: ["**/*.tsx", "**/*.jsx", "**/*.vue", "**/*.svelte"]
+alwaysApply: false
+---
+
+# Framework Integration Rules
+
+Full examples: `docs/framework-integration.md`
+
+## React
+
+Register plugins at module level (outside components), not inside hooks:
+
+```tsx
+import '@gcorevideo/player/dist/index.css'
+import { Player, MediaControl, SourceController } from '@gcorevideo/player'
+
+// Module level — runs once
+Player.registerPlugin(MediaControl)
+Player.registerPlugin(SourceController)
+
+function VideoPlayer({ src }: { src: string }) {
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!ref.current) return
+    const player = new Player({ autoPlay: true, mute: true, sources: [src] })
+    player.attachTo(ref.current)
+    return () => player.destroy()   // REQUIRED — prevents memory leaks
+  }, [])
+
+  return <div ref={ref} style={{ width: '100%', aspectRatio: '16/9' }} />
+}
+```
+
+To react to `src` changes without destroying/recreating:
+```tsx
+useEffect(() => { playerRef.current?.load([src]) }, [src])
+```
+
+## Vue 3
+
+```vue
+<script setup lang="ts">
+import { ref, onMounted, onUnmounted } from 'vue'
+import { Player, MediaControl, SourceController } from '@gcorevideo/player'
+import '@gcorevideo/player/dist/index.css'
+
+Player.registerPlugin(MediaControl)
+Player.registerPlugin(SourceController)
+
+const props = defineProps<{ src: string }>()
+const container = ref<HTMLElement | null>(null)
+let player: Player | null = null
+
+onMounted(() => {
+  player = new Player({ autoPlay: true, mute: true, sources: [props.src] })
+  player.attachTo(container.value!)
+})
+
+onUnmounted(() => player?.destroy())
+</script>
+
+<template>
+  <div ref="container" style="width: 100%; aspect-ratio: 16/9;" />
+</template>
+```
+
+## Next.js (SSR — browser-only library)
+
+Never import `@gcorevideo/player` at module level in server-rendered files.
+
+App Router:
+```tsx
+// Mark as client component
+'use client'
+
+// Use dynamic import to prevent SSR execution
+import dynamic from 'next/dynamic'
+const VideoPlayer = dynamic(() => import('./VideoPlayer'), { ssr: false })
+```
+
+Import CSS in layout or `_app`:
+```ts
+import '@gcorevideo/player/dist/index.css'
+```
+
+## Nuxt 3
+
+Use `.client.vue` suffix — Nuxt automatically skips it on the server:
+```
+components/VideoPlayer.client.vue
+```
+
+Import dynamically inside `onMounted`:
+```ts
+onMounted(async () => {
+  const { Player, MediaControl } = await import('@gcorevideo/player')
+  await import('@gcorevideo/player/dist/index.css')
+  // ... create and attach player
+})
+```
+
+## Svelte / SvelteKit
+
+```svelte
+<script lang="ts">
+  import { onMount, onDestroy } from 'svelte'
+  let container: HTMLDivElement
+  let player: import('@gcorevideo/player').Player | null = null
+
+  onMount(async () => {
+    const { Player, MediaControl, SourceController } = await import('@gcorevideo/player')
+    await import('@gcorevideo/player/dist/index.css')
+    Player.registerPlugin(MediaControl)
+    Player.registerPlugin(SourceController)
+    player = new Player({ autoPlay: true, mute: true, sources: [src] })
+    player.attachTo(container)
+  })
+
+  onDestroy(() => player?.destroy())
+</script>
+
+<div bind:this={container} style="width:100%;aspect-ratio:16/9" />
+```
+
+## Common pitfalls
+
+| Problem | Fix |
+|---|---|
+| No video rendered | Import `@gcorevideo/player/dist/index.css` |
+| Blank container | Set width + height on the container element |
+| SSR crash | Use dynamic import or `.client.vue` / `'use client'` |
+| Memory leak | Always call `player.destroy()` in cleanup |
+| Autoplay blocked | Pair `autoPlay: true` with `mute: true` |
+| Plugin has no effect | Register before `new Player()`, not after |
