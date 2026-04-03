@@ -347,7 +347,7 @@
   <body>
     <main>
       <header class="page-header">
-        <span class="eyebrow">Native JS Example</span>
+        <span class="eyebrow">Vanilla JS Example</span>
         <h1>Dual-player control surface for Live and VOD</h1>
         <p class="intro">
           This page follows the repo README guidance for native browser usage:
@@ -527,6 +527,12 @@
     </main>
 
     <script type="module">
+      // ---------------------------------------------------------------------------
+      // CDN import — vanilla JS integration path (no npm, no build step).
+      // Replace the URL with a pinned version for production stability:
+      //   https://player.gvideo.co/v2/assets/1.2.3/index.js
+      // Use /latest/ only during development or demos.
+      // ---------------------------------------------------------------------------
       import {
         BigMuteButton,
         BottomGear,
@@ -542,11 +548,55 @@
         version,
       } from "https://player.gvideo.co/v2/assets/latest/index.js";
 
+      // ---------------------------------------------------------------------------
+      // Plugin registration — must happen ONCE, before any Player instance is created.
+      //
+      // Plugin catalogue used in this demo (register only the ones you need):
+      //
+      //   BigMuteButton  — Large overlay button that appears when the player starts
+      //                    muted (autoplay flow). Lets the viewer unmute without
+      //                    hunting for the volume control in the bar.
+      //
+      //   BottomGear     — Gear icon in the control bar that opens a settings panel.
+      //                    Used here to host the QualityLevels menu.
+      //
+      //   CmcdConfig     — Attaches CMCD (Common Media Client Data) query params to
+      //                    every media request. Allows the CDN to identify sessions
+      //                    and content for analytics and adaptive delivery tuning.
+      //
+      //   DvrControls    — Adds a live/DVR indicator and "go-to-live" button to the
+      //                    control bar. Only meaningful for live streams; ignored for VOD.
+      //
+      //   ErrorScreen    — Renders a readable overlay when playback fails fatally
+      //                    instead of leaving a blank player.
+      //
+      //   MediaControl   — The main control bar: play/pause, seek bar, volume, time,
+      //                    fullscreen. Remove it to build a fully custom UI.
+      //
+      //   QualityLevels  — Manual quality selector (SD / HD / Full HD labels).
+      //                    Exposed via BottomGear in this demo.
+      //
+      //   Spinner        — Buffering indicator shown while the player is loading or
+      //                    stalled. showOnError keeps it visible until ErrorScreen appears.
+      //
+      //   SourceController — Manages source loading, reloading, and failover between
+      //                    multiple sources. Required whenever player.load() is called
+      //                    after initial setup or when switching streams.
+      //
+      //   Thumbnails     — Hover previews over the VOD seek bar. Requires a sprite
+      //                    metadata file; gracefully absent when not provided.
+      // ---------------------------------------------------------------------------
       function registerPluginsOnce() {
+        // Guard against duplicate registration when the module is evaluated more
+        // than once (e.g. hot-module reload in dev environments or multiple script tags).
         if (window.__gcoreExamplePluginsRegistered) {
           return;
         }
 
+        // Compatibility shim: older CDN builds may not expose CmcdConfig.version
+        // as a prototype property. The CmcdConfig plugin checks this during init;
+        // without it the plugin silently fails. Safe to remove once all CDN versions
+        // are ≥ the version that includes the fix.
         if (!CmcdConfig.prototype.version) {
           Object.defineProperty(CmcdConfig.prototype, "version", {
             value: CmcdConfig.version || "0.1.0",
@@ -569,22 +619,37 @@
 
       registerPluginsOnce();
 
+      // ---------------------------------------------------------------------------
+      // Events to subscribe to on every player instance.
+      // These cover the full lifecycle needed for external UI (buttons, logs, analytics).
+      // Add or remove names to match the events relevant to your integration.
+      // ---------------------------------------------------------------------------
       const PLAYER_EVENTS = [
-        "ready",
-        "play",
-        "pause",
-        "stop",
-        "ended",
-        "seek",
-        "volumeupdate",
-        "fullscreen",
-        "error",
+        "ready",       // player is initialized and attached; safe to call API methods
+        "play",        // playback started (including after seek-to-live or source reload)
+        "pause",       // user or code paused
+        "stop",        // playback stopped (distinct from pause — resources may be released)
+        "ended",       // VOD reached the end of the media
+        "seek",        // time position changed; payload = target seconds
+        "volumeupdate",// volume or mute state changed; payload = volume 0..1
+        "fullscreen",  // fullscreen toggled; payload = boolean isFullscreen
+        "error",       // fatal or recoverable playback error; payload = PlaybackError
       ];
+
+      // Resolve the SDK version for logging. The version export may be a function
+      // (returns an object) or a plain string depending on the SDK build.
       const PLAYER_VERSION_INFO =
         typeof version === "function"
           ? version()
           : { gplayer: version || "unknown" };
 
+      // ---------------------------------------------------------------------------
+      // Optional VOD thumbnail sprites.
+      // Thumbnails are loaded from a separate side-car file so this demo works
+      // without them. The player degrades gracefully: seek bar works, previews don't.
+      // To add thumbnails for your own content: create vod-thumbnails.js that exports
+      //   export const VOD_THUMBNAILS = { myKey: { url, width, height, ... } }
+      // ---------------------------------------------------------------------------
       const EMPTY_VOD_THUMBNAILS = {
         sintel: undefined,
         spring: undefined,
@@ -605,8 +670,34 @@
 
       const VOD_THUMBNAILS = await loadOptionalVodThumbnails();
 
+      // ---------------------------------------------------------------------------
+      // Panel configuration — one entry per player panel on the page.
+      //
+      // Each panel has:
+      //   panelId / playerElementId  — DOM IDs for the panel container and player mount point
+      //   playbackType               — 'live' or 'vod'; passed to PlayerConfig
+      //   defaultSourceId            — which tab is active on load
+      //   summaryLabel               — short human label used in logs and CMCD contentId
+      //   tabs                       — named source variants the user can switch between
+      //
+      // Tab fields:
+      //   label          — shown in the tab button and source label
+      //   description    — short format hint shown in the source label
+      //   sources        — array of { source, mimeType } objects passed to PlayerConfig
+      //   reloadOnResume — (live only) when true, pressing Play fully reloads the stream
+      //                    instead of seeking to the live edge. Required for LL-HLS/LL-DASH
+      //                    streams where latency drift makes seeking insufficient — the only
+      //                    reliable way to re-lock to the live edge is a full manifest reload.
+      //   startAt        — (VOD only) seek to this second on first play; useful to skip
+      //                    intros or demonstrate a specific scene without changing the URL
+      //   thumbnails     — sprite metadata for the Thumbnails plugin (optional)
+      // ---------------------------------------------------------------------------
       const PANEL_CONFIGS = [
         {
+          // LEFT PANEL — Live streams
+          // Demonstrates two live delivery modes selectable at runtime:
+          //   standard    = HLS MPEG-TS (wide compatibility, ~8–15 s latency)
+          //   low-latency = LL-HLS CMAF (requires reloadOnResume for latency chase)
           panelId: "live-panel",
           playerElementId: "live-player",
           playbackType: "live",
@@ -616,6 +707,9 @@
             standard: {
               label: "Standard latency",
               description: "Live HLS MPEG-TS from quick-start",
+              // HLS MPEG-TS: broadest browser/device coverage, higher latency.
+              // A single HLS source is enough; SourceController handles failover
+              // if you add fallback URLs.
               sources: [
                 {
                   source:
@@ -627,7 +721,15 @@
             "low-latency": {
               label: "Low-latency",
               description: "Live HLS CMAF from quick-start",
+              // reloadOnResume = true triggers a full player.load() instead of
+              // player.seek(liveEdge) when the external Play button is pressed.
+              // This is the correct approach for LL-HLS and LL-DASH streams:
+              // after a pause, the segment availability window may have advanced
+              // past what the current playlist covers, so seeking alone cannot
+              // recover the live edge — a fresh manifest fetch is needed.
               reloadOnResume: true,
+              // LL-HLS CMAF: sub-3-second latency with CMAF chunked transfer.
+              // The player auto-detects LL-HLS from the #EXT-X-PART tags in the manifest.
               sources: [
                 {
                   source: "https://demo-public.gvideo.io/cmaf/2675_19146/master.m3u8",
@@ -638,6 +740,15 @@
           },
         },
         {
+          // RIGHT PANEL — VOD (Video on Demand)
+          // Demonstrates multiple VOD formats switchable at runtime.
+          // Both tabs use HLS MPEG-TS here; to test other formats add extra
+          // source objects with the appropriate mimeType:
+          //   HLS CMAF:        application/x-mpegurl  (.m3u8, CMAF segments)
+          //   MPEG-DASH CMAF:  application/dash+xml   (.mpd)
+          //   MP4:             video/mp4              (.mp4)
+          // SourceController picks the best available format automatically when
+          // multiple sources are listed and priorityTransport is set.
           panelId: "vod-panel",
           playerElementId: "vod-player",
           playbackType: "vod",
@@ -647,6 +758,9 @@
             sintel: {
               label: "Blender, Sintel",
               description: "VOD HLS MPEG-TS from quick-start",
+              // startAt: skip to 4 s on first play to land in a scene with visible
+              // action. The seek is applied once inside applyPendingStartAt() when
+              // the 'play' event fires, then cleared so normal seeking is unaffected.
               startAt: 4,
               thumbnails: VOD_THUMBNAILS.sintel,
               sources: [
@@ -674,14 +788,22 @@
         },
       ];
 
+      // ---------------------------------------------------------------------------
+      // Utility helpers
+      // ---------------------------------------------------------------------------
+
+      // ISO timestamp trimmed to seconds — used in the event log prefix.
       function formatUtc(date = new Date()) {
         return date.toISOString().slice(0, 19).replace("T", " ");
       }
 
+      // Consistent numeric display for seek positions and durations.
       function formatNumber(value) {
         return Number.isFinite(value) ? value.toFixed(2) : "0.00";
       }
 
+      // The player returns volume in the 0..1 range; the UI shows percentages.
+      // Guard against non-finite values that can appear before the player is ready.
       function normalizeVolumePercent(value) {
         if (!Number.isFinite(value)) {
           return 0;
@@ -690,6 +812,13 @@
         return value <= 1 ? value * 100 : value;
       }
 
+      // ---------------------------------------------------------------------------
+      // CMCD (Common Media Client Data) — RFC 9486
+      // Generates a fresh sessionId per source switch so the CDN can correlate
+      // requests to a single viewing session and track quality-of-experience metrics.
+      // contentId is a human-readable slug combining panel type and source tab.
+      // Pass the returned object to PlayerConfig.cmcd or player.configure({ cmcd }).
+      // ---------------------------------------------------------------------------
       function buildCmcdConfig(summaryLabel, sourceId) {
         return {
           sessionId: crypto.randomUUID(),
@@ -697,6 +826,8 @@
         };
       }
 
+      // Normalize the error payload — PlaybackError exposes several optional fields
+      // depending on which playback engine produced it.
       function describeError(error) {
         if (!error) {
           return "unknown error";
@@ -710,6 +841,7 @@
         );
       }
 
+      // Display a live UTC clock in the panel. Each panel has its own timer element.
       function initializeUtcTimer(panel) {
         const timerElement = panel.querySelector('[data-role="timer"]');
 
@@ -721,11 +853,28 @@
         window.setInterval(render, 1000);
       }
 
+      // ---------------------------------------------------------------------------
+      // createPanelController — core factory function.
+      //
+      // One controller is created per panel (live, vod). It:
+      //   1. Creates and configures the Player instance
+      //   2. Subscribes to player events and writes them to the log textarea
+      //   3. Wires external control buttons (Play, Pause, Mute, Volume) to the player
+      //   4. Handles source tab switching without destroying the player
+      //
+      // This pattern is useful when you have one player per view but need external
+      // UI (e.g. custom controls outside the player container, analytics dashboards,
+      // or accessibility overlays) that must stay synchronized with player state.
+      // ---------------------------------------------------------------------------
       function createPanelController(config) {
+        // Resolve DOM nodes up front; all subsequent code uses these references.
         const panel = document.getElementById(config.panelId);
         const playerNode = document.getElementById(config.playerElementId);
         const sourceNameNode = panel.querySelector('[data-role="source-name"]');
         const logNode = panel.querySelector('[data-role="log"]');
+        // External control buttons — exist outside the player's own control bar.
+        // Demonstrates that player.play() / pause() / mute() / setVolume() work
+        // independently of the built-in MediaControl UI.
         const playButton = panel.querySelector('[data-action="play"]');
         const pauseButton = panel.querySelector('[data-action="pause"]');
         const muteButton = panel.querySelector('[data-action="mute"]');
@@ -735,12 +884,21 @@
         const tabButtons = Array.from(
           panel.querySelectorAll("[data-source-id]"),
         );
+
+        // In-memory log buffer — capped at 40 lines to avoid textarea bloat.
         const eventLog = [];
         let activeSourceId = config.defaultSourceId;
+        // Timeout handles for the autoplay recovery retries (see scheduleAutoplayRecovery).
         let autoplayRetryHandles = [];
+        // Pending seek position applied on the first 'play' event after a source
+        // load. Null once consumed so normal user seeking is not intercepted.
         let pendingStartAt = config.tabs[activeSourceId].startAt ?? null;
         let cmcdConfig = buildCmcdConfig(config.summaryLabel, activeSourceId);
+        // Used to filter spurious fullscreen events from the other panel.
         let fullscreenOwnedByPanel = false;
+
+        // Authoritative UI state — kept in sync from player events via syncStateFromPlayer().
+        // External controls read from this object instead of polling the player on every click.
         const state = {
           isMuted: true,
           isPlaying: false,
@@ -749,6 +907,16 @@
 
         initializeUtcTimer(panel);
 
+        // ---------------------------------------------------------------------------
+        // Player instantiation.
+        // autoPlay + mute: required combination to satisfy browser autoplay policies.
+        // The BigMuteButton plugin surfaces an unmute affordance for the user.
+        //
+        // Plugin options are passed under their plugin name key:
+        //   qualityLevels.labels  — human-readable names mapped to resolution heights
+        //   spinner.showOnError   — keep the spinner visible when ErrorScreen takes over
+        //   thumbnails            — sprite metadata; undefined disables the plugin gracefully
+        // ---------------------------------------------------------------------------
         const player = new Player({
           autoPlay: true,
           mute: true,
@@ -756,6 +924,7 @@
           sources: config.tabs[activeSourceId].sources,
           cmcd: cmcdConfig,
           qualityLevels: {
+            // Map bitrate ladder heights to marketing names shown in the quality menu.
             labels: {
               360: "SD",
               480: "SD+",
@@ -764,12 +933,18 @@
             },
           },
           spinner: {
-            showOnError: true,
-            showOnStart: true,
+            showOnError: true,  // show spinner while ErrorScreen is fading in
+            showOnStart: true,  // show spinner on initial load before first frame
           },
           thumbnails: config.tabs[activeSourceId].thumbnails,
         });
 
+        // ---------------------------------------------------------------------------
+        // appendLog — write a timestamped entry to the read-only textarea.
+        // Auto-scrolls to the bottom only when the user has not manually scrolled up
+        // (shouldStickToBottom check), so they can read earlier events without losing
+        // their position.
+        // ---------------------------------------------------------------------------
         function appendLog(eventName, details = "") {
           const shouldStickToBottom =
             logNode.scrollTop + logNode.clientHeight >= logNode.scrollHeight - 8;
@@ -784,11 +959,19 @@
           }
         }
 
+        // Update the source badge shown in the panel header.
         function updateSourceLabel() {
           const sourceConfig = config.tabs[activeSourceId];
           sourceNameNode.textContent = `${sourceConfig.label} | ${sourceConfig.description}`;
         }
 
+        // ---------------------------------------------------------------------------
+        // Fullscreen ownership check.
+        // Both panels subscribe to the same 'fullscreen' player event. When one panel
+        // goes fullscreen the other also fires an exit event. This check ensures each
+        // panel only logs and reacts to fullscreen changes that belong to its own player.
+        // Handles both the standard Fullscreen API and Safari's webkit prefix.
+        // ---------------------------------------------------------------------------
         function isPanelFullscreenTarget() {
           const fullscreenElement = document.fullscreenElement;
           if (fullscreenElement) {
@@ -802,6 +985,12 @@
           return Boolean(video?.webkitDisplayingFullscreen);
         }
 
+        // ---------------------------------------------------------------------------
+        // updateDynamicConfig — called on every source switch.
+        // Generates a new CMCD session so CDN analytics correctly attribute the new
+        // content, and updates the Thumbnails plugin config for the incoming source.
+        // player.configure() merges the partial update without requiring a full reload.
+        // ---------------------------------------------------------------------------
         function updateDynamicConfig() {
           cmcdConfig = buildCmcdConfig(config.summaryLabel, activeSourceId);
           player.configure({
@@ -810,6 +999,12 @@
           });
         }
 
+        // ---------------------------------------------------------------------------
+        // applyPendingStartAt — VOD initial position.
+        // Called once from the 'play' event handler. Seeks to startAt then clears
+        // pendingStartAt so subsequent play events (after user pause/resume) are
+        // unaffected. Only applies to VOD — live streams do not have a fixed start.
+        // ---------------------------------------------------------------------------
         function applyPendingStartAt() {
           if (
             config.playbackType !== "vod" ||
@@ -825,21 +1020,49 @@
           appendLog("seek", `initial start position=${formatNumber(startAt)}s`);
         }
 
+        // Pull the current state from the player API into the local state object.
+        // Called after events and before updating external button disabled states.
         function syncStateFromPlayer() {
           state.isPlaying = player.isPlaying();
           state.isMuted = player.isMuted();
           state.volumePercent = normalizeVolumePercent(player.getVolume());
         }
 
+        // ---------------------------------------------------------------------------
+        // updateButtons — reflect player state in the external control buttons.
+        // Disabling buttons that are redundant (e.g. Play when already playing)
+        // prevents double-actions and gives visual feedback to the user.
+        // Call this after any state change: events, source switches, manual actions.
+        // ---------------------------------------------------------------------------
         function updateButtons() {
           playButton.disabled = state.isPlaying;
           pauseButton.disabled = !state.isPlaying;
+          // Mute is a no-op when already muted or volume is already at 0.
           muteButton.disabled = state.isMuted || state.volumePercent <= 0;
+          // Volume 90% is a no-op when already unmuted and within 0.5% of 90.
           volumeNinetyButton.disabled =
             !state.isMuted &&
             Math.abs(state.volumePercent - 90) < 0.5;
         }
 
+        // ---------------------------------------------------------------------------
+        // playCurrentSource — smart Play action for external buttons.
+        //
+        // Three behaviours depending on stream type:
+        //
+        //   LL-HLS / LL-DASH (reloadOnResume = true):
+        //     Full player.load() to re-fetch the manifest from scratch. This is the
+        //     only reliable way to recover low-latency positioning after a pause,
+        //     because the sliding segment window may have moved past what the cached
+        //     playlist covers. Seeking alone does not chase the live edge here.
+        //
+        //   Standard live (reloadOnResume = false):
+        //     Seek to getDuration() (the live edge reported by hls.js / dash.js),
+        //     then call play(). This avoids a full reload and keeps the session active.
+        //
+        //   VOD:
+        //     Plain player.play() — the player resumes from where it was paused.
+        // ---------------------------------------------------------------------------
         function playCurrentSource() {
           const sourceConfig = config.tabs[activeSourceId];
 
@@ -861,6 +1084,18 @@
           return "External Play button clicked";
         }
 
+        // ---------------------------------------------------------------------------
+        // Autoplay recovery — browser policy mitigation.
+        //
+        // Some browsers suppress autoplay silently: the call succeeds but playback
+        // never starts. Three staggered retries (150 ms, 700 ms, 1400 ms) cover the
+        // cases where the player needs a moment to initialize before play() takes
+        // effect. clearAutoplayRecovery() cancels pending retries as soon as a
+        // genuine 'play' event confirms playback has started.
+        //
+        // Use this pattern whenever you call player.load() or source switch
+        // and need guaranteed autoplay in public-facing pages.
+        // ---------------------------------------------------------------------------
         function clearAutoplayRecovery() {
           autoplayRetryHandles.forEach((handle) => window.clearTimeout(handle));
           autoplayRetryHandles = [];
@@ -878,6 +1113,21 @@
           );
         }
 
+        // ---------------------------------------------------------------------------
+        // switchSource — hot-swap the media source without destroying the player.
+        //
+        // Uses player.load() (provided by SourceController) to replace the active
+        // source. The player UI stays mounted; only the media pipeline is restarted.
+        // This is the recommended pattern for playlist-style UIs, stream selectors,
+        // or any scenario where the user picks between multiple assets.
+        //
+        // Steps:
+        //   1. Update config state and reset startAt for the new source
+        //   2. Reconfigure dynamic options (CMCD, thumbnails) via player.configure()
+        //   3. Update tab button aria-pressed states for accessibility
+        //   4. Call player.load() with the new sources array
+        //   5. Schedule autoplay recovery in case the new source takes time to start
+        // ---------------------------------------------------------------------------
         function switchSource(sourceId) {
           if (!config.tabs[sourceId] || sourceId === activeSourceId) {
             return;
@@ -902,32 +1152,60 @@
           updateButtons();
         }
 
+        // ---------------------------------------------------------------------------
+        // handleTrackedEvent — central event dispatcher.
+        //
+        // All subscribed player events flow through here. It:
+        //   - Updates the local state object so external buttons stay in sync
+        //   - Writes a human-readable log entry
+        //   - Triggers UI refreshes via requestAnimationFrame to batch DOM writes
+        //
+        // Copy individual cases into your own integration as needed:
+        //   'ready'       — safe point to call player.seek() or read getDuration()
+        //   'play'        — first frame is rendering; apply startAt seek here
+        //   'volumeupdate'— use payload (0..1) to update a custom volume slider
+        //   'fullscreen'  — sync a custom fullscreen button icon
+        //   'error'       — show fallback UI or trigger source retry logic
+        // ---------------------------------------------------------------------------
         function handleTrackedEvent(eventName, payload) {
           switch (eventName) {
             case "ready":
+              // Sync state immediately — isMuted/isPlaying may differ from initial
+              // assumptions if the browser overrode autoplay settings.
               syncStateFromPlayer();
               appendLog("ready", `${config.summaryLabel} player initialized`);
+              // Log CMCD identifiers so they can be matched in CDN analytics.
               appendLog(
                 "cmcd",
                 `sid=${cmcdConfig.sessionId}, cid=${cmcdConfig.contentId}`,
               );
               break;
+
             case "play":
+              // Cancel recovery retries — real playback has started.
               clearAutoplayRecovery();
               state.isPlaying = true;
+              // Apply the one-time startAt seek for VOD sources that define it.
               applyPendingStartAt();
               appendLog("play", `isPlaying=${state.isPlaying}`);
               break;
+
             case "pause":
             case "stop":
             case "ended":
               state.isPlaying = false;
               appendLog(eventName, `isPlaying=${state.isPlaying}`);
               break;
+
             case "seek":
+              // payload = target position in seconds (number)
               appendLog(eventName, `position=${formatNumber(payload)}s`);
               break;
+
             case "volumeupdate":
+              // payload = current volume as 0..1 float.
+              // Derive muted state from volume level too — setVolume(0) is equivalent
+              // to mute even if isMuted() returns false.
               state.volumePercent = normalizeVolumePercent(payload);
               state.isMuted = state.volumePercent <= 0 ? true : player.isMuted();
               appendLog(
@@ -935,10 +1213,14 @@
                 `volume=${formatNumber(state.volumePercent)}%, muted=${state.isMuted}`,
               );
               break;
+
             case "fullscreen":
+              // payload = boolean. Both panels receive this event when either one
+              // enters or exits fullscreen. Use isPanelFullscreenTarget() to filter
+              // events that belong to the other panel.
               if (Boolean(payload)) {
                 if (!isPanelFullscreenTarget()) {
-                  return;
+                  return; // fullscreen event belongs to the other panel — ignore
                 }
                 fullscreenOwnedByPanel = true;
                 appendLog("fullscreen", "enabled=true");
@@ -946,27 +1228,43 @@
                 fullscreenOwnedByPanel = false;
                 appendLog("fullscreen", "enabled=false");
               } else {
-                return;
+                return; // exit event from the other panel — ignore
               }
               break;
+
             case "error":
+              // payload = PlaybackError object with message, code, and level fields.
               appendLog("error", describeError(payload));
               break;
+
             default:
               appendLog(eventName);
           }
 
+          // Batch state sync and button update into the next animation frame to avoid
+          // layout thrashing when multiple events fire in quick succession.
           window.requestAnimationFrame(() => {
             syncStateFromPlayer();
             updateButtons();
           });
+          // Also update synchronously so button state is correct before the frame fires.
           updateButtons();
         }
 
+        // ---------------------------------------------------------------------------
+        // Subscribe to all tracked events.
+        // The wrapper lambda captures eventName so handleTrackedEvent can switch on it.
+        // ---------------------------------------------------------------------------
         PLAYER_EVENTS.forEach((eventName) => {
           player.on(eventName, (payload) => handleTrackedEvent(eventName, payload));
         });
 
+        // ---------------------------------------------------------------------------
+        // External control button wiring.
+        // These buttons exist outside the player container and demonstrate that
+        // player.play() / pause() / mute() / setVolume() work from anywhere in the
+        // page — useful for accessibility overlays, remote controls, or custom skins.
+        // ---------------------------------------------------------------------------
         playButton.addEventListener("click", () => {
           const playDescription = playCurrentSource();
           appendLog("ui-play", playDescription);
@@ -981,24 +1279,34 @@
         });
 
         muteButton.addEventListener("click", () => {
+          // setVolume(0) is used instead of player.mute() so the volume state
+          // is visible in the volumeupdate event (mute() does not always fire it).
           player.setVolume(0);
           appendLog("ui-mute", "External Mute button clicked");
           updateButtons();
         });
 
         volumeNinetyButton.addEventListener("click", () => {
+          // unmute() before setVolume() to ensure the audio pipeline is active.
           player.unmute();
           player.setVolume(90);
           appendLog("ui-volume-90", "External Volume 90% button clicked");
           updateButtons();
         });
 
+        // Source tab buttons — clicking one calls switchSource() which hot-swaps
+        // the media without destroying the player or re-registering plugins.
         tabButtons.forEach((button) => {
           button.addEventListener("click", () => {
             switchSource(button.dataset.sourceId);
           });
         });
 
+        // ---------------------------------------------------------------------------
+        // Initial render — populate labels, log version info, attach and start.
+        // attachTo() must be called AFTER all event listeners are registered so no
+        // early events (e.g. 'ready') are missed.
+        // ---------------------------------------------------------------------------
         updateSourceLabel();
         syncStateFromPlayer();
         if (config.playbackType === "vod" && !config.tabs[activeSourceId].thumbnails) {
@@ -1020,6 +1328,7 @@
         updateButtons();
       }
 
+      // Bootstrap — create one controller per panel definition.
       PANEL_CONFIGS.forEach(createPanelController);
     </script>
   </body>

@@ -1,0 +1,337 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/G-Core/gcore-videoplayer-js/blob/main/docs/player-config.schema.json",
+  "title": "PlayerConfig",
+  "description": "Configuration object for the Gcore JavaScript Video Player SDK (@gcorevideo/player). Pass this to the Player constructor: new Player(config)",
+  "type": "object",
+  "required": ["sources"],
+  "additionalProperties": true,
+  "properties": {
+    "sources": {
+      "description": "List of media sources. At least one is required. Sources are tried in order; priorityTransport biases selection when both HLS and DASH are provided.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "oneOf": [
+          {
+            "description": "Source URL string. MIME type is inferred from the extension (.m3u8 → HLS, .mpd → DASH, .mp4 → MP4).",
+            "type": "string",
+            "format": "uri",
+            "examples": [
+              "https://example.com/video.m3u8",
+              "https://example.com/video.mpd",
+              "https://example.com/video.mp4"
+            ]
+          },
+          {
+            "description": "Source object with explicit MIME type.",
+            "type": "object",
+            "required": ["source"],
+            "properties": {
+              "source": {
+                "description": "URL of the media source.",
+                "type": "string",
+                "format": "uri"
+              },
+              "mimeType": {
+                "description": "MIME type of the media source. Required when the type cannot be inferred from the URL extension.",
+                "type": "string",
+                "enum": [
+                  "application/x-mpegurl",
+                  "application/vnd.apple.mpegurl",
+                  "application/dash+xml",
+                  "video/mp4",
+                  "video/webm",
+                  "video/ogg"
+                ],
+                "examples": [
+                  "application/x-mpegurl",
+                  "application/dash+xml",
+                  "video/mp4"
+                ]
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "examples": [
+        ["https://example.com/video.m3u8"],
+        [
+          { "source": "https://example.com/video.mpd", "mimeType": "application/dash+xml" },
+          { "source": "https://example.com/video.m3u8", "mimeType": "application/x-mpegurl" }
+        ]
+      ]
+    },
+
+    "autoPlay": {
+      "description": "Start playback automatically when the player is ready. Must be paired with mute: true to comply with browser autoplay policies.",
+      "type": "boolean",
+      "default": false
+    },
+
+    "mute": {
+      "description": "Mute audio output. Required alongside autoPlay: true to avoid browser autoplay policy blocks.",
+      "type": "boolean",
+      "default": false
+    },
+
+    "loop": {
+      "description": "Repeat playback when the media ends. Intended for VOD (playbackType: 'vod').",
+      "type": "boolean",
+      "default": false
+    },
+
+    "playbackType": {
+      "description": "Stream type. Set only if known in advance — incorrect values cause UI glitches (e.g. DVR controls, seek bar). Omit to let the playback engine auto-detect.",
+      "type": "string",
+      "enum": ["live", "vod"],
+      "default": "vod"
+    },
+
+    "priorityTransport": {
+      "description": "Preferred transport protocol when multiple sources are available. The player tries this transport first; falls back to the other if unavailable.",
+      "type": "string",
+      "enum": ["dash", "hls"],
+      "default": "dash"
+    },
+
+    "language": {
+      "description": "UI language code (ISO 639-1). Must reference a key in the strings record. Defaults to 'en'.",
+      "type": "string",
+      "default": "en",
+      "examples": ["en", "es", "de", "fr", "pt", "ru"]
+    },
+
+    "strings": {
+      "description": "Localization strings for the player UI. Keys are language codes; values are translation key/value pairs.",
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "string"
+        }
+      },
+      "examples": [
+        {
+          "es": {
+            "play": "Reproducir",
+            "pause": "Pausar",
+            "mute": "Silenciar",
+            "unmute": "Activar sonido",
+            "fullscreen": "Pantalla completa"
+          }
+        }
+      ]
+    },
+
+    "debug": {
+      "description": "Debug output level. 'all' or true enables full logging. 'none' or false disables it. 'clappr', 'hls', 'dash' enable per-subsystem logs.",
+      "oneOf": [
+        {
+          "type": "string",
+          "enum": ["all", "clappr", "dash", "hls", "none"]
+        },
+        {
+          "type": "boolean"
+        }
+      ],
+      "default": "none"
+    },
+
+    "dash": {
+      "description": "Configuration settings passed directly to the DASH.js playback engine. See https://cdn.dashjs.org/latest/jsdoc/module-Settings.html for all options.",
+      "type": "object",
+      "additionalProperties": true,
+      "examples": [
+        {
+          "streaming": {
+            "lowLatencyEnabled": true,
+            "abr": { "autoSwitchBitrate": { "video": true } }
+          }
+        }
+      ]
+    },
+
+    "poster": {
+      "description": "Configuration for the Poster plugin. Requires Player.registerPlugin(Poster).",
+      "type": "object",
+      "properties": {
+        "url": {
+          "description": "Poster image URL shown before playback starts.",
+          "type": "string",
+          "format": "uri"
+        },
+        "showForNoOp": {
+          "description": "Show the poster when no playback engine can handle the current sources.",
+          "type": "boolean",
+          "default": false
+        },
+        "showOnVideoEnd": {
+          "description": "Show the poster after playback has ended.",
+          "type": "boolean",
+          "default": true
+        },
+        "custom": {
+          "description": "Custom CSS background value applied to the poster element.",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "cmcd": {
+      "description": "Configuration for the CmcdConfig plugin (Common Media Client Data). Requires Player.registerPlugin(CmcdConfig).",
+      "type": "object",
+      "properties": {
+        "sessionId": {
+          "description": "Session identifier UUID. Auto-generated if omitted.",
+          "type": "string"
+        },
+        "contentId": {
+          "description": "Content identifier. Falls back to the source URL pathname if omitted.",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "googleAnalytics": {
+      "description": "Configuration for the GoogleAnalytics plugin. Requires Player.registerPlugin(GoogleAnalytics).",
+      "type": "object",
+      "properties": {
+        "trackingId": {
+          "description": "Google Analytics measurement ID (e.g. 'G-XXXXXXXXXX').",
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+
+    "mediacontrol": {
+      "description": "Configuration for the MediaControl plugin (main control bar). Requires Player.registerPlugin(MediaControl).",
+      "type": "object",
+      "additionalProperties": true
+    },
+
+    "logo": {
+      "description": "Configuration for the Logo plugin. Requires Player.registerPlugin(Logo).",
+      "type": "object",
+      "properties": {
+        "url": {
+          "description": "URL of the logo image.",
+          "type": "string",
+          "format": "uri"
+        },
+        "link": {
+          "description": "URL to open when the logo is clicked.",
+          "type": "string",
+          "format": "uri"
+        },
+        "position": {
+          "description": "Position of the logo within the player.",
+          "type": "string",
+          "enum": ["bottom-left", "bottom-right", "top-left", "top-right"]
+        },
+        "width": {
+          "description": "Logo width in pixels.",
+          "type": "number"
+        },
+        "height": {
+          "description": "Logo height in pixels.",
+          "type": "number"
+        }
+      },
+      "additionalProperties": true
+    },
+
+    "playbackRate": {
+      "description": "Configuration for the PlaybackRate plugin. Requires Player.registerPlugin(PlaybackRate).",
+      "type": "object",
+      "properties": {
+        "defaultRate": {
+          "description": "Default playback speed.",
+          "type": "number",
+          "default": 1
+        },
+        "speeds": {
+          "description": "Available speed options shown in the UI.",
+          "type": "array",
+          "items": { "type": "number" },
+          "default": [0.5, 1, 1.25, 1.5, 2]
+        }
+      },
+      "additionalProperties": true
+    },
+
+    "contextMenu": {
+      "description": "Configuration for the ContextMenu plugin. Requires Player.registerPlugin(ContextMenu).",
+      "type": "object",
+      "properties": {
+        "options": {
+          "description": "Custom context menu entries.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "title": { "type": "string" },
+              "handler": { "type": "string" }
+            }
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+
+    "errorScreen": {
+      "description": "Configuration for the ErrorScreen plugin. Requires Player.registerPlugin(ErrorScreen).",
+      "type": "object",
+      "additionalProperties": true
+    },
+
+    "favicon": {
+      "description": "Configuration for the Favicon plugin. Requires Player.registerPlugin(Favicon).",
+      "type": "object",
+      "properties": {
+        "faviconColor": {
+          "description": "Color to use for the favicon indicator.",
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+
+  "examples": [
+    {
+      "sources": ["https://example.com/video.m3u8"],
+      "autoPlay": true,
+      "mute": true
+    },
+    {
+      "autoPlay": true,
+      "mute": true,
+      "playbackType": "live",
+      "priorityTransport": "dash",
+      "sources": [
+        { "source": "https://example.com/live.mpd", "mimeType": "application/dash+xml" },
+        { "source": "https://example.com/live.m3u8", "mimeType": "application/x-mpegurl" }
+      ],
+      "poster": {
+        "url": "https://example.com/poster.jpg"
+      }
+    },
+    {
+      "loop": true,
+      "playbackType": "vod",
+      "sources": ["https://example.com/video.mp4"],
+      "language": "es",
+      "strings": {
+        "es": {
+          "play": "Reproducir",
+          "pause": "Pausar"
+        }
+      }
+    }
+  ]
+}

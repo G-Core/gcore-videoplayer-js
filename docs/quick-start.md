@@ -9,7 +9,7 @@ It keeps the same high-level section structure, but the content is rewritten for
 ## Demo links
 
 - Full demo with plugin settings: <https://gcore-videoplayer-js-nuxt.vercel.app/settings>
-- Native JS demo: <https://codepen.io/dmitritz/pen/OPLdEab?editors=1000>
+- Vanilla JS demo: <https://codepen.io/dmitritz/pen/OPLdEab?editors=1000>
 
 Real demo media URLs used in the product docs:
 

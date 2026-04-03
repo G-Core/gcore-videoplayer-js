@@ -1,0 +1,50 @@
+---
+description: Core rules for all files in the Gcore Video Player SDK
+globs: ["**/*"]
+alwaysApply: true
+---
+
+# Gcore Video Player SDK — General Rules
+
+Package: `@gcorevideo/player` | Built on Clappr | TypeScript | Plugin-based
+
+## Critical integration patterns
+
+Plugin registration must precede player instantiation — always:
+```ts
+Player.registerPlugin(MediaControl)   // ← before new Player()
+Player.registerPlugin(SourceController)
+const player = new Player({ sources: [...] })
+```
+
+Always pair autoPlay with mute:
+```ts
+new Player({ autoPlay: true, mute: true, sources: [...] })
+```
+
+Always destroy on component cleanup:
+```ts
+return () => player.destroy()   // React
+onUnmounted(() => player.destroy())  // Vue
+onDestroy(() => player.destroy())    // Svelte
+```
+
+CSS is required:
+```ts
+import '@gcorevideo/player/dist/index.css'
+```
+
+## TypeScript
+
+- No `any` — use `unknown` with type guards
+- Public types → `packages/player/src/types.ts`
+- Internal types → `packages/player/src/internal.types.ts`
+- Plugin option interfaces named `[PluginName]PluginSettings`
+
+## What NOT to do
+
+- Do not modify Clappr core directly
+- Do not use jQuery (Clappr uses Zepto `$`)
+- Do not break public API backward compatibility
+- Do not import `@gcorevideo/player` at SSR module level (Next.js, Nuxt)
+- Do not register plugins inside React components — register once at app level

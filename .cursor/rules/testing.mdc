@@ -1,0 +1,61 @@
+---
+description: Rules for writing tests in the player SDK
+globs: ["**/__tests__/**/*", "**/*.test.ts", "**/*.spec.ts"]
+alwaysApply: false
+---
+
+# Testing Rules
+
+Framework: **Vitest** + **happy-dom**
+Run: `npm test` from `packages/player`
+
+## Test structure
+
+```ts
+import { describe, it, expect, beforeEach, vi } from 'vitest'
+
+describe('MyFeature', () => {
+  beforeEach(() => {
+    // reset state
+  })
+
+  it('should do X when Y', () => {
+    // Arrange
+    // Act
+    // Assert
+  })
+})
+```
+
+## What to test
+
+- ✅ Public API methods and their return values
+- ✅ Events emitted at the right times
+- ✅ Config options are respected
+- ✅ Error handling and edge cases
+- ✅ Plugin lifecycle: bind, render, destroy
+
+## What NOT to test
+
+- ❌ Clappr core internals
+- ❌ `hls.js` or `dash.js` behavior — mock these
+- ❌ Browser APIs — mock with `vi.fn()` or happy-dom stubs
+
+## Mocking
+
+```ts
+// Mock hls.js
+vi.mock('hls.js', () => ({ default: { isSupported: () => true } }))
+
+// Mock dash.js
+vi.mock('dashjs', () => ({ MediaPlayer: () => ({ create: vi.fn() }) }))
+
+// Mock browser API
+Object.defineProperty(window, 'matchMedia', {
+  value: vi.fn().mockReturnValue({ matches: false, addListener: vi.fn() }),
+})
+```
+
+## Plugin tests location
+
+`packages/player/src/plugins/[plugin-name]/__tests__/[PluginName].test.ts`
