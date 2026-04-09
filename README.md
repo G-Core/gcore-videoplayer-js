@@ -155,6 +155,7 @@ The SDK plugin model is grouped in the same way as the product tutorial: `Playba
 |  | `SkipTime` | Jump forward or backward with tap controls |
 |  | `SourceController` | Play one or several media sources with automatic switching and failover |
 |  | `Subtitles` / `ClosedCaptions` | Select subtitle or caption tracks |
+|  | `TokenRefreshPlugin` | Automatically refresh security tokens for Gcore protected-content streams. Rewrites the `/{token}/{expires}/` path segment in every hls.js, dash.js, and native `<video>` request without interrupting playback |
 |  | `Thumbnails` | Show preview thumbnails over the timeline |
 | `UI` | `BigMuteButton` | Show a prominent unmute button for muted autoplay flows |
 |  | `BottomGear` | Extend the control bar with additional settings/actions |
@@ -177,11 +178,23 @@ API details for plugins: [packages/player/docs/api/player.md](./packages/player/
 
 ### Vanilla JS demo
 
-Live demo: <https://g-core.github.io/gcore-videoplayer-js/example/index.html>
+Demo page: [example/index.html](example/index.html)
 
 This demo includes both VOD and live streams. The players are embedded directly into the page with custom controls and dedicated log panels, making playback events easy to follow. The demo is available 24/7.
 
 ![Vanilla JS demo](./docs/images/demo-native-js.png)
+
+
+### Protected-content demo
+
+Demo page: [example/protected-content.html](example/protected-content.html)
+
+Shows **automatic token refresh** each N seconds for a Gcore protected HLS stream using `TokenRefreshPlugin`.
+Tokens are embedded directly in the URL path (`/{token}/{expires}/master.m3u8`) and expire after a configurable interval.
+The plugin fetches a new token before expiry and rewrites every outgoing request URL transparently — playback continues without interruption.
+
+![Protected-content demo](./docs/images/demo-protected-content.png)
+
 
 
 ### Interactive demo with plugin settings
