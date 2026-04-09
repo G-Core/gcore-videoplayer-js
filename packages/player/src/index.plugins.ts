@@ -36,4 +36,5 @@ export * from './plugins/telemetry/Telemetry.js'
 export * from './plugins/thumbnails/Thumbnails.js'
 // _ vast-ads
 // _ video360
+export * from './plugins/token-refresh/index.js'
 export * from './plugins/volume-fade/VolumeFade.js'
