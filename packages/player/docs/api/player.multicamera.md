@@ -223,20 +223,6 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-[activeById(id, active)](./player.multicamera.activebyid.md)
-
-
-</td><td>
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
 [bindEvents()](./player.multicamera.bindevents.md)
 
 
@@ -252,20 +238,6 @@ Description
 <tr><td>
 
 [render()](./player.multicamera.render.md)
-
-
-</td><td>
-
-
-</td><td>
-
-**_(BETA)_**
-
-
-</td></tr>
-<tr><td>
-
-[unBindEvents()](./player.multicamera.unbindevents.md)
 
 
 </td><td>
