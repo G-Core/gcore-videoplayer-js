@@ -5,11 +5,8 @@
 }
 
 .multicamera[data-multicamera] {
-  float: right;
-  margin-top: 4px;
   position: relative;
-  margin-right: 20px;
-  width: 20px;
+  order: 80;
 
   button {
     background-color: transparent;
@@ -20,10 +17,15 @@
     font-size: 14px;
     padding: 0;
 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 20px;
+
     svg {
       height: 20px;
       position: relative;
-      margin-top: 6px;
     }
 
     &:hover {
@@ -32,13 +34,6 @@
 
     &.changing {
       animation: pulse 0.5s infinite alternate;
-    }
-
-    span.quality-arrow {
-      width: 9px;
-      height: 6px;
-      margin-top: 11px;
-      margin-left: 5px;
     }
   }
 
@@ -135,27 +130,5 @@
         }
       }
     }
-
-    a {
-      color: #444;
-      padding: 2px 10px;
-      display: block;
-      text-decoration: none;
-
-      &:hover {
-        background-color: #555;
-        color: white;
-
-        a {
-          color: white;
-          text-decoration: none;
-        }
-      }
-    }
-
-    &.current a {
-      color: #f00;
-    }
-
   }
 }
