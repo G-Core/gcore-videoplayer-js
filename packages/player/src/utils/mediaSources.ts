@@ -7,6 +7,10 @@ import type {
 } from '../types'
 import { trace } from '@gcorevideo/utils'
 
+export const MIME_TYPES_HLS = ['application/x-mpegurl', 'application/vnd.apple.mpegurl']
+export const MIME_TYPE_HLS = MIME_TYPES_HLS[0]
+export const MIME_TYPE_DASH = 'application/dash+xml'
+
 // TODO rewrite using the Playback classes and canPlay static methods
 export function buildMediaSourcesList(
   sources: PlayerMediaSourceDesc[],
@@ -58,26 +62,26 @@ export function wrapSource(s: PlayerMediaSource): PlayerMediaSourceDesc {
   return typeof s === 'string' ? { source: s, mimeType: guessMimeType(s) } : s
 }
 
-function guessMimeType(s: string): string | undefined {
+
+export function guessMimeType(s: string): string | undefined {
   if (s.endsWith('.mpd')) {
-    return 'application/dash+xml'
+    return MIME_TYPE_DASH
   }
   if (s.endsWith('.m3u8')) {
-    // return 'application/vnd.apple.mpegurl'
-    return 'application/x-mpegurl'
+    return MIME_TYPE_HLS
   }
 }
 
 export function isDashSource(source: string, mimeType?: string) {
   if (mimeType) {
-    return mimeType === 'application/dash+xml' // TODO consider video/mp4
+    return mimeType === MIME_TYPE_DASH // TODO consider video/mp4
   }
   return source.endsWith('.mpd')
 }
 
 export function isHlsSource(source: string, mimeType?: string) {
   if (mimeType) {
-    return ['application/vnd.apple.mpegurl', 'application/x-mpegurl'].includes(
+    return MIME_TYPES_HLS.includes(
       mimeType.toLowerCase(),
     )
   }

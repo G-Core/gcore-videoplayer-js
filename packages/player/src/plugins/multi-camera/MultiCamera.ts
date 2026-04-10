@@ -7,6 +7,7 @@ import {
   UICorePlugin,
 } from '@clappr/core'
 import { reportError, trace } from '@gcorevideo/utils'
+import { guessMimeType, MIME_TYPE_DASH } from '../../utils/mediaSources.js'
 
 import { CLAPPR_VERSION } from '../../build.js'
 
@@ -14,18 +15,28 @@ import pluginHtml from '../../../assets/multi-camera/multicamera.ejs'
 import '../../../assets/multi-camera/style.scss'
 
 import streamsIcon from '../../../assets/icons/old/streams.svg'
-import streamsMomentoIcon from '../../../assets/icons/old/language.svg'
-import streamsWhiteNightsIcon from '../../../assets/icons/old/wn.svg'
-import { ZeptoResult } from '../../types.js'
+import { PlayerMediaSource, TransportPreference, ZeptoResult } from '../../types.js'
 
-type MultisourcesMode = 'one_first' | 'only_live' | 'show_all'
+/**
+ * @beta
+ */
+export type MultisourcesMode = 'one_first' | 'only_live' | 'show_all'
 
-type MediaSourceInfo = {
-  live: boolean
-  source: string
-  id: number
+/**
+ * Extended media source description
+ * @beta
+ */
+export type MulticCameraSourceInfo = {
+  description: string
   dvr: boolean
+  hls_mpegts_url: string | null
+  id: number
+  live: boolean
   projection: string | null
+  screenshot: string | null
+  source: string
+  source_dash: string | null
+  title: string
 }
 
 const VERSION = '0.0.1'
@@ -37,13 +48,13 @@ const T = 'plugins.multicamera'
  * @beta
  */
 export class MultiCamera extends UICorePlugin {
-  private currentCamera: MediaSourceInfo | null = null
+  private currentCamera: MulticCameraSourceInfo | null = null
 
   private currentTime: number = 0
 
   private playing = false
 
-  private multicamera: MediaSourceInfo[] = []
+  private multicamera: MulticCameraSourceInfo[] = []
 
   private noActiveStreams = false
 
@@ -89,9 +100,11 @@ export class MultiCamera extends UICorePlugin {
     this.playing = this.options.multicameraPlay
     // Don't mutate the options, TODO check if some plugin observes the options.multicamera
     this.multicamera = this.options.multisources.map(
-      (item: MediaSourceInfo) => ({ ...item }),
+      (item: MulticCameraSourceInfo) => ({ ...item }),
     )
     this.noActiveStreams = this.multicamera.every((item) => !item.live)
+    // TODO filter out non-live
+    this.core.options.sources = expandMediaSource(this.multicamera[0])
   }
 
   override bindEvents() {
@@ -113,19 +126,15 @@ export class MultiCamera extends UICorePlugin {
     )
   }
 
-  unBindEvents() {
-    // @ts-ignore
-    this.stopListening(this.core, Events.CORE_READY)
-    // @ts-ignore
+  private unBindEvents() {
+    this.stopListening(this.core, Events.CORE_READY, this.bindPlaybackEvents)
     this.stopListening(
       this.core.mediaControl,
       Events.MEDIACONTROL_CONTAINERCHANGED,
+      this.reload,
     )
-    // @ts-ignore
-    this.stopListening(this.core.mediaControl, Events.MEDIACONTROL_RENDERED)
-    // @ts-ignore
-    this.stopListening(this.core.mediaControl, Events.MEDIACONTROL_HIDE)
-    // @ts-ignore
+    this.stopListening(this.core.mediaControl, Events.MEDIACONTROL_RENDERED, this.render)
+    this.stopListening(this.core.mediaControl, Events.MEDIACONTROL_HIDE, this.hideSelectLevelMenu)
     this.stopListening(
       this.core.activePlayback,
       Events.PLAYBACK_PLAY,
@@ -150,11 +159,7 @@ export class MultiCamera extends UICorePlugin {
   }
 
   private shouldRender() {
-    if (!this.core.activeContainer || this.noActiveStreams) {
-      return false
-    }
-
-    if (!this.core.activePlayback) {
+    if (this.noActiveStreams) {
       return false
     }
 
@@ -162,89 +167,60 @@ export class MultiCamera extends UICorePlugin {
   }
 
   override render() {
-    if (this.shouldRender()) {
-      let numActiveSources = 0
-      // const currentSource = this.core.options.source
-      const currentSource = this.core.activePlayback?.sourceMedia
-
-      for (const item of this.multicamera) {
-        if (item.live) {
-          numActiveSources++
-        }
-        if (!this.currentCamera && item.source === currentSource) {
-          this.currentCamera = item
-        }
-      }
-
-      // const mediaControl = this.core.getPlugin('media_control')
-      if (
-        this.currentTime &&
-        // TODO check the last active playback type instead
-        // !mediaControl.$el.hasClass('live') &&
-        this.core.getPlaybackType() !== Playback.LIVE
-      ) {
-        if (this.currentTime < this.core.activePlayback.getDuration()) {
-          this.core.activePlayback.seek(this.currentTime)
-        }
-
-        this.currentTime = 0
-
-        // if (mediaControl.$el.hasClass('dvr')) {
-        //   this.core.activeContainer.dvrInUse = true;
-        // }
-      }
-
-      // TODO current source
-      this.$el.html(
-        this.template({
-          streams: this.multicamera,
-          multisources_mode: this.options.multisourcesMode,
-        }),
-      )
-
-      if (
-        (numActiveSources <= 1 &&
-          this.options.multisourcesMode !== 'show_all') ||
-        this.options.multisourcesMode === 'one_first'
-      ) {
-        this.$el.hide()
-      } else {
-        this.$el.show()
-      }
-
-      if (
-        this.core.mediaControl.$multiCameraSelector &&
-        this.core.mediaControl.$multiCameraSelector.length > 0
-      ) {
-        this.core.mediaControl.$multiCameraSelector.append(this.el)
-      } else {
-        this.core.mediaControl.$('.media-control-right-panel').append(this.el)
-      }
-      if (
-        Object.prototype.hasOwnProperty.call(
-          this.core.mediaControl,
-          '$multiCameraSelector',
-        ) &&
-        this.core.mediaControl.$multiCameraSelector.find(
-          'span.multicamera-icon',
-        ).length > 0
-      ) {
-        if (~window.location.href.indexOf('whitenights.gcdn.co')) {
-          this.core.mediaControl.$multiCameraSelector
-            .find('span.multicamera-icon')
-            .append(streamsWhiteNightsIcon)
-        } else if (~window.location.href.indexOf('momentosolutions.gcdn.co')) {
-          this.core.mediaControl.$multiCameraSelector
-            .find('span.multicamera-icon')
-            .append(streamsMomentoIcon)
-        } else {
-          this.core.mediaControl.$multiCameraSelector
-            .find('span.multicamera-icon')
-            .append(streamsIcon)
-        }
-      }
-      this.highlightCurrentLevel()
+    if (!this.core.activeContainer || !this.core.activePlayback) {
+      return this
     }
+    if (!this.shouldRender()) {
+      return this
+    }
+
+    let numActiveSources = 0
+    const currentSource = this.core.activePlayback?.sourceMedia
+
+    for (const item of this.multicamera) {
+      if (item.live) {
+        numActiveSources++
+      }
+      if (!this.currentCamera && item.source === currentSource) {
+        this.currentCamera = item
+      }
+    }
+
+    if (
+      this.currentTime &&
+      this.core.getPlaybackType() !== Playback.LIVE
+    ) {
+      if (this.currentTime < this.core.activePlayback.getDuration()) {
+        this.core.activePlayback.seek(this.currentTime)
+      }
+
+      this.currentTime = 0
+    }
+
+    this.$el.html(
+      this.template({
+        streams: this.multicamera,
+        multisources_mode: this.options.multisourcesMode,
+      }),
+    )
+
+    if (
+      (numActiveSources < 2 &&
+        this.options.multisourcesMode !== 'show_all') ||
+      this.options.multisourcesMode === 'one_first'
+    ) {
+      this.$el.hide()
+    } else {
+      this.$el.show()
+    }
+
+    const mediaControl = this.core.getPlugin('media_control')
+
+    mediaControl.slot('multicamera', this.$el)
+    this.$el
+      .find('span.multicamera-icon')
+      .html(streamsIcon)
+    this.highlightCurrentLevel()
 
     return this
   }
@@ -258,36 +234,6 @@ export class MultiCamera extends UICorePlugin {
     }
     event.stopPropagation()
     return false
-  }
-
-  activeById(id: number, active: boolean) {
-    this.setLiveStatus(id, active)
-
-    if (!this.currentCamera && !this.noActiveStreams) {
-      return
-    }
-    if (this.noActiveStreams && !active) {
-      return
-    }
-
-    if (this.currentCamera) {
-      if (this.options.multisourcesMode === 'only_live') {
-        this.behaviorLive(id, active)
-      }
-      if (this.options.multisourcesMode === 'one_first') {
-        this.behaviorOne(id, active)
-      }
-      if (this.options.multisourcesMode === 'show_all') {
-        this.behaviorAll(id, active)
-      }
-    } else {
-      if (this.noActiveStreams && active) {
-        this.changeById(id)
-        this.noActiveStreams = false
-      }
-    }
-
-    this.render()
   }
 
   private setLiveStatus(id: number, active: boolean) {
@@ -355,7 +301,6 @@ export class MultiCamera extends UICorePlugin {
     this.currentCamera = null
     this.noActiveStreams = true
     this.core.trigger('core:multicamera:no_active_translation')
-    // this.changeById(this.multicamera[nextIndex].id);
   }
 
   private showError() {
@@ -379,7 +324,7 @@ export class MultiCamera extends UICorePlugin {
 
   private hideError() {
     try {
-      this.core.mediaControl.enableControlButton()
+      this.core.getPlugin('media_control')?.enableControlButton()
     } catch (error) {
       reportError(error)
     }
@@ -390,14 +335,9 @@ export class MultiCamera extends UICorePlugin {
     queueMicrotask(() => {
       const playbackOptions = this.core.options.playback || {}
 
-      // TODO figure out what this does
+      // TODO figure out if it's needed
       playbackOptions.recycleVideo = Browser.isMobile
-      this.currentCamera = this.findElementById(id) ?? null
-      trace(`${T} changeById`, {
-        id,
-        currentCamera: this.currentCamera,
-        multicamera: this.multicamera,
-      })
+      this.currentCamera = this.findElementById(id)
 
       if (!this.currentCamera) {
         return
@@ -423,29 +363,17 @@ export class MultiCamera extends UICorePlugin {
       this.core.configure({
         playback: playbackOptions,
         source: this.currentCamera.source, // TODO ensure that the preferred transport is used
-        video360: {
-          // TODO
-          projection: this.currentCamera.projection,
-        },
         fullscreenDisable,
         autoPlay: this.playing,
         disableCanAutoPlay: true,
       })
-      this.core.activeContainer.mediaControlDisabled = false
+      this.core.activeContainer?.enableMediaControl()
     })
     this.toggleContextMenu()
   }
 
-  private getCamerasList() {
-    return this.multicamera
-  }
-
-  private getCurrentCamera() {
-    return this.currentCamera
-  }
-
-  private findElementById(id: number): MediaSourceInfo | undefined {
-    return this.multicamera.find((element) => element.id === id)
+  private findElementById(id: number): MulticCameraSourceInfo | null {
+    return this.multicamera.find((element) => element.id === id) ?? null
   }
 
   private findIndexById(id: number): number {
@@ -457,24 +385,16 @@ export class MultiCamera extends UICorePlugin {
   }
 
   private hideSelectLevelMenu() {
-    ; (this.$('.multicamera ul') as ZeptoResult).hide()
+    ; (this.$('ul') as ZeptoResult).hide()
   }
 
   private toggleContextMenu() {
-    ; (this.$('.multicamera ul') as ZeptoResult).toggle()
+    ; (this.$('ul') as ZeptoResult).toggle()
   }
-
-  // private buttonElement(): ZeptoResult {
-  //   return this.$('.multicamera button');
-  // }
-
-  // private buttonElementText(): ZeptoResult {
-  //   return this.$('.multicamera button .quality-text');
-  // }
 
   private levelElement(id?: number): ZeptoResult {
     return this.$(
-      '.multicamera ul li > div' +
+      'ul .multicamera-item' +
       (id !== undefined
         ? '[data-multicamera-selector-select="' + id + '"]'
         : ''),
@@ -487,4 +407,21 @@ export class MultiCamera extends UICorePlugin {
     this.currentCamera &&
       this.levelElement(this.currentCamera.id).addClass('multicamera-active')
   }
+}
+
+function expandMediaSource(source: MulticCameraSourceInfo): PlayerMediaSource[] {
+  const result: PlayerMediaSource[] = [{
+    source: source.source,
+    mimeType: guessMimeType(source.source),
+  }]
+  if (source.source_dash) {
+    result.push({
+      source: source.source_dash,
+      mimeType: MIME_TYPE_DASH,
+    })
+  }
+  if (source.hls_mpegts_url) {
+    result.push(source.hls_mpegts_url)
+  }
+  return result
 }
