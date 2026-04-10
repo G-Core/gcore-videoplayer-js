@@ -30,45 +30,6 @@ function noSync(cb: () => void) {
  * `PLUGIN` that is managing the automatic failover between media sources.
  * @public
  * @remarks
- * Have a look at the {@link https://miro.com/app/board/uXjVLiN15tY=/?share_link_id=390327585787 | source failover diagram} for the details
- * on how sources ordering and selection works. Below is a simplified diagram:
- *
- * ```markdown
- * sources_list:
- *       - a.mpd  |    +--------------------+
- *       - b.m3u8 |--->|         init       |
- *       - ...    |    |--------------------|
- *                     | current_source = 0 |
- *                     +--------------------+
- *                            |
- *                            |  source = a.mpd
- *                            |  playback = dash.js
- *                            v
- *                      +------------------+
- *                  +-->|   load source    |
- *                  |   +---------|--------+
- *                  |             v
- *                  |   +------------------+
- *                  |   |       play       |
- *                  |   +---------|--------+
- *                  |             |
- *                  |             v
- *                  |   +-----------------------+
- *                  |   |  on playback_error    |
- *                  |   |-----------------------|
- *                  |   | current_source =      |
- *                  |   |  (current_source + 1) |
- *                  |   |  % len sources_list   |
- *                  |   |                       |
- *                  |   | delay 1..3s           |
- *                  |   +---------------|-------+
- *                  |                   |
- *                  |   source=b.m3u8   |
- *                  |   playback=hls.js |
- *                  +-------------------+
- *
- * ```
- *
  * @example
  * ```ts
  * import { SourceController } from '@gcorevideo/player'
