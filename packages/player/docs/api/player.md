@@ -912,6 +912,28 @@ Identifies a location for mounting custom media control elements.
 </td></tr>
 <tr><td>
 
+[MulticCameraSourceInfo](./player.multiccamerasourceinfo.md)
+
+
+</td><td>
+
+**_(BETA)_** Extended media source description
+
+
+</td></tr>
+<tr><td>
+
+[MultisourcesMode](./player.multisourcesmode.md)
+
+
+</td><td>
+
+**_(BETA)_**
+
+
+</td></tr>
+<tr><td>
+
 [PlaybackModule](./player.playbackmodule.md)
 
 

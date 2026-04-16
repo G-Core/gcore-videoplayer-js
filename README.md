@@ -178,7 +178,7 @@ API details for plugins: [packages/player/docs/api/player.md](./packages/player/
 
 ### Vanilla JS demo
 
-Demo page: [example/index.html](example/index.html)
+Live demo: <https://g-core.github.io/gcore-videoplayer-js/example/index.html>
 
 This demo includes both VOD and live streams. The players are embedded directly into the page with custom controls and dedicated log panels, making playback events easy to follow. The demo is available 24/7.
 
