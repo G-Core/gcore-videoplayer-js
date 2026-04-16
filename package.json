@@ -4,7 +4,7 @@
   "description": "Gcore JavaScript video player",
   "main": "index.js",
   "scripts": {
-    "check:license": "./node_modules/.bin/license-checker --onlyAllow \"Apache-2.0;0BSD;BSD-2-Clause;BSD-3-Clause;ISC;MIT\" --summary --start",
+    "check:license": "./node_modules/.bin/license-checker --onlyAllow \"Apache-2.0;0BSD;BSD-2-Clause;BSD-3-Clause;ISC;MIT;Python-2.0\" --summary --start",
     "test": "echo \"Error: no test specified\" && exit 1",
     "prepare": "husky"
   },
