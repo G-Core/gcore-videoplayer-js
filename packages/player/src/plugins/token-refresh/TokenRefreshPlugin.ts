@@ -165,6 +165,8 @@ export class TokenRefreshPlugin extends CorePlugin {
   private savedPosition: number | null = null
   /** True when using native HTML5 Video playback (no request interception) */
   private isNativePlayback = false
+  /** Set in destroy(); short-circuits late timer callbacks and getToken() resolutions */
+  private destroyed = false
 
   /** @internal */
   override bindEvents(): void {
@@ -177,6 +179,7 @@ export class TokenRefreshPlugin extends CorePlugin {
 
   /** @internal */
   override destroy(): void {
+    this.destroyed = true
     this.clearTimer()
     super.destroy()
   }
@@ -297,7 +300,7 @@ export class TokenRefreshPlugin extends CorePlugin {
 
   private scheduleRefresh(): void {
     this.clearTimer()
-    if (!this.currentState) return
+    if (this.destroyed || !this.currentState) return
 
     const leadMs = (this.opts.refreshLeadSeconds ?? 5) * 1000
     const msUntilRefresh =
@@ -318,6 +321,8 @@ export class TokenRefreshPlugin extends CorePlugin {
     trace(`${T} fetching new token`)
     try {
       const data = await this.opts.getToken()
+      // Plugin may have been destroyed while getToken() was in flight; drop the result.
+      if (this.destroyed) return
       const newToken = this.opts.ipBound ? data.token_ip : data.token
       const newState: TokenState = { token: newToken, expires: data.expires }
 
