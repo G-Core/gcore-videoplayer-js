@@ -6,8 +6,6 @@ import { CLAPPR_VERSION } from '../../build.js'
 
 const T = 'plugins.token_refresh'
 
-// ─── Public types ─────────────────────────────────────────────────────────────
-
 /**
  * Response shape expected from your token-refresh API endpoint.
  * @public
@@ -52,8 +50,6 @@ export interface TokenRefreshOptions {
    */
   onTokenRefreshed?: (data: TokenResponse) => void
 }
-
-// ─── Internal helpers ──────────────────────────────────────────────────────────
 
 type TokenState = { token: string; expires: number }
 
@@ -101,8 +97,6 @@ function createTokenRewritingLoader(
     }
   }
 }
-
-// ─── Plugin ────────────────────────────────────────────────────────────────────
 
 /**
  * `PLUGIN` — automatic token refresh for Gcore protected-content streams.
@@ -159,8 +153,6 @@ export class TokenRefreshPlugin extends CorePlugin {
     return { min: CLAPPR_VERSION }
   }
 
-  // ── state ──────────────────────────────────────────────────────────────────
-
   /** Token state extracted from the initial source URL */
   private originalState: TokenState | null = null
   /** Latest token state (updated after each refresh) */
@@ -176,8 +168,6 @@ export class TokenRefreshPlugin extends CorePlugin {
   /** When true, the refresh cycle is suspended until resume() is called */
   private paused = false
 
-  // ── lifecycle ──────────────────────────────────────────────────────────────
-
   /** @internal */
   override bindEvents(): void {
     this.listenTo(
@@ -192,8 +182,6 @@ export class TokenRefreshPlugin extends CorePlugin {
     this.clearTimer()
     super.destroy()
   }
-
-  // ── container setup ────────────────────────────────────────────────────────
 
   private onContainersCreated(): void {
     const container: Container = this.core.containers[0]
@@ -238,8 +226,6 @@ export class TokenRefreshPlugin extends CorePlugin {
     }
   }
 
-  // ── HLS.js ─────────────────────────────────────────────────────────────────
-
   private injectHlsLoader(container: Container): void {
     const getOriginal = () => this.originalState
     const getCurrent = () => this.currentState
@@ -255,8 +241,6 @@ export class TokenRefreshPlugin extends CorePlugin {
 
     trace(`${T} HLS custom loader injected`)
   }
-
-  // ── DASH.js ────────────────────────────────────────────────────────────────
 
   private injectDashInterceptor(container: Container): void {
     $.extend(true, container.playback.options, {
@@ -276,8 +260,6 @@ export class TokenRefreshPlugin extends CorePlugin {
 
     trace(`${T} DASH request interceptor injected`)
   }
-
-  // ── Native HTML5 Video (Safari fallback) ───────────────────────────────────
 
   private async reloadNativeSource(data: TokenResponse): Promise<void> {
     const container = this.core.activeContainer
@@ -315,8 +297,6 @@ export class TokenRefreshPlugin extends CorePlugin {
     })
   }
 
-  // ── pause / resume ─────────────────────────────────────────────────────────
-
   /**
    * Suspend automatic token refresh.
    * In-flight requests continue with the current token; no new token is fetched
@@ -348,8 +328,6 @@ export class TokenRefreshPlugin extends CorePlugin {
   get isPaused(): boolean {
     return this.paused
   }
-
-  // ── refresh cycle ──────────────────────────────────────────────────────────
 
   private scheduleRefresh(): void {
     this.clearTimer()
@@ -403,8 +381,6 @@ export class TokenRefreshPlugin extends CorePlugin {
     // Always reschedule, even after an error (will retry near next expiry).
     this.scheduleRefresh()
   }
-
-  // ── helpers ────────────────────────────────────────────────────────────────
 
   private get opts(): TokenRefreshOptions {
     return this.options.tokenRefresh as TokenRefreshOptions
