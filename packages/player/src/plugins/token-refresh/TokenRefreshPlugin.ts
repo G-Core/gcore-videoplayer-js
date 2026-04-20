@@ -54,12 +54,13 @@ export interface TokenRefreshOptions {
 type TokenState = { token: string; expires: number }
 
 /**
- * Parses `/{token}/{expires}/` from a Gcore protected-content URL.
- * Token is base64url (letters, digits, `-`, `_`).
- * Expires is a ≥10-digit Unix timestamp.
+ * Matches the `/{token}/{expires}/` segment in a Gcore protected-content URL.
+ * Token is base64url (letters, digits, `-`, `_`); expires is a ≥10-digit Unix timestamp.
  */
+const TOKEN_SEGMENT_RE = /\/([A-Za-z0-9_-]{6,})\/(1\d{9,})\//
+
 function extractTokenState(url: string): TokenState | null {
-  const m = url.match(/\/([A-Za-z0-9_-]{6,})\/(1\d{9,})\//)
+  const m = url.match(TOKEN_SEGMENT_RE)
   if (!m) return null
   return { token: m[1], expires: parseInt(m[2], 10) }
 }
@@ -69,6 +70,20 @@ function rewriteUrl(url: string, from: TokenState, to: TokenState): string {
   const oldPart = `/${from.token}/${from.expires}/`
   const newPart = `/${to.token}/${to.expires}/`
   return url.includes(oldPart) ? url.replace(oldPart, newPart) : url
+}
+
+/**
+ * Normalises a URL by removing the `/{token}/{expires}/` segment so two URLs
+ * for the same stream with different token pairs compare equal.
+ * Returns `null` for unparseable input.
+ */
+function streamKey(url: string): string | null {
+  try {
+    const u = new URL(url)
+    return u.origin + u.pathname.replace(TOKEN_SEGMENT_RE, '/')
+  } catch {
+    return null
+  }
 }
 
 /**
@@ -153,12 +168,10 @@ export class TokenRefreshPlugin extends CorePlugin {
     return { min: CLAPPR_VERSION }
   }
 
-  /** Token state extracted from the initial source URL */
+  /** Token state extracted from the currently-managed source URL */
   private originalState: TokenState | null = null
   /** Latest token state (updated after each refresh) */
   private currentState: TokenState | null = null
-  /** Prevents double-initialisation when containers are recreated on reload */
-  private initialized = false
   /** Scheduled refresh timer handle */
   private refreshTimer: ReturnType<typeof setTimeout> | null = null
   /** Playback time (seconds) to restore after a native-video source reload */
@@ -193,16 +206,36 @@ export class TokenRefreshPlugin extends CorePlugin {
 
     trace(`${T} onContainersCreated`, { playbackName, src: src.slice(0, 80) })
 
-    // First time only: extract token state and schedule the refresh cycle.
-    if (!this.initialized) {
-      const state = extractTokenState(src)
-      if (!state) {
-        trace(`${T} no token pattern in source URL — plugin is inactive`)
-        return
+    this.isNativePlayback = playbackName !== 'hls' && playbackName !== 'dash'
+
+    const state = extractTokenState(src)
+    if (!state) {
+      // Active source has no token pattern — drop any refresh state we were
+      // holding for a previous stream (e.g. SourceController rotated away).
+      if (this.originalState) {
+        trace(`${T} active source has no token pattern — clearing refresh state`)
+        this.clearTimer()
+        this.originalState = null
+        this.currentState = null
       }
+      return
+    }
+
+    // Adopt the new token state if this is the first source we see, or if
+    // the stream has changed (SourceController rotated, consumer called
+    // player.load() with a different stream, or the plugin itself reloaded
+    // with a refreshed URL in the native path).
+    const isNewStream =
+      !this.originalState ||
+      state.token !== this.originalState.token ||
+      state.expires !== this.originalState.expires
+    if (isNewStream) {
+      trace(`${T} adopting source token state`, {
+        token: state.token.slice(0, 8) + '…',
+        expires: new Date(state.expires * 1000).toISOString(),
+      })
       this.originalState = { ...state }
       this.currentState = { ...state }
-      this.initialized = true
       this.scheduleRefresh()
     }
 
@@ -216,7 +249,6 @@ export class TokenRefreshPlugin extends CorePlugin {
         break
       default:
         // Native HTML5 Video — no request hooks available.
-        this.isNativePlayback = true
         // Seek restore after a token-triggered reload.
         this.listenToOnce(
           this.core,
@@ -267,12 +299,40 @@ export class TokenRefreshPlugin extends CorePlugin {
     const playback = container?.playback
     if (!playback) return
 
+    // SourceController (or any other actor) may have switched the active
+    // playback to hls/dash while getToken() was in flight. Those engines
+    // have their own request-interception path; a native reload would
+    // undo the switch.
+    if (playback.name === 'hls' || playback.name === 'dash') {
+      trace(`${T} skipping native reload — active playback is ${playback.name}`)
+      return
+    }
+    if (!this.isNativePlayback) {
+      trace(`${T} skipping native reload — no longer in native playback mode`)
+      return
+    }
+
+    // Verify the URL we're about to load belongs to the same stream that's
+    // currently active. If SourceController rotated to a different stream
+    // during the getToken() await, the refreshed URL would silently swap
+    // us back, undoing SourceController's decision.
+    const currentSrc: string = playback.options?.src ?? ''
+    const newUrl = this.opts.ipBound ? data.url_ip : data.url
+    const activeKey = streamKey(currentSrc)
+    const nextKey = streamKey(newUrl)
+    if (!activeKey || !nextKey || activeKey !== nextKey) {
+      trace(`${T} skipping native reload — active source differs from refresh URL`, {
+        activeKey,
+        nextKey,
+      })
+      return
+    }
+
     // Capture current playback position before tearing down the container.
     const mediaEl = playback.el as HTMLMediaElement
     const currentTime = mediaEl?.currentTime ?? 0
     this.savedPosition = currentTime > 0 ? currentTime : null
 
-    const newUrl = this.opts.ipBound ? data.url_ip : data.url
     trace(`${T} native reload`, { newUrl: newUrl.slice(0, 80), savedPosition: this.savedPosition })
 
     // core.load() destroys and recreates all containers.
