@@ -165,8 +165,6 @@ export class TokenRefreshPlugin extends CorePlugin {
   private savedPosition: number | null = null
   /** True when using native HTML5 Video playback (no request interception) */
   private isNativePlayback = false
-  /** When true, the refresh cycle is suspended until resume() is called */
-  private paused = false
 
   /** @internal */
   override bindEvents(): void {
@@ -297,41 +295,9 @@ export class TokenRefreshPlugin extends CorePlugin {
     })
   }
 
-  /**
-   * Suspend automatic token refresh.
-   * In-flight requests continue with the current token; no new token is fetched
-   * until {@link resume} is called.
-   * @public
-   */
-  pause(): void {
-    if (this.paused) return
-    this.paused = true
-    this.clearTimer()
-    trace(`${T} refresh paused`)
-  }
-
-  /**
-   * Resume automatic token refresh after a {@link pause}.
-   * Immediately re-schedules the next refresh based on the current token expiry.
-   * If the token has already expired (or is about to), the refresh fires within
-   * one second.
-   * @public
-   */
-  resume(): void {
-    if (!this.paused) return
-    this.paused = false
-    trace(`${T} refresh resumed`)
-    this.scheduleRefresh()
-  }
-
-  /** Returns `true` when the refresh cycle is currently suspended. @public */
-  get isPaused(): boolean {
-    return this.paused
-  }
-
   private scheduleRefresh(): void {
     this.clearTimer()
-    if (!this.currentState || this.paused) return
+    if (!this.currentState) return
 
     const leadMs = (this.opts.refreshLeadSeconds ?? 5) * 1000
     const msUntilRefresh =
@@ -349,7 +315,6 @@ export class TokenRefreshPlugin extends CorePlugin {
   }
 
   private async performRefresh(): Promise<void> {
-    if (this.paused) return
     trace(`${T} fetching new token`)
     try {
       const data = await this.opts.getToken()

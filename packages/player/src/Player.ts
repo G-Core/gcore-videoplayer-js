@@ -283,8 +283,7 @@ export class Player {
    *
    * @example
    * ```ts
-   * const tokenRefresh = player.getPlugin('token_refresh') as TokenRefreshPlugin
-   * tokenRefresh?.pause()
+   * const tokenRefresh = player.getPlugin('token_refresh') as TokenRefreshPlugin | null
    * ```
    */
   getPlugin(name: string) {
