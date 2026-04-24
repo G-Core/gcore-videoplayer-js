@@ -279,6 +279,18 @@ export class Player {
   }
 
   /**
+   * Returns a registered core plugin instance by name, or `null` if not found.
+   *
+   * @example
+   * ```ts
+   * const tokenRefresh = player.getPlugin('token_refresh') as TokenRefreshPlugin | null
+   * ```
+   */
+  getPlugin(name: string) {
+    return this.player?.core.getPlugin(name) ?? null
+  }
+
+  /**
    * Mutes the sound of the video.
    */
   mute() {

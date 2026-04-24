@@ -1,0 +1,911 @@
+<!doctype html>
+<!--
+  ╔══════════════════════════════════════════════════════════════════════════════╗
+  ║  protected-content.html — Token Refresh Demo                                ║
+  ║                                                                              ║
+  ║  PURPOSE                                                                     ║
+  ║  Demonstrates the TokenRefreshPlugin for @gcorevideo/player.                ║
+  ║  Gcore protected-content streams embed a security token and expiry           ║
+  ║  timestamp directly in the URL path:                                         ║
+  ║    https://host/videos/{id}/{token}/{expires}/master.m3u8                   ║
+  ║  The token has a finite lifetime (20 s in this demo). Once it expires the   ║
+  ║  CDN returns HTTP 401 for every segment/manifest request.                   ║
+  ║                                                                              ║
+  ║  SOLUTION                                                                    ║
+  ║  TokenRefreshPlugin runs a background refresh timer. Before expiry it       ║
+  ║  calls `getToken()` and updates the shared `currentState`. A custom          ║
+  ║  hls.js loader (or dash.js requestInterceptor) rewrites every outgoing      ║
+  ║  request URL, replacing the old token/expires with the new values — the     ║
+  ║  player never sees the transition and keeps playing without interruption.   ║
+  ║                                                                              ║
+  ║  TOKEN API (demo)                                                            ║
+  ║  https://video-token-102748.fastedge.app/?video=iKbrdNMcS9ylGuw             ║
+  ║    &type=vod&expire=20                                                       ║
+  ║  Response: { token, token_ip, client_ip, expires, url, url_ip }             ║
+  ║    • url    — HLS master playlist with plain (any-IP) token in path         ║
+  ║    • url_ip — HLS master playlist with IP-bound token in path               ║
+  ║                                                                              ║
+  ║  FILE ORGANISATION                                                           ║
+  ║  • <style>          — all CSS; no external stylesheet except player skin     ║
+  ║  • <body>           — two-column layout: player panel + token status panel  ║
+  ║  • <script module>  — all runtime JS; imports from local player build       ║
+  ║                                                                              ║
+  ║  LOCAL DEV                                                                   ║
+  ║  1. cd packages/player && npm run build                                     ║
+  ║  2. npx serve . -p 8080   (from repo root)                                  ║
+  ║  3. http://localhost:8080/example/protected-content.html                    ║
+  ║  Note: file:// protocol blocks fetch() and ES-module imports.               ║
+  ╚══════════════════════════════════════════════════════════════════════════════╝
+-->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Protected Content — Token Refresh Demo</title>
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+
+    <!--
+      Player CSS is loaded from the Gcore CDN. It styles the Clappr player shell,
+      media controls, spinner, error screen, etc.
+      The JS, however, is loaded from the LOCAL build (see <script> below) so
+      that the unreleased TokenRefreshPlugin is available.
+    -->
+    <link
+      rel="stylesheet"
+      href="https://player.gvideo.co/v2/assets/latest/index.css"
+    />
+
+    <style>
+      /*
+        Design tokens — warm off-white palette matching Gcore brand guidelines.
+        --accent   : error / warning / urgent state (red-orange)
+        --ok       : healthy / active state (green)
+        --ink-soft : secondary text / labels
+      */
+      :root {
+        --bg: #f4efe5;
+        --surface: rgba(255, 251, 245, 0.92);
+        --ink: #1e1b16;
+        --ink-soft: #605647;
+        --line: rgba(42, 35, 27, 0.12);
+        --accent: #b84b32;
+        --accent-strong: #8f3722;
+        --ok: #1f6d4f;
+        --shadow: 0 24px 60px rgba(44, 27, 9, 0.12);
+        --radius: 22px;
+      }
+
+      *, *::before, *::after { box-sizing: border-box; }
+
+      /*
+        Allow text selection everywhere so users can copy token values, URLs, etc.
+        Then selectively disable it for interactive / media elements where accidental
+        drag-selection during playback would be annoying.
+      */
+      html, body, body * {
+        -webkit-user-select: text;
+        user-select: text;
+      }
+
+      button, #player-mount, #player-mount * {
+        -webkit-user-select: none;
+        user-select: none;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "IBM Plex Sans", "Avenir Next", "Segoe UI", sans-serif;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at top left, rgba(184,75,50,.16), transparent 30%),
+          radial-gradient(circle at top right, rgba(31,109,79,.12), transparent 28%),
+          linear-gradient(180deg, #fbf6ed 0%, var(--bg) 100%);
+      }
+
+      main {
+        width: min(1120px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 40px 0 56px;
+      }
+
+      /* ── page header ────────────────────────────────────────────────── */
+      .eyebrow {
+        display: inline-block;
+        margin-bottom: 8px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: rgba(184,75,50,.12);
+        color: var(--accent-strong);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        margin: 0 0 10px;
+        font-size: clamp(28px, 4vw, 46px);
+        letter-spacing: -.04em;
+        line-height: .98;
+      }
+
+      .intro {
+        max-width: 760px;
+        margin: 0 0 32px;
+        color: var(--ink-soft);
+        font-size: 16px;
+        line-height: 1.6;
+      }
+
+      /*
+        ── Two-column layout ───────────────────────────────────────────────────
+        Left column (2fr): player + architecture notes (wider — video content).
+        Right column (1fr): live token status panel + refresh log (narrower).
+        Collapses to single column on mobile (<= 800 px).
+      */
+      .layout {
+        display: grid;
+        grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+        gap: 24px;
+        align-items: start;
+      }
+
+      @media (max-width: 800px) {
+        .layout { grid-template-columns: 1fr; }
+      }
+
+      /* ── panel ──────────────────────────────────────────────────────── */
+      .panel {
+        padding: 24px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: var(--surface);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(10px);
+      }
+
+      .panel-title {
+        margin: 0 0 4px;
+        font-size: 22px;
+        letter-spacing: -.03em;
+      }
+
+      .panel-copy {
+        margin: 0 0 20px;
+        color: var(--ink-soft);
+        font-size: 14px;
+        line-height: 1.5;
+      }
+
+      /*
+        ── Token status grid ────────────────────────────────────────────────────
+        A <dl> rendered as a two-column CSS grid (label | value).
+        `max-content` for dt so labels never wrap; `1fr` for dd so values use
+        remaining space and `word-break:break-all` handles long token strings.
+      */
+      .token-grid {
+        display: grid;
+        grid-template-columns: max-content 1fr;
+        gap: 6px 16px;
+        margin-bottom: 20px;
+        font-size: 13px;
+      }
+
+      .token-grid dt {
+        color: var(--ink-soft);
+        font-weight: 600;
+        white-space: nowrap;
+      }
+
+      .token-grid dd {
+        margin: 0;
+        font-family: "IBM Plex Mono", "Menlo", monospace;
+        font-size: 12px;
+        word-break: break-all;
+      }
+
+      /* Status badge is sans-serif (uses font-weight for emphasis, not monospace) */
+      #token-status-badge {
+        font-family: inherit;
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      /* Countdown uses monospace so the width doesn't jump as digits change */
+      #expires-in {
+        font-family: "IBM Plex Mono", "Menlo", monospace;
+        font-size: 12px;
+      }
+
+      /* ── section label ───────────────────────────────────────────────── */
+      .section-label {
+        margin: 20px 0 8px;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        color: var(--ink-soft);
+      }
+
+      /*
+        ── Mode selector tabs ────────────────────────────────────────────────────
+        Pill-shaped toggle buttons. `aria-pressed` drives the active state so the
+        UI is screen-reader-friendly and easily scriptable (no extra class toggling).
+      */
+      .tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 16px;
+      }
+
+      .tab-button {
+        padding: 8px 14px;
+        border: 1px solid transparent;
+        border-radius: 999px;
+        background: rgba(32,22,10,.06);
+        color: var(--ink);
+        font: inherit;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background .18s, color .18s, border-color .18s;
+      }
+
+      .tab-button[aria-pressed="true"] {
+        border-color: rgba(184,75,50,.2);
+        background: var(--accent);
+        color: #fff;
+      }
+
+      .tab-button:hover:not([aria-pressed="true"]) {
+        background: rgba(32,22,10,.1);
+      }
+
+      /*
+        ── Event log textarea ────────────────────────────────────────────────────
+        `readonly` + `resize:vertical` lets users scroll/expand without editing.
+        New entries are prepended (newest first) so the latest event is always
+        visible without scrolling. `resize: vertical` is intentional — horizontal
+        resize would break the panel layout.
+      */
+      .event-log {
+        width: 100%;
+        height: 400px;
+        padding: 10px 12px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: rgba(32,22,10,.03);
+        color: var(--ink);
+        font-family: "IBM Plex Mono", "Menlo", monospace;
+        font-size: 11px;
+        line-height: 1.6;
+        resize: vertical;
+      }
+
+      /* ── architecture note ────────────────────────────────────────────── */
+      .arch-note {
+        margin-top: 20px;
+        padding: 14px 16px;
+        border-left: 3px solid var(--accent);
+        border-radius: 0 8px 8px 0;
+        background: rgba(184,75,50,.06);
+        font-size: 13px;
+        line-height: 1.6;
+        color: var(--ink-soft);
+      }
+
+      .arch-note strong { color: var(--ink); }
+
+      code {
+        padding: 1px 5px;
+        border-radius: 4px;
+        background: rgba(32,22,10,.07);
+        font-family: "IBM Plex Mono", "Menlo", monospace;
+        font-size: .88em;
+      }
+
+      /*
+        ── Player mount ──────────────────────────────────────────────────────────
+        #loading-overlay and #player-mount share the same space.
+        The overlay is shown while the token is being fetched; the player mount
+        is shown once attachTo() is called. They are never visible simultaneously.
+
+        WHY position:relative + aspect-ratio, not just width/height px?
+        Clappr requires explicit `width` and `height` in the Player constructor
+        options to set inline styles on its internal [data-player] wrapper.
+        We pass width:'100%' height:'100%' so Clappr fills the mount div.
+        The mount div itself uses aspect-ratio:16/9 so it's responsive.
+        Without position:relative, Clappr's absolutely positioned overlays
+        (spinner, error screen) would escape the container.
+      */
+      #loading-overlay {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        aspect-ratio: 16 / 9;
+        border-radius: 12px;
+        background: rgba(32,22,10,.04);
+        font-size: 14px;
+        color: var(--ink-soft);
+      }
+
+      #player-mount {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 16 / 9;
+      }
+    </style>
+  </head>
+
+  <body>
+    <main>
+      <header style="margin-bottom: 32px;">
+        <span class="eyebrow">Token Refresh Demo</span>
+        <h1>Protected-Content Playback</h1>
+        <p class="intro">
+          Demonstrates <strong>automatic token refresh</strong> for Gcore
+          protected HLS streams. Tokens and the ready-to-play URL are issued by
+          a demo
+          <a href="https://video-token-102748.fastedge.app/?video=iKbrdNMcS9ylGuw&amp;type=vod&amp;expire=20"
+             target="_blank" rel="noopener">FastEdge serverless app</a>
+          built on a custom Gcore CDN resource. You can deploy the same
+          token-issuing logic in your account via
+          <a href="https://gcore.com/docs/fastedge/getting-started"
+             target="_blank" rel="noopener">Gcore FastEdge</a>,
+          or implement it on your own backend with any authentication method.
+          <br />On this demo page tokens are issued for 20 seconds; the
+          <code>TokenRefreshPlugin</code> fetches a new token 10 seconds before
+          expiry and rewrites every hls.js request URL transparently — no
+          buffering interruption.
+        </p>
+      </header>
+
+      <div class="layout">
+
+        <!-- ── left: player panel ────────────────────────────────────────── -->
+        <!--
+          The player panel contains:
+          1. Mode selector tabs — switch between plain-token and IP-bound-token
+             variants. Switching destroys the current player and creates a new
+             one so that TokenRefreshPlugin reinitialises with a fresh
+             originalState extracted from the new source URL.
+          2. Loading overlay — shown while the initial token is being fetched.
+          3. Player mount — the div Clappr attaches to via player.attachTo().
+          4. Architecture notes — explain the three playback engine code paths.
+        -->
+        <article class="panel">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:16px;">
+            <div>
+              <h2 class="panel-title">Protected HLS Stream</h2>
+              <p class="panel-copy">
+                VOD content served via Gcore CDN with path-embedded token.
+              </p>
+            </div>
+          </div>
+
+          <!--
+            Token mode selector
+            data-mode="plain" → use tokenData.url  + tokenData.token   (any IP)
+            data-mode="ip"    → use tokenData.url_ip + tokenData.token_ip (locked to client IP)
+            aria-pressed is read by the tab-click handler to drive styling and
+            to pass the ipBound boolean to initPlayer().
+          -->
+          <p class="section-label">Token mode</p>
+          <div class="tabs" id="mode-tabs">
+            <button class="tab-button" type="button" data-mode="plain" aria-pressed="true">
+              Plain token
+            </button>
+            <button class="tab-button" type="button" data-mode="ip" aria-pressed="false">
+              IP-bound token
+            </button>
+          </div>
+
+          <!--
+            These two elements are mutually exclusive (never both visible).
+            JS toggles display:none / display:flex|block after token fetch.
+          -->
+          <div id="loading-overlay">Fetching token…</div>
+          <div id="player-mount" style="display:none;"></div>
+
+          <!--
+            Architecture notes — rendered in the page for users/developers.
+            Three paragraphs cover the three playback engine code paths that
+            TokenRefreshPlugin supports:
+              1. hls.js  → custom loader (zero interruption)
+              2. dash.js → requestInterceptor (zero interruption)
+              3. Native <video> Safari → source reload + seek restore (brief gap)
+                 or Service Worker for seamless (see token-refresh-sw.js)
+          -->
+          <div class="arch-note" style="margin-top:20px;">
+            <p style="margin:0 0 8px;"><strong>How it works — hls.js:</strong>
+            <code>TokenRefreshPlugin</code> injects a custom hls.js loader
+            that rewrites <code>/{token}/{expires}/</code> in every segment,
+            playlist and key URL before the XHR is opened. The refresh timer
+            fires 10 s before expiry and updates the shared token state — the
+            loader picks it up on the very next request with zero interruption.</p>
+            <p style="margin:0 0 8px;"><strong>dash.js:</strong>
+            For DASH streams the plugin registers a
+            <code>requestInterceptor</code> on the dash.js
+            <code>MediaPlayer</code> instance. The interceptor rewrites the
+            same <code>/{token}/{expires}/</code> pattern in every segment and
+            manifest request, giving seamless token refresh with no buffering
+            gap. Pass a DASH source with <code>mimeType: "application/dash+xml"</code>
+            and the plugin selects the DASH path automatically.</p>
+            <p style="margin:0;"><strong>Safari (native HLS):</strong>
+            hls.js runs on Safari 14.5+ (MSE support) so the seamless loader
+            path is used. Older Safari falls back to native
+            <code>&lt;video&gt;</code> HLS; the plugin then reloads the source
+            URL and seeks back to the saved position. For fully seamless refresh
+            on older Safari, register <code>token-refresh-sw.js</code> as a
+            Service Worker — the SW intercepts all CDN fetch requests and
+            rewrites the token even for native media elements.</p>
+          </div>
+        </article>
+
+        <!-- ── right: status panel ───────────────────────────────────────── -->
+        <!--
+          The status panel is a live dashboard for the current token state.
+          All values are updated by displayToken() on initial load and again
+          on every onTokenRefreshed() callback from the plugin.
+
+          Fields:
+            Status       — "Active ✓" / "Fetching token…" / "Refresh paused" / error
+            Toggle button— calls plugin.pause() / plugin.resume() via the
+                           public getPlugin('token_refresh') API on the Player class.
+                           WHY a dedicated plugin method rather than wrapping getToken()?
+                           Wrapping getToken to throw would cause the plugin to log
+                           an error and reschedule unpredictably. pause()/resume()
+                           cleanly stop and restart the internal setTimeout cycle.
+            Token        — full token string (plain or IP-bound depending on mode)
+            Expires at   — wall-clock time HH:MM:SS when the current token expires
+            Expires in   — live countdown in seconds; turns red at ≤ 5 s
+            Client IP    — the IP address the token API observed for this client
+            Mode         — "plain" or "IP-bound"
+            Source URL   — the full master.m3u8 URL (clickable, opens in new tab)
+        -->
+        <aside class="panel">
+          <h2 class="panel-title" style="margin-bottom:16px;">Token Status</h2>
+
+          <dl class="token-grid">
+            <dt>Status</dt>
+            <dd style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+              <span id="token-status-badge">—</span>
+              <!--
+                Toggle button for pause()/resume().
+                aria-pressed="true" = currently in "paused" state (button reads "Enable refresh").
+                aria-pressed="false" = currently running (button reads "Disable refresh").
+                The button label and aria-pressed are kept in sync by the click handler
+                and reset to default ("Disable refresh" / false) when initPlayer() runs.
+              -->
+              <button id="toggle-refresh" class="tab-button" type="button"
+                      style="padding:3px 10px; font-size:11px; line-height:1.6;">
+                Disable refresh
+              </button>
+            </dd>
+
+            <dt>Token</dt>
+            <dd id="token-value">—</dd>
+
+            <!-- Both expires fields are driven by a single setInterval in startCountdown(). -->
+            <dt>Expires at</dt>
+            <dd><span id="expires-at">—</span></dd>
+
+            <dt>Expires in</dt>
+            <dd><span id="expires-in">—</span></dd>
+
+            <dt>Client IP</dt>
+            <dd id="client-ip">—</dd>
+
+            <dt>Mode</dt>
+            <dd id="token-mode">plain</dd>
+
+            <!-- Source URL is populated as an <a> tag so users can open the playlist directly. -->
+            <dt>Source URL</dt>
+            <dd id="source-url-cell">—</dd>
+          </dl>
+
+          <!--
+            Event log — a read-only textarea used as a simple append log.
+            New lines are PREPENDED (not appended) so the latest event is always
+            at the top without requiring the user to scroll. logEl.scrollTop = 0
+            keeps the view anchored to the top after each prepend.
+            Timestamps are HH:MM:SS only (no date) since all events happen
+            within the same session.
+          -->
+          <p class="section-label">Refresh log</p>
+          <textarea
+            class="event-log"
+            id="event-log"
+            readonly
+            spellcheck="false"
+          ></textarea>
+
+        </aside>
+
+      </div><!-- /.layout -->
+    </main>
+
+    <!--
+      ══════════════════════════════════════════════════════════════════════════
+      SCRIPT — type="module"
+      ══════════════════════════════════════════════════════════════════════════
+      WHY type="module"?
+        • Enables top-level `import` (ES modules).
+        • Module scripts are deferred by default — DOM is ready when the code
+          runs, so getElementById() calls need no DOMContentLoaded wrapper.
+        • Strict mode is implicit.
+
+      IMPORT PATH
+        Local build (`../packages/player/dist/index.js`) is used because
+        TokenRefreshPlugin is not yet published in the CDN bundle at
+        https://player.gvideo.co/v2/assets/latest/index.js.
+        Once released, swap the import path.
+
+      OVERALL FLOW
+        1. fetchToken()        — HTTP GET to token API → TokenResponse object
+        2. displayToken()      — update status panel UI + start countdown timer
+        3. registerPlugins()   — idempotent (guarded by `already()` helper)
+        4. new Player(…)       — Clappr player with tokenRefresh config
+        5. player.attachTo()   — mount player into #player-mount div
+        6. onTokenRefreshed()  — plugin callback → displayToken() again each cycle
+
+      TOKEN REFRESH INVARIANT (critical for correctness)
+        The plugin extracts `originalState` from the initial source URL once on
+        init and NEVER changes it. hls.js derives all segment/key URLs from the
+        initial master playlist, so they permanently contain the original token
+        regardless of how many refreshes have occurred. The custom loader always
+        rewrites originalState → currentState on every outgoing request.
+        If originalState were updated after each refresh, the loader would fail
+        to match the URL segments (which still carry the very first token) and
+        every request would return HTTP 401.
+      ══════════════════════════════════════════════════════════════════════════
+    -->
+    <script type="module">
+      // ── Imports ───────────────────────────────────────────────────────────
+      //
+      // For local development (after `npm run build` inside packages/player):
+      //   npx serve . -p 8080   (from repo root)
+      //   http://localhost:8080/example/protected-content.html
+      //
+      // For production swap with the CDN URL:
+      //   https://player.gvideo.co/v2/assets/latest/index.js
+      //
+      // BottomGear is required by QualityLevels — it asserts the plugin is
+      // registered and throws if not. Always register BottomGear before QualityLevels.
+      import {
+        BottomGear,
+        ErrorScreen,
+        MediaControl,
+        Player,
+        QualityLevels,
+        Spinner,
+        TokenRefreshPlugin,
+        version,
+      } from '../packages/player/dist/index.js'
+
+      console.info('Gcore player version', version)
+
+      // ── DOM refs ──────────────────────────────────────────────────────────
+      // All element refs are captured once at module load time (DOM is ready
+      // because type="module" scripts are deferred).
+      const mountEl         = document.getElementById('player-mount')
+      const loadingEl       = document.getElementById('loading-overlay')
+      const logEl           = document.getElementById('event-log')
+      const statusEl        = document.getElementById('token-status-badge')
+      const tokenEl         = document.getElementById('token-value')
+      const expiresAtEl     = document.getElementById('expires-at')
+      const expiresInEl     = document.getElementById('expires-in')
+      const clientIpEl      = document.getElementById('client-ip')
+      const tokenModeEl     = document.getElementById('token-mode')
+      const sourceUrlEl     = document.getElementById('source-url-cell')
+      const toggleRefreshEl = document.getElementById('toggle-refresh')
+      const modeTabs        = document.getElementById('mode-tabs')
+
+      // ── Token API ─────────────────────────────────────────────────────────
+      //
+      // Demo FastEdge app — issues a new token on every GET request.
+      // Parameters:
+      //   video=iKbrdNMcS9ylGuw  — video asset identifier on the CDN
+      //   type=vod               — vod | live
+      //   expire=20              — token lifetime in seconds (20 s for this demo
+      //                            so refreshes happen frequently and are visible)
+      //
+      // Response shape (TokenResponse):
+      //   token      — base64url string, usable from any IP
+      //   token_ip   — base64url string, locked to the client_ip in this response
+      //   client_ip  — the IP address the server observed for this request
+      //   expires    — Unix timestamp (seconds) when the token expires
+      //   url        — full HLS master URL with plain token embedded in path
+      //   url_ip     — full HLS master URL with IP-bound token embedded in path
+      //
+      // In production, replace this with your own token endpoint that validates
+      // session/auth and issues tokens scoped to the requesting user.
+      const TOKEN_API =
+        'https://video-token-102748.fastedge.app/?video=iKbrdNMcS9ylGuw&type=vod&expire=20'
+
+      async function fetchToken() {
+        const res = await fetch(TOKEN_API)
+        if (!res.ok) throw new Error(`Token API returned ${res.status}`)
+        return res.json()
+      }
+
+      // ── UI helpers ────────────────────────────────────────────────────────
+
+      // Log with HH:MM:SS timestamp. New entries are prepended so the latest
+      // is always visible at the top (no scrolling needed).
+      function log(msg) {
+        const d = new Date()
+        const ts = [d.getHours(), d.getMinutes(), d.getSeconds()]
+          .map((n) => String(n).padStart(2, '0')).join(':')
+        logEl.value = `[${ts}] ${msg}\n` + logEl.value
+        logEl.scrollTop = 0
+      }
+
+      // Status badge: green for healthy states, red-orange for errors/paused.
+      function setStatus(text, ok = true) {
+        statusEl.textContent = text
+        statusEl.style.color = ok ? 'var(--ok)' : 'var(--accent)'
+      }
+
+      // ── Token countdown ───────────────────────────────────────────────────
+      //
+      // The countdown runs independently of the plugin's internal setTimeout.
+      // It only drives the UI display — it does NOT trigger token fetches.
+      // The plugin is solely responsible for deciding when to refresh.
+      //
+      // Two elements are updated each second:
+      //   expiresAtEl — wall-clock time HH:MM:SS (when exactly the token expires)
+      //   expiresInEl — live countdown "15s", "14s", … (how long until expiry)
+      // Both turn --accent (red-orange) when ≤ 5 s remain to signal urgency.
+      let countdownTimer = null
+      let currentExpires = 0
+
+      // Convert a Unix timestamp (seconds) to local HH:MM:SS string.
+      function formatHMS(ts) {
+        const d = new Date(ts * 1000)
+        return [d.getHours(), d.getMinutes(), d.getSeconds()]
+          .map((n) => String(n).padStart(2, '0'))
+          .join(':')
+      }
+
+      function startCountdown(expires) {
+        currentExpires = expires
+        if (countdownTimer) clearInterval(countdownTimer)
+        const update = () => {
+          const secsLeft = currentExpires - Math.floor(Date.now() / 1000)
+          const urgent = secsLeft <= 5
+          expiresAtEl.textContent = secsLeft > 0 ? formatHMS(currentExpires) : 'refreshing…'
+          expiresAtEl.style.color = urgent ? 'var(--accent)' : 'inherit'
+          expiresInEl.textContent = secsLeft > 0 ? `${secsLeft}s` : 'refreshing…'
+          expiresInEl.style.color = urgent ? 'var(--accent)' : 'inherit'
+        }
+        update()                            // immediate first tick
+        countdownTimer = setInterval(update, 1000)
+      }
+
+      // Update all token status fields.
+      // Called on initial load and on every onTokenRefreshed() callback.
+      function displayToken(data, ipBound) {
+        tokenEl.textContent     = ipBound ? data.token_ip : data.token
+        clientIpEl.textContent  = data.client_ip
+        tokenModeEl.textContent = ipBound ? 'IP-bound' : 'plain'
+        // Build a clickable link so users can inspect/open the manifest directly.
+        const src = ipBound ? data.url_ip : data.url
+        sourceUrlEl.innerHTML   = `<a href="${src}" target="_blank" rel="noopener" style="word-break:break-all;">${src}</a>`
+        setStatus('Active ✓')
+        startCountdown(data.expires)
+      }
+
+      // ── Player initialisation ─────────────────────────────────────────────
+      //
+      // initPlayer() is called:
+      //   • once on page load (ipBound = false)
+      //   • whenever the user switches token mode (Plain ↔ IP-bound)
+      //
+      // On each call it:
+      //   1. Destroys any existing player instance (critical — avoids multiple
+      //      HLS pipelines running simultaneously and leaking memory).
+      //   2. Fetches a fresh token (the source URL must contain a valid token
+      //      when the Player is constructed; the plugin reads it from there).
+      //   3. Registers plugins idempotently (Clappr throws if a plugin name is
+      //      registered twice; the `already()` guard prevents that on mode switch
+      //      and hot-reload dev scenarios).
+      //   4. Constructs the Player with tokenRefresh config.
+      //   5. Calls player.attachTo() to mount into the DOM.
+      let currentPlayer = null
+
+      async function initPlayer(ipBound = false) {
+        // Tear down previous instance if switching mode.
+        // This also stops the old TokenRefreshPlugin's timer via destroy().
+        if (currentPlayer) {
+          currentPlayer.destroy()
+          currentPlayer = null
+        }
+
+        // Show loading state while token fetch is in flight.
+        mountEl.style.display       = 'none'
+        loadingEl.style.display     = 'flex'
+        toggleRefreshEl.textContent = 'Disable refresh'
+        toggleRefreshEl.setAttribute('aria-pressed', 'false')
+        setStatus('Fetching token…')
+        log('Fetching initial token…')
+
+        let tokenData
+        try {
+          tokenData = await fetchToken()
+        } catch (err) {
+          setStatus(`Error: ${err.message}`, false)
+          log(`ERROR: ${err.message}`)
+          return
+        }
+
+        displayToken(tokenData, ipBound)
+        log(`Token OK — expires ${new Date(tokenData.expires * 1000).toISOString()}`)
+        log(`Source: ${(ipBound ? tokenData.url_ip : tokenData.url).slice(0, 72)}…`)
+
+        // ── Plugin registration ────────────────────────────────────────────
+        //
+        // Player.registerPlugin() is a class-level (static) call — plugins are
+        // registered globally and shared by all Player instances on the page.
+        // `already()` checks Player.corePlugins to prevent duplicate registration
+        // which would throw an AssertionError.
+        //
+        // Registration order matters for QualityLevels:
+        //   BottomGear must be registered before QualityLevels because
+        //   QualityLevels.initialize() asserts that bottom_gear is present.
+        const already = (name) =>
+          Player.corePlugins?.some((p) => p.prototype?.name === name)
+        if (!already('token_refresh'))  Player.registerPlugin(TokenRefreshPlugin)
+        if (!already('media_control'))  Player.registerPlugin(MediaControl)
+        if (!already('bottom_gear'))    Player.registerPlugin(BottomGear)
+        if (!already('quality_levels')) Player.registerPlugin(QualityLevels)
+        if (!already('spinner'))        Player.registerPlugin(Spinner)
+        if (!already('error_screen'))   Player.registerPlugin(ErrorScreen)
+
+        const player = new Player({
+          sources: [
+            {
+              // The token API returns a complete, ready-to-use URL.
+              // URL format: https://{host}/videos/{id}/{token}/{expires}/master.m3u8
+              // TokenRefreshPlugin extracts {token} and {expires} from this URL
+              // at startup to seed originalState. Never pass a URL without a
+              // valid token here — the plugin will silently become inactive.
+              source: ipBound ? tokenData.url_ip : tokenData.url,
+              mimeType: 'application/x-mpegURL',
+            },
+          ],
+
+          // WHY width:'100%' height:'100%'?
+          // Clappr sets inline styles on its internal [data-player] wrapper using
+          // these values. Without them the wrapper collapses to 0×0 and the video
+          // is invisible. The mount div's aspect-ratio:16/9 CSS makes the outer
+          // container responsive; Clappr fills it via 100%/100%.
+          width: '100%',
+          height: '100%',
+
+          // autoPlay + mute: browsers block autoplay with audio (autoplay policy).
+          // Muting allows autoplay to proceed. Users can unmute via the controls.
+          autoPlay: true,
+          mute: true,
+          playbackType: 'vod',
+
+          // ── TokenRefreshPlugin configuration ──────────────────────────────
+          //
+          // The `tokenRefresh` key is read by TokenRefreshPlugin via
+          // `this.options.tokenRefresh` (Clappr passes the entire constructor
+          // options object to every plugin as `this.options`).
+          tokenRefresh: {
+            // getToken is called by the plugin ~refreshLeadSeconds before expiry.
+            // Must return a Promise<TokenResponse>.
+            // The same fetchToken() used for the initial load is reused here —
+            // it always returns a fresh token regardless of context.
+            getToken: fetchToken,
+
+            // ipBound: true  → plugin uses data.token_ip and data.url_ip
+            // ipBound: false → plugin uses data.token   and data.url
+            // Must match the token variant used in the source URL above.
+            ipBound,
+
+            // Fetch the new token this many seconds before the current one expires.
+            // Rule of thumb: refreshLeadSeconds < (tokenLifetime / 2).
+            // Here: 10 s lead on a 20 s token → refresh happens at t=10 s.
+            refreshLeadSeconds: 10,
+
+            // Callback fired immediately after the plugin applies the new token.
+            // Used here to update the UI; in production you might also post to a
+            // Service Worker (see token-refresh-sw.js) via BroadcastChannel.
+            onTokenRefreshed(data) {
+              log(`Token refreshed — new expiry ${new Date(data.expires * 1000).toISOString()}`)
+              displayToken(data, ipBound)
+            },
+          },
+        })
+
+        // ── Player event bindings ──────────────────────────────────────────
+        // Log playback lifecycle events for demo observability.
+        player.on('ready',  () => log('Player ready'))
+        player.on('play',   () => log('Playback started'))
+        player.on('pause',  () => log('Paused'))
+        player.on('ended',  () => log('Ended'))
+        player.on('error',  (err) => {
+          log(`ERROR: ${err?.message ?? JSON.stringify(err)}`)
+          setStatus('Playback error', false)
+        })
+
+        // attachTo() injects Clappr's DOM into the mount element and starts
+        // the playback pipeline. Must be called AFTER all event bindings.
+        player.attachTo(mountEl)
+
+        loadingEl.style.display = 'none'
+        mountEl.style.display   = 'block'
+
+        currentPlayer = player
+      }
+
+      // ── Mode tab switching ────────────────────────────────────────────────
+      //
+      // Clicking a tab calls initPlayer() with the corresponding ipBound flag.
+      // initPlayer() destroys the old player (and its plugin's timer) and
+      // creates a fresh instance with the selected token variant.
+      // This is the correct approach — partial reconfiguration is not supported;
+      // changing the source URL requires a full player rebuild so that
+      // TokenRefreshPlugin reinitialises originalState from the new URL.
+      modeTabs.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-mode]')
+        if (!btn) return
+
+        modeTabs.querySelectorAll('.tab-button').forEach((b) => {
+          b.setAttribute('aria-pressed', String(b === btn))
+        })
+
+        const ipBound = btn.dataset.mode === 'ip'
+        log(`Switching to ${ipBound ? 'IP-bound' : 'plain'} token mode…`)
+        initPlayer(ipBound)
+      })
+
+      // ── Refresh toggle button ─────────────────────────────────────────────
+      //
+      // Accesses the live TokenRefreshPlugin instance via the public
+      // player.getPlugin(name) API (added to Player.ts specifically for this use
+      // case — the underlying Clappr core.getPlugin() was not directly accessible
+      // from outside the Player wrapper class before that change).
+      //
+      // pause()  → clears the internal setTimeout, sets paused=true.
+      //            The custom hls.js loader still rewrites URLs with the last
+      //            known currentState token, so in-flight segments keep playing
+      //            until that token expires on the CDN (~10 s in this demo).
+      // resume() → clears paused=true, calls scheduleRefresh() which computes
+      //            time until next refresh from currentState.expires. If the
+      //            token already expired while paused, the delay is clamped to
+      //            1 s so a refresh fires almost immediately.
+      function getTokenPlugin() {
+        return currentPlayer?.getPlugin('token_refresh') ?? null
+      }
+
+      toggleRefreshEl.addEventListener('click', () => {
+        const plugin = getTokenPlugin()
+        if (!plugin) return
+
+        if (plugin.isPaused) {
+          plugin.resume()
+          toggleRefreshEl.textContent = 'Disable refresh'
+          toggleRefreshEl.setAttribute('aria-pressed', 'false')
+          log('Token refresh enabled')
+          setStatus('Active ✓')
+        } else {
+          plugin.pause()
+          toggleRefreshEl.textContent = 'Enable refresh'
+          toggleRefreshEl.setAttribute('aria-pressed', 'true')
+          log('Token refresh disabled')
+          setStatus('Refresh paused', false)
+        }
+      })
+
+      // ── Boot ──────────────────────────────────────────────────────────────
+      // Start with plain-token mode. The user can switch to IP-bound via the tabs.
+      initPlayer(false)
+    </script>
+  </body>
+</html>
