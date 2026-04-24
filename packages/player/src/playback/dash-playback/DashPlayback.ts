@@ -243,6 +243,7 @@ export default class DashPlayback extends BasePlayback {
     this._dash.initialize()
 
     if (this.options.dash) {
+      const { requestInterceptor, ...dashSettings } = this.options.dash as Record<string, unknown>
       const settings = $.extend(
         true,
         {
@@ -257,9 +258,13 @@ export default class DashPlayback extends BasePlayback {
             },
           },
         },
-        this.options.dash,
+        dashSettings,
       )
       this._dash.updateSettings(settings)
+
+      if (typeof requestInterceptor === 'function') {
+        this._dash.addRequestInterceptor(requestInterceptor as Parameters<typeof this._dash.addRequestInterceptor>[0])
+      }
     }
 
     this._dash.attachView(this.el as HTMLMediaElement)
