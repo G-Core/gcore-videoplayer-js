@@ -19,9 +19,6 @@ import { VTTCueInfo } from '../../playback/types.js'
 
 const VERSION: string = '2.19.14'
 
-// TODO review
-// const LOCAL_STORAGE_CC_ID = 'gplayer.plugins.cc.selected'
-
 // const T = 'plugins.cc'
 
 /**
@@ -441,8 +438,6 @@ export class ClosedCaptions extends UICorePlugin {
       '-1',
     )
 
-    // TODO review, make configurable, and emit event in addition
-    // localStorage.setItem(LOCAL_STORAGE_CC_ID, id) // TODO store language instead?
     this.userSelectedItemId = id
     this.selectItem(this.findById(id))
     this.hideMenu()

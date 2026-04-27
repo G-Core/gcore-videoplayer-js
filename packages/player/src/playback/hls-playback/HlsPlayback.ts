@@ -35,6 +35,7 @@ import { BasePlayback } from '../BasePlayback.js'
 import { CLAPPR_VERSION } from '../../build.js'
 import { AudioTrack } from '@clappr/core/types/base/playback/playback.js'
 import { VTTCueInfo } from '../types.js'
+import { RangesList } from './RangesList.js'
 
 const { now } = Utils
 
@@ -70,8 +71,6 @@ type CustomListener = {
 }
 
 export default class HlsPlayback extends BasePlayback {
-  private _ccTracksUpdated = false
-
   private _currentFragment: Fragment | null = null
 
   private _currentLevel: number | null = null
@@ -120,7 +119,9 @@ export default class HlsPlayback extends BasePlayback {
 
   oncueexit: ((e: { id: string }) => void) | null = null
 
-  private cues: VTTCueInfo[] = [] // TODO check the list size and use BST if needed
+  private cues: RangesList<VTTCueInfo> | null = null
+
+  private cuesByTrack: Record<number, RangesList<VTTCueInfo>> = {}
 
   private currentCueId: string | null = null
 
@@ -310,7 +311,7 @@ export default class HlsPlayback extends BasePlayback {
     // added/removed every 5.
     this._extrapolatedWindowNumSegments =
       !this.options.playback ||
-        typeof this.options.playback.extrapolatedWindowNumSegments === 'undefined'
+      typeof this.options.playback.extrapolatedWindowNumSegments === 'undefined'
         ? 2
         : this.options.playback.extrapolatedWindowNumSegments
 
@@ -362,7 +363,6 @@ export default class HlsPlayback extends BasePlayback {
     }
     this._manifestParsed = false
     // this._ccIsSetup = false
-    this._ccTracksUpdated = false
     this._setInitialState()
     this._hls.destroy()
     this._hls = null
@@ -436,9 +436,7 @@ export default class HlsPlayback extends BasePlayback {
       (evt: HlsEvents.LEVEL_SWITCHED, data: { level: number }) =>
         this._onLevelSwitched(evt, data),
     )
-    this._hls.on(HlsEvents.ERROR, (evt, data) =>
-      this._onHLSJSError(evt, data),
-    )
+    this._hls.on(HlsEvents.ERROR, (evt, data) => this._onHLSJSError(evt, data))
     this._hls.on(HlsEvents.AUDIO_TRACKS_UPDATED, (evt, data) =>
       this._onAudioTracksUpdated(evt, data),
     )
@@ -447,12 +445,20 @@ export default class HlsPlayback extends BasePlayback {
     )
     this._hls.on(HlsEvents.CUES_PARSED, (evt, data) => {
       data.cues?.forEach((cue: any) => {
-        this.cues.push({
+        if (!this.cues) {
+          const trackId = this._hls!.subtitleTrack
+          if (!this.cuesByTrack[trackId]) {
+            this.cuesByTrack[trackId] = new RangesList<VTTCueInfo>()
+          }
+          this.cues = this.cuesByTrack[trackId]
+        }
+        const cueInfo = {
           id: cue.id,
           start: cue.startTime,
           end: cue.endTime,
           text: cue.text,
-        } as VTTCueInfo)
+        } as VTTCueInfo
+        this.cues.insert(cue.startTime, cue.endTime, cueInfo)
       })
     })
     this.bindCustomListeners()
@@ -514,7 +520,7 @@ export default class HlsPlayback extends BasePlayback {
   }
 
   // this playback manages the src on the video element itself
-  protected override _setupSrc(srcUrl: string) { } // eslint-disable-line no-unused-vars
+  protected override _setupSrc(srcUrl: string) {} // eslint-disable-line no-unused-vars
 
   private _startTimeUpdateTimer() {
     if (this._timeUpdateTimer) {
@@ -579,7 +585,7 @@ export default class HlsPlayback extends BasePlayback {
     // assume live if time within 3 seconds of end of stream
     this.dvrEnabled && this._updateDvr(time < this.getDuration() - 3)
     time += this._startTime
-      ; (this.el as HTMLMediaElement).currentTime = time
+    ;(this.el as HTMLMediaElement).currentTime = time
 
     this.triggerCues()
   }
@@ -719,7 +725,7 @@ export default class HlsPlayback extends BasePlayback {
   }
 
   private reload() {
-    this.cues = []
+    this.cues = null
     this.currentCueId = null
     this._hls?.startLoad(-1)
   }
@@ -777,12 +783,12 @@ export default class HlsPlayback extends BasePlayback {
           start: Math.max(
             0,
             (this.el as HTMLMediaElement).buffered.start(i) -
-            this._playableRegionStartTime,
+              this._playableRegionStartTime,
           ),
           end: Math.max(
             0,
             (this.el as HTMLMediaElement).buffered.end(i) -
-            this._playableRegionStartTime,
+              this._playableRegionStartTime,
           ),
         },
       ]
@@ -804,9 +810,7 @@ export default class HlsPlayback extends BasePlayback {
 
   private triggerCues() {
     const currentTime = this.getCurrentTime()
-    // const cues = Object.values(this.cues)
-    // TODO build a search tree
-    const cue = this.cues.find((cue: VTTCueInfo) => currentTime >= cue.start && currentTime <= cue.end)
+    const cue = this.cues?.find(currentTime)
     if (cue) {
       this.currentCueId = cue.id
       this.oncueenter?.(cue)
@@ -836,7 +840,7 @@ export default class HlsPlayback extends BasePlayback {
     if (!this._hls) {
       return
     }
-    ; (this.el as HTMLMediaElement).pause()
+    ;(this.el as HTMLMediaElement).pause()
     if (this.dvrEnabled) {
       this._updateDvr(true)
     }
@@ -853,6 +857,8 @@ export default class HlsPlayback extends BasePlayback {
   destroy() {
     this._stopTimeUpdateTimer()
     this._destroyHLSInstance()
+    this.cues = null
+    this.cuesByTrack = {}
     return super.destroy()
   }
 
@@ -865,14 +871,6 @@ export default class HlsPlayback extends BasePlayback {
       data.details.live ? Playback.LIVE : Playback.VOD
     ) as PlaybackType
     this._onLevelUpdated(evt, data)
-    // Live stream subtitle tracks detection hack (may not immediately available)
-    // if (
-    //   this._ccTracksUpdated &&
-    //   this._playbackType === Playback.LIVE &&
-    //   this.hasClosedCaptionsTracks
-    // ) {
-    //   this._onSubtitleLoaded()
-    // }
     if (prevPlaybackType !== this._playbackType) {
       this._updateSettings()
     }
@@ -952,7 +950,7 @@ export default class HlsPlayback extends BasePlayback {
               Math.max(
                 fragments[0].start,
                 previousPlayableRegionStartTime +
-                this._extrapolatedWindowDuration,
+                  this._extrapolatedWindowDuration,
               ) * 1000,
           }
         }
@@ -1139,7 +1137,10 @@ export default class HlsPlayback extends BasePlayback {
       return
     }
     this._hls!.subtitleTrack = id
-    this.cues = []
+    if (!this.cuesByTrack[id]) {
+      this.cuesByTrack[id] = new RangesList<VTTCueInfo>()
+    }
+    this.cues = this.cuesByTrack[id]
   }
 
   /**
@@ -1150,15 +1151,17 @@ export default class HlsPlayback extends BasePlayback {
   }
 
   getTextTracks() {
-    return this._hls?.subtitleTracks.map((t: MediaPlaylist) => ({
-      id: t.id,
-      name: t.name,
-      track: {
+    return (
+      this._hls?.subtitleTracks.map((t: MediaPlaylist) => ({
         id: t.id,
-        label: t.name,
-        language: t.lang,
-      },
-    })) || []
+        name: t.name,
+        track: {
+          id: t.id,
+          label: t.name,
+          language: t.lang,
+        },
+      })) || []
+    )
   }
 }
 
