@@ -1,7 +1,7 @@
 import { Events, UICorePlugin, template } from '@clappr/core'
 import { AudioTrack } from '@clappr/core/types/base/playback/playback.js'
 import assert from 'assert'
-// import { trace } from '@gcorevideo/utils'
+import { trace } from '@gcorevideo/utils'
 
 import { CLAPPR_VERSION } from '../../build.js'
 
@@ -13,7 +13,7 @@ import { mediaControlClickaway } from '../../utils/clickaway.js'
 
 const VERSION: string = '2.22.4'
 
-// const T = 'plugins.audiotracks'
+const T = 'plugins.audiotracks'
 
 /**
  * `PLUGIN` that makes possible to switch audio tracks via the media control UI.
@@ -31,6 +31,8 @@ export class AudioTracks extends UICorePlugin {
   private open = false
 
   private tracks: AudioTrack[] = []
+
+  private autoUpdateTimerId: ReturnType<typeof setTimeout> | null = null
 
   /**
    * @internal
@@ -112,30 +114,53 @@ export class AudioTracks extends UICorePlugin {
       this.core.activeContainer,
       Events.CONTAINER_AUDIO_AVAILABLE,
       (tracks: AudioTrack[]) => {
+        trace(`${T} on Events.CONTAINER_AUDIO_AVAILABLE`, {
+          tracks,
+        })
+        const currentTrackId =
+          this.core.activeContainer.currentAudioTrack?.id ??
+          this.core.activePlayback?.currentAudioTrack?.id
         this.currentTrack =
-          tracks.find((track) => track.kind === 'main') ?? null // TODO test
+          tracks.find((track) => track.id === currentTrackId) ??
+          tracks.find((track) => track.kind === 'main') ??
+          tracks[0] ??
+          null
         this.tracks = tracks
         this.render()
         this.mount()
       },
     )
-    this.listenTo(
-      this.core.activeContainer,
-      Events.CONTAINER_AUDIO_CHANGED,
-      (track: AudioTrack) => {
-        this.currentTrack = track
-        this.highlightCurrentTrack()
-        this.buttonElement().removeClass('changing')
-        this.updateText()
-      },
-    )
-    // TODO test
+    this.bindContainerAudioChanged()
     this.listenTo(this.core.activeContainer, Events.CONTAINER_CLICK, () => {
       this.hideMenu()
     })
     this.listenTo(this.core.activeContainer, Events.CONTAINER_DESTROYED, () => {
       this.clickaway(null)
     })
+  }
+
+  private bindContainerAudioChanged() {
+    this.listenTo(
+      this.core.activeContainer,
+      Events.CONTAINER_AUDIO_CHANGED,
+      (track: AudioTrack) => {
+        trace(`${T} on Events.CONTAINER_AUDIO_CHANGED`, {
+          track,
+        })
+        this.setCurrentTrack(track)
+      }
+    )
+  }
+
+  private setCurrentTrack(track: AudioTrack | null) {
+    if (this.autoUpdateTimerId) {
+      clearTimeout(this.autoUpdateTimerId)
+      this.autoUpdateTimerId = null
+    }
+    this.currentTrack = track
+    this.highlightCurrentTrack()
+    this.buttonElement().removeClass('changing')
+    this.updateText()
   }
 
   private shouldRender() {
@@ -176,7 +201,7 @@ export class AudioTracks extends UICorePlugin {
   private selectAudioTrack(id: string) {
     this.startTrackSwitching()
     this.core.activeContainer.switchAudioTrack(id)
-    this.updateText()
+    this.autoUpdateSelected(id)
   }
 
   private hideMenu() {
@@ -241,7 +266,7 @@ export class AudioTracks extends UICorePlugin {
     if (!this.currentTrack) {
       return
     }
-    this.buttonElementText().text(this.currentTrack.label)
+    this.buttonElementText().text(this.getTitle())
   }
 
   private highlightCurrentTrack() {
@@ -264,6 +289,16 @@ export class AudioTracks extends UICorePlugin {
     if (this.shouldRender()) {
       this.core.getPlugin('media_control')?.slot('audiotracks', this.$el)
     }
+  }
+
+  private autoUpdateSelected(id: string) {
+    if (this.autoUpdateTimerId) {
+      clearTimeout(this.autoUpdateTimerId)
+    }
+    this.autoUpdateTimerId = setTimeout(() => {
+      const track = this.tracks.find(t => t.id === id) ?? null
+      this.setCurrentTrack(track)
+    }, 500)
   }
 
   private clickaway = mediaControlClickaway(() => this.hideMenu())

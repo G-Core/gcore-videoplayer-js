@@ -2,13 +2,13 @@
 
 exports[`AudioTracks > when audio tracks are available > should render menu 1`] = `
 "<button class="gcore-skin-button-color media-control-dd" id="gplayer-audiotracks-button" aria-haspopup="menu" aria-expanded="false">
-    <span class="media-control-dd__text" id="gplayer-audiotracks-button-text"></span>
+    <span class="media-control-dd__text" id="gplayer-audiotracks-button-text">English</span>
     <span class="media-control-dd__arrow">/assets/icons/old/quality-arrow.svg</span>
 </button>
 <ul class="gcore-skin-bg-color menu media-control-dd__popup" id="gplayer-audiotracks-menu" role="menu" style="display: none;">
     
-        <li class="">
-            <a href="#" class="gcore-skin-text-color" data-item="1" role="menuitemradio" aria-checked="false">
+        <li class="current">
+            <a href="#" class="gcore-skin-text-color gcore-skin-active" data-item="1" role="menuitemradio" aria-checked="true">
                 English
             </a>
         </li>
@@ -25,13 +25,13 @@ exports[`AudioTracks > when audio tracks are available > should render menu 1`] 
 
 exports[`AudioTracks > when audio tracks are available > when button is clicked > should show menu 1`] = `
 "<button class="gcore-skin-button-color media-control-dd" id="gplayer-audiotracks-button" aria-haspopup="menu" aria-expanded="true">
-    <span class="media-control-dd__text" id="gplayer-audiotracks-button-text"></span>
+    <span class="media-control-dd__text" id="gplayer-audiotracks-button-text">English</span>
     <span class="media-control-dd__arrow">/assets/icons/old/quality-arrow.svg</span>
 </button>
 <ul class="gcore-skin-bg-color menu media-control-dd__popup" id="gplayer-audiotracks-menu" role="menu">
     
-        <li class="">
-            <a href="#" class="gcore-skin-text-color" data-item="1" role="menuitemradio" aria-checked="false">
+        <li class="current">
+            <a href="#" class="gcore-skin-text-color gcore-skin-active" data-item="1" role="menuitemradio" aria-checked="true">
                 English
             </a>
         </li>
@@ -48,13 +48,13 @@ exports[`AudioTracks > when audio tracks are available > when button is clicked 
 
 exports[`AudioTracks > when audio tracks are available > when button is clicked > when audio track is selected > should hide the menu 1`] = `
 "<button class="gcore-skin-button-color media-control-dd changing" id="gplayer-audiotracks-button" aria-haspopup="menu" aria-expanded="false">
-    <span class="media-control-dd__text" id="gplayer-audiotracks-button-text"></span>
+    <span class="media-control-dd__text" id="gplayer-audiotracks-button-text">English</span>
     <span class="media-control-dd__arrow">/assets/icons/old/quality-arrow.svg</span>
 </button>
 <ul class="gcore-skin-bg-color menu media-control-dd__popup" id="gplayer-audiotracks-menu" role="menu" style="display: none;">
     
-        <li class="">
-            <a href="#" class="gcore-skin-text-color" data-item="1" role="menuitemradio" aria-checked="false">
+        <li class="current">
+            <a href="#" class="gcore-skin-text-color gcore-skin-active" data-item="1" role="menuitemradio" aria-checked="true">
                 English
             </a>
         </li>

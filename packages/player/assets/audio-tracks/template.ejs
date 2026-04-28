@@ -6,7 +6,7 @@
     <% for (const track of tracks) { %>
         <li>
             <a href="#" class="gcore-skin-text-color" data-item="<%= track.id %>" role="menuitemradio" aria-checked="<%= track.id === current %>">
-                <%= track.label %>
+                <%= track.label || track.language %>
             </a>
         </li>
     <% }; %>
