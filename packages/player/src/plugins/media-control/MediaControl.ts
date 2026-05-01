@@ -189,6 +189,9 @@ export class MediaControl extends UICorePlugin {
 
   private persistConfig: boolean
 
+  // Volume before muting, used to restore the volume when unmuting
+  private prevVolume = 0
+
   private renderTimerId: ReturnType<typeof setTimeout> | null = null
 
   private rendered = false
@@ -855,7 +858,13 @@ export class MediaControl extends UICorePlugin {
   }
 
   private toggleMute() {
-    this.setVolume(this.muted ? 100 : 0)
+    const nextVolume = this.muted ? (this.prevVolume === 0 ? 100 : this.prevVolume) : 0
+    if (this.muted) {
+
+    } else {
+      this.prevVolume = this.volume
+    }
+    this.setVolume(nextVolume)
   }
 
   /**
