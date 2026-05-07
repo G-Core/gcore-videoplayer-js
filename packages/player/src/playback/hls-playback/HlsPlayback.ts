@@ -380,6 +380,17 @@ export default class HlsPlayback extends BasePlayback {
       ? { liveSyncDuration: this.options.liveDelay }
       : {}
 
+    // If the caller hard-codes a codec prefix, bake it into the constructor config
+    // so HLS.js applies it during getStartCodecTier() — before startLoad() runs.
+    // Runtime mutation of hls.config.videoPreference after MANIFEST_PARSED is not
+    // sufficient because hls.js reads videoPreference only at construction time for
+    // initial codec tier selection.
+    const forcedPrefix = (this.options.qualityLevels ?? this.options.levelSelector)
+      ?.preferredCodecPrefix?.toLowerCase() ?? null
+    const videoPreferenceConfig = forcedPrefix
+      ? { videoPreference: { videoCodec: forcedPrefix } }
+      : {}
+
     const config = $.extend(
       true,
       {
@@ -394,6 +405,7 @@ export default class HlsPlayback extends BasePlayback {
         maxLiveSyncPlaybackRate: 1.1,
       },
       liveDelayConfig,
+      videoPreferenceConfig,
       // playback.hlsjsConfig takes highest priority.
       this.options.playback.hlsjsConfig,
     )
@@ -905,13 +917,30 @@ export default class HlsPlayback extends BasePlayback {
   private async _applyCodecPreferenceAndReload(): Promise<void> {
     if (!this._hls) return
     const hlsLevels = this._hls.levels
-    const strategy =
-      (this.options.qualityLevels ?? this.options.levelSelector)
-        ?.codecStrategy ?? 'power-efficient'
-    // For best-supported: synchronous; for power-efficient: awaits MediaCapabilities
-    this._codecPrefixPromise = this._selectBestCodecPrefix(hlsLevels, strategy)
-    const bestPrefix = await this._codecPrefixPromise
-    this._bestCodecPrefix = bestPrefix ?? null
+    const opts = this.options.qualityLevels ?? this.options.levelSelector
+    const forcedPrefix = opts?.preferredCodecPrefix?.toLowerCase() ?? null
+
+    if (forcedPrefix) {
+      // Manual override: skip detection, use the given prefix directly
+      this._bestCodecPrefix = forcedPrefix
+      this._codecPrefixPromise = Promise.resolve(forcedPrefix)
+      // Set startLevel to the first matching level so the stream controller
+      // bypasses hls.firstAutoLevel / getStartCodecTier() entirely.
+      // After the first fragment from this codec tier loads, ABR's currentCodecSet
+      // locks to that tier and stays within it — videoPreference alone is unreliable
+      // because hasDefaultAudio filtering can reject the desired codec first.
+      const firstMatch = hlsLevels.findIndex(
+        (l) => l.videoCodec?.toLowerCase().startsWith(forcedPrefix),
+      )
+      if (firstMatch >= 0 && this._hls) {
+        this._hls.startLevel = firstMatch
+      }
+    } else {
+      const strategy = opts?.codecStrategy ?? 'power-efficient'
+      this._codecPrefixPromise = this._selectBestCodecPrefix(hlsLevels, strategy)
+      const bestPrefix = await this._codecPrefixPromise
+      this._bestCodecPrefix = bestPrefix ?? null
+    }
     // Tell HLS.js which codec tier to use — must be set before startLoad()
     if (this._bestCodecPrefix && this._hls) {
       this._hls.config.videoPreference = { videoCodec: this._bestCodecPrefix }
