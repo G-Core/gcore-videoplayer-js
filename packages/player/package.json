@@ -10,7 +10,7 @@
     "video streaming"
   ],
   "scripts": {
-    "build": "npm run build:ts && npm run build:bundle",
+    "build": "npm run build:ts && npm run build:bundle && npm run docs",
     "build:ts": "tsc",
     "build:bundle": "rollup -c",
     "dev": "nodemon --watch src -e ts --exec \"npm run build:ts && npm run docs\"",

@@ -21,6 +21,27 @@ import { MediaControl } from '../media-control/MediaControl.js'
 const VERSION = 'v2.22.5'
 
 /**
+ * Controls which codec is selected when a multi-codec HLS manifest is loaded.
+ * @public
+ * @see {@link QualityLevelsPluginSettings}
+ */
+export type CodecStrategy =
+  /**
+   * Pick the codec the browser can hardware-decode most efficiently
+   * (`MediaCapabilities.decodingInfo → powerEfficient`), falling back to the
+   * first playable codec in preference order (AV1 → HEVC → H.264).
+   * This is the default and minimises battery drain.
+   */
+  | 'power-efficient'
+  /**
+   * Pick the highest-preference codec the browser can play at all
+   * (AV1 → HEVC → H.264), ignoring power efficiency.
+   * Use this when you want the best compression regardless of whether
+   * hardware decode is reported as efficient (e.g. AV1 on Chrome macOS).
+   */
+  | 'best-supported'
+
+/**
  * Configuration options for the {@link QualityLevels} plugin.
  * @public
  */
@@ -37,6 +58,12 @@ export interface QualityLevelsPluginSettings {
    * ```
    */
   labels?: Record<number, string>
+  /**
+   * Codec selection strategy for multi-codec HLS streams.
+   * Defaults to `'power-efficient'`.
+   * @see {@link CodecStrategy}
+   */
+  codecStrategy?: CodecStrategy
 }
 
 /**
@@ -53,6 +80,33 @@ export interface QualityLevelsPluginSettings {
  * The plugin is rendered as an item in the gear menu, which, when clicked, shows a list of quality levels to choose from.
  *
  * Configuration options - {@link QualityLevelsPluginSettings}
+ *
+ * **Multi-codec HLS streams.** When an HLS manifest declares the same resolution at multiple codecs
+ * (e.g. `avc1`, `hvc1`, `av01` — common in 4K adaptive streams), the player
+ * automatically filters the level list to a single codec before passing it to
+ * this plugin. This prevents the selector from showing duplicate resolution entries.
+ * The codec is chosen according to {@link QualityLevelsPluginSettings.codecStrategy}
+ * (default `'power-efficient'`). The logic lives in `HlsPlayback._selectBestCodecPrefix`.
+ *
+ * **Codec selection by platform:**
+ *
+ * <table>
+ * <thead><tr><th>Platform</th><th>AV1 hw</th><th>HEVC hw</th><th>H.264 hw</th><th>Selected</th></tr></thead>
+ * <tbody>
+ * <tr><td>macOS Safari, Apple Silicon M3+</td><td>✓</td><td>✓</td><td>✓</td><td>AV1</td></tr>
+ * <tr><td>macOS Safari, Apple Silicon M1–M2</td><td>✗</td><td>✓</td><td>✓</td><td>HEVC</td></tr>
+ * <tr><td>macOS Safari, Intel</td><td>✗</td><td>✗</td><td>✓</td><td>H.264</td></tr>
+ * <tr><td>macOS Chrome, Edge</td><td>✗ (not powerEfficient via MSE)</td><td>✓ (Chrome 107+ via VideoToolbox)</td><td>✓</td><td>HEVC — or AV1 with codecStrategy:'best-supported'</td></tr>
+ * <tr><td>Windows Chrome, Edge</td><td>✓ (GPU-dependent)</td><td>✓ (Chrome 107+)</td><td>✓</td><td>AV1 or HEVC</td></tr>
+ * <tr><td>Windows Firefox</td><td>✓</td><td>✗</td><td>✓</td><td>AV1 or H.264</td></tr>
+ * <tr><td>iOS Safari, iPhone 15 Pro+ (A17 Pro+)</td><td>✓</td><td>✓</td><td>✓</td><td>AV1</td></tr>
+ * <tr><td>iOS Safari, iPhone 7–15 (A10–A16)</td><td>✗</td><td>✓</td><td>✓</td><td>HEVC</td></tr>
+ * <tr><td>Android Chrome, flagship (SD 8 Gen 2+ / Tensor G2+)</td><td>✓</td><td>✗ (blocked)</td><td>✓</td><td>AV1</td></tr>
+ * <tr><td>Android Chrome, mid-range / older</td><td>✗</td><td>✗</td><td>✓</td><td>H.264</td></tr>
+ * <tr><td>Android Firefox</td><td>✓ (if hw)</td><td>✗</td><td>✓</td><td>AV1 or H.264</td></tr>
+ * <tr><td>Samsung Internet, Galaxy S22+</td><td>✗</td><td>✓</td><td>✓</td><td>HEVC</td></tr>
+ * </tbody>
+ * </table>
  *
  * @example
  * ```ts
@@ -299,7 +353,7 @@ export class QualityLevels extends UICorePlugin {
 
     for (const level of this.levels) {
       const ll = level.width > level.height ? level.height : level.width
-      const label = labels[ll] || `${ll}p`
+      const label = labels[ll] || formatLevelLabel(level)
       this.levelLabels.push(label)
     }
   }
@@ -383,5 +437,14 @@ export class QualityLevels extends UICorePlugin {
 
 function formatLevelLabel(level: QualityLevel): string {
   const h = level.width > level.height ? level.height : level.width
-  return `${h}p`
+  return `${h}p ${qualityTier(h)}`
+}
+
+function qualityTier(height: number): string {
+  if (height >= 2160) return '4K'
+  if (height >= 1440) return '2K'
+  if (height >= 1080) return 'FHD'
+  if (height >= 720) return 'HD'
+  if (height >= 420) return 'SD'
+  return 'LQ'
 }

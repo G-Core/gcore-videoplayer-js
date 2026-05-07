@@ -148,6 +148,25 @@ _(Optional)_ A language code for the player UI, for example, `es`<!-- -->. Must 
 </td></tr>
 <tr><td>
 
+[liveDelay?](./player.playerconfig.livedelay.md)
+
+
+</td><td>
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+_(Optional)_ Target live latency in seconds — how far behind the live edge the player aims to stay.
+
+
+</td></tr>
+<tr><td>
+
 [loop?](./player.playerconfig.loop.md)
 
 

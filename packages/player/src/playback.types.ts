@@ -68,6 +68,11 @@ export interface QualityLevel {
    * Bitrate of the video, bps.
    */
   bitrate: number
+  /**
+   * Video codec string as declared in the manifest (e.g. `avc1.640032`, `hvc1.1.6`).
+   * `undefined` when not available.
+   */
+  codec?: string
 }
 
 /**

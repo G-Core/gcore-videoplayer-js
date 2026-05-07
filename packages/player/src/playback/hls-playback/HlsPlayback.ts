@@ -10,6 +10,7 @@ import HLSJS, {
   HlsListeners,
   type ErrorData as HlsErrorData,
   type Fragment,
+  type Level as HlsLevel,
   type LevelUpdatedData,
   type LevelLoadedData,
   type LevelSwitchingData,
@@ -89,6 +90,10 @@ export default class HlsPlayback extends BasePlayback {
 
   private _levels: QualityLevel[] | null = null
 
+  private _codecPrefixPromise: Promise<string | null> | null = null
+
+  private _bestCodecPrefix: string | null = null
+
   private _localStartTimeCorrelation: TimeCorrelation | null = null
 
   private _localEndTimeCorrelation: TimeCorrelation | null = null
@@ -110,6 +115,8 @@ export default class HlsPlayback extends BasePlayback {
   private _recoveredAudioCodecError = false
 
   private _recoveredDecodingError = false
+
+  private _hlsLoadingStopped = false
 
   private _segmentTargetDuration: number | null = null
 
@@ -369,6 +376,10 @@ export default class HlsPlayback extends BasePlayback {
   }
 
   private _createHLSInstance() {
+    const liveDelayConfig = typeof this.options.liveDelay === 'number'
+      ? { liveSyncDuration: this.options.liveDelay }
+      : {}
+
     const config = $.extend(
       true,
       {
@@ -376,7 +387,14 @@ export default class HlsPlayback extends BasePlayback {
         maxMaxBufferLength: 4,
         autoStartLoad: false,
         renderTextTracksNatively: false,
+        // Proportional catch-up ceiling for live streams: cap at 1.1× instead of
+        // the default 1.5×. Prevents buffer-drain stalls caused by aggressive
+        // catch-up when a segment is delayed. Override via
+        // playback.hlsjsConfig.maxLiveSyncPlaybackRate.
+        maxLiveSyncPlaybackRate: 1.1,
       },
+      liveDelayConfig,
+      // playback.hlsjsConfig takes highest priority.
       this.options.playback.hlsjsConfig,
     )
     this._hls = new HLSJS(config)
@@ -413,7 +431,8 @@ export default class HlsPlayback extends BasePlayback {
 
     this._hls.on(HlsEvents.MANIFEST_PARSED, () => {
       this._manifestParsed = true
-      this.reload()
+      this._codecPrefixPromise = null
+      void this._applyCodecPreferenceAndReload()
     })
     this._hls.on(
       HlsEvents.LEVEL_LOADED,
@@ -832,6 +851,10 @@ export default class HlsPlayback extends BasePlayback {
       !this.options.hlsPlayback.preload &&
       // @ts-expect-error
       this._hls.loadSource(this.options.src)
+    if (this._hlsLoadingStopped) {
+      this._hls?.startLoad(-1)
+      this._hlsLoadingStopped = false
+    }
     super.play()
     this._startTimeUpdateTimer()
   }
@@ -841,6 +864,8 @@ export default class HlsPlayback extends BasePlayback {
       return
     }
     ;(this.el as HTMLMediaElement).pause()
+    this._hls.stopLoad()
+    this._hlsLoadingStopped = true
     if (this.dvrEnabled) {
       this._updateDvr(true)
     }
@@ -848,6 +873,7 @@ export default class HlsPlayback extends BasePlayback {
 
   stop() {
     this._stopTimeUpdateTimer()
+    this._hlsLoadingStopped = false
     if (this._hls) {
       super.stop()
     }
@@ -876,18 +902,113 @@ export default class HlsPlayback extends BasePlayback {
     }
   }
 
-  private _fillLevels() {
+  private async _applyCodecPreferenceAndReload(): Promise<void> {
+    if (!this._hls) return
+    const hlsLevels = this._hls.levels
+    const strategy =
+      (this.options.qualityLevels ?? this.options.levelSelector)
+        ?.codecStrategy ?? 'power-efficient'
+    // For best-supported: synchronous; for power-efficient: awaits MediaCapabilities
+    this._codecPrefixPromise = this._selectBestCodecPrefix(hlsLevels, strategy)
+    const bestPrefix = await this._codecPrefixPromise
+    this._bestCodecPrefix = bestPrefix ?? null
+    // Tell HLS.js which codec tier to use — must be set before startLoad()
+    if (this._bestCodecPrefix && this._hls) {
+      this._hls.config.videoPreference = { videoCodec: this._bestCodecPrefix }
+    }
+    void this._fillLevels()
+    this.reload()
+  }
+
+  private async _fillLevels(): Promise<void> {
     assert.ok(this._hls, 'HLS.js is not initialized')
-    this._levels = this._hls.levels.map((level, index) => {
-      return {
-        level: index, // or level.id?
-        width: level.width,
-        height: level.height,
-        bitrate: level.bitrate,
-      }
-    })
+    const hlsLevels = this._hls.levels
+    if (!this._codecPrefixPromise) {
+      const strategy =
+        (this.options.qualityLevels ?? this.options.levelSelector)
+          ?.codecStrategy ?? 'power-efficient'
+      this._codecPrefixPromise = this._selectBestCodecPrefix(hlsLevels, strategy)
+    }
+    const bestPrefix = await this._codecPrefixPromise
+    this._bestCodecPrefix = bestPrefix ?? null
+    const source = bestPrefix
+      ? hlsLevels.filter((l) => l.videoCodec?.toLowerCase().startsWith(bestPrefix))
+      : hlsLevels
+    this._levels = source.map((level) => ({
+      level: hlsLevels.indexOf(level),
+      width: level.width,
+      height: level.height,
+      bitrate: level.bitrate,
+      codec: level.videoCodec,
+    }))
     this.trigger(Events.PLAYBACK_LEVELS_AVAILABLE, this._levels)
   }
+
+  /**
+   * Determines the single best video codec prefix (e.g. `"hvc1"`) for the
+   * given HLS level list.
+   *
+   * With `strategy = 'power-efficient'` (default): uses `MediaCapabilities.decodingInfo`
+   * to prefer hardware-accelerated codecs, falling back to `canPlayType`.
+   * With `strategy = 'best-supported'`: picks the highest-preference codec the
+   * browser can play (AV1 → HEVC → H.264) without checking power efficiency.
+   *
+   * Returns `null` when all levels share one codec (no filtering needed).
+   *
+   * Platform behaviour is documented on {@link QualityLevels}.
+   */
+  private async _selectBestCodecPrefix(
+    levels: HlsLevel[],
+    strategy: 'power-efficient' | 'best-supported' = 'power-efficient',
+  ): Promise<string | null> {
+    const prefixes = new Set(
+      levels
+        .map((l) => l.videoCodec?.split('.')[0]?.toLowerCase())
+        .filter((p): p is string => !!p),
+    )
+    if (prefixes.size <= 1) return null
+
+    // Preference order: AV1 → HEVC → H.264 (most efficient compression first)
+    const candidates = [
+      { prefix: 'av01', codec: 'av01.0.08M.08' },
+      { prefix: 'hvc1', codec: 'hvc1.1.6.L120.90' },
+      { prefix: 'hev1', codec: 'hev1.1.6.L120.90' },
+      { prefix: 'avc1', codec: 'avc1.640032' },
+      { prefix: 'avc3', codec: 'avc3.640032' },
+    ].filter((c) => prefixes.has(c.prefix))
+
+    // power-efficient: prefer the codec the browser can hardware-decode
+    if (strategy === 'power-efficient' && typeof navigator !== 'undefined' && navigator.mediaCapabilities) {
+      for (const c of candidates) {
+        try {
+          const info = await navigator.mediaCapabilities.decodingInfo({
+            type: 'media-source',
+            video: {
+              contentType: `video/mp4; codecs="${c.codec}"`,
+              width: 1920,
+              height: 1080,
+              bitrate: 5_000_000,
+              framerate: 30,
+            },
+          })
+          if (info.supported && info.powerEfficient) return c.prefix
+        } catch {
+          // MediaCapabilities not supported for this codec — continue
+        }
+      }
+    }
+
+    // best-supported (or power-efficient fallback): first playable codec in preference order
+    if (typeof document !== 'undefined') {
+      const video = document.createElement('video')
+      for (const c of candidates) {
+        if (video.canPlayType(`video/mp4; codecs="${c.codec}"`)) return c.prefix
+      }
+    }
+
+    return null
+  }
+
 
   private _onLevelUpdated(
     evt: HlsEvents.LEVEL_UPDATED | HlsEvents.LEVEL_LOADED,
@@ -1037,7 +1158,7 @@ export default class HlsPlayback extends BasePlayback {
 
   _onLevelSwitch(evt: HlsEvents.LEVEL_SWITCHING, data: LevelSwitchingData) {
     if (!this.levels.length) {
-      this._fillLevels()
+      void this._fillLevels()
     }
     this.trigger(Events.PLAYBACK_LEVEL_SWITCH, data)
   }
@@ -1057,6 +1178,7 @@ export default class HlsPlayback extends BasePlayback {
       width: currentLevel.width,
       bitrate: currentLevel.bitrate,
       level: data.level,
+      codec: currentLevel.videoCodec,
     })
     this.trigger(Events.PLAYBACK_LEVEL_SWITCH_END)
   }
