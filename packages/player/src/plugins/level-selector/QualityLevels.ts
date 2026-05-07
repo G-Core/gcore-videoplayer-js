@@ -10,7 +10,6 @@ import { BottomGear, GearEvents } from '../bottom-gear/BottomGear.js'
 
 import buttonHtml from '../../../assets/level-selector/button.ejs'
 import listHtml from '../../../assets/level-selector/list.ejs'
-import hdIcon from '../../../assets/icons/new/hd.svg'
 import arrowRightIcon from '../../../assets/icons/new/arrow-right.svg'
 import arrowLeftIcon from '../../../assets/icons/new/arrow-left.svg'
 import checkIcon from '../../../assets/icons/new/check.svg'
@@ -64,6 +63,15 @@ export interface QualityLevelsPluginSettings {
    * @see {@link CodecStrategy}
    */
   codecStrategy?: CodecStrategy
+  /**
+   * Force a specific codec prefix (e.g. `'av01'`, `'hvc1'`, `'avc1'`) for HLS
+   * or DASH streams, bypassing the automatic codec detection. Takes precedence
+   * over {@link codecStrategy}.
+   *
+   * Useful for letting the user manually switch codec tiers at runtime by
+   * reloading the player with the desired prefix.
+   */
+  preferredCodecPrefix?: string
 }
 
 /**
@@ -125,9 +133,9 @@ export class QualityLevels extends UICorePlugin {
 
   private removeAuto = false
 
-  private isHd = false
-
   private currentText = ''
+
+  private currentTier = ''
 
   private selectedLevelId = -1
 
@@ -200,7 +208,7 @@ export class QualityLevels extends UICorePlugin {
 
   private onActiveContainerChange() {
     this.removeAuto = false
-    this.isHd = false
+    this.currentTier = ''
 
     const activePlayback = this.core.activePlayback
 
@@ -221,24 +229,8 @@ export class QualityLevels extends UICorePlugin {
     )
     this.listenTo(activePlayback, Events.PLAYBACK_BITRATE, this.onBitrate)
     this.listenTo(activePlayback, Events.PLAYBACK_STOP, this.onStop)
-    this.listenTo(
-      activePlayback,
-      Events.PLAYBACK_HIGHDEFINITIONUPDATE,
-      (isHd: boolean) => {
-        this.isHd = isHd
-        this.updateHd()
-      },
-    )
     if (activePlayback.levels?.length > 0) {
       this.onLevelsAvailable(activePlayback.levels)
-    }
-  }
-
-  private updateHd() {
-    if (this.isHd) {
-      this.$el.find('.gear-option_hd-icon').removeClass('hidden')
-    } else {
-      this.$el.find('.gear-option_hd-icon').addClass('hidden')
     }
   }
 
@@ -305,8 +297,7 @@ export class QualityLevels extends UICorePlugin {
         QualityLevels.buttonTemplate({
           arrowRightIcon,
           currentText: this.currentText,
-          isHd: this.isHd,
-          hdIcon,
+          currentTier: this.currentTier,
           i18n: this.core.i18n,
         }),
       )
@@ -400,7 +391,9 @@ export class QualityLevels extends UICorePlugin {
 
   private updateText(level: number) {
     this.currentText = this.getLevelLabel(level)
+    this.currentTier = this.getLevelTier(level)
     this.updateButton()
+    ;(this.core.getPlugin('bottom_gear') as BottomGear)?.setQualityBadge(this.currentTier)
   }
 
   private getLevelLabel(id: number): string {
@@ -412,6 +405,15 @@ export class QualityLevels extends UICorePlugin {
       return this.core.i18n.t('auto')
     }
     return this.levelLabels[index] ?? formatLevelLabel(this.levels[index])
+  }
+
+  private getLevelTier(id: number): string {
+    if (id < 0) return ''
+    const index = this.levels.findIndex((l) => l.level === id)
+    if (index < 0) return ''
+    const level = this.levels[index]
+    const h = level.width > level.height ? level.height : level.width
+    return qualityTier(h)
   }
 
   private onBitrate(info: QualityLevel) {

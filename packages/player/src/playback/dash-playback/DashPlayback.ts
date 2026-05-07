@@ -280,6 +280,10 @@ export default class DashPlayback extends BasePlayback {
             // for a track, other than the currently active one.
             // dispatchForManualRendering: true, // TODO only when useNativeSubtitles is not true?
           },
+          gaps: {
+            jumpGaps: true,
+            jumpLargeGaps: true,
+          },
           liveCatchup: {
             // Proportional catch-up: rate scales smoothly with latency distance
             // instead of binary 1.0×/1.5× switching. Near target → minimal speed
@@ -294,6 +298,11 @@ export default class DashPlayback extends BasePlayback {
             playbackBufferMin: typeof this.options.liveDelay === 'number'
               ? this.options.liveDelay * 0.5
               : 1.0,
+            // Hard seek to live edge if drifted more than 3 seconds.
+            maxDrift: 3.0,
+            // Cap catch-up speed at 1.15× to avoid audible distortion and
+            // aggressive buffer depletion on micro-stalls.
+            playbackRate: 0.15,
           },
         },
       },
@@ -339,6 +348,16 @@ export default class DashPlayback extends BasePlayback {
     this._dash.on(
       MediaPlayer.events.QUALITY_CHANGE_RENDERED,
       (evt: QualityChangeRenderedEvent) => {
+        if (evt.mediaType === 'video') {
+          // After a codec switch (resetSourceBuffersForTrackSwitch), the stream
+          // re-initializes without firing STREAM_INITIALIZED again, so _levels
+          // stays stale with the old codec's representations.  Detect the
+          // mismatch and refresh before reporting the level change upstream.
+          const incomingCodec = evt.newRepresentation.codecs
+          if (incomingCodec && this._levels[evt.newRepresentation.index]?.codec !== incomingCodec) {
+            this._fillLevels(this._dash!.getRepresentationsByType('video'))
+          }
+        }
         const currentLevel = this.getLevel(evt.newRepresentation.index)
         this.onLevelSwitchEnd(currentLevel)
       },

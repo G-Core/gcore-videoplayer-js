@@ -28,33 +28,78 @@
   ║  FILE ORGANISATION                                                           ║
   ║  • <style>          — all CSS; no external stylesheet except player skin     ║
   ║  • <body>           — two-column layout: player panel + token status panel  ║
-  ║  • <script module>  — all runtime JS; imports from local player build       ║
+  ║  • <script module>  — all runtime JS; imports local or CDN player build     ║
   ║                                                                              ║
   ║  LOCAL DEV (to test an unreleased local build)                               ║
   ║  1. cd packages/player && npm run build                                     ║
-  ║  2. Swap the import URL to '../packages/player/dist/index.js'               ║
-  ║  3. npx serve . -p 8080   (from repo root)                                  ║
-  ║  4. http://localhost:8080/example/protected-content.html                    ║
-  ║  Note: file:// protocol blocks fetch() and ES-module imports.               ║
+  ║  2. npx serve . -p 8080   (from repo root)                                  ║
+  ║  3. http://localhost:8080/example/protected-content.html                    ║
+  ║  Localhost loads ../packages/player/dist/ automatically; hosted pages load  ║
+  ║  https://player.gvideo.co/v2/assets/latest/ automatically.                  ║
   ╚══════════════════════════════════════════════════════════════════════════════╝
 -->
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Protected Content — Token Refresh Demo</title>
-    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
-
-    <!--
-      Player CSS is loaded from the Gcore CDN. It styles the Clappr player shell,
-      media controls, spinner, error screen, etc.
-      The JS, however, is loaded from the LOCAL build (see <script> below) so
-      that the unreleased TokenRefreshPlugin is available.
-    -->
-    <link
-      rel="stylesheet"
-      href="https://player.gvideo.co/v2/assets/latest/index.css"
+    <title>Protected Content Demo | Secure Token Refresh for Gcore Player</title>
+    <meta
+      name="description"
+      content="See how Gcore JavaScript Player keeps protected HLS and DASH streams playing with automatic token refresh, secure URL rewriting, and live token status monitoring."
     />
+    <meta
+      name="keywords"
+      content="Gcore protected content, video token refresh, secure video streaming, HLS token refresh, DASH token refresh, protected video player"
+    />
+    <meta name="author" content="Gcore" />
+    <meta name="robots" content="index, follow" />
+    <meta name="theme-color" content="#b84b32" />
+    <meta name="application-name" content="Gcore Protected Content Demo" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Gcore JavaScript Player Demos" />
+    <meta property="og:title" content="Protected Content Demo | Secure Token Refresh for Gcore Player" />
+    <meta
+      property="og:description"
+      content="Demo automatic token refresh for protected video playback in Gcore JavaScript Player, including secure URL rewriting and live token state monitoring."
+    />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Protected Content Demo | Secure Token Refresh for Gcore Player" />
+    <meta
+      name="twitter:description"
+      content="Protected streaming demo for Gcore JavaScript Player with automatic token refresh, secure request rewriting, and token status monitoring."
+    />
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Gcore Protected Content Demo",
+        "applicationCategory": "MultimediaApplication",
+        "operatingSystem": "Web",
+        "description": "Protected video playback demo for Gcore JavaScript Player showing automatic token refresh, secure URL rewriting, and live token status monitoring for HLS and DASH streams.",
+        "publisher": {
+          "@type": "Organization",
+          "name": "Gcore",
+          "url": "https://gcore.com/"
+        }
+      }
+    </script>
+
+    <script>
+      (() => {
+        const isLocal =
+          location.protocol === "file:" ||
+          ["localhost", "127.0.0.1", "0.0.0.0", "::1", "[::1]"].includes(location.hostname);
+        const base = isLocal
+          ? "../packages/player/dist/"
+          : "https://player.gvideo.co/v2/assets/latest/";
+        window.GCORE_PLAYER_ASSETS = {
+          css: `${base}index.css`,
+          js: `${base}index.js`,
+        };
+        document.write(`<link rel="stylesheet" href="${window.GCORE_PLAYER_ASSETS.css}">`);
+      })();
+    </script>
 
     <style>
       /*
@@ -105,9 +150,93 @@
       }
 
       main {
-        width: min(1120px, calc(100% - 32px));
+        width: min(1400px, calc(100% - 32px));
         margin: 0 auto;
         padding: 40px 0 56px;
+      }
+
+      .demo-header {
+        width: 100%;
+        background: #fff;
+        box-shadow: 0 10px 28px rgba(44, 27, 9, 0.08);
+      }
+
+      .demo-header__notice {
+        background: #171717;
+      }
+
+      .demo-header__notice-inner,
+      .demo-header__bar {
+        width: min(1400px, calc(100% - 32px));
+        margin: 0 auto;
+      }
+
+      .demo-header__notice-inner {
+        display: flex;
+        align-items: center;
+        min-height: 36px;
+        padding: 8px 0;
+        color: rgba(255,255,255,.86);
+        font-size: 13px;
+        font-weight: 650;
+        line-height: 1.4;
+      }
+
+      .demo-header__bar {
+        display: flex;
+        align-items: center;
+        gap: 28px;
+        min-height: 64px;
+        padding: 12px 0;
+        background: #fff;
+      }
+
+      .demo-header__logo {
+        display: inline-flex;
+        align-items: center;
+        flex: 0 0 auto;
+        text-decoration: none;
+      }
+
+      .demo-header__logo img {
+        display: block;
+        width: 128px;
+        height: 32px;
+      }
+
+      .demo-header__links {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        min-width: 0;
+        flex: 1;
+      }
+
+      .demo-header__link {
+        display: inline-flex;
+        align-items: center;
+        min-height: 38px;
+        padding: 8px 13px;
+        border-radius: 999px;
+        color: #2b2b2b;
+        font-size: 14px;
+        font-weight: 700;
+        line-height: 1.2;
+        text-decoration: none;
+        white-space: nowrap;
+        transition:
+          background-color 160ms ease,
+          color 160ms ease;
+      }
+
+      .demo-header__link:hover {
+        background: #f3f3f3;
+        color: #101010;
+      }
+
+      .demo-header__link[aria-current="page"] {
+        background: #fff0ec;
+        color: var(--accent-strong);
       }
 
       /* ── page header ────────────────────────────────────────────────── */
@@ -337,10 +466,64 @@
         width: 100%;
         aspect-ratio: 16 / 9;
       }
+
+      @media (max-width: 800px) {
+        .demo-header__bar {
+          align-items: flex-start;
+          flex-direction: column;
+          gap: 12px;
+        }
+
+        .demo-header__links {
+          flex-wrap: wrap;
+          width: 100%;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .demo-header__notice-inner,
+        .demo-header__bar {
+          width: min(100% - 20px, 1400px);
+        }
+
+        .demo-header__bar {
+          padding: 14px 0;
+        }
+
+        .demo-header__links {
+          align-items: stretch;
+          flex-direction: column;
+        }
+
+        .demo-header__link {
+          justify-content: center;
+          width: 100%;
+          white-space: normal;
+          text-align: center;
+        }
+      }
     </style>
   </head>
 
   <body>
+    <header class="demo-header">
+      <div class="demo-header__notice">
+        <div class="demo-header__notice-inner">
+          Demo pages for testing Gcore Video Streaming and JavaScript video player behavior
+        </div>
+      </div>
+      <nav class="demo-header__bar" aria-label="Demo pages">
+        <a class="demo-header__logo" href="https://gcore.com/streaming-platform" target="_blank" rel="noopener" aria-label="Gcore streaming platform">
+          <img src="./gcore-logo.svg" alt="Gcore" width="128" height="32" />
+        </a>
+        <div class="demo-header__links">
+          <a class="demo-header__link" href="./player.html">Live &amp; VOD playback</a>
+          <a class="demo-header__link" href="./protected-content.html" aria-current="page">Protected content</a>
+          <a class="demo-header__link" href="./player-lab.html">Player Lab</a>
+        </div>
+      </nav>
+    </header>
+
     <main>
       <header style="margin-bottom: 32px;">
         <span class="eyebrow">Token Refresh Demo</span>
@@ -560,18 +743,13 @@
     <script type="module">
       // ── Imports ───────────────────────────────────────────────────────────
       //
-      // CDN import — same approach as index.html.
-      // Replace /latest/ with a pinned version for production stability:
-      //   https://player.gvideo.co/v2/assets/1.2.3/index.js
-      //
-      // For local development (after `npm run build` inside packages/player):
-      //   swap the URL below with '../packages/player/dist/index.js', then:
-      //   npx serve . -p 8080   (from repo root)
-      //   http://localhost:8080/example/protected-content.html
+      // Player import:
+      //   localhost/file: ../packages/player/dist/index.js
+      //   hosted pages:   https://player.gvideo.co/v2/assets/latest/index.js
       //
       // BottomGear is required by QualityLevels — it asserts the plugin is
       // registered and throws if not. Always register BottomGear before QualityLevels.
-      import {
+      const {
         BottomGear,
         ErrorScreen,
         MediaControl,
@@ -580,7 +758,7 @@
         Spinner,
         TokenRefreshPlugin,
         version,
-      } from 'https://player.gvideo.co/v2/assets/latest/index.js'
+      } = await import(window.GCORE_PLAYER_ASSETS.js)
 
       console.info('Gcore player version', version)
 

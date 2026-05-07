@@ -14,6 +14,31 @@
       box-shadow: 0 0 1px 1px var(--gplayer-mc-popup-border-color);
     }
 
+    .gear-icon {
+      position: relative;
+
+      .gear-badge {
+        position: absolute;
+        top: 1px;
+        right: 1px;
+        min-width: 14px;
+        height: 9px;
+        line-height: 9px;
+        padding: 0 2px;
+        border-radius: 2px;
+        background: #F6413B;
+        font-size: 6px;
+        font-weight: 700;
+        color: #fff;
+        text-align: center;
+        pointer-events: none;
+
+        &.hidden {
+          display: none;
+        }
+      }
+    }
+
     .gear-options-list {
       padding: 8px 0;
     }
@@ -30,13 +55,21 @@
       justify-content: flex-start;
       gap: 8px;
 
-      &_icon {
-        flex: 24px 0 0;
-        height: 20px;
+      &_tier {
+        flex: 0 0 auto;
+        min-width: 24px;
+        height: 18px;
+        line-height: 18px;
+        padding: 0 4px;
+        border-radius: 3px;
+        border: 1px solid currentColor;
+        font-size: 10px;
+        font-weight: 600;
+        text-align: center;
+        opacity: 0.75;
 
         &.hidden {
-          visibility: hidden;
-          display: inline-block;
+          display: none;
         }
       }
 

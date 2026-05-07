@@ -3,12 +3,63 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Player Lab – Test Your Stream</title>
-    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
-    <link
-      rel="stylesheet"
-      href="../packages/player/dist/index.css"
+    <title>Player Lab | Test HLS, DASH, and MP4 Streams in Gcore Player</title>
+    <meta
+      name="description"
+      content="Test any HLS, MPEG-DASH, or MP4 stream URL in Gcore JavaScript Player with live playback analytics, request logs, buffer metrics, and quality diagnostics."
     />
+    <meta
+      name="keywords"
+      content="Gcore player lab, HLS stream tester, DASH stream tester, MP4 playback test, video player analytics, live streaming diagnostics"
+    />
+    <meta name="author" content="Gcore" />
+    <meta name="robots" content="index, follow" />
+    <meta name="theme-color" content="#b84b32" />
+    <meta name="application-name" content="Gcore Player Lab" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Gcore JavaScript Player Demos" />
+    <meta property="og:title" content="Player Lab | Test HLS, DASH, and MP4 Streams in Gcore Player" />
+    <meta
+      property="og:description"
+      content="Paste an HLS, DASH, or MP4 URL and inspect playback analytics, request logs, buffer levels, quality changes, and live latency in Gcore JavaScript Player."
+    />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Player Lab | Test HLS, DASH, and MP4 Streams in Gcore Player" />
+    <meta
+      name="twitter:description"
+      content="Stream tester for Gcore JavaScript Player with HLS, DASH, MP4 playback analytics, request logs, buffer metrics, and live latency diagnostics."
+    />
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Gcore Player Lab",
+        "applicationCategory": "MultimediaApplication",
+        "operatingSystem": "Web",
+        "description": "Stream testing and diagnostics demo for Gcore JavaScript Player supporting HLS, MPEG-DASH, and MP4 URLs with playback analytics, request logs, buffer metrics, and live latency monitoring.",
+        "publisher": {
+          "@type": "Organization",
+          "name": "Gcore",
+          "url": "https://gcore.com/"
+        }
+      }
+    </script>
+    <script>
+      (() => {
+        const isLocal =
+          location.protocol === "file:" ||
+          ["localhost", "127.0.0.1", "0.0.0.0", "::1", "[::1]"].includes(location.hostname);
+        const base = isLocal
+          ? "../packages/player/dist/"
+          : "https://player.gvideo.co/v2/assets/latest/";
+        window.GCORE_PLAYER_ASSETS = {
+          css: `${base}index.css`,
+          js: `${base}index.js`,
+        };
+        document.write(`<link rel="stylesheet" href="${window.GCORE_PLAYER_ASSETS.css}">`);
+      })();
+    </script>
     <style>
       :root {
         --bg: #f4efe5;
@@ -58,6 +109,90 @@
         width: min(1400px, calc(100% - 32px));
         margin: 0 auto;
         padding: 40px 0 48px;
+      }
+
+      .demo-header {
+        width: 100%;
+        background: #fff;
+        box-shadow: 0 10px 28px rgba(44, 27, 9, 0.08);
+      }
+
+      .demo-header__notice {
+        background: #171717;
+      }
+
+      .demo-header__notice-inner,
+      .demo-header__bar {
+        width: min(1400px, calc(100% - 32px));
+        margin: 0 auto;
+      }
+
+      .demo-header__notice-inner {
+        display: flex;
+        align-items: center;
+        min-height: 36px;
+        padding: 8px 0;
+        color: rgba(255, 255, 255, 0.86);
+        font-size: 13px;
+        font-weight: 650;
+        line-height: 1.4;
+      }
+
+      .demo-header__bar {
+        display: flex;
+        align-items: center;
+        gap: 28px;
+        min-height: 64px;
+        padding: 12px 0;
+        background: #fff;
+      }
+
+      .demo-header__logo {
+        display: inline-flex;
+        align-items: center;
+        flex: 0 0 auto;
+        text-decoration: none;
+      }
+
+      .demo-header__logo img {
+        display: block;
+        width: 128px;
+        height: 32px;
+      }
+
+      .demo-header__links {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        min-width: 0;
+        flex: 1;
+      }
+
+      .demo-header__link {
+        display: inline-flex;
+        align-items: center;
+        min-height: 38px;
+        padding: 8px 13px;
+        border-radius: 999px;
+        color: #2b2b2b;
+        font-size: 14px;
+        font-weight: 700;
+        line-height: 1.2;
+        text-decoration: none;
+        white-space: nowrap;
+        transition:
+          background-color 160ms ease,
+          color 160ms ease;
+      }
+
+      .demo-header__link:hover {
+        background: #f3f3f3;
+        color: #101010;
+      }
+
+      .demo-header__link[aria-current="page"] {
+        background: #fff0ec;
+        color: var(--accent-strong);
       }
 
       .page-header {
@@ -381,7 +516,7 @@
         font-weight: 700;
         letter-spacing: 0.06em;
         text-transform: uppercase;
-        width: 50%;
+        width: 35%;
       }
 
       .stats-table td:last-child {
@@ -481,6 +616,23 @@
         font-size: 12px;
         font-weight: 600;
         color: var(--ink);
+      }
+
+      /* ── Live metrics chart ──────────────────────────── */
+
+      .qi-chart {
+        position: relative;
+        margin: 12px 0 12px;
+        padding: 10px 12px 12px;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.42);
+      }
+
+      .qi-chart-canvas {
+        display: block;
+        width: 100%;
+        height: 200px;
       }
 
       /* ── Request rows ────────────────────────────────── */
@@ -734,6 +886,17 @@
       /* ── Responsive ──────────────────────────────────── */
 
       @media (max-width: 1024px) {
+        .demo-header__bar {
+          align-items: flex-start;
+          flex-direction: column;
+          gap: 12px;
+        }
+
+        .demo-header__links {
+          flex-wrap: wrap;
+          width: 100%;
+        }
+
         .lab-layout {
           grid-template-columns: 1fr;
         }
@@ -744,6 +907,31 @@
         main {
           width: min(100% - 20px, 1400px);
           padding-top: 24px;
+        }
+
+        .demo-header__notice-inner,
+        .demo-header__bar {
+          width: min(100% - 20px, 1400px);
+        }
+
+        .demo-header__notice-inner {
+          align-items: center;
+        }
+
+        .demo-header__bar {
+          padding: 14px 0;
+        }
+
+        .demo-header__links {
+          align-items: stretch;
+          flex-direction: column;
+        }
+
+        .demo-header__link {
+          justify-content: center;
+          width: 100%;
+          white-space: normal;
+          text-align: center;
         }
 
         .panel,
@@ -764,7 +952,26 @@
     </style>
   </head>
   <body>
+    <header class="demo-header">
+      <div class="demo-header__notice">
+        <div class="demo-header__notice-inner">
+          Demo pages for testing Gcore Video Streaming and JavaScript video player behavior
+        </div>
+      </div>
+      <nav class="demo-header__bar" aria-label="Demo pages">
+        <a class="demo-header__logo" href="https://gcore.com/streaming-platform" target="_blank" rel="noopener" aria-label="Gcore streaming platform">
+          <img src="./gcore-logo.svg" alt="Gcore" width="128" height="32" />
+        </a>
+        <div class="demo-header__links">
+          <a class="demo-header__link" href="./player.html">Live &amp; VOD playback</a>
+          <a class="demo-header__link" href="./protected-content.html">Protected content</a>
+          <a class="demo-header__link" href="./player-lab.html" aria-current="page">Player Lab</a>
+        </div>
+      </nav>
+    </header>
+
     <main>
+
       <header class="page-header">
         <span class="eyebrow">Player Lab</span>
         <h1>Test Your Stream</h1>
@@ -951,6 +1158,14 @@
                 <span class="qi-chip-value" id="qi-codec">—</span>
               </div>
             </div>
+            <div class="qi-chart" aria-label="Last 60 seconds playback metrics">
+              <canvas
+                id="qi-chart-canvas"
+                class="qi-chart-canvas"
+                aria-label="Bandwidth, buffer level, and playback rate over the last 60 seconds"
+                role="img"
+              ></canvas>
+            </div>
             <!-- Request rows -->
             <div class="qi-requests">
               <p class="qi-requests-header">Last requests:</p>
@@ -996,7 +1211,27 @@
           <!-- Stats table -->
           <p class="section-label">Statistics</p>
           <table class="stats-table" style="margin-bottom:16px;">
+            <colgroup>
+              <col style="width:30%">
+              <col style="width:70%">
+            </colgroup>
             <tbody>
+              <tr>
+                <td>Bandwidth (est.)</td>
+                <td id="stat-bitrate">—</td>
+              </tr>
+              <tr>
+                <td>FPS</td>
+                <td id="stat-fps">—</td>
+              </tr>
+              <tr>
+                <td>Position / Duration</td>
+                <td id="stat-time">—</td>
+              </tr>
+              <tr>
+                <td>Session Time</td>
+                <td id="stat-session">—</td>
+              </tr>
               <tr>
                 <td>Buffer Level</td>
                 <td id="stat-buffer">—</td>
@@ -1010,24 +1245,8 @@
                 <td id="stat-audio-buffer">—</td>
               </tr>
               <tr>
-                <td>Bandwidth (est.)</td>
-                <td id="stat-bitrate">—</td>
-              </tr>
-              <tr>
-                <td>FPS</td>
-                <td id="stat-fps">—</td>
-              </tr>
-              <tr>
                 <td>Dropped Frames</td>
                 <td id="stat-dropped">—</td>
-              </tr>
-              <tr>
-                <td>Position / Duration</td>
-                <td id="stat-time">—</td>
-              </tr>
-              <tr>
-                <td>Session Time</td>
-                <td id="stat-session">—</td>
               </tr>
               <tr id="stat-row-playback-rate" style="display:none">
                 <td>Playback Rate</td>
@@ -1093,9 +1312,11 @@
 
     <script type="module">
       // ---------------------------------------------------------------------------
-      // CDN import — vanilla JS integration, no build step required.
+      // Player import:
+      //   localhost/file: ../packages/player/dist/index.js
+      //   hosted pages:   https://player.gvideo.co/v2/assets/latest/index.js
       // ---------------------------------------------------------------------------
-      import {
+      const {
         BigMuteButton,
         BottomGear,
         ClapprStats,
@@ -1110,7 +1331,9 @@
         SourceController,
         Thumbnails,
         version,
-      } from "../packages/player/dist/index.js";
+      } = await import(window.GCORE_PLAYER_ASSETS.js);
+      const chartJs = await import("https://cdn.jsdelivr.net/npm/chart.js@4.4.9/auto/+esm");
+      const Chart = chartJs.Chart ?? chartJs.default;
 
       // ---------------------------------------------------------------------------
       // Plugin registration — once per page load.
@@ -1171,7 +1394,10 @@
       const volNinetyBtn  = document.querySelector('[data-action="volume-90"]');
       const actionCodecSel = document.getElementById("action-codec-select");
       const actionResSel   = document.getElementById("action-res-select");
-      let _actionLevels = []; // [{level, width, height, bitrate, codec}] from manifest
+      let _actionLevels = []; // [{level, width, height, bitrate, codec}] from manifest — full unfiltered list
+      let _codecPrefixMap = {}; // display name → codec prefix, e.g. {"AV1": "av01", "HEVC": "hvc1"}
+      let _dashTrackMap = {}; // display name → dashjs MediaInfo track (for DASH codec switching)
+      let _preferredCodecPrefix = null; // persists across codec-switch reloads; null = auto-detect
       let _pendingManualChange = false;
 
       // Stat card value elements
@@ -1209,6 +1435,10 @@
 
       const cmcdInfo  = document.getElementById("cmcd-info");
       const cmcdTbody = document.getElementById("cmcd-tbody");
+      const chartCanvas = document.getElementById("qi-chart-canvas");
+      const chartHistory = [];
+      const CHART_HISTORY_SECONDS = 60;
+      let metricsChart = null;
 
       const CMCD_PARAMS = [
         { code: "bl",  name: "Buffer Length",           title: "ms of content buffered ahead of current playback position" },
@@ -1337,6 +1567,195 @@
         if (el && val != null) el.textContent = val;
       }
 
+      function niceChartMax(value, fallback, step) {
+        if (!Number.isFinite(value) || value <= 0) return fallback;
+        return Math.max(fallback, Math.ceil(value / step) * step);
+      }
+
+      function formatChartKbps(value) {
+        if (!Number.isFinite(value)) return "";
+        return value >= 1000 ? `${(value / 1000).toFixed(value >= 10000 ? 0 : 1)} Mbps` : `${Math.round(value)} kbps`;
+      }
+
+      function formatChartMmSs(timestamp) {
+        if (!Number.isFinite(timestamp)) return "";
+        const d = new Date(timestamp);
+        return `${String(d.getMinutes()).padStart(2, "0")}:${String(d.getSeconds()).padStart(2, "0")}`;
+      }
+
+      function ensureMetricsChart() {
+        if (metricsChart) return metricsChart;
+        const existingChart = Chart.getChart?.(chartCanvas);
+        if (existingChart) {
+          metricsChart = existingChart;
+          return metricsChart;
+        }
+
+        metricsChart = new Chart(chartCanvas, {
+          type: "line",
+          data: {
+            labels: [],
+            datasets: [
+              {
+                label: "Bandwidth",
+                data: [],
+                yAxisID: "bandwidth",
+                borderColor: "#2563eb",
+                backgroundColor: "rgba(37, 99, 235, 0.08)",
+                borderWidth: 2,
+                tension: 0.22,
+                pointRadius: 0,
+                pointHoverRadius: 3,
+                spanGaps: true,
+              },
+              {
+                label: "Buffer Level",
+                data: [],
+                yAxisID: "buffer",
+                borderColor: "#16a34a",
+                backgroundColor: "rgba(22, 163, 74, 0.08)",
+                borderWidth: 2,
+                tension: 0.22,
+                pointRadius: 0,
+                pointHoverRadius: 3,
+                spanGaps: true,
+              },
+              {
+                label: "Playback Rate",
+                data: [],
+                yAxisID: "rate",
+                borderColor: "#dc2626",
+                backgroundColor: "rgba(220, 38, 38, 0.08)",
+                borderWidth: 2,
+                tension: 0.22,
+                pointRadius: 0,
+                pointHoverRadius: 3,
+                spanGaps: true,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: false,
+            normalized: true,
+            interaction: {
+              mode: "index",
+              intersect: false,
+            },
+            plugins: {
+              legend: {
+                position: "top",
+                align: "start",
+                labels: {
+                  boxWidth: 10,
+                  boxHeight: 10,
+                  usePointStyle: true,
+                  color: "#1e1b16",
+                  font: { size: 11, weight: "700" },
+                },
+              },
+              tooltip: {
+                mode: "index",
+                intersect: false,
+                callbacks: {
+                  title: items => items[0]?.label ?? "",
+                  label: context => {
+                    const value = context.parsed.y;
+                    if (!Number.isFinite(value)) return `${context.dataset.label}: —`;
+                    if (context.dataset.yAxisID === "bandwidth") return `Bandwidth: ${Math.round(value)} kbps`;
+                    if (context.dataset.yAxisID === "buffer") return `Buffer Level: ${value.toFixed(2)} s`;
+                    return `Playback Rate: ${value.toFixed(2)}×`;
+                  },
+                },
+              },
+            },
+            scales: {
+              x: {
+                title: {
+                  display: true,
+                  text: "Time (mm:ss)",
+                },
+                ticks: {
+                  maxRotation: 0,
+                  autoSkip: true,
+                  maxTicksLimit: 6,
+                },
+                grid: {
+                  color: "rgba(42, 35, 27, 0.08)",
+                },
+              },
+              bandwidth: {
+                type: "linear",
+                position: "left",
+                beginAtZero: true,
+                title: {
+                  display: true,
+                  text: "Bandwidth",
+                },
+                ticks: {
+                  callback: value => formatChartKbps(Number(value)),
+                },
+                grid: {
+                  color: "rgba(42, 35, 27, 0.1)",
+                },
+              },
+              buffer: {
+                type: "linear",
+                position: "right",
+                beginAtZero: true,
+                title: {
+                  display: true,
+                  text: "Buffer Level",
+                },
+                ticks: {
+                  callback: value => `${value}s`,
+                },
+                grid: {
+                  drawOnChartArea: false,
+                },
+              },
+              rate: {
+                type: "linear",
+                position: "right",
+                min: 0.5,
+                max: 1.5,
+                title: {
+                  display: true,
+                  text: "Playback Rate",
+                },
+                ticks: {
+                  callback: value => `${Number(value).toFixed(1)}×`,
+                },
+                grid: {
+                  drawOnChartArea: false,
+                },
+              },
+            },
+          },
+        });
+
+        return metricsChart;
+      }
+
+      function updateMetricsChart(sample) {
+        chartHistory.push(sample);
+        while (chartHistory.length > CHART_HISTORY_SECONDS) chartHistory.shift();
+
+        const chart = ensureMetricsChart();
+        const labels = chartHistory.map(item => formatChartMmSs(item.time));
+        const bandwidthMax = niceChartMax(Math.max(...chartHistory.map(item => item.bandwidthKbps || 0)), 1000, 1000);
+        const bufferMax = niceChartMax(Math.max(...chartHistory.map(item => item.buffer || 0)), 10, 5);
+
+        chart.data.labels = labels;
+        chart.data.datasets[0].data = chartHistory.map(item => item.bandwidthKbps);
+        chart.data.datasets[1].data = chartHistory.map(item => item.buffer);
+        chart.data.datasets[2].data = chartHistory.map(item => item.rate);
+        chart.options.scales.bandwidth.max = bandwidthMax;
+        chart.options.scales.buffer.max = bufferMax;
+        chart.update("none");
+      }
+
       const SF_MAP = {
         "application/x-mpegurl": "h",
         "application/dash+xml":  "d",
@@ -1401,7 +1820,7 @@
         span.className = "log-line" + (isError ? " log-error" : "");
         span.textContent = text;
         logNode.appendChild(span);
-        while (logNode.children.length > 60) logNode.removeChild(logNode.firstChild);
+        while (logNode.children.length > 1000) logNode.removeChild(logNode.firstChild);
         if (shouldStick) logNode.scrollTop = logNode.scrollHeight;
       }
 
@@ -1482,21 +1901,26 @@
         if (!gplayer) return;
 
         const video = playerNode.querySelector("video");
+        let chartBuffer = null;
+        let chartBandwidthKbps = null;
+        let chartRate = 1;
 
         // Buffer ahead of current position (from browser TimeRanges API)
         if (video && video.buffered.length > 0) {
           const buffEnd = video.buffered.end(video.buffered.length - 1);
           const buffAhead = Math.max(0, buffEnd - (video.currentTime || 0));
           setStat("buffer", buffAhead.toFixed(2) + " s");
+          chartBuffer = buffAhead;
         }
 
         if (video && Number.isFinite(video.playbackRate)) {
           document.getElementById("stat-row-playback-rate").style.display = "";
           const rate = video.playbackRate;
+          chartRate = rate;
           setStatValue(
             statEls.playbackRate,
             `${rate.toFixed(2)}×`,
-            Math.abs(rate - 1) > 0.01,
+            Math.abs(rate - 1) >= 0.06,
             `Playback is running at ${rate.toFixed(2)}×. Any rate above 1× consumes live buffer faster than new content is produced.`,
           );
         }
@@ -1549,11 +1973,22 @@
           const bwEst = playback._hls?.bandwidthEstimate;
           if (Number.isFinite(bwEst) && bwEst > 0) {
             setStat("bitrate", Math.round(bwEst / 1000) + " kbps");
+            chartBandwidthKbps = bwEst / 1000;
           } else {
             const dashTp = playback._dash?.getAverageThroughput("video");
-            if (Number.isFinite(dashTp) && dashTp > 0) setStat("bitrate", Math.round(dashTp) + " kbps");
+            if (Number.isFinite(dashTp) && dashTp > 0) {
+              setStat("bitrate", Math.round(dashTp) + " kbps");
+              chartBandwidthKbps = dashTp;
+            }
           }
         }
+
+        updateMetricsChart({
+          time: Date.now(),
+          bandwidthKbps: chartBandwidthKbps,
+          buffer: chartBuffer,
+          rate: chartRate,
+        });
 
         // Session clock
         if (sessionStart !== null) {
@@ -1664,18 +2099,30 @@
 
       function populateActionSelects(levels) {
         _actionLevels = levels;
-        const savedCodec = actionCodecSel.value;
-        const savedRes   = actionResSel.value;
+        const savedRes = actionResSel.value;
 
-        // Unique codec names, preserving manifest order
-        const codecs = [...new Set(levels.map(l => codecKey(l.codec)).filter(Boolean))];
+        // Build codec prefix map from raw levels (all codecs present in manifest)
+        _codecPrefixMap = {};
+        levels.forEach(l => {
+          if (!l.codec) return;
+          const name = codecKey(l.codec);
+          if (!_codecPrefixMap[name]) {
+            _codecPrefixMap[name] = l.codec.split(".")[0].toLowerCase();
+          }
+        });
+
+        const codecs = Object.keys(_codecPrefixMap).sort();
         actionCodecSel.innerHTML = '<option value="">Auto</option>';
         codecs.forEach(c => {
           const opt = document.createElement("option");
           opt.value = c; opt.textContent = c;
           actionCodecSel.appendChild(opt);
         });
-        actionCodecSel.value   = codecs.includes(savedCodec) ? savedCodec : "";
+        // Restore the active codec preference if one is set
+        if (_preferredCodecPrefix) {
+          const activeName = Object.entries(_codecPrefixMap).find(([, v]) => v === _preferredCodecPrefix)?.[0];
+          actionCodecSel.value = activeName ?? "";
+        }
         actionCodecSel.disabled = false;
 
         rebuildResSelect();
@@ -1686,7 +2133,7 @@
       function rebuildResSelect() {
         const codec    = actionCodecSel.value;
         const pool     = codec ? _actionLevels.filter(l => codecKey(l.codec) === codec) : _actionLevels;
-        const heights  = [...new Set(pool.map(l => String(Math.min(l.width, l.height))).filter(Boolean))];
+        const heights  = [...new Set(pool.map(l => String(Math.min(l.width, l.height))).filter(h => Number(h) > 0))];
         const curRes   = actionResSel.value;
         actionResSel.innerHTML = '<option value="">Auto</option>';
         heights.forEach(h => {
@@ -1725,6 +2172,8 @@
 
       function resetActionSelects() {
         _actionLevels = [];
+        _codecPrefixMap = {};
+        _dashTrackMap = {};
         _pendingManualChange = false;
         actionCodecSel.innerHTML  = '<option value="">Auto</option>';
         actionResSel.innerHTML    = '<option value="">Auto</option>';
@@ -1732,8 +2181,80 @@
         actionResSel.disabled     = true;
       }
 
-      actionCodecSel.addEventListener("change", () => { rebuildResSelect(); applyActionSelects(); });
+      // Codec switch:
+      //   DASH — switch AdaptationSet via setCurrentTrack (no reload needed).
+      //   HLS  — reload the player with the new codec prefix baked into the
+      //          HLS.js constructor config (runtime hls.config mutation is too late).
+      // Resolution switch within the same codec: apply directly without reload.
+      actionCodecSel.addEventListener("change", () => {
+        const name = actionCodecSel.value;
+        _preferredCodecPrefix = name ? (_codecPrefixMap[name] ?? null) : null;
+
+        const dash = gplayer?.getPlugin("level_selector")?.core?.activePlayback?._dash;
+        if (dash) {
+          switchDashCodec(dash, name);
+        } else {
+          reloadCurrentStream();
+        }
+      });
       actionResSel.addEventListener("change", applyActionSelects);
+
+      function switchDashCodec(dash, codecName) {
+        const track = codecName ? _dashTrackMap[codecName] : null;
+        if (!track) {
+          // "Auto" — let dash.js pick; reload to reset
+          reloadCurrentStream();
+          return;
+        }
+        // Codec change requires a full MSE source buffer reset: dash.js can't push
+        // H.265 (or H.264) segments into an AV1 source buffer.  Setting
+        // resetSourceBuffersForTrackSwitch=true makes dash.js tear down the existing
+        // buffers and open a new MediaSource with the correct codec mime type.
+        // The default is false; we enable it only for this switch and restore it after.
+        dash.updateSettings({ streaming: { buffer: { resetSourceBuffersForTrackSwitch: true } } });
+        // Resume playback automatically after the source buffers are rebuilt.
+        // PERIOD_SWITCH_COMPLETED fires when _activateStream() finishes (seek +
+        // schedule controllers started) — at that point the video element is
+        // ready but may be in a paused state after the MediaSource detach/reattach.
+        const onSwitchCompleted = () => {
+          dash.off('periodSwitchCompleted', onSwitchCompleted);
+          gplayer?.play?.();
+        };
+        dash.on('periodSwitchCompleted', onSwitchCompleted);
+        dash.setCurrentTrack(track);
+        appendLog("remote-quality", `DASH track → ${codecName}`);
+        setTimeout(() => {
+          dash.updateSettings({ streaming: { buffer: { resetSourceBuffersForTrackSwitch: false } } });
+        }, 2000);
+        // Refresh level list after dash.js has processed the new track internally.
+        setTimeout(() => {
+          const newReps = dash.getRepresentationsByType?.('video') ?? [];
+          const newLevels = newReps.map(r => ({
+            level: r.index,
+            width: r.width ?? 0,
+            height: r.height ?? 0,
+            bitrate: (r.bitrateInKbit ?? 0) * 1000,
+            codec: r.codecs,
+          }));
+          if (newLevels.length) {
+            _actionLevels = newLevels;
+            actionResSel.value = "";  // reset resolution to Auto on codec switch
+            rebuildResSelect();
+          }
+        }, 500);
+      }
+
+      function reloadCurrentStream() {
+        const url = document.getElementById("stream-url").value.trim();
+        if (!url) return;
+        const typeVal     = document.getElementById("stream-type").value;
+        const mimeType    = detectMimeType(url, typeVal);
+        const liveDelayVal = document.getElementById("live-delay").value;
+        const liveDelay   = liveDelayVal ? Number(liveDelayVal) : undefined;
+        const playbackType = document.getElementById("playback-type").value;
+        appendLog("remote-quality", `HLS reload → codec prefix: ${_preferredCodecPrefix ?? "auto"}`);
+        loadStream(url, mimeType, playbackType, false, liveDelay);
+      }
 
       // We reach the core through QualityLevels.core (public plugin, protected field)
       // to avoid the minification-fragile private `player.player` reference.
@@ -1774,9 +2295,114 @@
           attachHlsRequestTracking(playback?._hls);
           attachDashRequestTracking(playback?._dash);
 
-          // Populate codec/resolution selectors when levels are known
-          if (playback?.levels?.length > 0) populateActionSelects(playback.levels);
-          playback?.on?.("playback:levels:available", (levels) => populateActionSelects(levels));
+          // Populate codec/resolution selectors when levels are known.
+          // HLS  — read raw hls.js levels (before codec-tier filtering) so every
+          //         codec in the manifest shows up in the dropdown.
+          // DASH — getTracksFor('video') enumerates all AdaptationSets; the default
+          //         getRepresentationsByType only returns the active one (e.g. AV1).
+          const rawHlsLevels = (pb) => {
+            const hls = pb?._hls;
+            if (!hls?.levels?.length) return null;
+            return hls.levels.map((l, i) => ({
+              level: i, width: l.width, height: l.height, bitrate: l.bitrate, codec: l.videoCodec,
+            }));
+          };
+          const allDashLevels = (pb) => {
+            const dash = pb?._dash;
+            if (!dash) return null;
+            const tracks = dash.getTracksFor?.('video') ?? [];
+            if (!tracks.length) return null;
+            // Build _dashTrackMap from all AdaptationSets (MediaInfo objects).
+            // MediaInfo.codec is a MIME+codec string like 'video/mp4; codecs="av01…"';
+            // MediaInfo does NOT have a .representations property — use
+            // getRepresentationsByType('video') for the active track's real levels.
+            _dashTrackMap = {};
+            tracks.forEach(track => {
+              const raw = track.codec ?? '';
+              const m = raw.match(/codecs="?([^",]+)/i);
+              const codecStr = m ? m[1].trim() : raw;
+              const name = codecKey(codecStr);
+              if (!_dashTrackMap[name]) _dashTrackMap[name] = track;
+            });
+            // Determine active codec name from getCurrentTrackFor
+            const activeTrack = dash.getCurrentTrackFor?.('video');
+            const activeRaw = activeTrack?.codec ?? '';
+            const activeM = activeRaw.match(/codecs="?([^",]+)/i);
+            const activeCodecStr = activeM ? activeM[1].trim() : activeRaw;
+            const activeName = codecKey(activeCodecStr);
+            // Real representations for the currently active AdaptationSet
+            const activeReps = dash.getRepresentationsByType?.('video') ?? [];
+            const realLevels = activeReps.map(rep => ({
+              level: rep.index,
+              width: rep.width ?? 0,
+              height: rep.height ?? 0,
+              bitrate: (rep.bitrateInKbit ?? 0) * 1000,
+              codec: rep.codecs ?? activeCodecStr,
+            }));
+            // Placeholder entries (level=-1, height=0) for non-active codecs so
+            // they appear in the codec dropdown without polluting resolution options.
+            const placeholders = Object.entries(_dashTrackMap)
+              .filter(([name]) => name !== activeName)
+              .map(([, track]) => {
+                const raw = track.codec ?? '';
+                const m = raw.match(/codecs="?([^",]+)/i);
+                const codecStr = m ? m[1].trim() : raw;
+                return { level: -1, width: 0, height: 0, bitrate: 0, codec: codecStr };
+              });
+            const result = [...realLevels, ...placeholders];
+            return result.length ? result : null;
+          };
+          // Returns ALL codec+resolution combos from the manifest for logging.
+          // For DASH: uses MediaInfo.bitrateList (available on every track, active or not).
+          // Must be called after allDashLevels() has populated _dashTrackMap.
+          const allManifestLevels = (pb) => {
+            const hls = pb?._hls;
+            if (hls?.levels?.length) {
+              return hls.levels.map((l, i) => ({
+                width: l.width ?? 0, height: l.height ?? 0, bitrate: l.bitrate ?? 0, codec: l.videoCodec ?? '',
+              }));
+            }
+            const dash = pb?._dash;
+            if (!dash) return null;
+            const result = [];
+            Object.values(_dashTrackMap).forEach(track => {
+              const raw = track.codec ?? '';
+              const m = raw.match(/codecs="?([^",]+)/i);
+              const codecStr = m ? m[1].trim() : raw;
+              (track.bitrateList ?? []).forEach(entry => {
+                result.push({ width: entry.width ?? 0, height: entry.height ?? 0, bitrate: entry.bandwidth ?? 0, codec: codecStr });
+              });
+            });
+            return result.length ? result : null;
+          };
+
+          const CODEC_ORDER = ['av01', 'hvc1', 'hev1', 'avc1', 'avc3'];
+          const codecSortKey = (codec) => {
+            const idx = CODEC_ORDER.findIndex(p => (codec ?? '').toLowerCase().startsWith(p));
+            return idx === -1 ? 99 : idx;
+          };
+
+          let levelsLogged = false;
+          const doPopulate = (filteredLevels) => {
+            const levels = rawHlsLevels(playback) ?? allDashLevels(playback) ?? filteredLevels;
+            populateActionSelects(levels);
+            if (levelsLogged) return;
+            levelsLogged = true;
+            const manifestLevels = allManifestLevels(playback) ?? levels;
+            const seen = new Set();
+            const summary = manifestLevels
+              .filter(l => l.height > 0)
+              .sort((a, b) => codecSortKey(a.codec) - codecSortKey(b.codec) || b.height - a.height)
+              .filter(l => {
+                const key = `${codecKey(l.codec)}|${Math.min(l.width, l.height)}`;
+                return seen.has(key) ? false : (seen.add(key), true);
+              })
+              .map(l => `${codecKey(l.codec)} ${Math.min(l.width, l.height)}p`)
+              .join(", ");
+            if (summary) appendLog("levels", summary);
+          };
+          if (playback?.levels?.length > 0) doPopulate(playback.levels);
+          playback?.on?.("playback:levels:available", (levels) => doPopulate(levels));
 
           // Live timing diagnostics (DASH only — emitted every second during live playback)
           playback?.on?.("playback:live-metrics", onLiveMetrics);
@@ -2078,6 +2704,14 @@
         _currReqUrl = null;
         _currReqStatus = null;
         _requestHistory = [];
+        chartHistory.length = 0;
+        if (metricsChart) {
+          metricsChart.data.labels = [];
+          metricsChart.data.datasets.forEach(dataset => {
+            dataset.data = [];
+          });
+          metricsChart.update("none");
+        }
         renderHistory();
         resetActionSelects();
         // Clear player mount node so the placeholder shows again
@@ -2122,6 +2756,7 @@
           qualityLevels: {
             labels: QUALITY_LABELS,
             codecStrategy: 'best-supported', // prefer AV1 when browser can play it
+            ...(_preferredCodecPrefix ? { preferredCodecPrefix: _preferredCodecPrefix } : {}),
           },
           spinner: {
             showOnError: true,
@@ -2310,6 +2945,7 @@
         pageUrl.searchParams.set("url", url);
         history.replaceState(null, "", pageUrl);
 
+        _preferredCodecPrefix = null; // new stream — reset codec preference
         loadStream(url, mimeType, playbackSel, true, liveDelay);
       });
 
@@ -2428,7 +3064,7 @@
       // ---------------------------------------------------------------------------
       const vInfo = typeof version === "function" ? version() : { gplayer: version || "unknown" };
       appendLog(
-        "sdk",
+        "sdk gemini",
         `gplayer=${vInfo.gplayer || "?"}, hlsjs=${vInfo.hlsjs || "?"}, dashjs=${vInfo.dashjs || "?"}`,
       );
 

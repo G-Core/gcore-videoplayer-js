@@ -81,6 +81,42 @@ This covers typical OTT and video platform delivery patterns where the same asse
 
 - Follow [Install and configure guide](./docs/install-and-configure.md) for installation and configuration.
 - Follow [Quick start guide](./docs/quick-start.md) for basic usage.
+- Follow [AI-assisted development guide](./AI-DEVELOPMENT.md) for faster feature delivery.
+
+## Development
+
+### Building the player locally
+
+If you need to build the player from source (e.g., to test local changes or debug performance):
+
+1. **Install dependencies** at the root of the repository:
+   ```bash
+   npm install
+   ```
+
+2. **Build the player bundle**:
+   Navigate to the player package and run the build script:
+   ```bash
+   cd packages/player
+   npm run build:bundle
+   ```
+
+The built assets (JavaScript and CSS) will be generated in `packages/player/dist/`.
+
+### Testing with demo pages
+
+The pages in the `example/` directory are configured to automatically load the local build from `packages/player/dist/` when served from `localhost`.
+
+To run the demos:
+1. Ensure you have built the player as described above.
+2. Start a static HTTP server from the **root** of the repository:
+   ```bash
+    # Using 'serve' on port 4444
+    npx serve . -l 4444
+    # or using 'http-server'
+    npx http-server . -p 4444
+    ```
+3. Open the demo in your browser: `http://localhost:4444/example/player.html` (or `player-lab.html` for diagnostics)
 
 ## Developer view, at a high level
 
