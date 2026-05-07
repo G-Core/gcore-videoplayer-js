@@ -269,8 +269,10 @@ export class BottomGear extends UICorePlugin {
       .trigger(ExtendedEvents.MEDIACONTROL_MENU_COLLAPSE, this.name)
     this.collapsed = !this.collapsed
     if (this.collapsed) {
+      this.collapseSubmenus()
       this.$el.find('#gear-options-wrapper').hide()
     } else {
+      this.collapseSubmenus()
       this.$el.find('#gear-options-wrapper').show()
     }
     this.$el
@@ -281,7 +283,7 @@ export class BottomGear extends UICorePlugin {
 
   private setKeepVisible(keepVisible: boolean) {
     this.core.getPlugin('media_control').setKeepVisible(keepVisible)
-    this.clickaway(keepVisible ? this.core.activeContainer.$el[0] : null)
+    this.clickaway(keepVisible ? this.core.$el[0] : null)
   }
 
   private collapse() {

@@ -10,6 +10,7 @@ import HLSJS, {
   HlsListeners,
   type ErrorData as HlsErrorData,
   type Fragment,
+  type Level as HlsLevel,
   type LevelUpdatedData,
   type LevelLoadedData,
   type LevelSwitchingData,
@@ -35,7 +36,6 @@ import { BasePlayback } from '../BasePlayback.js'
 import { CLAPPR_VERSION } from '../../build.js'
 import { AudioTrack } from '@clappr/core/types/base/playback/playback.js'
 import { VTTCueInfo } from '../types.js'
-import { RangesList } from './RangesList.js'
 
 const { now } = Utils
 
@@ -71,6 +71,8 @@ type CustomListener = {
 }
 
 export default class HlsPlayback extends BasePlayback {
+  private _ccTracksUpdated = false
+
   private _currentFragment: Fragment | null = null
 
   private _currentLevel: number | null = null
@@ -88,6 +90,10 @@ export default class HlsPlayback extends BasePlayback {
   private _lastTimeUpdate: TimePosition | null = null
 
   private _levels: QualityLevel[] | null = null
+
+  private _codecPrefixPromise: Promise<string | null> | null = null
+
+  private _bestCodecPrefix: string | null = null
 
   private _localStartTimeCorrelation: TimeCorrelation | null = null
 
@@ -111,6 +117,8 @@ export default class HlsPlayback extends BasePlayback {
 
   private _recoveredDecodingError = false
 
+  private _hlsLoadingStopped = false
+
   private _segmentTargetDuration: number | null = null
 
   private _timeUpdateTimer: TimerId | null = null
@@ -119,9 +127,7 @@ export default class HlsPlayback extends BasePlayback {
 
   oncueexit: ((e: { id: string }) => void) | null = null
 
-  private cues: RangesList<VTTCueInfo> | null = null
-
-  private cuesByTrack: Record<number, RangesList<VTTCueInfo>> = {}
+  private cues: VTTCueInfo[] = [] // TODO check the list size and use BST if needed
 
   private currentCueId: string | null = null
 
@@ -311,7 +317,7 @@ export default class HlsPlayback extends BasePlayback {
     // added/removed every 5.
     this._extrapolatedWindowNumSegments =
       !this.options.playback ||
-      typeof this.options.playback.extrapolatedWindowNumSegments === 'undefined'
+        typeof this.options.playback.extrapolatedWindowNumSegments === 'undefined'
         ? 2
         : this.options.playback.extrapolatedWindowNumSegments
 
@@ -363,12 +369,17 @@ export default class HlsPlayback extends BasePlayback {
     }
     this._manifestParsed = false
     // this._ccIsSetup = false
+    this._ccTracksUpdated = false
     this._setInitialState()
     this._hls.destroy()
     this._hls = null
   }
 
   private _createHLSInstance() {
+    const liveDelayConfig = typeof this.options.liveDelay === 'number'
+      ? { liveSyncDuration: this.options.liveDelay }
+      : {}
+
     const config = $.extend(
       true,
       {
@@ -376,7 +387,14 @@ export default class HlsPlayback extends BasePlayback {
         maxMaxBufferLength: 4,
         autoStartLoad: false,
         renderTextTracksNatively: false,
+        // Proportional catch-up ceiling for live streams: cap at 1.1× instead of
+        // the default 1.5×. Prevents buffer-drain stalls caused by aggressive
+        // catch-up when a segment is delayed. Override via
+        // playback.hlsjsConfig.maxLiveSyncPlaybackRate.
+        maxLiveSyncPlaybackRate: 1.1,
       },
+      liveDelayConfig,
+      // playback.hlsjsConfig takes highest priority.
       this.options.playback.hlsjsConfig,
     )
     this._hls = new HLSJS(config)
@@ -413,7 +431,8 @@ export default class HlsPlayback extends BasePlayback {
 
     this._hls.on(HlsEvents.MANIFEST_PARSED, () => {
       this._manifestParsed = true
-      this.reload()
+      this._codecPrefixPromise = null
+      void this._applyCodecPreferenceAndReload()
     })
     this._hls.on(
       HlsEvents.LEVEL_LOADED,
@@ -436,7 +455,9 @@ export default class HlsPlayback extends BasePlayback {
       (evt: HlsEvents.LEVEL_SWITCHED, data: { level: number }) =>
         this._onLevelSwitched(evt, data),
     )
-    this._hls.on(HlsEvents.ERROR, (evt, data) => this._onHLSJSError(evt, data))
+    this._hls.on(HlsEvents.ERROR, (evt, data) =>
+      this._onHLSJSError(evt, data),
+    )
     this._hls.on(HlsEvents.AUDIO_TRACKS_UPDATED, (evt, data) =>
       this._onAudioTracksUpdated(evt, data),
     )
@@ -445,20 +466,12 @@ export default class HlsPlayback extends BasePlayback {
     )
     this._hls.on(HlsEvents.CUES_PARSED, (evt, data) => {
       data.cues?.forEach((cue: any) => {
-        if (!this.cues) {
-          const trackId = this._hls!.subtitleTrack
-          if (!this.cuesByTrack[trackId]) {
-            this.cuesByTrack[trackId] = new RangesList<VTTCueInfo>()
-          }
-          this.cues = this.cuesByTrack[trackId]
-        }
-        const cueInfo = {
+        this.cues.push({
           id: cue.id,
           start: cue.startTime,
           end: cue.endTime,
           text: cue.text,
-        } as VTTCueInfo
-        this.cues.insert(cue.startTime, cue.endTime, cueInfo)
+        } as VTTCueInfo)
       })
     })
     this.bindCustomListeners()
@@ -520,7 +533,7 @@ export default class HlsPlayback extends BasePlayback {
   }
 
   // this playback manages the src on the video element itself
-  protected override _setupSrc(srcUrl: string) {} // eslint-disable-line no-unused-vars
+  protected override _setupSrc(srcUrl: string) { } // eslint-disable-line no-unused-vars
 
   private _startTimeUpdateTimer() {
     if (this._timeUpdateTimer) {
@@ -585,7 +598,7 @@ export default class HlsPlayback extends BasePlayback {
     // assume live if time within 3 seconds of end of stream
     this.dvrEnabled && this._updateDvr(time < this.getDuration() - 3)
     time += this._startTime
-    ;(this.el as HTMLMediaElement).currentTime = time
+      ; (this.el as HTMLMediaElement).currentTime = time
 
     this.triggerCues()
   }
@@ -725,7 +738,7 @@ export default class HlsPlayback extends BasePlayback {
   }
 
   private reload() {
-    this.cues = null
+    this.cues = []
     this.currentCueId = null
     this._hls?.startLoad(-1)
   }
@@ -783,12 +796,12 @@ export default class HlsPlayback extends BasePlayback {
           start: Math.max(
             0,
             (this.el as HTMLMediaElement).buffered.start(i) -
-              this._playableRegionStartTime,
+            this._playableRegionStartTime,
           ),
           end: Math.max(
             0,
             (this.el as HTMLMediaElement).buffered.end(i) -
-              this._playableRegionStartTime,
+            this._playableRegionStartTime,
           ),
         },
       ]
@@ -810,7 +823,9 @@ export default class HlsPlayback extends BasePlayback {
 
   private triggerCues() {
     const currentTime = this.getCurrentTime()
-    const cue = this.cues?.find(currentTime)
+    // const cues = Object.values(this.cues)
+    // TODO build a search tree
+    const cue = this.cues.find((cue: VTTCueInfo) => currentTime >= cue.start && currentTime <= cue.end)
     if (cue) {
       this.currentCueId = cue.id
       this.oncueenter?.(cue)
@@ -832,6 +847,10 @@ export default class HlsPlayback extends BasePlayback {
       !this.options.hlsPlayback.preload &&
       // @ts-expect-error
       this._hls.loadSource(this.options.src)
+    if (this._hlsLoadingStopped) {
+      this._hls?.startLoad(-1)
+      this._hlsLoadingStopped = false
+    }
     super.play()
     this._startTimeUpdateTimer()
   }
@@ -840,7 +859,9 @@ export default class HlsPlayback extends BasePlayback {
     if (!this._hls) {
       return
     }
-    ;(this.el as HTMLMediaElement).pause()
+    ; (this.el as HTMLMediaElement).pause()
+    this._hls.stopLoad()
+    this._hlsLoadingStopped = true
     if (this.dvrEnabled) {
       this._updateDvr(true)
     }
@@ -848,6 +869,7 @@ export default class HlsPlayback extends BasePlayback {
 
   stop() {
     this._stopTimeUpdateTimer()
+    this._hlsLoadingStopped = false
     if (this._hls) {
       super.stop()
     }
@@ -857,8 +879,6 @@ export default class HlsPlayback extends BasePlayback {
   destroy() {
     this._stopTimeUpdateTimer()
     this._destroyHLSInstance()
-    this.cues = null
-    this.cuesByTrack = {}
     return super.destroy()
   }
 
@@ -871,23 +891,126 @@ export default class HlsPlayback extends BasePlayback {
       data.details.live ? Playback.LIVE : Playback.VOD
     ) as PlaybackType
     this._onLevelUpdated(evt, data)
+    // Live stream subtitle tracks detection hack (may not immediately available)
+    // if (
+    //   this._ccTracksUpdated &&
+    //   this._playbackType === Playback.LIVE &&
+    //   this.hasClosedCaptionsTracks
+    // ) {
+    //   this._onSubtitleLoaded()
+    // }
     if (prevPlaybackType !== this._playbackType) {
       this._updateSettings()
     }
   }
 
-  private _fillLevels() {
+  private async _applyCodecPreferenceAndReload(): Promise<void> {
+    if (!this._hls) return
+    const hlsLevels = this._hls.levels
+    const strategy =
+      (this.options.qualityLevels ?? this.options.levelSelector)
+        ?.codecStrategy ?? 'power-efficient'
+    // For best-supported: synchronous; for power-efficient: awaits MediaCapabilities
+    this._codecPrefixPromise = this._selectBestCodecPrefix(hlsLevels, strategy)
+    const bestPrefix = await this._codecPrefixPromise
+    this._bestCodecPrefix = bestPrefix ?? null
+    // Tell HLS.js which codec tier to use — must be set before startLoad()
+    if (this._bestCodecPrefix && this._hls) {
+      this._hls.config.videoPreference = { videoCodec: this._bestCodecPrefix }
+    }
+    void this._fillLevels()
+    this.reload()
+  }
+
+  private async _fillLevels(): Promise<void> {
     assert.ok(this._hls, 'HLS.js is not initialized')
-    this._levels = this._hls.levels.map((level, index) => {
-      return {
-        level: index, // or level.id?
-        width: level.width,
-        height: level.height,
-        bitrate: level.bitrate,
-      }
-    })
+    const hlsLevels = this._hls.levels
+    if (!this._codecPrefixPromise) {
+      const strategy =
+        (this.options.qualityLevels ?? this.options.levelSelector)
+          ?.codecStrategy ?? 'power-efficient'
+      this._codecPrefixPromise = this._selectBestCodecPrefix(hlsLevels, strategy)
+    }
+    const bestPrefix = await this._codecPrefixPromise
+    this._bestCodecPrefix = bestPrefix ?? null
+    const source = bestPrefix
+      ? hlsLevels.filter((l) => l.videoCodec?.toLowerCase().startsWith(bestPrefix))
+      : hlsLevels
+    this._levels = source.map((level) => ({
+      level: hlsLevels.indexOf(level),
+      width: level.width,
+      height: level.height,
+      bitrate: level.bitrate,
+      codec: level.videoCodec,
+    }))
     this.trigger(Events.PLAYBACK_LEVELS_AVAILABLE, this._levels)
   }
+
+  /**
+   * Determines the single best video codec prefix (e.g. `"hvc1"`) for the
+   * given HLS level list.
+   *
+   * With `strategy = 'power-efficient'` (default): uses `MediaCapabilities.decodingInfo`
+   * to prefer hardware-accelerated codecs, falling back to `canPlayType`.
+   * With `strategy = 'best-supported'`: picks the highest-preference codec the
+   * browser can play (AV1 → HEVC → H.264) without checking power efficiency.
+   *
+   * Returns `null` when all levels share one codec (no filtering needed).
+   *
+   * Platform behaviour is documented on {@link QualityLevels}.
+   */
+  private async _selectBestCodecPrefix(
+    levels: HlsLevel[],
+    strategy: 'power-efficient' | 'best-supported' = 'power-efficient',
+  ): Promise<string | null> {
+    const prefixes = new Set(
+      levels
+        .map((l) => l.videoCodec?.split('.')[0]?.toLowerCase())
+        .filter((p): p is string => !!p),
+    )
+    if (prefixes.size <= 1) return null
+
+    // Preference order: AV1 → HEVC → H.264 (most efficient compression first)
+    const candidates = [
+      { prefix: 'av01', codec: 'av01.0.08M.08' },
+      { prefix: 'hvc1', codec: 'hvc1.1.6.L120.90' },
+      { prefix: 'hev1', codec: 'hev1.1.6.L120.90' },
+      { prefix: 'avc1', codec: 'avc1.640032' },
+      { prefix: 'avc3', codec: 'avc3.640032' },
+    ].filter((c) => prefixes.has(c.prefix))
+
+    // power-efficient: prefer the codec the browser can hardware-decode
+    if (strategy === 'power-efficient' && typeof navigator !== 'undefined' && navigator.mediaCapabilities) {
+      for (const c of candidates) {
+        try {
+          const info = await navigator.mediaCapabilities.decodingInfo({
+            type: 'media-source',
+            video: {
+              contentType: `video/mp4; codecs="${c.codec}"`,
+              width: 1920,
+              height: 1080,
+              bitrate: 5_000_000,
+              framerate: 30,
+            },
+          })
+          if (info.supported && info.powerEfficient) return c.prefix
+        } catch {
+          // MediaCapabilities not supported for this codec — continue
+        }
+      }
+    }
+
+    // best-supported (or power-efficient fallback): first playable codec in preference order
+    if (typeof document !== 'undefined') {
+      const video = document.createElement('video')
+      for (const c of candidates) {
+        if (video.canPlayType(`video/mp4; codecs="${c.codec}"`)) return c.prefix
+      }
+    }
+
+    return null
+  }
+
 
   private _onLevelUpdated(
     evt: HlsEvents.LEVEL_UPDATED | HlsEvents.LEVEL_LOADED,
@@ -950,7 +1073,7 @@ export default class HlsPlayback extends BasePlayback {
               Math.max(
                 fragments[0].start,
                 previousPlayableRegionStartTime +
-                  this._extrapolatedWindowDuration,
+                this._extrapolatedWindowDuration,
               ) * 1000,
           }
         }
@@ -1037,7 +1160,7 @@ export default class HlsPlayback extends BasePlayback {
 
   _onLevelSwitch(evt: HlsEvents.LEVEL_SWITCHING, data: LevelSwitchingData) {
     if (!this.levels.length) {
-      this._fillLevels()
+      void this._fillLevels()
     }
     this.trigger(Events.PLAYBACK_LEVEL_SWITCH, data)
   }
@@ -1057,6 +1180,7 @@ export default class HlsPlayback extends BasePlayback {
       width: currentLevel.width,
       bitrate: currentLevel.bitrate,
       level: data.level,
+      codec: currentLevel.videoCodec,
     })
     this.trigger(Events.PLAYBACK_LEVEL_SWITCH_END)
   }
@@ -1137,10 +1261,7 @@ export default class HlsPlayback extends BasePlayback {
       return
     }
     this._hls!.subtitleTrack = id
-    if (!this.cuesByTrack[id]) {
-      this.cuesByTrack[id] = new RangesList<VTTCueInfo>()
-    }
-    this.cues = this.cuesByTrack[id]
+    this.cues = []
   }
 
   /**
@@ -1151,17 +1272,15 @@ export default class HlsPlayback extends BasePlayback {
   }
 
   getTextTracks() {
-    return (
-      this._hls?.subtitleTracks.map((t: MediaPlaylist) => ({
+    return this._hls?.subtitleTracks.map((t: MediaPlaylist) => ({
+      id: t.id,
+      name: t.name,
+      track: {
         id: t.id,
-        name: t.name,
-        track: {
-          id: t.id,
-          label: t.name,
-          language: t.lang,
-        },
-      })) || []
-    )
+        label: t.name,
+        language: t.lang,
+      },
+    })) || []
   }
 }
 

@@ -468,6 +468,17 @@ Codes of errors occurring within the playback component.
 </td></tr>
 <tr><td>
 
+[PlaybackRateEvents](./player.playbackrateevents.md)
+
+
+</td><td>
+
+Events emitted by the [PlaybackRate](./player.playbackrate.md) plugin.
+
+
+</td></tr>
+<tr><td>
+
 [PlayerEvent](./player.playerevent.md)
 
 
@@ -818,6 +829,17 @@ Configuration options for the [ClosedCaptions](./player.closedcaptions.md) plugi
 </td></tr>
 <tr><td>
 
+[CodecStrategy](./player.codecstrategy.md)
+
+
+</td><td>
+
+Controls which codec is selected when a multi-codec HLS manifest is loaded.
+
+
+</td></tr>
+<tr><td>
+
 [ContainerPluginConstructor](./player.containerpluginconstructor.md)
 
 
@@ -944,28 +966,6 @@ Identifies a location for mounting custom media control elements.
 
 </td><td>
 
-
-
-</td></tr>
-<tr><td>
-
-[MulticCameraSourceInfo](./player.multiccamerasourceinfo.md)
-
-
-</td><td>
-
-**_(BETA)_** Extended media source description
-
-
-</td></tr>
-<tr><td>
-
-[MultisourcesMode](./player.multisourcesmode.md)
-
-
-</td><td>
-
-**_(BETA)_**
 
 
 </td></tr>

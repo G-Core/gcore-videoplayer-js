@@ -131,9 +131,21 @@
                 <%= i18n.t('stats.playback_type') %>
                 <div><span id="nerd-stats-playback-type"><%= extra.playbackType %></span></div>
             </li>
+            <li id="nerd-stats-catchup-rate-row" style="display:none">
+                Live catch-up
+                <div><span id="nerd-stats-catchup-rate"></span></div>
+            </li>
+            <li id="nerd-stats-live-latency-row" style="display:none">
+                Live latency / target
+                <div><span id="nerd-stats-live-latency"></span> / <span id="nerd-stats-target-latency"></span></div>
+            </li>
             <li>
                 <%= i18n.t('stats.buffer_size') %>
                 <div><span id="nerd-stats-buffer-size"><%= extra.buffersize %></span></div>
+            </li>
+            <li id="nerd-stats-segment-drift-row" style="display:none">
+                Segment drift / total
+                <div><span id="nerd-stats-segment-drift"></span> / <span id="nerd-stats-accumulated-drift"></span></div>
             </li>
             <li>
                 <%= i18n.t('stats.video_duration') %>

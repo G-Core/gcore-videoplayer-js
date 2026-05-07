@@ -149,7 +149,7 @@ The SDK plugin model is grouped in the same way as the product tutorial: `Playba
 |  | `PictureInPicture` | Enable picture-in-picture mode |
 |  | `PlaybackRate` | Change playback speed |
 |  | `Poster` | Show a poster image and a big play state before playback |
-|  | `QualityLevels` | Let viewers change video quality manually |
+|  | `QualityLevels` | Let viewers change video quality manually. Config: `restrictResolution` (cap max resolution), `labels` (custom quality names), `codecStrategy` (`'power-efficient'` default — picks the hardware-accelerated codec; `'best-supported'` — picks the best-compression codec the browser can play, e.g. AV1 over HEVC on Chrome) |
 |  | `SeekTime` | Show the target time while hovering the seek bar |
 |  | `Share` | Share the current video from the player UI |
 |  | `SkipTime` | Jump forward or backward with tap controls |
@@ -178,7 +178,7 @@ API details for plugins: [packages/player/docs/api/player.md](./packages/player/
 
 ### Vanilla JS demo
 
-Live demo: <https://g-core.github.io/gcore-videoplayer-js/example/index.html>
+Demo page: [example/index.html](example/index.html)
 
 This demo includes both VOD and live streams. The players are embedded directly into the page with custom controls and dedicated log panels, making playback events easy to follow. The demo is available 24/7.
 

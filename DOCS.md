@@ -65,6 +65,66 @@ Top-level built-in capabilities exposed as plugins include:
 - logo and share actions
 - telemetry and CMCD configuration
 
+## HLS.js integration notes
+
+These findings are version-specific. Re-verify them when upgrading `hls.js`.
+
+**Current version: 1.6.15** (`packages/player/package.json`)
+
+### Codec preference scoring
+
+HLS.js has a built-in codec preference table in `src/utils/codecs.ts` (`sampleEntryCodesISO.video`). Lower value = higher priority:
+
+| Codec | Score |
+|-------|-------|
+| Dolby Vision HEVC (`dvh1`, `dvhe`) | 0.7 |
+| HEVC (`hev1`, `hvc1`) | **0.75** |
+| AV1 (`av01`) | **0.8** |
+| VP9 (`vp09`) | 0.9 |
+| H.264 (`avc1`, `avc3`, …) | 1.0 |
+
+**HEVC is preferred over AV1 by default.** For a multi-codec manifest that has the same resolution at both codecs, HLS.js will always start with HEVC unless told otherwise. This is counterintuitive because AV1 delivers better compression at equivalent quality.
+
+The exception is Windows Firefox: `userAgentHevcSupportIsInaccurate()` returns `true` there, which inflates HEVC's score to 9, effectively demoting it below AV1.
+
+### How we override codec preference
+
+`HlsPlayback._applyCodecPreferenceAndReload()` is called on `MANIFEST_PARSED` before `hls.startLoad()`. It:
+
+1. Runs codec detection (via `MediaCapabilities.decodingInfo` for `power-efficient`, or `canPlayType` for `best-supported`).
+2. Sets `hls.config.videoPreference = { videoCodec: detectedPrefix }` before `startLoad()`.
+
+HLS.js's `getStartCodecTier` (`src/utils/rendition-helper.ts`) reads `videoPreference.videoCodec` to filter out non-matching codec tiers before the first ABR decision. Once a codec tier is selected, HLS.js's own codec stickiness keeps all subsequent ABR switches within that tier.
+
+**If you upgrade hls.js**, check whether:
+- The preference scores in `sampleEntryCodesISO.video` changed (AV1 score decreased below HEVC).
+- `videoPreference.videoCodec` still works as a pre-`startLoad` override in `getStartCodecTier`.
+- `userAgentHevcSupportIsInaccurate` was broadened to cover more browsers (e.g., Chrome macOS).
+
+If a future hls.js release gives AV1 a lower score than HEVC, our `_applyCodecPreferenceAndReload` logic remains correct but becomes a no-op for `best-supported` on browsers that support AV1 — which is fine.
+
+### `autoStartLoad: false`
+
+The player sets `autoStartLoad: false` in the HLS.js config so it can run `_applyCodecPreferenceAndReload` (and optionally apply other options) before playback starts. `hls.startLoad(-1)` is called explicitly from `reload()` at the end of that method.
+
+## dash.js integration notes
+
+These findings are version-specific. Re-verify them when upgrading `dash.js`.
+
+**Current version: 5.x** (`packages/player/package.json`)
+
+### CMCD `br` reports top bitrate in auto-ABR mode
+
+When dash.js is in automatic ABR mode, the `br` (Encoded Bitrate) field it sends in CMCD query strings equals the **top available representation's `@bandwidth`** from the manifest — not the bitrate of the segment actually being requested.
+
+When a specific quality level is manually locked, `br` correctly reflects that level's declared `@bandwidth`.
+
+This is a dash.js behaviour that diverges from the CTA-5004 spec, which defines `br` as *"the encoded bitrate of the audio or video object being requested"*. It may be a bug or a deliberate design choice in how dash.js tracks representations under ABR control.
+
+**Practical impact:** Do not rely on CMCD `br` to determine which quality is currently playing when dash.js is in auto-ABR mode. Use the `container:bitrate` event or `getCurrentRepresentationForType('video')` instead.
+
+**If you upgrade dash.js**, verify whether `br` in auto-ABR mode now matches the actual requested representation's `@bandwidth`. If it does, the caveat in the lab page's CMCD tooltip can be removed.
+
 ## Detailed docs
 
 - Architecture and deep technical detail: [docs/architecture.md](./docs/architecture.md)
