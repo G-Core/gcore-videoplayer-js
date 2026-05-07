@@ -22,6 +22,7 @@ import {
   Representation,
   CueEnterEvent,
   CueExitEvent,
+  FragmentLoadingCompletedEvent,
 } from 'dashjs'
 
 import {
@@ -33,7 +34,7 @@ import {
 } from '../../playback.types.js'
 import { isDashSource } from '../../utils/mediaSources.js'
 import { BasePlayback } from '../BasePlayback.js'
-import { PlaybackEvents, VTTCueInfo } from '../types.js'
+import { LiveMetrics, PlaybackEvents, VTTCueInfo } from '../types.js'
 import { AudioTrack } from '@clappr/core/types/base/playback/playback.js'
 
 const AUTO = -1
@@ -110,6 +111,16 @@ export default class DashPlayback extends BasePlayback {
   manifestInfo: IManifestInfo | null = null
 
   _timeUpdateTimer: ReturnType<typeof setInterval> | null = null
+
+  private _accumulatedSegmentDrift = 0
+
+  private _lastSegmentDrift: number | null = null
+
+  private _liveMetricsTimer: ReturnType<typeof setInterval> | null = null
+
+  private _liveResyncTimer: ReturnType<typeof setTimeout> | null = null
+
+  private _liveResyncInProgress = false
 
   oncueenter: ((e: VTTCueInfo) => void) | null = null
 
@@ -242,29 +253,58 @@ export default class DashPlayback extends BasePlayback {
     this._dash = dash
     this._dash.initialize()
 
-    if (this.options.dash) {
-      const { requestInterceptor, ...dashSettings } = this.options.dash as Record<string, unknown>
-      const settings = $.extend(
-        true,
-        {
+    const { requestInterceptor, ...dashSettings } = ((this.options.dash ?? {}) as Record<string, unknown>)
+
+    const liveDelaySettings = typeof this.options.liveDelay === 'number'
+      ? {
           streaming: {
-            text: {
-              defaultEnabled: false,
-              // NOTE: dispatchForManualRendering is not correctly implemented in DASH.js;
-              // it does not work when there are multiple text tracks.
-              // CUE_ENTER and CUE_EXIT events might be dispatched additionally
-              // for a track, other than the currently active one.
-              // dispatchForManualRendering: true, // TODO only when useNativeSubtitles is not true?
+            delay: {
+              liveDelay: this.options.liveDelay,
+              // Prevent the manifest's suggestedPresentationDelay from overriding
+              // the explicitly requested live delay.
+              useSuggestedPresentationDelay: false,
             },
           },
-        },
-        dashSettings,
-      )
-      this._dash.updateSettings(settings)
+        }
+      : {}
 
-      if (typeof requestInterceptor === 'function') {
-        this._dash.addRequestInterceptor(requestInterceptor as Parameters<typeof this._dash.addRequestInterceptor>[0])
-      }
+    const settings = $.extend(
+      true,
+      {
+        streaming: {
+          text: {
+            defaultEnabled: false,
+            // NOTE: dispatchForManualRendering is not correctly implemented in DASH.js;
+            // it does not work when there are multiple text tracks.
+            // CUE_ENTER and CUE_EXIT events might be dispatched additionally
+            // for a track, other than the currently active one.
+            // dispatchForManualRendering: true, // TODO only when useNativeSubtitles is not true?
+          },
+          liveCatchup: {
+            // Proportional catch-up: rate scales smoothly with latency distance
+            // instead of binary 1.0×/1.5× switching. Near target → minimal speed
+            // increase; far behind → approaches 1.5×. Override via
+            // options.dash.streaming.liveCatchup.mode.
+            mode: 'liveCatchupModeLoLP',
+            // Require at least half the live-delay target in buffer before
+            // activating catch-up. Prevents the post-stall "live-edge chasing"
+            // cascade where the player catches up too aggressively on a thin
+            // buffer and immediately stalls again. Override via
+            // options.dash.streaming.liveCatchup.playbackBufferMin.
+            playbackBufferMin: typeof this.options.liveDelay === 'number'
+              ? this.options.liveDelay * 0.5
+              : 1.0,
+          },
+        },
+      },
+      liveDelaySettings,
+      // options.dash takes highest priority — overrides both defaults above.
+      dashSettings,
+    )
+    this._dash.updateSettings(settings)
+
+    if (typeof requestInterceptor === 'function') {
+      this._dash.addRequestInterceptor(requestInterceptor as Parameters<typeof this._dash.addRequestInterceptor>[0])
     }
 
     this._dash.attachView(this.el as HTMLMediaElement)
@@ -329,6 +369,33 @@ export default class DashPlayback extends BasePlayback {
         this.trigger(PlaybackEvents.PLAYBACK_RATE_CHANGED, e.playbackRate)
       },
     )
+
+    this._dash.on(
+      MediaPlayer.events.FRAGMENT_LOADING_COMPLETED,
+      (e: FragmentLoadingCompletedEvent) => {
+        const req = e.request
+        if (req.type !== 'MediaSegment' || req.mediaType !== 'video') {
+          return
+        }
+        if (!req.requestEndDate || !req.startDate || !req.duration) {
+          return
+        }
+        // Skip LL-DASH chunks (parts) — their 500 ms duration produces
+        // noisy per-part readings; we only want full-segment drift.
+        if (req.duration < 1) {
+          return
+        }
+        const transferMs = req.requestEndDate.getTime() - req.startDate.getTime()
+        const drift = transferMs / 1000 - req.duration
+        this._lastSegmentDrift = drift
+        this._accumulatedSegmentDrift += drift
+      },
+    )
+
+    this._dash.on(MediaPlayer.events.BUFFER_EMPTY, this._onBufferEmpty)
+    this._dash.on(MediaPlayer.events.BUFFER_LOADED, this._onBufferLoaded)
+    this._dash.on(MediaPlayer.events.PLAYBACK_WAITING, this._onPlaybackWaiting)
+    this._dash.on(MediaPlayer.events.PLAYBACK_STALLED, this._onPlaybackWaiting)
   }
 
   render() {
@@ -357,6 +424,36 @@ export default class DashPlayback extends BasePlayback {
   _stopTimeUpdateTimer() {
     if (this._timeUpdateTimer) {
       clearInterval(this._timeUpdateTimer)
+    }
+  }
+
+  private _startLiveMetricsTimer() {
+    this._stopLiveMetricsTimer()
+    this._liveMetricsTimer = setInterval(() => {
+      if (!this._dash) {
+        return
+      }
+      const liveLatency = this._dash.getCurrentLiveLatency()
+      const targetLatency = this._dash.getTargetLiveDelay()
+      if (isNaN(liveLatency) || liveLatency <= 0) {
+        return
+      }
+      const metrics: LiveMetrics = {
+        liveLatency,
+        targetLatency,
+        ...(this._lastSegmentDrift !== null && {
+          segmentDrift: this._lastSegmentDrift,
+          accumulatedDrift: this._accumulatedSegmentDrift,
+        }),
+      }
+      this.trigger(PlaybackEvents.LIVE_METRICS, metrics)
+    }, 1000)
+  }
+
+  private _stopLiveMetricsTimer() {
+    if (this._liveMetricsTimer) {
+      clearInterval(this._liveMetricsTimer)
+      this._liveMetricsTimer = null
     }
   }
 
@@ -562,6 +659,7 @@ export default class DashPlayback extends BasePlayback {
     !this._dash && this._setup()
     super.play()
     this._startTimeUpdateTimer()
+    this._startLiveMetricsTimer()
   }
 
   override pause() {
@@ -577,6 +675,11 @@ export default class DashPlayback extends BasePlayback {
   override stop() {
     if (this._dash) {
       this._stopTimeUpdateTimer()
+      this._stopLiveMetricsTimer()
+      this._clearLiveResyncTimer()
+      this._liveResyncInProgress = false
+      this._accumulatedSegmentDrift = 0
+      this._lastSegmentDrift = null
       this.destroyInstance()
       super.stop()
     }
@@ -593,6 +696,10 @@ export default class DashPlayback extends BasePlayback {
         MediaPlayer.events.MANIFEST_LOADED,
         this.getDuration,
       )
+      this._dash.off(MediaPlayer.events.BUFFER_EMPTY, this._onBufferEmpty)
+      this._dash.off(MediaPlayer.events.BUFFER_LOADED, this._onBufferLoaded)
+      this._dash.off(MediaPlayer.events.PLAYBACK_WAITING, this._onPlaybackWaiting)
+      this._dash.off(MediaPlayer.events.PLAYBACK_STALLED, this._onPlaybackWaiting)
       const tracks = this._dash.getTracksFor('text')
       tracks.forEach(track => {
         if (track.id) {
@@ -603,6 +710,65 @@ export default class DashPlayback extends BasePlayback {
       this._dash.destroy()
       this._dash = null
     }
+  }
+
+  private _onBufferEmpty = () => {
+    if (this._playbackType !== Playback.LIVE) return
+    if (this._resyncToLive('buffer-empty')) return
+    if (this._liveResyncTimer !== null) return
+    this._liveResyncTimer = setTimeout(() => {
+      this._liveResyncTimer = null
+      this._resyncToLive('buffer-empty-delayed')
+    }, 500)
+  }
+
+  private _onBufferLoaded = () => {
+    this._clearLiveResyncTimer()
+  }
+
+  private _onPlaybackWaiting = () => {
+    this._resyncToLive('playback-waiting')
+  }
+
+  private _clearLiveResyncTimer() {
+    if (this._liveResyncTimer !== null) {
+      clearTimeout(this._liveResyncTimer)
+      this._liveResyncTimer = null
+    }
+  }
+
+  private _resyncToLive(reason: string) {
+    if (!this._dash || this._playbackType !== Playback.LIVE) return false
+    if (this._liveResyncInProgress) return false
+
+    const currentTime = this._dash.time()
+    const liveLatency = this._dash.getCurrentLiveLatency()
+    const targetDelay = this._dash.getTargetLiveDelay()
+    if (isNaN(liveLatency) || liveLatency <= 0) return false
+    if (isNaN(targetDelay) || targetDelay <= 0) return false
+
+    const latencyDrift = liveLatency - targetDelay
+    const shouldResync =
+      latencyDrift > Math.max(1, targetDelay) ||
+      liveLatency > targetDelay * 2
+
+    if (!shouldResync) return false
+
+    // Seek forward to (liveEdge − targetDelay): jumps past the stitch-point
+    // discontinuity in the video SourceBuffer into clean content that is
+    // typically already downloaded, so the resume is near-instant.
+    // Using currentTime + liveLatency gives the actual live edge; dash.duration()
+    // returns a position near the DVR start and is not a valid seek target.
+    const liveEdge = currentTime + liveLatency
+    const seekTo = liveEdge - targetDelay
+    if (seekTo <= currentTime) return false  // already at or ahead of target, nothing to do
+
+    this._liveResyncInProgress = true
+    setTimeout(() => { this._liveResyncInProgress = false }, 5000)
+    trace(`${T} live-resync`, { reason, liveEdge, liveLatency, targetDelay, latencyDrift, seekTo, currentTime })
+    this._dash.setPlaybackRate(1)
+    this._dash.seek(seekTo)
+    return true
   }
 
   override destroy() {
@@ -627,6 +793,7 @@ export default class DashPlayback extends BasePlayback {
         bitrate: level.bitrateInKbit * 1000,
         width: level.width,
         height: level.height,
+        codec: level.codecs || undefined,
       }
     })
     this.trigger(Events.PLAYBACK_LEVELS_AVAILABLE, this._levels)
