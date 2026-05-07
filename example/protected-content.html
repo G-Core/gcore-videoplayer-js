@@ -30,10 +30,11 @@
   ║  • <body>           — two-column layout: player panel + token status panel  ║
   ║  • <script module>  — all runtime JS; imports from local player build       ║
   ║                                                                              ║
-  ║  LOCAL DEV                                                                   ║
+  ║  LOCAL DEV (to test an unreleased local build)                               ║
   ║  1. cd packages/player && npm run build                                     ║
-  ║  2. npx serve . -p 8080   (from repo root)                                  ║
-  ║  3. http://localhost:8080/example/protected-content.html                    ║
+  ║  2. Swap the import URL to '../packages/player/dist/index.js'               ║
+  ║  3. npx serve . -p 8080   (from repo root)                                  ║
+  ║  4. http://localhost:8080/example/protected-content.html                    ║
   ║  Note: file:// protocol blocks fetch() and ES-module imports.               ║
   ╚══════════════════════════════════════════════════════════════════════════════╝
 -->
@@ -537,12 +538,6 @@
           runs, so getElementById() calls need no DOMContentLoaded wrapper.
         • Strict mode is implicit.
 
-      IMPORT PATH
-        Local build (`../packages/player/dist/index.js`) is used because
-        TokenRefreshPlugin is not yet published in the CDN bundle at
-        https://player.gvideo.co/v2/assets/latest/index.js.
-        Once released, swap the import path.
-
       OVERALL FLOW
         1. fetchToken()        — HTTP GET to token API → TokenResponse object
         2. displayToken()      — update status panel UI + start countdown timer
@@ -565,12 +560,14 @@
     <script type="module">
       // ── Imports ───────────────────────────────────────────────────────────
       //
+      // CDN import — same approach as index.html.
+      // Replace /latest/ with a pinned version for production stability:
+      //   https://player.gvideo.co/v2/assets/1.2.3/index.js
+      //
       // For local development (after `npm run build` inside packages/player):
+      //   swap the URL below with '../packages/player/dist/index.js', then:
       //   npx serve . -p 8080   (from repo root)
       //   http://localhost:8080/example/protected-content.html
-      //
-      // For production swap with the CDN URL:
-      //   https://player.gvideo.co/v2/assets/latest/index.js
       //
       // BottomGear is required by QualityLevels — it asserts the plugin is
       // registered and throws if not. Always register BottomGear before QualityLevels.
@@ -583,7 +580,7 @@
         Spinner,
         TokenRefreshPlugin,
         version,
-      } from '../packages/player/dist/index.js'
+      } from 'https://player.gvideo.co/v2/assets/latest/index.js'
 
       console.info('Gcore player version', version)
 

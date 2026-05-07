@@ -64,7 +64,12 @@ const DEFAULT_OPTIONS: PlayerConfig = {
   playbackType: 'vod',
   priorityTransport: 'dash',
   sources: [],
-  strings: {},
+  strings: {
+    en: {
+      quality: 'Quality',
+      auto: 'Auto',
+    },
+  },
 }
 
 /**

@@ -364,6 +364,21 @@ A `PLUGIN` that configures [CMCD](https://cdn.cta.tech/cta/media/media/resources
 </td></tr>
 <tr><td>
 
+[TokenRefreshPlugin](./player.tokenrefreshplugin.md)
+
+
+</td><td>
+
+`PLUGIN` — automatic token refresh for Gcore protected-content streams.
+
+Supports all three playback engines:
+
+\| Engine \| Mechanism \| Interruption \| \|\-\-\-\-\-\---\|\-\-\-\-\-\-\-\-\---\|\-\-\-\-\-\-\-\-\-\-\-\---\| \| \*\*hls.js\*\* \| Custom loader rewrites every request URL \| None \| \| \*\*dash.js\*\* \| `addRequestInterceptor` rewrites every request URL \| None \| \| \*\*Native `<video>`<!-- -->\*\* (Safari ≤ iOS 14.4) \| Source reload + seek restore \| Brief \|
+
+
+</td></tr>
+<tr><td>
+
 [VolumeFade](./player.volumefade.md)
 
 
@@ -448,6 +463,17 @@ Events triggered by the plugin
 </td><td>
 
 Codes of errors occurring within the playback component.
+
+
+</td></tr>
+<tr><td>
+
+[PlaybackRateEvents](./player.playbackrateevents.md)
+
+
+</td><td>
+
+Events emitted by the [PlaybackRate](./player.playbackrate.md) plugin.
 
 
 </td></tr>
@@ -724,6 +750,28 @@ Current playback time and total duration of the media.
 </td></tr>
 <tr><td>
 
+[TokenRefreshOptions](./player.tokenrefreshoptions.md)
+
+
+</td><td>
+
+Configuration options for [TokenRefreshPlugin](./player.tokenrefreshplugin.md)<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[TokenResponse](./player.tokenresponse.md)
+
+
+</td><td>
+
+Response shape expected from your token-refresh API endpoint.
+
+
+</td></tr>
+<tr><td>
+
 [WatchEventData](./player.watcheventdata.md)
 
 
@@ -776,6 +824,17 @@ Description
 </td><td>
 
 Configuration options for the [ClosedCaptions](./player.closedcaptions.md) plugin.
+
+
+</td></tr>
+<tr><td>
+
+[CodecStrategy](./player.codecstrategy.md)
+
+
+</td><td>
+
+Controls which codec is selected when a multi-codec HLS manifest is loaded.
 
 
 </td></tr>

@@ -140,6 +140,20 @@ Duration of the current media in seconds, if appropriate.
 </td></tr>
 <tr><td>
 
+[getPlugin(name)](./player.player.getplugin.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Returns a registered core plugin instance by name, or `null` if not found.
+
+
+</td></tr>
+<tr><td>
+
 [getVolume()](./player.player.getvolume.md)
 
 
