@@ -1,0 +1,2482 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Player Lab – Test Your Stream</title>
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link
+      rel="stylesheet"
+      href="../packages/player/dist/index.css"
+    />
+    <style>
+      :root {
+        --bg: #f4efe5;
+        --surface: rgba(255, 251, 245, 0.92);
+        --surface-strong: #fffdf8;
+        --ink: #1e1b16;
+        --ink-soft: #605647;
+        --line: rgba(42, 35, 27, 0.12);
+        --accent: #b84b32;
+        --accent-soft: #f4d5c8;
+        --accent-strong: #8f3722;
+        --ok: #1f6d4f;
+        --shadow: 0 24px 60px rgba(44, 27, 9, 0.12);
+        --radius: 22px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body,
+      body * {
+        -webkit-user-select: text;
+        user-select: text;
+      }
+
+      button,
+      .player-shell,
+      .player-shell * {
+        -webkit-user-select: none;
+        user-select: none;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "IBM Plex Sans", "Avenir Next", "Segoe UI", sans-serif;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at top left, rgba(184, 75, 50, 0.16), transparent 30%),
+          radial-gradient(circle at top right, rgba(31, 109, 79, 0.12), transparent 28%),
+          linear-gradient(180deg, #fbf6ed 0%, var(--bg) 100%);
+      }
+
+      main {
+        width: min(1400px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 40px 0 48px;
+      }
+
+      .page-header {
+        margin-bottom: 24px;
+      }
+
+      .eyebrow {
+        display: inline-block;
+        margin-bottom: 8px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: rgba(184, 75, 50, 0.12);
+        color: var(--accent-strong);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        margin: 0 0 10px;
+        font-size: clamp(32px, 4vw, 52px);
+        line-height: 0.98;
+        letter-spacing: -0.04em;
+      }
+
+      .intro {
+        max-width: 840px;
+        margin: 0;
+        color: var(--ink-soft);
+        font-size: 16px;
+        line-height: 1.6;
+      }
+
+      /* ── URL form panel ──────────────────────────────── */
+
+      .url-panel {
+        margin-bottom: 24px;
+        padding: 20px 24px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: var(--surface);
+        box-shadow: var(--shadow);
+      }
+
+      .url-row {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
+      .url-input {
+        flex: 1;
+        min-width: 240px;
+        padding: 11px 18px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: var(--surface-strong);
+        color: var(--ink);
+        font: inherit;
+        font-size: 14px;
+        outline: none;
+        transition: border-color 180ms ease;
+      }
+
+      .url-input:focus {
+        border-color: rgba(184, 75, 50, 0.4);
+      }
+
+      .url-input::placeholder {
+        color: var(--ink-soft);
+        opacity: 0.6;
+      }
+
+      .url-select {
+        padding: 11px 14px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: var(--surface-strong);
+        color: var(--ink);
+        font: inherit;
+        font-size: 13px;
+        cursor: pointer;
+        outline: none;
+      }
+
+      .load-btn {
+        padding: 11px 24px;
+        border: none;
+        border-radius: 999px;
+        background: var(--accent);
+        color: #fff9f5;
+        font: inherit;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: background-color 180ms ease, transform 180ms ease;
+        white-space: nowrap;
+      }
+
+      .load-btn:hover {
+        background: var(--accent-strong);
+        transform: translateY(-1px);
+      }
+
+      .url-row--presets {
+        margin-bottom: 10px;
+      }
+
+      .preset-label {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--ink-soft);
+        white-space: nowrap;
+      }
+
+      .preset-select {
+        min-width: 260px;
+      }
+
+      .override-details {
+        position: relative;
+        flex-shrink: 0;
+      }
+
+      .override-summary {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 11px 16px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: var(--surface-strong);
+        color: var(--ink-soft);
+        font: inherit;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        user-select: none;
+        list-style: none;
+        white-space: nowrap;
+        transition: border-color 180ms ease, color 180ms ease;
+      }
+
+      .override-summary:hover { color: var(--ink); }
+      .override-details[open] .override-summary { border-color: rgba(184,75,50,0.35); color: var(--ink); }
+
+      .override-summary::-webkit-details-marker { display: none; }
+
+      .override-summary::after {
+        content: "▾";
+        font-size: 11px;
+        transition: transform 160ms ease;
+      }
+
+      .override-details[open] .override-summary::after {
+        transform: rotate(180deg);
+      }
+
+      .override-body {
+        position: absolute;
+        top: calc(100% + 6px);
+        right: 0;
+        z-index: 50;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px 28px;
+        padding: 16px 18px;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: var(--surface-strong);
+        box-shadow: var(--shadow);
+        min-width: 340px;
+      }
+
+      .override-field {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+
+      .override-field-label {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+        color: var(--ink-soft);
+      }
+
+      .override-select {
+        width: auto;
+      }
+
+      .override-hint {
+        font-size: 11px;
+        color: var(--ink-soft);
+        max-width: 260px;
+        line-height: 1.4;
+      }
+
+      .override-summary--active {
+        border-color: rgba(34, 197, 94, 0.55);
+        background: rgba(34, 197, 94, 0.09);
+        color: var(--ink);
+      }
+      .override-summary--active:hover {
+        border-color: rgba(34, 197, 94, 0.75);
+      }
+
+      /* ── Player actions header ───────────────────────── */
+
+      .actions-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+
+      .utc-clock {
+        font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--ink-soft);
+        letter-spacing: 0.04em;
+      }
+
+      /* ── Main two-column layout ──────────────────────── */
+
+      .lab-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+        gap: 24px;
+        align-items: start;
+      }
+
+      .left-col {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      /* ── Panel ───────────────────────────────────────── */
+
+      .panel {
+        position: relative;
+        overflow: hidden;
+        padding: 24px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: var(--surface);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(10px);
+      }
+
+      .panel::after {
+        content: "";
+        position: absolute;
+        inset: auto -10% -40% auto;
+        width: 180px;
+        height: 180px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(184, 75, 50, 0.12), transparent 68%);
+        pointer-events: none;
+      }
+
+      /* ── Player shell ────────────────────────────────── */
+
+      .player-shell {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        border-radius: 20px;
+        overflow: hidden;
+        background:
+          linear-gradient(140deg, rgba(255, 255, 255, 0.06), transparent),
+          #0e1118;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+      }
+
+      .player-shell > div {
+        width: 100%;
+        height: 100%;
+      }
+
+      .player-shell .player-placeholder {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        color: rgba(255, 255, 255, 0.28);
+        font-size: 15px;
+        font-style: italic;
+      }
+
+      /* ── Stats grid ──────────────────────────────────── */
+
+      .stats-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+        margin-bottom: 0;
+      }
+
+      .stats-table tr {
+        border-bottom: 1px solid var(--line);
+      }
+
+      .stats-table tr:last-child {
+        border-bottom: none;
+      }
+
+      .stats-table td {
+        padding: 7px 4px;
+        vertical-align: middle;
+      }
+
+      .stats-table td:first-child {
+        color: var(--ink-soft);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        width: 50%;
+      }
+
+      .stats-table td:last-child {
+        font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--ink);
+        text-align: right;
+      }
+
+      .stat-bad {
+        color: #ef4444 !important;
+      }
+
+      .stat-bad-desc {
+        display: block;
+        font-family: "IBM Plex Sans", "Avenir Next", "Segoe UI", sans-serif;
+        font-size: 10px;
+        font-weight: 500;
+        color: #ef4444;
+        margin-top: 3px;
+        line-height: 1.4;
+        white-space: normal;
+      }
+
+      /* ── Plugins table ──────────────────────────────── */
+      .plugins-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+        margin: 8px 0 16px;
+      }
+
+      .plugins-table th {
+        text-align: left;
+        padding: 5px 8px;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+        color: var(--ink-soft);
+        border-bottom: 2px solid var(--line);
+      }
+
+      .plugins-table td {
+        padding: 6px 8px;
+        vertical-align: top;
+        border-bottom: 1px solid var(--line);
+        line-height: 1.5;
+      }
+
+      .plugins-table tr:last-child td {
+        border-bottom: none;
+      }
+
+      .plugins-table td:first-child {
+        white-space: nowrap;
+        width: 1%;
+      }
+
+      /* ── Quality & Codec panel ───────────────────────── */
+
+      .quality-panel {
+        padding: 14px 18px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: var(--surface);
+        box-shadow: var(--shadow);
+      }
+
+      /* ── Compact chip row ────────────────────────────── */
+
+      .qi-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px 14px;
+        margin-bottom: 10px;
+      }
+
+      .qi-chip {
+        display: flex;
+        align-items: baseline;
+        gap: 4px;
+      }
+
+      .qi-chip-label {
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+        color: var(--ink-soft);
+        white-space: nowrap;
+      }
+
+      .qi-chip-value {
+        font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--ink);
+      }
+
+      /* ── Request rows ────────────────────────────────── */
+
+      .qi-requests {
+        border-top: 1px solid var(--line);
+        padding-top: 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+      }
+
+      .qi-req-row {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+        font-size: 11px;
+        min-height: 17px;
+      }
+
+      .qi-requests-header {
+        margin: 0 0 4px;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--ink-soft);
+      }
+
+      .qi-req-row--hist {
+        opacity: 0.55;
+      }
+
+      .qi-req-row--empty {
+        display: none;
+      }
+
+      .qi-req-path {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        color: var(--ink);
+        min-width: 0;
+        flex-shrink: 1;
+      }
+
+      .qi-req-status {
+        font-weight: 700;
+        flex-shrink: 0;
+        white-space: nowrap;
+      }
+
+      .qi-req-status--2xx { color: #22c55e; }
+      .qi-req-status--3xx { color: #f59e0b; }
+      .qi-req-status--404 { color: #f59e0b; }
+      .qi-req-status--4xx { color: #ef4444; }
+      .qi-req-status--5xx { color: #ef4444; }
+
+      /* ── Section label ───────────────────────────────── */
+
+      .section-label {
+        margin: 0 0 10px;
+        color: var(--ink-soft);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      /* ── Controls ────────────────────────────────────── */
+
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 12px;
+      }
+
+      .action-button {
+        padding: 10px 18px;
+        border: 1px solid rgba(42, 35, 27, 0.14);
+        border-radius: 999px;
+        background: var(--surface-strong);
+        color: var(--ink);
+        font: inherit;
+        font-weight: 700;
+        cursor: pointer;
+        transition:
+          background-color 180ms ease,
+          color 180ms ease,
+          border-color 180ms ease,
+          transform 180ms ease,
+          opacity 180ms ease;
+      }
+
+      .action-button:hover:not(:disabled) {
+        transform: translateY(-1px);
+      }
+
+      .action-button:disabled {
+        opacity: 0.42;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      /* ── Action selectors ───────────────────────────────── */
+
+      .action-select-group {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .action-select-label {
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--ink-soft);
+        white-space: nowrap;
+      }
+
+      .action-select {
+        padding: 7px 12px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: var(--surface-strong);
+        color: var(--ink);
+        font: inherit;
+        font-size: 13px;
+        cursor: pointer;
+        outline: none;
+      }
+
+      .action-select:disabled {
+        opacity: 0.42;
+        cursor: not-allowed;
+      }
+
+      /* ── Event log ───────────────────────────────────── */
+
+      .event-log {
+        width: 100%;
+        min-height: 240px;
+        max-height: 400px;
+        overflow-y: auto;
+        padding: 14px;
+        box-sizing: border-box;
+        border: 1px solid rgba(17, 24, 39, 0.12);
+        border-radius: 18px;
+        background: #171c24;
+        color: #d4e4ff;
+        font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+        font-size: 12px;
+        line-height: 1.55;
+        margin-bottom: 12px;
+      }
+
+      .event-log:focus {
+        outline: 2px solid rgba(184, 75, 50, 0.24);
+        outline-offset: 2px;
+      }
+
+      .log-line {
+        display: block;
+        white-space: pre-wrap;
+        word-break: break-all;
+      }
+
+      .log-error {
+        color: #ff6b6b;
+      }
+
+      /* ── Summary text ────────────────────────────────── */
+
+      .summary {
+        margin: 4px 0 0;
+        color: var(--ink-soft);
+        font-size: 13px;
+        line-height: 1.6;
+      }
+
+      .summary strong {
+        color: var(--ink);
+      }
+
+      /* ── Right column ────────────────────────────────── */
+
+      .right-col {
+        display: flex;
+        flex-direction: column;
+        border: none;
+        box-shadow: none;
+      }
+
+      .right-col .event-log {
+        flex: 1;
+        min-height: 220px;
+      }
+
+      /* ── CMCD table ──────────────────────────────────── */
+
+      .cmcd-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px;
+        margin-top: 4px;
+      }
+
+      .cmcd-table th {
+        padding: 5px 4px;
+        text-align: left;
+        color: var(--ink-soft);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .cmcd-table td {
+        padding: 5px 4px;
+        vertical-align: middle;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .cmcd-table tr:last-child td {
+        border-bottom: none;
+      }
+
+      .cmcd-table td:first-child {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--ink);
+        width: 3em;
+      }
+
+      .cmcd-table td:nth-child(2) {
+        color: var(--ink-soft);
+        width: 50%;
+      }
+
+      .cmcd-table td:last-child {
+        font-family: "IBM Plex Mono", monospace;
+        color: var(--ink);
+        word-break: break-all;
+      }
+
+      /* ── Responsive ──────────────────────────────────── */
+
+      @media (max-width: 1024px) {
+        .lab-layout {
+          grid-template-columns: 1fr;
+        }
+
+      }
+
+      @media (max-width: 640px) {
+        main {
+          width: min(100% - 20px, 1400px);
+          padding-top: 24px;
+        }
+
+        .panel,
+        .quality-panel {
+          padding: 18px;
+        }
+
+        .url-row {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .url-select,
+        .load-btn {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header class="page-header">
+        <span class="eyebrow">Player Lab</span>
+        <h1>Test Your Stream</h1>
+        <p class="intro">
+          Paste any HLS (.m3u8), MPEG-DASH (.mpd), or MP4 URL to load it in the
+          Gcore player. Live and VOD streams are both supported. All stats,
+          events, and quality data update in real time via player plugins.
+        </p>
+      </header>
+
+      <!-- URL input form -->
+      <div class="url-panel">
+        <form id="url-form">
+          <div class="url-row url-row--presets">
+            <label class="preset-label" for="preset-select">Presets</label>
+            <select id="preset-select" class="url-select preset-select">
+              <!-- populated by JS from PRESETS array -->
+            </select>
+          </div>
+          <div class="url-row">
+            <input
+              type="url"
+              id="stream-url"
+              class="url-input"
+              placeholder="https://your-stream.m3u8  or  https://your-stream.mpd"
+              spellcheck="false"
+              autocomplete="off"
+            />
+            <button type="submit" class="load-btn">Load / Reload</button>
+            <details class="override-details" id="override-details">
+              <summary class="override-summary">Override options</summary>
+              <div class="override-body">
+                <div class="override-field">
+                  <label class="override-field-label" for="stream-type">Format</label>
+                  <select id="stream-type" class="url-select override-select">
+                    <option value="">Auto detect</option>
+                    <option value="application/x-mpegurl">HLS (.m3u8)</option>
+                    <option value="application/dash+xml">DASH (.mpd)</option>
+                    <option value="video/mp4">MP4 (.mp4)</option>
+                  </select>
+                  <span class="override-hint">Override only for CDN URLs without a clear extension.</span>
+                </div>
+                <div class="override-field">
+                  <label class="override-field-label" for="playback-type">Stream type</label>
+                  <select id="playback-type" class="url-select override-select">
+                    <option value="">Auto</option>
+                    <option value="vod">VOD</option>
+                    <option value="live">Live</option>
+                  </select>
+                  <span class="override-hint">Set to Live for DVR controls and live-edge seeking.</span>
+                </div>
+                <div class="override-field">
+                  <label class="override-field-label" for="live-delay">Live delay</label>
+                  <select id="live-delay" class="url-select override-select">
+                    <option value="">Auto (from manifest)</option>
+                    <option value="2">2 s — Low latency (may stall on encoder hiccups)</option>
+                    <option value="4">4 s — Reliable (absorbs brief encoder delays)</option>
+                    <option value="8">8 s — Resilient (broadcast-style, very stable)</option>
+                  </select>
+                  <span class="override-hint">
+                    Higher delay = more buffer cushion for encoder irregularities (e.g. loop stitching)
+                    at the cost of latency. Applies to DASH and HLS; ignored for MP4. Reloads the stream.
+                  </span>
+                </div>
+                <div class="override-field">
+                  <label class="override-field-label" for="dash-catchup-max">DASH catch-up max</label>
+                  <select id="dash-catchup-max" class="url-select override-select">
+                    <option value="">SDK default</option>
+                    <option value="0">No speed-up (max 1.00×)</option>
+                    <option value="0.10">+10% (1.10×)</option>
+                    <option value="0.25">+25% (1.25×)</option>
+                    <option value="0.50">+50% (1.50×)</option>
+                  </select>
+                  <span class="override-hint">
+                    Limits dash.js live catch-up speed. Lower values reduce post-stall buffer drain.
+                  </span>
+                </div>
+                <div class="override-field">
+                  <label class="override-field-label" for="dash-catchup-mode">DASH catch-up mode</label>
+                  <select id="dash-catchup-mode" class="url-select override-select">
+                    <option value="">SDK default</option>
+                    <option value="liveCatchupModeLoLP">LoL+ buffer-aware</option>
+                    <option value="liveCatchupModeDefault">Default</option>
+                  </select>
+                  <span class="override-hint">
+                    LoL+ is designed for low-latency streams and uses buffer level in rate decisions.
+                  </span>
+                </div>
+                <div class="override-field">
+                  <label class="override-field-label" for="dash-buffer-min">DASH catch-up buffer min</label>
+                  <select id="dash-buffer-min" class="url-select override-select">
+                    <option value="">SDK default</option>
+                    <option value="1">1 s</option>
+                    <option value="2">2 s</option>
+                    <option value="3">3 s</option>
+                    <option value="4">4 s</option>
+                  </select>
+                  <span class="override-hint">
+                    Prevents catch-up from accelerating while the forward buffer is too thin.
+                  </span>
+                </div>
+              </div>
+            </details>
+          </div>
+        </form>
+      </div>
+
+      <section class="lab-layout">
+        <!-- Left column: player + actions + quality -->
+        <div class="left-col">
+          <div class="player-shell">
+            <div id="test-player">
+              <div class="player-placeholder">Enter a stream URL above and click Load</div>
+            </div>
+          </div>
+
+          <!-- Player actions -->
+          <div class="panel" style="padding:18px 20px;">
+            <div class="actions-header">
+              <p class="section-label" style="margin:0;">Player actions (remote control)</p>
+              <span class="utc-clock" id="utc-clock">00:00:00 UTC</span>
+            </div>
+            <div class="controls" style="margin-bottom:0;">
+              <button class="action-button" type="button" data-action="play" disabled>
+                Play
+              </button>
+              <button class="action-button" type="button" data-action="pause" disabled>
+                Pause
+              </button>
+              <button class="action-button" type="button" data-action="mute" disabled>
+                Mute
+              </button>
+              <button class="action-button" type="button" data-action="volume-90" disabled>
+                Volume 90%
+              </button>
+              <div class="action-select-group">
+                <span class="action-select-label">Codec</span>
+                <select id="action-codec-select" class="action-select" disabled>
+                  <option value="">Auto</option>
+                </select>
+              </div>
+              <div class="action-select-group">
+                <span class="action-select-label">Resolution</span>
+                <select id="action-res-select" class="action-select" disabled>
+                  <option value="">Auto</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quality & Codec info -->
+          <div class="quality-panel">
+            <p class="section-label" style="margin-bottom:10px;">Quality &amp; stream info</p>
+            <!-- Compact inline stats row -->
+            <div class="qi-row">
+              <div class="qi-chip">
+                <span class="qi-chip-label">Format:</span>
+                <span class="qi-chip-value" id="qi-format">—</span>
+              </div>
+              <div class="qi-chip">
+                <span class="qi-chip-label">Engine:</span>
+                <span class="qi-chip-value" id="qi-engine">—</span>
+              </div>
+            </div>
+            <div class="qi-row">
+              <div class="qi-chip">
+                <span class="qi-chip-label">Level:</span>
+                <span class="qi-chip-value" id="qi-level">—</span>
+              </div>
+              <div class="qi-chip">
+                <span class="qi-chip-label">Quality:</span>
+                <span class="qi-chip-value" id="qi-quality">—</span>
+              </div>
+              <div class="qi-chip">
+                <span class="qi-chip-label">Resolution:</span>
+                <span class="qi-chip-value" id="qi-resolution">—</span>
+              </div>
+              <div class="qi-chip">
+                <span class="qi-chip-label">Bitrate:</span>
+                <span class="qi-chip-value" id="qi-level-bitrate">—</span>
+              </div>
+              <div class="qi-chip">
+                <span class="qi-chip-label">Codec:</span>
+                <span class="qi-chip-value" id="qi-codec">—</span>
+              </div>
+            </div>
+            <!-- Request rows -->
+            <div class="qi-requests">
+              <p class="qi-requests-header">Last requests:</p>
+              <div class="qi-req-row qi-req-row--hist qi-req-row--empty" id="qi-hist-row-0">
+                <span class="qi-req-path" id="qi-hist-0-path" title=""></span>
+                <span class="qi-req-status" id="qi-hist-0-status"></span>
+              </div>
+              <div class="qi-req-row qi-req-row--hist qi-req-row--empty" id="qi-hist-row-1">
+                <span class="qi-req-path" id="qi-hist-1-path" title=""></span>
+                <span class="qi-req-status" id="qi-hist-1-status"></span>
+              </div>
+              <div class="qi-req-row qi-req-row--hist qi-req-row--empty" id="qi-hist-row-2">
+                <span class="qi-req-path" id="qi-hist-2-path" title=""></span>
+                <span class="qi-req-status" id="qi-hist-2-status"></span>
+              </div>
+              <div class="qi-req-row qi-req-row--hist qi-req-row--empty" id="qi-hist-row-3">
+                <span class="qi-req-path" id="qi-hist-3-path" title=""></span>
+                <span class="qi-req-status" id="qi-hist-3-status"></span>
+              </div>
+              <div class="qi-req-row qi-req-row--hist qi-req-row--empty" id="qi-hist-row-4">
+                <span class="qi-req-path" id="qi-hist-4-path" title=""></span>
+                <span class="qi-req-status" id="qi-hist-4-status"></span>
+              </div>
+              <div class="qi-req-row qi-req-row--hist qi-req-row--empty" id="qi-hist-row-5">
+                <span class="qi-req-path" id="qi-hist-5-path" title=""></span>
+                <span class="qi-req-status" id="qi-hist-5-status"></span>
+              </div>
+            </div>
+            <div id="cmcd-info" style="display:none; margin-top:16px;">
+              <p class="section-label" style="margin-bottom:8px;">CMCD</p>
+              <table class="cmcd-table">
+                <thead>
+                  <tr><th>Code</th><th>Parameter</th><th>Value</th></tr>
+                </thead>
+                <tbody id="cmcd-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right column: stats + log + info -->
+        <article class="panel right-col">
+          <!-- Stats table -->
+          <p class="section-label">Statistics</p>
+          <table class="stats-table" style="margin-bottom:16px;">
+            <tbody>
+              <tr>
+                <td>Buffer Level</td>
+                <td id="stat-buffer">—</td>
+              </tr>
+              <tr>
+                <td>Video Buffer</td>
+                <td id="stat-video-buffer">—</td>
+              </tr>
+              <tr>
+                <td>Audio Buffer</td>
+                <td id="stat-audio-buffer">—</td>
+              </tr>
+              <tr>
+                <td>Bandwidth (est.)</td>
+                <td id="stat-bitrate">—</td>
+              </tr>
+              <tr>
+                <td>FPS</td>
+                <td id="stat-fps">—</td>
+              </tr>
+              <tr>
+                <td>Dropped Frames</td>
+                <td id="stat-dropped">—</td>
+              </tr>
+              <tr>
+                <td>Position / Duration</td>
+                <td id="stat-time">—</td>
+              </tr>
+              <tr>
+                <td>Session Time</td>
+                <td id="stat-session">—</td>
+              </tr>
+              <tr id="stat-row-playback-rate" style="display:none">
+                <td>Playback Rate</td>
+                <td id="stat-playback-rate">—</td>
+              </tr>
+              <tr id="stat-row-live-latency" style="display:none">
+                <td>Live Latency</td>
+                <td id="stat-live-latency">—</td>
+              </tr>
+              <tr id="stat-row-segment-drift" style="display:none">
+                <td>Segment Drift</td>
+                <td id="stat-segment-drift">—</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <p class="section-label">Player event log</p>
+          <div
+            class="event-log"
+            id="event-log"
+            role="log"
+            aria-live="polite"
+            tabindex="0"
+          ></div>
+
+          <p class="summary">
+            <strong>Plugins active:</strong>
+          </p>
+          <table class="plugins-table">
+            <thead><tr><th>Plugin</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td><code>BigMuteButton</code></td><td>Prominent unmute overlay for muted autoplay</td></tr>
+              <tr><td><code>ClapprStats</code></td><td>Playback quality metrics at 1 s intervals (buffer, bandwidth, fps, dropped frames)</td></tr>
+              <tr><td><code>CmcdConfig</code></td><td>Attaches CMCD session metadata to every media request</td></tr>
+              <tr><td><code>DvrControls</code></td><td>Shows live / DVR state for live streams</td></tr>
+              <tr><td><code>ErrorScreen</code></td><td>Overlay for fatal playback errors</td></tr>
+              <tr><td><code>MediaControl</code></td><td>Main player control bar and interaction layer</td></tr>
+              <tr>
+                <td><code>QualityLevels</code></td>
+                <td>
+                  Manual quality selection via the gear menu.
+                  Configured with <code>codecStrategy: 'best-supported'</code> — picks the
+                  highest-compression codec the browser can play (AV1 → HEVC → H.264).
+                  The default <code>'power-efficient'</code> instead picks the codec the
+                  browser reports as hardware-accelerated.
+                </td>
+              </tr>
+              <tr><td><code>SourceController</code></td><td>Predictable source reloading and failover</td></tr>
+              <tr><td><code>Spinner</code></td><td>Buffering / loading indicator</td></tr>
+            </tbody>
+          </table>
+          <p>
+            <strong>Events:</strong>
+            <code>ready</code>, <code>play</code>, <code>pause</code>,
+            <code>stop</code>, <code>ended</code>, <code>seek</code>,
+            <code>volumeupdate</code>, <code>fullscreen</code>,
+            <code>error</code>, and <code>timeupdate</code> drive the controls,
+            stat cards, and log.
+          </p>
+        </article>
+      </section>
+    </main>
+
+    <script type="module">
+      // ---------------------------------------------------------------------------
+      // CDN import — vanilla JS integration, no build step required.
+      // ---------------------------------------------------------------------------
+      import {
+        BigMuteButton,
+        BottomGear,
+        ClapprStats,
+        CmcdConfig,
+        DvrControls,
+        ErrorScreen,
+        MediaControl,
+        PlaybackRate,
+        Player,
+        QualityLevels,
+        Spinner,
+        SourceController,
+        Thumbnails,
+        version,
+      } from "../packages/player/dist/index.js";
+
+      // ---------------------------------------------------------------------------
+      // Plugin registration — once per page load.
+      // ClapprStats is added here so the lab can read playback quality metrics.
+      // ---------------------------------------------------------------------------
+      function registerPluginsOnce() {
+        if (window.__gcoreLabPluginsRegistered) return;
+
+        // Compatibility shim for CmcdConfig — see index.html for explanation.
+        if (!CmcdConfig.prototype.version) {
+          Object.defineProperty(CmcdConfig.prototype, "version", {
+            value: CmcdConfig.version || "0.1.0",
+            configurable: true,
+          });
+        }
+
+        Player.registerPlugin(BigMuteButton);
+        Player.registerPlugin(BottomGear);
+        Player.registerPlugin(ClapprStats);
+        Player.registerPlugin(PlaybackRate);
+        Player.registerPlugin(CmcdConfig);
+        Player.registerPlugin(DvrControls);
+        Player.registerPlugin(ErrorScreen);
+        Player.registerPlugin(MediaControl);
+        Player.registerPlugin(QualityLevels);
+        Player.registerPlugin(SourceController);
+        Player.registerPlugin(Spinner);
+        Player.registerPlugin(Thumbnails);
+        window.__gcoreLabPluginsRegistered = true;
+      }
+
+      registerPluginsOnce();
+
+      // ---------------------------------------------------------------------------
+      // Player events to subscribe to.
+      // ---------------------------------------------------------------------------
+      const PLAYER_EVENTS = [
+        "ready",
+        "play",
+        "pause",
+        "stop",
+        "ended",
+        "seek",
+        "volumeupdate",
+        "fullscreen",
+        "error",
+        "timeupdate",
+      ];
+
+      // ---------------------------------------------------------------------------
+      // DOM references
+      // ---------------------------------------------------------------------------
+      const playerNode    = document.getElementById("test-player");
+      const logNode       = document.getElementById("event-log");
+      const playBtn       = document.querySelector('[data-action="play"]');
+      const pauseBtn      = document.querySelector('[data-action="pause"]');
+      const muteBtn       = document.querySelector('[data-action="mute"]');
+      const volNinetyBtn  = document.querySelector('[data-action="volume-90"]');
+      const actionCodecSel = document.getElementById("action-codec-select");
+      const actionResSel   = document.getElementById("action-res-select");
+      let _actionLevels = []; // [{level, width, height, bitrate, codec}] from manifest
+      let _pendingManualChange = false;
+
+      // Stat card value elements
+      const statEls = {
+        buffer:        document.getElementById("stat-buffer"),
+        videoBuffer:   document.getElementById("stat-video-buffer"),
+        audioBuffer:   document.getElementById("stat-audio-buffer"),
+        bitrate:       document.getElementById("stat-bitrate"),
+        fps:           document.getElementById("stat-fps"),
+        dropped:       document.getElementById("stat-dropped"),
+        time:          document.getElementById("stat-time"),
+        session:       document.getElementById("stat-session"),
+        playbackRate:  document.getElementById("stat-playback-rate"),
+        liveLatency:   document.getElementById("stat-live-latency"),
+        segmentDrift:  document.getElementById("stat-segment-drift"),
+      };
+
+      // Quality info elements
+      const qiEls = {
+        format:      document.getElementById("qi-format"),
+        engine:      document.getElementById("qi-engine"),
+        level:       document.getElementById("qi-level"),
+        quality:     document.getElementById("qi-quality"),
+        resolution:  document.getElementById("qi-resolution"),
+        levelBitrate: document.getElementById("qi-level-bitrate"),
+        codec:       document.getElementById("qi-codec"),
+      };
+
+      // History slot elements — index 0 = oldest, index 2 = most recent completed
+      const historyEls = [0, 1, 2, 3, 4, 5].map(i => ({
+        row:    document.getElementById(`qi-hist-row-${i}`),
+        path:   document.getElementById(`qi-hist-${i}-path`),
+        status: document.getElementById(`qi-hist-${i}-status`),
+      }));
+
+      const cmcdInfo  = document.getElementById("cmcd-info");
+      const cmcdTbody = document.getElementById("cmcd-tbody");
+
+      const CMCD_PARAMS = [
+        { code: "bl",  name: "Buffer Length",           title: "ms of content buffered ahead of current playback position" },
+        { code: "br",  name: "Encoded Bitrate",           title: "Bitrate of the segment being requested (not the segment currently playing). In DASH auto-ABR mode dash.js may report the top available bitrate here instead of the actual segment bitrate." },
+        { code: "bs",  name: "Buffer Starvation",       title: "Buffer ran dry since the last request; player is in a rebuffering state" },
+        { code: "cid", name: "Content ID",              title: "Unique identifier for the content item" },
+        { code: "d",   name: "Object Duration",         title: "Playback duration of the requested segment (ms)" },
+        { code: "dl",  name: "Deadline",                title: "ms until the player needs this segment to avoid a stall" },
+        { code: "mtp", name: "Measured Throughput",     title: "Throughput measured during the last request (kbps)" },
+        { code: "nor", name: "Next Object Request",     title: "Relative URL of the next segment the player expects to request" },
+        { code: "nrr", name: "Next Range Request",      title: "Byte range of the next request (for byte-range delivery)" },
+        { code: "ot",  name: "Object Type",             title: "Type of the requested object: m=manifest, i=init, v=video, a=audio, av=muxed, c=caption, tt=timed-text, k=key, o=other" },
+        { code: "pr",  name: "Playback Rate",           title: "Current playback speed (1=normal, 2=2x, 0.5=half)" },
+        { code: "rtp", name: "Requested Max Throughput", title: "Max throughput the player wants the CDN to use for this request (kbps)" },
+        { code: "sf",  name: "Streaming Format",        title: "d=DASH, h=HLS, s=Smooth, o=other" },
+        { code: "sid", name: "Session ID",              title: "UUID identifying the current playback session" },
+        { code: "st",  name: "Stream Type",             title: "v=VOD, l=live, ll=low-latency live, e=live event" },
+        { code: "su",  name: "Startup",                 title: "This is a startup request (first segment or after a seek/stall)" },
+        { code: "tb",  name: "Top Bitrate",             title: "Highest bitrate level available in the manifest (kbps)" },
+        { code: "v",   name: "Version",                 title: "CMCD spec version (omitted when 1, the default)" },
+      ];
+
+      // ---------------------------------------------------------------------------
+      // Runtime state
+      // ---------------------------------------------------------------------------
+      let gplayer = null;           // active Player instance
+      let statsPollerHandle = null; // setInterval handle for video-element polling
+      let sessionStart = null;      // Date.now() when 'play' first fired this session
+      let currentMimeType = "";     // MIME type of the active source
+      let autoplayRetryHandles = [];
+      let prevFrameSnapshot = null; // { frames: number, time: number } for FPS delta
+
+      const state = {
+        isMuted:    true,
+        isPlaying:  false,
+        volumePct:  100,
+      };
+
+      // ---------------------------------------------------------------------------
+      // Helpers
+      // ---------------------------------------------------------------------------
+
+      function formatUtc(date = new Date()) {
+        const p = n => String(n).padStart(2, "0");
+        return `${p(date.getHours())}:${p(date.getMinutes())}:${p(date.getSeconds())}`;
+      }
+
+      function formatSeconds(secs) {
+        if (!Number.isFinite(secs) || secs < 0) return "—";
+        const m = Math.floor(secs / 60);
+        const s = Math.floor(secs % 60).toString().padStart(2, "0");
+        return `${m}:${s}`;
+      }
+
+      function normalizeVolumePercent(v) {
+        if (!Number.isFinite(v)) return 0;
+        return v <= 1 ? v * 100 : v;
+      }
+
+      function describeError(err) {
+        if (!err) return "unknown error";
+        return err.message || err.description || err.code || JSON.stringify(err);
+      }
+
+      function buildCmcdConfig(url) {
+        return {
+          sessionId: crypto.randomUUID(),
+          contentId: new URL(url).pathname.replace(/^\//, "").slice(0, 48) || "lab",
+        };
+      }
+
+      function readOptionalNumber(id) {
+        const value = document.getElementById(id).value;
+        return value === "" ? undefined : Number(value);
+      }
+
+      function buildDashConfig(mimeType) {
+        if (mimeType !== "application/dash+xml") return undefined;
+
+        const mode = document.getElementById("dash-catchup-mode").value;
+        const maxRate = readOptionalNumber("dash-catchup-max");
+        const bufferMin = readOptionalNumber("dash-buffer-min");
+
+        const liveCatchup = {};
+        if (mode) liveCatchup.mode = mode;
+        if (Number.isFinite(maxRate)) {
+          liveCatchup.playbackRate = { min: -0.2, max: maxRate };
+        }
+        if (Number.isFinite(bufferMin)) {
+          liveCatchup.playbackBufferMin = bufferMin;
+        }
+
+        if (Object.keys(liveCatchup).length === 0) return undefined;
+
+        return {
+          streaming: {
+            liveCatchup,
+          },
+        };
+      }
+
+      // Detect MIME type from URL extension when the user left the selector on "Auto".
+      function detectMimeType(url, userSelected) {
+        if (userSelected) return userSelected;
+        const clean = url.toLowerCase().split("?")[0].split("#")[0];
+        if (clean.endsWith(".m3u8")) return "application/x-mpegurl";
+        if (clean.endsWith(".mpd"))  return "application/dash+xml";
+        if (clean.endsWith(".mp4") || clean.endsWith(".m4v")) return "video/mp4";
+        return "application/x-mpegurl"; // reasonable default
+      }
+
+      // ---------------------------------------------------------------------------
+      // Stat display helpers
+      // ---------------------------------------------------------------------------
+
+      function setStat(key, text) {
+        if (statEls[key]) statEls[key].textContent = text;
+      }
+
+      function setQi(key, text) {
+        if (qiEls[key]) qiEls[key].textContent = text;
+      }
+
+      function setCmcd(code, val) {
+        const el = document.getElementById("cmcd-val-" + code);
+        if (el && val != null) el.textContent = val;
+      }
+
+      const SF_MAP = {
+        "application/x-mpegurl": "h",
+        "application/dash+xml":  "d",
+        "video/mp4":             "o",
+      };
+
+      const FORMAT_LABELS = {
+        "application/x-mpegurl": "HLS",
+        "application/dash+xml":  "MPEG-DASH",
+        "video/mp4":             "MP4",
+      };
+
+      const ENGINE_LABELS = {
+        hls:        "HLS.js",
+        dash:       "DASH.js",
+        html5_video: "Native HTML5",
+      };
+
+      const MIME_TO_ENGINE = {
+        "application/x-mpegurl": "HLS.js",
+        "application/dash+xml":  "DASH.js",
+        "video/mp4":             "Native HTML5",
+      };
+
+      // Shared with the player's qualityLevels.labels config so the selector
+      // and the info panel show the same names.
+      const QUALITY_LABELS = {
+        144: "144p LQ",  240: "240p LQ",
+        360: "360p LQ",  432: "432p SD",  468: "468p SD",  480: "480p SD",
+        540: "540p SD",  576: "576p SD",
+        720: "720p HD",  1080: "1080p FHD",
+        1440: "1440p 2K", 2160: "2160p 4K",
+      };
+
+      function qualityName(height) {
+        return QUALITY_LABELS[height] ?? `${height}p`;
+      }
+
+      function formatCodec(str) {
+        if (!str) return "—";
+        const pfx = str.split(".")[0].toLowerCase();
+        const CODEC_NAMES = {
+          avc1: "H.264", avc3: "H.264",
+          hvc1: "H.265 / HEVC", hev1: "H.265 / HEVC",
+          av01: "AV1",
+          vp09: "VP9", vp08: "VP8",
+          mp4a: "AAC",
+        };
+        const name = CODEC_NAMES[pfx] || pfx.toUpperCase();
+        return `${name} (${str})`;
+      }
+
+      // ---------------------------------------------------------------------------
+      // Event log — sticky scroll unless user scrolled up; errors shown in red
+      // ---------------------------------------------------------------------------
+
+      function appendLog(eventName, details = "", isError = false) {
+        const shouldStick =
+          logNode.scrollTop + logNode.clientHeight >= logNode.scrollHeight - 8;
+        const text = `[${formatUtc()}] ${eventName}${details ? ` | ${details}` : ""}`;
+        const span = document.createElement("span");
+        span.className = "log-line" + (isError ? " log-error" : "");
+        span.textContent = text;
+        logNode.appendChild(span);
+        while (logNode.children.length > 60) logNode.removeChild(logNode.firstChild);
+        if (shouldStick) logNode.scrollTop = logNode.scrollHeight;
+      }
+
+      // ---------------------------------------------------------------------------
+      // Button state
+      // ---------------------------------------------------------------------------
+
+      function setControlsEnabled(enabled) {
+        [playBtn, pauseBtn, muteBtn, volNinetyBtn].forEach((b) => {
+          if (!enabled) {
+            b.disabled = true;
+          }
+        });
+        if (!enabled) {
+          actionCodecSel.disabled = true;
+          actionResSel.disabled   = true;
+        }
+      }
+
+      function updateButtons() {
+        if (!gplayer) {
+          setControlsEnabled(false);
+          return;
+        }
+        playBtn.disabled       = state.isPlaying;
+        pauseBtn.disabled      = !state.isPlaying;
+        muteBtn.disabled       = state.isMuted || state.volumePct <= 0;
+        volNinetyBtn.disabled  = !state.isMuted && Math.abs(state.volumePct - 90) < 0.5;
+      }
+
+      function syncStateFromPlayer() {
+        if (!gplayer) return;
+        state.isPlaying  = gplayer.isPlaying();
+        state.isMuted    = gplayer.isMuted();
+        state.volumePct  = normalizeVolumePercent(gplayer.getVolume());
+      }
+
+      // ---------------------------------------------------------------------------
+      // Autoplay recovery (same pattern as index.html)
+      // ---------------------------------------------------------------------------
+
+      function clearAutoplayRecovery() {
+        autoplayRetryHandles.forEach((h) => clearTimeout(h));
+        autoplayRetryHandles = [];
+      }
+
+      function scheduleAutoplayRecovery() {
+        clearAutoplayRecovery();
+        autoplayRetryHandles = [150, 700, 1400].map((delay) =>
+          setTimeout(() => {
+            if (gplayer && !gplayer.isPlaying()) gplayer.play();
+            updateButtons();
+          }, delay),
+        );
+      }
+
+      // ---------------------------------------------------------------------------
+      // Stats pollerstatements
+      // Poll the video element for stats that are not exposed via the player's
+      // public event API (buffer from TimeRanges, dropped frames from
+      // VideoPlaybackQuality, actual render resolution).
+      // These are read-only browser-native APIs — no player state is modified here.
+      // ---------------------------------------------------------------------------
+
+      function startStatsPolling() {
+        stopStatsPolling();
+        statsPollerHandle = setInterval(pollVideoStats, 1000);
+      }
+
+      function stopStatsPolling() {
+        if (statsPollerHandle !== null) {
+          clearInterval(statsPollerHandle);
+          statsPollerHandle = null;
+        }
+      }
+
+      function pollVideoStats() {
+        if (!gplayer) return;
+
+        const video = playerNode.querySelector("video");
+
+        // Buffer ahead of current position (from browser TimeRanges API)
+        if (video && video.buffered.length > 0) {
+          const buffEnd = video.buffered.end(video.buffered.length - 1);
+          const buffAhead = Math.max(0, buffEnd - (video.currentTime || 0));
+          setStat("buffer", buffAhead.toFixed(2) + " s");
+        }
+
+        if (video && Number.isFinite(video.playbackRate)) {
+          document.getElementById("stat-row-playback-rate").style.display = "";
+          const rate = video.playbackRate;
+          setStatValue(
+            statEls.playbackRate,
+            `${rate.toFixed(2)}×`,
+            Math.abs(rate - 1) > 0.01,
+            `Playback is running at ${rate.toFixed(2)}×. Any rate above 1× consumes live buffer faster than new content is produced.`,
+          );
+        }
+
+        // Dropped / total frames (VideoPlaybackQuality API)
+        if (video && typeof video.getVideoPlaybackQuality === "function") {
+          const q = video.getVideoPlaybackQuality();
+          setStat("dropped", q.droppedVideoFrames ?? "—");
+          const now = Date.now();
+          if (prevFrameSnapshot) {
+            const deltaFrames = q.totalVideoFrames - prevFrameSnapshot.frames;
+            const deltaSec = (now - prevFrameSnapshot.time) / 1000;
+            if (deltaSec > 0 && deltaFrames >= 0) setStat("fps", Math.round(deltaFrames / deltaSec));
+          }
+          prevFrameSnapshot = { frames: q.totalVideoFrames, time: now };
+        }
+
+        // Actual render resolution from the video element
+        if (video && video.videoWidth > 0 && qiEls.resolution.textContent === "—") {
+          setQi("resolution", `${video.videoWidth}x${video.videoHeight}`);
+        }
+
+        // Quality level info via the level_selector plugin's public playback API
+        const levelSel = gplayer.getPlugin("level_selector");
+        const playback = levelSel?.core?.activePlayback;
+        if (playback) {
+          const dashMetrics = playback._dash?.getDashMetrics?.();
+          if (dashMetrics) {
+            const videoBuffer = dashMetrics.getCurrentBufferLevel?.("video");
+            const audioBuffer = dashMetrics.getCurrentBufferLevel?.("audio");
+            if (Number.isFinite(videoBuffer)) setStat("videoBuffer", videoBuffer.toFixed(2) + " s");
+            if (Number.isFinite(audioBuffer)) setStat("audioBuffer", audioBuffer.toFixed(2) + " s");
+          }
+
+          const levels = playback.levels;
+          const currentId = playback.currentLevel;
+          if (Array.isArray(levels) && levels.length > 0) {
+            const pos = currentId < 0 ? -1 : levels.findIndex((l) => l.level === currentId);
+            setQi("level", `${pos < 0 ? "auto" : pos + 1}/${levels.length}`);
+            const info = levels.find((l) => l.level === currentId);
+            if (info?.bitrate > 0) setQi("levelBitrate", Math.round(info.bitrate / 1000) + " kbps");
+            if (info?.width > 0 && info?.height > 0) {
+              setQi("resolution", `${info.width}x${info.height}`);
+              setQi("quality", qualityName(Math.min(info.width, info.height)));
+            }
+            if (info?.codec) setQi("codec", formatCodec(info.codec));
+          }
+
+          // Bandwidth estimate for the stats panel (smooth per-second updates)
+          const bwEst = playback._hls?.bandwidthEstimate;
+          if (Number.isFinite(bwEst) && bwEst > 0) {
+            setStat("bitrate", Math.round(bwEst / 1000) + " kbps");
+          } else {
+            const dashTp = playback._dash?.getAverageThroughput("video");
+            if (Number.isFinite(dashTp) && dashTp > 0) setStat("bitrate", Math.round(dashTp) + " kbps");
+          }
+        }
+
+        // Session clock
+        if (sessionStart !== null) {
+          setStat("session", formatSeconds(Math.floor((Date.now() - sessionStart) / 1000)));
+        }
+      }
+
+      // ---------------------------------------------------------------------------
+      // Network request tracking for "Quality & stream info" panel
+      // ---------------------------------------------------------------------------
+
+      function requestPath(url) {
+        if (!url) return "—";
+        if (url === "(manifest)") return "(manifest)";
+        try {
+          const u = new URL(url);
+          u.searchParams.delete("CMCD");
+          const qs = u.search;
+          return u.pathname + qs || u.href;
+        } catch {
+          return url;
+        }
+      }
+
+      function statusCls(code) {
+        if (!code) return "";
+        if (code === 404) return "qi-req-status--404";
+        if (code >= 500) return "qi-req-status--5xx";
+        if (code >= 400) return "qi-req-status--4xx";
+        if (code >= 300) return "qi-req-status--3xx";
+        if (code >= 200) return "qi-req-status--2xx";
+        return "";
+      }
+
+      const HTTP_TEXTS = {
+        200: "OK", 201: "Created", 204: "No Content",
+        301: "Moved Permanently", 302: "Found", 304: "Not Modified",
+        400: "Bad Request", 401: "Unauthorized", 403: "Forbidden",
+        404: "Not Found", 405: "Method Not Allowed",
+        500: "Internal Server Error", 502: "Bad Gateway", 503: "Service Unavailable",
+      };
+
+      function statusLabel(code) {
+        if (!code) return "";
+        return HTTP_TEXTS[code] ? `${code} ${HTTP_TEXTS[code]}` : String(code);
+      }
+
+      // Tracks the URL currently shown in "Current" and completed request history.
+      let _currReqUrl = null;
+      let _currReqStatus = null;
+      let _requestHistory = []; // [{url, status}] oldest first, max 6 items
+
+      function renderHistory() {
+        const len = _requestHistory.length;
+        historyEls.forEach((els, slotIdx) => {
+          const histIdx = len - historyEls.length + slotIdx;
+          const item = histIdx >= 0 ? _requestHistory[histIdx] : null;
+          if (item) {
+            els.path.textContent = requestPath(item.url);
+            els.path.title = item.url;
+            els.status.textContent = item.status != null ? statusLabel(item.status) : "";
+            els.status.className   = "qi-req-status " + (item.status != null ? statusCls(item.status) : "");
+            els.row.classList.remove("qi-req-row--empty");
+          } else {
+            els.path.textContent = "";
+            els.path.title = "";
+            els.status.textContent = "";
+            els.status.className = "qi-req-status";
+            els.row.classList.add("qi-req-row--empty");
+          }
+        });
+      }
+
+      // Called when a new request STARTS. Records URL internally; history updates on completion.
+      function setCurrentRequest(url) {
+        if (!url) return;
+        _currReqUrl    = url;
+        _currReqStatus = null;
+      }
+
+      // Called when a request COMPLETES. Pushes directly to history ring and re-renders.
+      function updateCurrentStatus(url, status) {
+        if (!url) return;
+        _requestHistory.push({ url, status });
+        if (_requestHistory.length > 6) _requestHistory.shift();
+        renderHistory();
+        if (status != null && status >= 400) {
+          appendLog("net-error", `HTTP ${status} — ${requestPath(url)}`, status !== 404);
+        }
+      }
+
+      // ---------------------------------------------------------------------------
+      // ClapprStats + quality events via Clappr container internals.
+      //
+      // player.on() only fires PlayerEvent enum events — not container-level events.
+      // ClapprStats emits 'clappr:stats:report' on the container every runEach ms.
+      // CONTAINER_BITRATE = 'container:bitrate' fires on each ABR level switch.
+      // ---------------------------------------------------------------------------
+      // Action panel – codec / resolution selectors
+      // ---------------------------------------------------------------------------
+
+      function codecKey(str) {
+        if (!str) return "";
+        const pfx = str.split(".")[0].toLowerCase();
+        const names = { avc1: "H.264", avc3: "H.264", hvc1: "H.265", hev1: "H.265", av01: "AV1", vp09: "VP9", vp08: "VP8" };
+        return names[pfx] || pfx.toUpperCase();
+      }
+
+      function populateActionSelects(levels) {
+        _actionLevels = levels;
+        const savedCodec = actionCodecSel.value;
+        const savedRes   = actionResSel.value;
+
+        // Unique codec names, preserving manifest order
+        const codecs = [...new Set(levels.map(l => codecKey(l.codec)).filter(Boolean))];
+        actionCodecSel.innerHTML = '<option value="">Auto</option>';
+        codecs.forEach(c => {
+          const opt = document.createElement("option");
+          opt.value = c; opt.textContent = c;
+          actionCodecSel.appendChild(opt);
+        });
+        actionCodecSel.value   = codecs.includes(savedCodec) ? savedCodec : "";
+        actionCodecSel.disabled = false;
+
+        rebuildResSelect();
+        actionResSel.value   = [...actionResSel.options].some(o => o.value === savedRes) ? savedRes : "";
+        actionResSel.disabled = false;
+      }
+
+      function rebuildResSelect() {
+        const codec    = actionCodecSel.value;
+        const pool     = codec ? _actionLevels.filter(l => codecKey(l.codec) === codec) : _actionLevels;
+        const heights  = [...new Set(pool.map(l => String(Math.min(l.width, l.height))).filter(Boolean))];
+        const curRes   = actionResSel.value;
+        actionResSel.innerHTML = '<option value="">Auto</option>';
+        heights.forEach(h => {
+          const opt = document.createElement("option");
+          opt.value = h; opt.textContent = qualityName(Number(h));
+          actionResSel.appendChild(opt);
+        });
+        if ([...actionResSel.options].some(o => o.value === curRes)) actionResSel.value = curRes;
+      }
+
+      function applyActionSelects() {
+        const ql = gplayer?.getPlugin("level_selector");
+        if (!ql) return;
+        const codec = actionCodecSel.value;
+        const res   = actionResSel.value;
+
+        // Route through QualityLevels.setLevel() so the plugin updates its own
+        // selectedLevelId, highlighted row, and gear-button label in one shot.
+        const applyLevel = (id) => ql["setLevel"]?.(id) ?? (ql.core.activePlayback.currentLevel = id);
+
+        if (!codec && !res) {
+          _pendingManualChange = true;
+          applyLevel(-1);
+          appendLog("remote-quality", "Quality → Auto (ABR)");
+          return;
+        }
+        let pool = _actionLevels;
+        if (codec) pool = pool.filter(l => codecKey(l.codec) === codec);
+        if (res)   pool = pool.filter(l => String(Math.min(l.width, l.height)) === res);
+        if (!pool.length) { applyLevel(-1); return; }
+        const best = pool.reduce((a, b) => b.bitrate > a.bitrate ? b : a);
+        _pendingManualChange = true;
+        applyLevel(best.level);
+        appendLog("remote-quality", `Quality → ${codec || "Auto"} ${res ? qualityName(Number(res)) : "Auto"} (level ${best.level})`);
+      }
+
+      function resetActionSelects() {
+        _actionLevels = [];
+        _pendingManualChange = false;
+        actionCodecSel.innerHTML  = '<option value="">Auto</option>';
+        actionResSel.innerHTML    = '<option value="">Auto</option>';
+        actionCodecSel.disabled   = true;
+        actionResSel.disabled     = true;
+      }
+
+      actionCodecSel.addEventListener("change", () => { rebuildResSelect(); applyActionSelects(); });
+      actionResSel.addEventListener("change", applyActionSelects);
+
+      // We reach the core through QualityLevels.core (public plugin, protected field)
+      // to avoid the minification-fragile private `player.player` reference.
+      // ---------------------------------------------------------------------------
+
+      function setupClapprInternalListeners() {
+        // Access core via the public getPlugin() API — level_selector is a
+        // UICorePlugin whose `core` property is protected but JS-accessible.
+        // This avoids relying on the minification-fragile private `player.player` field.
+        const ql = gplayer.getPlugin("level_selector");
+        const core = ql?.core;
+        if (!core) return;
+
+        const attach = () => {
+          const container = core.activeContainer;
+          if (!container) return;
+
+          // ClapprStats periodic report — runs every 1 s per clapprStats.runEach
+          container.on("clappr:stats:report", (metrics) => {
+            onStatsReport(metrics);
+          });
+
+          // Quality / bitrate change: CONTAINER_BITRATE = 'container:bitrate'
+          container.on("container:bitrate", (level) => {
+            onBitrateChange(level);
+          });
+
+          // Buffering / rebuffering events
+          container.on("container:state:buffering", () => {
+            appendLog("buffering", "playback stalled — waiting for data");
+          });
+          container.on("container:state:bufferfull", () => {
+            appendLog("bufferfull", "buffer recovered — resuming");
+          });
+
+          // Attach low-level request tracking for HLS.js or DASH.js
+          const playback = core.activePlayback;
+          attachHlsRequestTracking(playback?._hls);
+          attachDashRequestTracking(playback?._dash);
+
+          // Populate codec/resolution selectors when levels are known
+          if (playback?.levels?.length > 0) populateActionSelects(playback.levels);
+          playback?.on?.("playback:levels:available", (levels) => populateActionSelects(levels));
+
+          // Live timing diagnostics (DASH only — emitted every second during live playback)
+          playback?.on?.("playback:live-metrics", onLiveMetrics);
+
+          // Catch-up rate from PlaybackRate plugin (active when live latency is low)
+          const prPlugin = core.getPlugin("playback_rate");
+          prPlugin?.on?.("playback_rate:catchup-state-changed", onCatchupStateChanged);
+        };
+
+        attach();
+        // Re-attach if the container is replaced (e.g., player.load())
+        core.on("core:active:container:changed", attach);
+      }
+
+      function attachHlsRequestTracking(hls) {
+        if (!hls) return;
+        hls.on("hlsManifestLoading", (evt, data) => setCurrentRequest(data.url));
+        hls.on("hlsManifestLoaded",  (evt, data) => updateCurrentStatus(data.url, data.networkDetails?.status));
+        hls.on("hlsLevelLoading",    (evt, data) => setCurrentRequest(data.url));
+        hls.on("hlsLevelLoaded",     (evt, data) => updateCurrentStatus(data.details?.url, data.networkDetails?.status));
+        // For LL-HLS, data.part is populated for each chunk; fall back to segment URL.
+        hls.on("hlsFragLoading",     (evt, data) => setCurrentRequest(data.part?.url ?? data.frag.url));
+        hls.on("hlsFragLoaded",      (evt, data) => updateCurrentStatus(data.part?.url ?? data.frag.url, data.networkDetails?.status));
+        // Audio track playlists (e.g. media_0.m3u8 in CMAF streams)
+        hls.on("hlsAudioTrackLoading", (evt, data) => setCurrentRequest(data.url));
+        hls.on("hlsAudioTrackLoaded",  (evt, data) => updateCurrentStatus(data.details?.url ?? data.url, data.networkDetails?.status));
+        hls.on("hlsError", (evt, data) => {
+          if (data.response?.code >= 400) {
+            updateCurrentStatus(data.url ?? data.frag?.url, data.response.code);
+          }
+        });
+      }
+
+      function attachDashRequestTracking(dash) {
+        if (!dash) return;
+        dash.on("fragmentLoadingStarted", (e) => setCurrentRequest(e.request?.url));
+        dash.on("fragmentLoadingCompleted", (e) => {
+          let status = 200;
+          try {
+            const req = dash.getDashMetrics().getCurrentHttpRequest(e.request?.mediaType ?? "video");
+            if (req?.responsecode) status = req.responsecode;
+          } catch {}
+          updateCurrentStatus(e.request?.url, status);
+        });
+        dash.on("originalManifestLoaded", (e) => {
+          setCurrentRequest("(manifest)");
+          updateCurrentStatus("(manifest)", 200);
+        });
+        dash.on("bufferStalled", (e) => {
+          appendLog("dash buffer-stalled", `media=${e.mediaType ?? "unknown"}`);
+        });
+        dash.on("bufferLoaded", (e) => {
+          appendLog("dash buffer-loaded", `media=${e.mediaType ?? "unknown"}`);
+        });
+      }
+
+      function onStatsReport(metrics) {
+        if (!metrics) return;
+
+        // FPS counter from ClapprStats (incremented each decoded frame)
+        const fps = metrics.counters?.fps;
+        if (Number.isFinite(fps) && fps > 0) {
+          setStat("fps", fps);
+        }
+
+        // Cumulative dropped frame count
+        const dropped = metrics.counters?.droppedFrames;
+        if (Number.isFinite(dropped)) {
+          setStat("dropped", dropped);
+        }
+
+        // Playback engine name → "hls" | "dash" | "html5_video"
+        const playbackName = metrics.extra?.playbackName;
+        if (playbackName) {
+          setQi("engine", ENGINE_LABELS[playbackName] ?? playbackName);
+        }
+      }
+
+      function onBitrateChange(level) {
+        if (!level) return;
+
+        // level = { level: number, bitrate: number (bps), width: number, height: number, codec?: string }
+        const { level: idx, bitrate, width, height, codec } = level;
+
+        if (Number.isFinite(bitrate) && bitrate > 0) {
+          setQi("levelBitrate", Math.round(bitrate / 1000) + " kbps");
+        }
+
+        if (width > 0 && height > 0) {
+          const h = Math.min(width, height);
+          setQi("resolution", `${width}x${height}`);
+          setQi("quality", qualityName(h));
+        }
+
+        if (codec) {
+          setQi("codec", formatCodec(codec));
+        }
+
+        const levelLabel = Number.isFinite(idx) ? idx + 1 : "auto";
+        const qLabel = (width > 0 && height > 0) ? qualityName(Math.min(width, height)) : "";
+        const changeSource = _pendingManualChange ? "manual" : "auto";
+        _pendingManualChange = false;
+        appendLog(
+          `${changeSource} quality-change`,
+          `level=${levelLabel}${qLabel ? " " + qLabel : ""}, ${width}×${height}, ` +
+          `${Math.round((bitrate || 0) / 1000)} kbps` +
+          (codec ? `, ${formatCodec(codec)}` : ""),
+        );
+      }
+
+      // ---------------------------------------------------------------------------
+      // Live timing diagnostics
+      // ---------------------------------------------------------------------------
+
+      function setStatValue(el, text, bad, badDesc) {
+        el.innerHTML = "";
+        el.appendChild(document.createTextNode(text));
+        if (bad) {
+          el.className = "stat-bad";
+          const desc = document.createElement("span");
+          desc.className = "stat-bad-desc";
+          desc.textContent = badDesc;
+          el.appendChild(desc);
+        } else {
+          el.className = "";
+        }
+      }
+
+      function onLiveMetrics({ liveLatency, targetLatency, segmentDrift, accumulatedDrift }) {
+        document.getElementById("stat-row-live-latency").style.display = "";
+
+        if (segmentDrift === undefined) {
+          document.getElementById("stat-row-segment-drift").style.display = "none";
+        } else {
+          document.getElementById("stat-row-segment-drift").style.display = "";
+        }
+
+        // ── Live Latency ──────────────────────────────────────────────────────
+        // Healthy: within 50%–300% of target.
+        // Too low: catch-up overshot; player is ahead of intended live edge —
+        //          next segment hasn't been encoded yet, stall is imminent.
+        // Too high: player is drifting far behind the live edge.
+        const latencyTooLow  = liveLatency < targetLatency * 0.5;
+        const latencyTooHigh = liveLatency > targetLatency * 3;
+        const latencyBad     = latencyTooLow || latencyTooHigh;
+        const latencyDesc    = latencyTooLow
+          ? `Catch-up overshot — ${liveLatency.toFixed(2)} s is below half of target (${targetLatency.toFixed(2)} s). Player is ahead of the live edge; the next segment hasn't been encoded yet.`
+          : `Player is ${liveLatency.toFixed(2)} s behind live edge — more than 3× the ${targetLatency.toFixed(2)} s target. Significant latency drift.`;
+
+        setStatValue(
+          statEls.liveLatency,
+          `${liveLatency.toFixed(2)} s / ${targetLatency.toFixed(2)} s`,
+          latencyBad,
+          latencyDesc,
+        );
+
+        // ── Segment Drift ─────────────────────────────────────────────────────
+        // Expected: negative, approximately equal to -(availabilityTimeOffset).
+        // For LL-DASH with ATO ≈ 0.5 s the nominal value is around −0.50 s.
+        //
+        // > −0.1 s  → segment arrived later than its declared duration.
+        //             Either CDN is slow, or the encoder is producing shorter
+        //             segments than the manifest declares — timing will drift.
+        // < −2.0 s  → segment arrived extremely early; ATO may be too large or
+        //             the manifest duration is over-declared.
+        if (segmentDrift !== undefined) {
+          const driftTooSlow = segmentDrift > -0.1;
+          const driftTooFast = segmentDrift < -2.0;
+          const driftBad     = driftTooSlow || driftTooFast;
+          const accSign      = accumulatedDrift >= 0 ? "+" : "";
+          const segSign      = segmentDrift    >= 0 ? "+" : "";
+          const driftDesc    = driftTooSlow
+            ? `Segment arrived ${segmentDrift.toFixed(3)} s after its declared duration. Encoder may be producing segments shorter than the manifest declares — timing drift accumulates over time (total: ${accSign}${accumulatedDrift.toFixed(2)} s).`
+            : `Segment arrived ${Math.abs(segmentDrift).toFixed(3)} s earlier than expected. Check if availabilityTimeOffset is set too aggressively in the manifest.`;
+
+          setStatValue(
+            statEls.segmentDrift,
+            `${segSign}${segmentDrift.toFixed(3)} s / ${accSign}${accumulatedDrift.toFixed(2)} s`,
+            driftBad,
+            driftDesc,
+          );
+        }
+      }
+
+      function onCatchupStateChanged({ active, rate }) {
+        const row = document.getElementById("stat-row-playback-rate");
+        if (!active) {
+          row.style.display = "";
+          setStatValue(statEls.playbackRate, `${rate.toFixed(2)}×`, false, "");
+          return;
+        }
+        row.style.display = "";
+        // Any catch-up rate above 1× means the player is consuming buffer faster
+        // than live content is being produced — buffer will shrink until it hits
+        // the live edge and stalls.
+        setStatValue(
+          statEls.playbackRate,
+          `${rate.toFixed(2)}×`,
+          true,
+          `Live catch-up active at ${rate.toFixed(2)}×. Player consumes buffer ${rate.toFixed(2)}× faster than content is encoded — buffer will drain to the live edge, causing periodic stalls until latency reaches the target.`,
+        );
+      }
+
+      // ---------------------------------------------------------------------------
+      // Central player event handler
+      // ---------------------------------------------------------------------------
+
+      function handlePlayerEvent(eventName, payload) {
+        switch (eventName) {
+          case "ready": {
+            syncStateFromPlayer();
+            appendLog("ready", "player initialized");
+            setupClapprInternalListeners();
+            startStatsPolling();
+
+            const cmcdPlugin = gplayer.getPlugin("cmcd");
+            if (cmcdPlugin) {
+              const { sid, cid } = cmcdPlugin.exportIds();
+              const values = { sid, cid, sf: SF_MAP[currentMimeType] ?? "o" };
+              cmcdTbody.innerHTML = CMCD_PARAMS.map(({ code, name, title }) =>
+                `<tr><td>${code}</td><td title="${title ?? ""}">${name}</td><td id="cmcd-val-${code}">${values[code] ?? "—"}</td></tr>`
+              ).join("");
+              cmcdInfo.style.display = "";
+            }
+            break;
+          }
+
+          case "play":
+            clearAutoplayRecovery();
+            state.isPlaying = true;
+            if (sessionStart === null) sessionStart = Date.now();
+            appendLog("play", `isPlaying=true`);
+            break;
+
+          case "pause":
+          case "stop":
+          case "ended":
+            state.isPlaying = false;
+            appendLog(eventName, `isPlaying=false`);
+            break;
+
+          case "seek":
+            appendLog("seek", `position=${Number.isFinite(payload) ? payload.toFixed(2) : "?"}s`);
+            break;
+
+          case "volumeupdate": {
+            state.volumePct = normalizeVolumePercent(payload);
+            state.isMuted   = state.volumePct <= 0 ? true : gplayer.isMuted();
+            appendLog(
+              "volumeupdate",
+              `volume=${state.volumePct.toFixed(0)}%, muted=${state.isMuted}`,
+            );
+            break;
+          }
+
+          case "fullscreen":
+            appendLog("fullscreen", `enabled=${Boolean(payload)}`);
+            break;
+
+          case "error":
+            appendLog("error", describeError(payload), true);
+            break;
+
+          case "timeupdate": {
+            // payload = { current: number, total: number }
+            const cur  = payload?.current ?? 0;
+            const tot  = payload?.total   ?? 0;
+            setStat(
+              "time",
+              `${formatSeconds(cur)} / ${Number.isFinite(tot) && tot > 0 ? formatSeconds(tot) : "live"}`,
+            );
+            break;
+          }
+
+          default:
+            appendLog(eventName);
+        }
+
+        window.requestAnimationFrame(() => {
+          syncStateFromPlayer();
+          updateButtons();
+        });
+        updateButtons();
+      }
+
+      // ---------------------------------------------------------------------------
+      // Player create / destroy
+      // ---------------------------------------------------------------------------
+
+      function destroyPlayer() {
+        clearAutoplayRecovery();
+        stopStatsPolling();
+        if (gplayer) {
+          try { gplayer.destroy(); } catch (_) { /* ignore */ }
+          gplayer = null;
+        }
+        sessionStart = null;
+        prevFrameSnapshot = null;
+        _currReqUrl = null;
+        _currReqStatus = null;
+        _requestHistory = [];
+        renderHistory();
+        resetActionSelects();
+        // Clear player mount node so the placeholder shows again
+        playerNode.innerHTML =
+          '<div class="player-placeholder">Enter a stream URL above and click Load</div>';
+        // Reset displayed stats
+        Object.values(statEls).forEach((el) => { el.textContent = "—"; el.className = ""; });
+        ["stat-row-playback-rate", "stat-row-live-latency", "stat-row-segment-drift"]
+          .forEach((id) => { document.getElementById(id).style.display = "none"; });
+        Object.values(qiEls).forEach((el) => {
+          if (!el) return;
+          el.textContent = "—";
+          el.title = "";
+        });
+        cmcdInfo.style.display = "none";
+        setControlsEnabled(false);
+      }
+
+      function loadStream(url, mimeType, playbackType, autoPlay = true, liveDelay = undefined) {
+        destroyPlayer();
+
+        // Clear placeholder so Clappr can attach to an empty div
+        playerNode.innerHTML = "";
+
+        currentMimeType = mimeType;
+        setQi("format", FORMAT_LABELS[mimeType] ?? mimeType);
+        setQi("engine", MIME_TO_ENGINE[mimeType] ?? "auto");
+
+        const cmcdConf = buildCmcdConfig(url);
+        const dashConf = buildDashConfig(mimeType);
+
+        gplayer = new Player({
+          autoPlay:     autoPlay,
+          mute:         autoPlay,
+          ...(playbackType ? { playbackType } : {}),
+          ...(liveDelay !== undefined ? { liveDelay } : {}),
+          ...(dashConf ? { dash: dashConf } : {}),
+          sources:      [{ source: url, mimeType }],
+          cmcd:         cmcdConf,
+          // ClapprStats — collect metrics every second
+          clapprStats: { runEach: 1000 },
+          qualityLevels: {
+            labels: QUALITY_LABELS,
+            codecStrategy: 'best-supported', // prefer AV1 when browser can play it
+          },
+          spinner: {
+            showOnError: true,
+            showOnStart: true,
+          },
+        });
+
+        // Subscribe to public player events
+        PLAYER_EVENTS.forEach((name) => {
+          gplayer.on(name, (payload) => handlePlayerEvent(name, payload));
+        });
+
+        appendLog("load", `${playbackType ? playbackType.toUpperCase() : "AUTO"} | ${url}`);
+        if (dashConf) {
+          appendLog("dash settings", JSON.stringify(dashConf.streaming.liveCatchup));
+        }
+
+        gplayer.attachTo(playerNode);
+        scheduleAutoplayRecovery();
+        updateButtons();
+      }
+
+      // ---------------------------------------------------------------------------
+      // Preset streams — add more entries here as needed.
+      // Each entry sets the URL input, format selector, and playback-type selector.
+      // ---------------------------------------------------------------------------
+      const PRESETS = [
+        {
+          label:    "— choose a preset —",
+          url:      "",
+          mimeType: "",
+          mode:     "vod",
+        },
+        {
+          group:    "VOD",
+          label:    "Blender, Sintel (1080p, HLS MPEG-TS, H.264)",
+          url:      "https://demo-public.gvideo.io/videos/2675_w6nGXEimHz4Z6t1j/master.m3u8",
+          mimeType: "application/x-mpegurl",
+          mode:     "vod",
+        },
+        {
+          group:    "Live",
+          label:    "Standard latency (1080p, HLS MPEG-TS, H.264)",
+          url:      "https://demo-public.gvideo.io/mpegts/2675_19146/master_mpegts.m3u8",
+          mimeType: "application/x-mpegurl",
+          mode:     "live",
+        },
+        {
+          group:    "Live",
+          label:    "Standard latency with DVR (1080p, HLS MPEG-TS, H.264)",
+          url:      "https://demo-public.gvideo.io/mpegts/2675_21960/master_mpegts.m3u8",
+          mimeType: "application/x-mpegurl",
+          mode:     "live",
+        },
+        {
+          group:    "Live",
+          label:    "Low latency (1080p, HLS CMAF, LL-HLS, H.264)",
+          url:      "https://demo-public.gvideo.io/cmaf/2675_19146/master.m3u8",
+          mimeType: "application/x-mpegurl",
+          mode:     "live",
+        },
+        {
+          group:    "Live",
+          label:    "Low latency (1080p, MPEG-DASH CMAF, LL-DASH, H.264)",
+          url:      "https://demo.gvideo.io/cmaf/2675_19146/index.mpd",
+          mimeType: "application/dash+xml",
+          mode:     "live",
+        },
+        {
+          group:    "VOD",
+          label:    "Blender, Tears of Steel (4K 4839x2160, HLS CMAF, H.264/HEVC/AV1)",
+          url:      "https://demo-public.gvideo.io/videos/2675_1HlbGeRCqFdFJb2S/master.m3u8",
+          mimeType: "application/x-mpegurl",
+          mode:     "vod",
+        },
+        {
+          group:    "VOD",
+          label:    "Blender, Tears of Steel (4K 4839x2160, MPEG-DASH CMAF, H.264/HEVC/AV1)",
+          url:      "https://demo-public.gvideo.io/videos/2675_1HlbGeRCqFdFJb2S/master.mpd",
+          mimeType: "application/dash+xml",
+          mode:     "vod",
+        },
+      ];
+
+      // ---------------------------------------------------------------------------
+      // Override options active state — green button when any field is non-Auto
+      // ---------------------------------------------------------------------------
+
+      const overrideSummary = document.querySelector(".override-summary");
+
+      function updateOverrideSummary() {
+        const hasOverride =
+          document.getElementById("stream-type").value !== "" ||
+          document.getElementById("playback-type").value !== "" ||
+          document.getElementById("live-delay").value !== "" ||
+          document.getElementById("dash-catchup-max").value !== "" ||
+          document.getElementById("dash-catchup-mode").value !== "" ||
+          document.getElementById("dash-buffer-min").value !== "";
+        overrideSummary.classList.toggle("override-summary--active", hasOverride);
+      }
+
+      document.getElementById("stream-type").addEventListener("change", updateOverrideSummary);
+      document.getElementById("playback-type").addEventListener("change", updateOverrideSummary);
+      document.getElementById("live-delay").addEventListener("change", updateOverrideSummary);
+      document.getElementById("dash-catchup-max").addEventListener("change", updateOverrideSummary);
+      document.getElementById("dash-catchup-mode").addEventListener("change", updateOverrideSummary);
+      document.getElementById("dash-buffer-min").addEventListener("change", updateOverrideSummary);
+
+      // Fill the URL field from a preset object.
+      // Override dropdowns are intentionally left alone — they reflect the user's
+      // manual choice and should not be changed by preset selection.
+      function applyPreset(preset) {
+        if (!preset || !preset.url) return;
+        document.getElementById("stream-url").value = preset.url;
+      }
+
+      // Build <optgroup> / <option> elements from PRESETS and populate the select.
+      (function buildPresetSelect() {
+        const sel = document.getElementById("preset-select");
+        const groups = {};
+
+        PRESETS.forEach((p, i) => {
+          const opt = document.createElement("option");
+          opt.value = i;
+          opt.textContent = p.label;
+          if (!p.group) {
+            sel.appendChild(opt);
+          } else {
+            if (!groups[p.group]) {
+              const og = document.createElement("optgroup");
+              og.label = p.group;
+              sel.appendChild(og);
+              groups[p.group] = og;
+            }
+            groups[p.group].appendChild(opt);
+          }
+        });
+
+        // Default to the first real preset (index 1 = VOD Sintel)
+        sel.value = "1";
+        applyPreset(PRESETS[1]);
+      })();
+
+      // When the user picks a preset, populate the fields (but don't auto-load).
+      document.getElementById("preset-select").addEventListener("change", (e) => {
+        const idx = Number(e.target.value);
+        const preset = PRESETS[idx];
+        if (preset?.url) applyPreset(preset);
+      });
+
+      // When the user edits the URL manually, reset the preset selector to "custom".
+      document.getElementById("stream-url").addEventListener("input", () => {
+        document.getElementById("preset-select").value = "0";
+      });
+
+      // ---------------------------------------------------------------------------
+      // URL form submission
+      // ---------------------------------------------------------------------------
+
+      document.getElementById("url-form").addEventListener("submit", (e) => {
+        e.preventDefault();
+
+        const rawUrl      = document.getElementById("stream-url").value.trim();
+        const typeSelect  = document.getElementById("stream-type").value;
+        const playbackSel = document.getElementById("playback-type").value;
+
+        if (!rawUrl) {
+          appendLog("error", "No URL entered", true);
+          return;
+        }
+
+        let url;
+        try {
+          url = new URL(rawUrl).href;
+        } catch (_) {
+          appendLog("error", "Invalid URL", true);
+          return;
+        }
+
+        const mimeType = detectMimeType(url, typeSelect);
+        const liveDelayVal = document.getElementById("live-delay").value;
+        const liveDelay = liveDelayVal ? Number(liveDelayVal) : undefined;
+
+        // Reflect the loaded URL in the page address so it can be bookmarked / shared.
+        const pageUrl = new URL(window.location.href);
+        pageUrl.searchParams.set("url", url);
+        history.replaceState(null, "", pageUrl);
+
+        loadStream(url, mimeType, playbackSel, true, liveDelay);
+      });
+
+      // ---------------------------------------------------------------------------
+      // External control buttons (Play, Pause, Mute, Volume 90%)
+      // Copied from index.html live-player pattern.
+      // ---------------------------------------------------------------------------
+
+      playBtn.addEventListener("click", () => {
+        if (!gplayer) return;
+        const pt = document.getElementById("playback-type").value;
+        if (pt === "live") {
+          const edge = gplayer.getDuration();
+          if (Number.isFinite(edge) && edge >= 0) gplayer.seek(edge);
+        }
+        gplayer.play();
+        appendLog("ui-play", "External Play button clicked");
+        scheduleAutoplayRecovery();
+        updateButtons();
+      });
+
+      pauseBtn.addEventListener("click", () => {
+        if (!gplayer) return;
+        gplayer.pause();
+        appendLog("ui-pause", "External Pause button clicked");
+        updateButtons();
+      });
+
+      muteBtn.addEventListener("click", () => {
+        if (!gplayer) return;
+        // setVolume(0) ensures the volumeupdate event fires
+        gplayer.setVolume(0);
+        appendLog("ui-mute", "External Mute button clicked");
+        updateButtons();
+      });
+
+      volNinetyBtn.addEventListener("click", () => {
+        if (!gplayer) return;
+        gplayer.unmute();
+        gplayer.setVolume(90);
+        appendLog("ui-volume-90", "External Volume 90% button clicked");
+        updateButtons();
+      });
+
+      // ---------------------------------------------------------------------------
+      // CMCD request interceptor
+      //
+      // Both HLS.js and dash.js use XMLHttpRequest. We patch open() to read the
+      // CMCD query string from every outgoing segment URL and push the parsed
+      // key=value pairs into the table. This is the only way to see per-request
+      // values (d, dl, nor, ot, rtp, bs, su) that the engines compute internally
+      // and never expose back through their JavaScript APIs.
+      //
+      // Filtering: manifest requests (ot=m) are skipped. For DASH CMAF streams
+      // that split audio/video into separate tracks, audio-only requests (ot=a)
+      // are skipped so the table reflects the video representation.
+      // ---------------------------------------------------------------------------
+      (function installCmcdInterceptor() {
+        function tryApply(url) {
+          if (typeof url !== "string") return;
+          const m = url.match(/[?&]CMCD=([^&]*)/);
+          if (!m) return;
+          try {
+            const raw = decodeURIComponent(m[1]);
+            // ot=m  → manifest/playlist  (skip)
+            // ot=i  → init segment / moov box (skip — no per-segment metrics)
+            // ot=a  → DASH audio-only segment (skip; ot=av is muxed HLS, keep that)
+            const otExact = /(?:^|,)ot=([^,]+)/.exec(raw)?.[1];
+            if (otExact !== "m" && otExact !== "i" && otExact !== "a") {
+              applyRealCmcd(raw);
+            }
+          } catch (_) {}
+        }
+
+        // HLS.js uses XMLHttpRequest
+        const origOpen = XMLHttpRequest.prototype.open;
+        XMLHttpRequest.prototype.open = function (_method, url) {
+          tryApply(url);
+          return origOpen.apply(this, arguments);
+        };
+
+        // dash.js uses fetch for LL-DASH chunk requests
+        const origFetch = window.fetch;
+        window.fetch = function (input, init) {
+          tryApply(typeof input === "string" ? input : input?.url);
+          return origFetch.apply(this, arguments);
+        };
+      })();
+
+      function applyRealCmcd(cmcdStr) {
+        // Clear all cells first so values from previous requests don't persist
+        // when a key is absent from the current one (e.g. nor on live, su after startup).
+        CMCD_PARAMS.forEach(({ code }) => {
+          const el = document.getElementById("cmcd-val-" + code);
+          if (el) el.textContent = "—";
+        });
+
+        // Pairs are comma-separated. Quoted strings may contain slashes but not
+        // unescaped commas, so a simple split is safe here.
+        for (const pair of cmcdStr.split(",")) {
+          const eq = pair.indexOf("=");
+          if (eq === -1) {
+            // Boolean flag — presence means true (e.g. bs, su)
+            setCmcd(pair.trim(), "true");
+          } else {
+            const key = pair.slice(0, eq).trim();
+            let val = pair.slice(eq + 1).trim();
+            if (val.startsWith('"') && val.endsWith('"')) val = val.slice(1, -1);
+            setCmcd(key, val);
+          }
+        }
+      }
+
+      // ---------------------------------------------------------------------------
+      // Initial SDK version log + auto-load default URL
+      // ---------------------------------------------------------------------------
+      const vInfo = typeof version === "function" ? version() : { gplayer: version || "unknown" };
+      appendLog(
+        "sdk",
+        `gplayer=${vInfo.gplayer || "?"}, hlsjs=${vInfo.hlsjs || "?"}, dashjs=${vInfo.dashjs || "?"}`,
+      );
+
+      // UTC clock — updates every second
+      const utcClockEl = document.getElementById("utc-clock");
+      const renderClock = () => {
+        utcClockEl.textContent = new Date().toISOString().slice(11, 19) + " UTC";
+      };
+      renderClock();
+      setInterval(renderClock, 1000);
+
+      // ---------------------------------------------------------------------------
+      // Page query param bootstrap
+      //   ?url=<stream-url>   — pre-fill the URL field and auto-load the stream
+      //   ?autostart=false    — skip autoplay (default: true, starts muted)
+      // ---------------------------------------------------------------------------
+      {
+        const params    = new URLSearchParams(window.location.search);
+        const paramUrl  = params.get("url");
+        const autostart = params.get("autostart") !== "false";
+
+        if (paramUrl) {
+          let validUrl;
+          try { validUrl = new URL(paramUrl).href; } catch (_) { validUrl = paramUrl; }
+
+          document.getElementById("stream-url").value = validUrl;
+
+          // Match against presets so the selector reflects the active stream.
+          // Override dropdowns are never changed here — user controls them manually.
+          const matchedIdx = PRESETS.findIndex((p, i) => i > 0 && p.url === validUrl);
+          if (matchedIdx >= 0) {
+            document.getElementById("preset-select").value = matchedIdx;
+            applyPreset(PRESETS[matchedIdx]);
+          } else {
+            document.getElementById("preset-select").value = "0";
+          }
+
+          // Use override fields as-is; auto-detect fills in when they are empty.
+          const overrideType = document.getElementById("stream-type").value;
+          const mimeType = detectMimeType(validUrl, overrideType);
+          const liveDelayParam = document.getElementById("live-delay").value;
+          if (autostart) loadStream(validUrl, mimeType, document.getElementById("playback-type").value, true, liveDelayParam ? Number(liveDelayParam) : undefined);
+        } else {
+          // No URL param — load the default preset (VOD Sintel).
+          const defaultPreset = PRESETS[1];
+          loadStream(defaultPreset.url, defaultPreset.mimeType, defaultPreset.mode, autostart);
+        }
+      }
+    </script>
+  </body>
+</html>
