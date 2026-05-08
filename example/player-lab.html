@@ -1397,6 +1397,11 @@
       let _actionLevels = []; // [{level, width, height, bitrate, codec}] from manifest — full unfiltered list
       let _codecPrefixMap = {}; // display name → codec prefix, e.g. {"AV1": "av01", "HEVC": "hvc1"}
       let _dashTrackMap = {}; // display name → dashjs MediaInfo track (for DASH codec switching)
+      let _manifestVideoCodecs = new Set(); // all video codec keys from DASH manifest before capabilities filtering
+      let _manifestVideoLevels = []; // all DASH video Representation entries before capabilities filtering
+      let _unsupportedCodecNames = new Set();
+      let _unsupportedLevelsLogged = false;
+      let _unsupportedLevelsLogTimer = null;
       let _preferredCodecPrefix = null; // persists across codec-switch reloads; null = auto-detect
       let _pendingManualChange = false;
 
@@ -1801,7 +1806,8 @@
           avc1: "H.264", avc3: "H.264",
           hvc1: "H.265 / HEVC", hev1: "H.265 / HEVC",
           av01: "AV1",
-          vp09: "VP9", vp08: "VP8",
+          vp09: "VP9", vp9: "VP9",
+          vp08: "VP8", vp8: "VP8",
           mp4a: "AAC",
         };
         const name = CODEC_NAMES[pfx] || pfx.toUpperCase();
@@ -1823,6 +1829,26 @@
         while (logNode.children.length > 1000) logNode.removeChild(logNode.firstChild);
         if (shouldStick) logNode.scrollTop = logNode.scrollHeight;
       }
+
+      function installUnsupportedCodecWarningLogger() {
+        if (window.__gcoreLabUnsupportedCodecWarningLogger) return;
+        window.__gcoreLabUnsupportedCodecWarningLogger = true;
+        const originalWarn = console.warn.bind(console);
+        console.warn = (...args) => {
+          const message = args.map(arg => typeof arg === "string" ? arg : String(arg)).join(" ");
+          const match = message.match(/CapabilitiesFilter.*Codec\s+(.+?)\s+not supported/i);
+          if (match) {
+            const name = codecKey(match[1]);
+            if (name) {
+              _unsupportedCodecNames.add(name);
+              scheduleUnsupportedLevelsLog();
+            }
+          }
+          originalWarn(...args);
+        };
+      }
+
+      installUnsupportedCodecWarningLogger();
 
       // ---------------------------------------------------------------------------
       // Button state
@@ -2092,9 +2118,74 @@
 
       function codecKey(str) {
         if (!str) return "";
-        const pfx = str.split(".")[0].toLowerCase();
-        const names = { avc1: "H.264", avc3: "H.264", hvc1: "H.265", hev1: "H.265", av01: "AV1", vp09: "VP9", vp08: "VP8" };
+        const actual = codecValue(str);
+        const pfx = actual.split(".")[0].trim().toLowerCase();
+        const names = { avc1: "H.264", avc3: "H.264", hvc1: "H.265", hev1: "H.265", av01: "AV1", vp09: "VP9", vp9: "VP9", vp08: "VP8", vp8: "VP8" };
         return names[pfx] || pfx.toUpperCase();
+      }
+
+      function codecValue(str) {
+        if (!str) return "";
+        const m = str.match(/codecs="?([^",;]+)/i);
+        return (m ? m[1] : str).trim();
+      }
+
+      function parseDashManifestVideoLevels(xmlText) {
+        const doc = new DOMParser().parseFromString(xmlText, "application/xml");
+        if (doc.querySelector("parsererror")) return [];
+        return [...doc.getElementsByTagName("AdaptationSet")]
+          .filter(as => {
+            const contentType = as.getAttribute("contentType") || "";
+            const mimeType = as.getAttribute("mimeType") || "";
+            return contentType.toLowerCase() === "video" || mimeType.toLowerCase().includes("video");
+          })
+          .flatMap(as => {
+            const asCodec = as.getAttribute("codecs") || "";
+            const asWidth = Number(as.getAttribute("width")) || 0;
+            const asHeight = Number(as.getAttribute("height")) || 0;
+            const asBandwidth = Number(as.getAttribute("bandwidth")) || 0;
+            return [...as.children].filter(child => child.localName === "Representation").map(rep => ({
+              id: rep.getAttribute("id") || "",
+              codec: rep.getAttribute("codecs") || asCodec,
+              width: Number(rep.getAttribute("width")) || asWidth,
+              height: Number(rep.getAttribute("height")) || asHeight,
+              bitrate: Number(rep.getAttribute("bandwidth")) || asBandwidth,
+            }));
+          })
+          .filter(level => codecKey(level.codec));
+      }
+
+      async function captureDashManifestLevels(url) {
+        try {
+          const res = await fetch(url, { cache: "no-store" });
+          if (!res.ok) return;
+          _manifestVideoLevels = parseDashManifestVideoLevels(await res.text());
+          _manifestVideoCodecs = new Set(_manifestVideoLevels.map(level => codecKey(level.codec)).filter(Boolean));
+          maybeLogUnsupportedLevels();
+        } catch {
+          // The player still handles manifest loading; this snapshot only enriches lab diagnostics.
+        }
+      }
+
+      function maybeLogUnsupportedLevels() {
+        if (_unsupportedLevelsLogged) return;
+        const unsupported = new Set(_unsupportedCodecNames);
+        if (_manifestVideoCodecs.size && Object.keys(_dashTrackMap).length) {
+          [..._manifestVideoCodecs]
+            .filter(name => !_dashTrackMap[name])
+            .forEach(name => unsupported.add(name));
+        }
+        if (!unsupported.size) return;
+        _unsupportedLevelsLogged = true;
+        appendLog("unsupported levels", [...unsupported].sort().join(", "));
+      }
+
+      function scheduleUnsupportedLevelsLog() {
+        if (_unsupportedLevelsLogged || _unsupportedLevelsLogTimer) return;
+        _unsupportedLevelsLogTimer = setTimeout(() => {
+          _unsupportedLevelsLogTimer = null;
+          maybeLogUnsupportedLevels();
+        }, 0);
       }
 
       function populateActionSelects(levels) {
@@ -2174,6 +2265,14 @@
         _actionLevels = [];
         _codecPrefixMap = {};
         _dashTrackMap = {};
+        _manifestVideoCodecs = new Set();
+        _manifestVideoLevels = [];
+        _unsupportedCodecNames = new Set();
+        _unsupportedLevelsLogged = false;
+        if (_unsupportedLevelsLogTimer) {
+          clearTimeout(_unsupportedLevelsLogTimer);
+          _unsupportedLevelsLogTimer = null;
+        }
         _pendingManualChange = false;
         actionCodecSel.innerHTML  = '<option value="">Auto</option>';
         actionResSel.innerHTML    = '<option value="">Auto</option>';
@@ -2318,7 +2417,7 @@
             // getRepresentationsByType('video') for the active track's real levels.
             _dashTrackMap = {};
             tracks.forEach(track => {
-              const raw = track.codec ?? '';
+              const raw = track.codecs || track.codec || track.mimeType || '';
               const m = raw.match(/codecs="?([^",]+)/i);
               const codecStr = m ? m[1].trim() : raw;
               const name = codecKey(codecStr);
@@ -2326,7 +2425,7 @@
             });
             // Determine active codec name from getCurrentTrackFor
             const activeTrack = dash.getCurrentTrackFor?.('video');
-            const activeRaw = activeTrack?.codec ?? '';
+            const activeRaw = activeTrack?.codecs || activeTrack?.codec || activeTrack?.mimeType || '';
             const activeM = activeRaw.match(/codecs="?([^",]+)/i);
             const activeCodecStr = activeM ? activeM[1].trim() : activeRaw;
             const activeName = codecKey(activeCodecStr);
@@ -2344,7 +2443,7 @@
             const placeholders = Object.entries(_dashTrackMap)
               .filter(([name]) => name !== activeName)
               .map(([, track]) => {
-                const raw = track.codec ?? '';
+                const raw = track.codecs || track.codec || track.mimeType || '';
                 const m = raw.match(/codecs="?([^",]+)/i);
                 const codecStr = m ? m[1].trim() : raw;
                 return { level: -1, width: 0, height: 0, bitrate: 0, codec: codecStr };
@@ -2366,9 +2465,7 @@
             if (!dash) return null;
             const result = [];
             Object.values(_dashTrackMap).forEach(track => {
-              const raw = track.codec ?? '';
-              const m = raw.match(/codecs="?([^",]+)/i);
-              const codecStr = m ? m[1].trim() : raw;
+              const codecStr = codecValue(track.codecs || track.codec || track.mimeType || '');
               (track.bitrateList ?? []).forEach(entry => {
                 result.push({ width: entry.width ?? 0, height: entry.height ?? 0, bitrate: entry.bandwidth ?? 0, codec: codecStr });
               });
@@ -2376,7 +2473,7 @@
             return result.length ? result : null;
           };
 
-          const CODEC_ORDER = ['av01', 'hvc1', 'hev1', 'avc1', 'avc3'];
+          const CODEC_ORDER = ['av01', 'vp09', 'vp9', 'hvc1', 'hev1', 'avc1', 'avc3'];
           const codecSortKey = (codec) => {
             const idx = CODEC_ORDER.findIndex(p => (codec ?? '').toLowerCase().startsWith(p));
             return idx === -1 ? 99 : idx;
@@ -2400,6 +2497,7 @@
               .map(l => `${codecKey(l.codec)} ${Math.min(l.width, l.height)}p`)
               .join(", ");
             if (summary) appendLog("levels", summary);
+            maybeLogUnsupportedLevels();
           };
           if (playback?.levels?.length > 0) doPopulate(playback.levels);
           playback?.on?.("playback:levels:available", (levels) => doPopulate(levels));
@@ -2450,6 +2548,25 @@
         dash.on("originalManifestLoaded", (e) => {
           setCurrentRequest("(manifest)");
           updateCurrentStatus("(manifest)", 200);
+        });
+        // Capture all video codecs from the unfiltered manifest.
+        // 'internalManifestLoaded' fires with the fully parsed manifest object before
+        // CapabilitiesFilter runs (filtering is async via Promise, so our sync handler
+        // always sees VP9/VP8/etc. before they are removed). Note: the public
+        // 'manifestLoaded' event is never actually triggered by dash.js 5.x (Events.MANIFEST_LOADED
+        // is undefined in the internal Events module), so we use the internal event directly.
+        dash.on("internalManifestLoaded", (e) => {
+          _manifestVideoCodecs = new Set();
+          (e.manifest?.Period ?? []).forEach(period => {
+            (period.AdaptationSet ?? []).forEach(as => {
+              if (as.contentType !== 'video' && !as.mimeType?.includes('video')) return;
+              (as.Representation ?? []).forEach(rep => {
+                const key = codecKey(rep.codecs || as.codecs || '');
+                if (key) _manifestVideoCodecs.add(key);
+              });
+            });
+          });
+          maybeLogUnsupportedLevels();
         });
         dash.on("bufferStalled", (e) => {
           appendLog("dash buffer-stalled", `media=${e.mediaType ?? "unknown"}`);
@@ -2739,6 +2856,17 @@
         currentMimeType = mimeType;
         setQi("format", FORMAT_LABELS[mimeType] ?? mimeType);
         setQi("engine", MIME_TO_ENGINE[mimeType] ?? "auto");
+        _manifestVideoCodecs = new Set();
+        _manifestVideoLevels = [];
+        _unsupportedCodecNames = new Set();
+        _unsupportedLevelsLogged = false;
+        if (_unsupportedLevelsLogTimer) {
+          clearTimeout(_unsupportedLevelsLogTimer);
+          _unsupportedLevelsLogTimer = null;
+        }
+        if (mimeType === "application/dash+xml") {
+          captureDashManifestLevels(url);
+        }
 
         const cmcdConf = buildCmcdConfig(url);
         const dashConf = buildDashConfig(mimeType);
@@ -3064,7 +3192,7 @@
       // ---------------------------------------------------------------------------
       const vInfo = typeof version === "function" ? version() : { gplayer: version || "unknown" };
       appendLog(
-        "sdk gemini",
+        "sdk",
         `gplayer=${vInfo.gplayer || "?"}, hlsjs=${vInfo.hlsjs || "?"}, dashjs=${vInfo.dashjs || "?"}`,
       );
 
