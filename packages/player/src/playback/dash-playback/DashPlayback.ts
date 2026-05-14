@@ -256,6 +256,25 @@ export default class DashPlayback extends BasePlayback {
         : this.options.dashMinimumDvrSize
   }
 
+  private get debugEnabled() {
+    return this.options.debug === true ||
+      this.options.debug === 'all' ||
+      this.options.debug === 'dash'
+  }
+
+  private debugInfo(message: string, data?: unknown) {
+    if (!this.debugEnabled) {
+      return
+    }
+
+    if (data === undefined) {
+      Log.info(message)
+      return
+    }
+
+    Log.info(message, data)
+  }
+
   _setup() {
     const dash = MediaPlayer().create()
     this._dash = dash
@@ -513,7 +532,7 @@ export default class DashPlayback extends BasePlayback {
     if (type === Playback.LIVE) {
       const dvrWindow = this._dash?.getDvrWindow()
       if (dvrWindow) {
-        Log.info(`${T} getDuration LIVE`, { size: dvrWindow.size })
+        this.debugInfo(`${T} getDuration LIVE`, { size: dvrWindow.size })
         return dvrWindow.size
       }
     }
@@ -522,7 +541,7 @@ export default class DashPlayback extends BasePlayback {
       this._duration !== null,
       'A valid duration is required to get the duration',
     )
-    Log.info(`${T} getDuration VOD`, { duration: this._duration, type })
+    this.debugInfo(`${T} getDuration VOD`, { duration: this._duration, type })
     return this._duration
   }
 
@@ -538,11 +557,11 @@ export default class DashPlayback extends BasePlayback {
       const liveEdge = this._dash.duration()
       const windowStart = liveEdge - windowSize
       const relativeTime = Math.max(0, absoluteTime - windowStart)
-      Log.info(`${T} getCurrentTime LIVE`, { absoluteTime, liveEdge, windowSize, windowStart, relativeTime })
+      this.debugInfo(`${T} getCurrentTime LIVE`, { absoluteTime, liveEdge, windowSize, windowStart, relativeTime })
       return relativeTime
     }
 
-    Log.info(`${T} getCurrentTime VOD`, { absoluteTime, type })
+    this.debugInfo(`${T} getCurrentTime VOD`, { absoluteTime, type })
     return absoluteTime
   }
 
@@ -601,7 +620,7 @@ export default class DashPlayback extends BasePlayback {
   }
 
   _updateDvr(status: boolean) {
-    Log.info(`${T} _updateDvr`, { status, prev: this._dvrInUse })
+    this.debugInfo(`${T} _updateDvr`, { status, prev: this._dvrInUse })
     this._dvrInUse = status
     this.trigger(Events.PLAYBACK_DVR, status)
     this.trigger(Events.PLAYBACK_STATS_ADD, { dvr: status })
@@ -625,7 +644,7 @@ export default class DashPlayback extends BasePlayback {
           },
         },
       }
-      Log.info(`${T} updating dash settings`, settings)
+      this.debugInfo(`${T} updating dash settings`, settings)
       this._dash.updateSettings(settings)
     }
   }
@@ -715,7 +734,7 @@ export default class DashPlayback extends BasePlayback {
 
     // Diagnostic log to see what the UI is receiving
     if (this.getPlaybackType() === Playback.LIVE) {
-       Log.info(`${T} [UI Sync]`, { current: update.current, total: update.total, abs: this._dash?.time(), type: this.getPlaybackType() })
+      this.debugInfo(`${T} [UI Sync]`, { current: update.current, total: update.total, abs: this._dash?.time(), type: this.getPlaybackType() })
     }
 
     const isSame =
@@ -742,7 +761,7 @@ export default class DashPlayback extends BasePlayback {
   }
 
   override _onSeeking() {
-    this.trigger(Events.PLAYBACK_SEEK, this.name)
+    this.trigger(Events.PLAYBACK_SEEK, this.getCurrentTime())
   }
 
   override _onPause() {
@@ -862,7 +881,7 @@ export default class DashPlayback extends BasePlayback {
   }
 
   private _onPlaybackWaiting = () => {
-    Log.info(`${T} _onPlaybackWaiting`, { dvrInUse: this._dvrInUse })
+    this.debugInfo(`${T} _onPlaybackWaiting`, { dvrInUse: this._dvrInUse })
     this._resyncToLive('playback-waiting')
   }
 
@@ -885,20 +904,20 @@ export default class DashPlayback extends BasePlayback {
     const isDeepInDvr = liveLatency > this._minDvrSize
     const guardActive = this._liveResyncInProgress || this._dvrInUse || isDeepInDvr
 
-    Log.info(`${T} _resyncToLive check`, { 
-      reason, 
+    this.debugInfo(`${T} _resyncToLive check`, {
+      reason,
       guardActive,
-      dvrInUse: this._dvrInUse, 
+      dvrInUse: this._dvrInUse,
       isDeepInDvr,
-      resyncInProgress: this._liveResyncInProgress, 
-      currentTime, 
-      liveLatency, 
+      resyncInProgress: this._liveResyncInProgress,
+      currentTime,
+      liveLatency,
       targetDelay,
       dvrSize
     })
 
     if (guardActive) {
-      Log.info(`${T} _resyncToLive skipping`, { reason: 'guard-active', dvr: this._dvrInUse, deep: isDeepInDvr, resync: this._liveResyncInProgress })
+      this.debugInfo(`${T} _resyncToLive skipping`, { reason: 'guard-active', dvr: this._dvrInUse, deep: isDeepInDvr, resync: this._liveResyncInProgress })
       return false
     }
 
@@ -938,7 +957,7 @@ export default class DashPlayback extends BasePlayback {
     const prevPlaybackType = this._playbackType
     // @ts-ignore
     this._playbackType = this._dash.isDynamic() ? Playback.LIVE : Playback.VOD
-    Log.info(`${T} _updatePlaybackType`, { prev: prevPlaybackType, current: this._playbackType, isDynamic: this._dash?.isDynamic() })
+    this.debugInfo(`${T} _updatePlaybackType`, { prev: prevPlaybackType, current: this._playbackType, isDynamic: this._dash?.isDynamic() })
     if (prevPlaybackType !== this._playbackType) {
       this._updateSettings()
     }
