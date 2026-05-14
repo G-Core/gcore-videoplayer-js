@@ -509,9 +509,11 @@ export default class DashPlayback extends BasePlayback {
   // as this does not necesarily represent the duration of the stream
   // https://github.com/clappr/clappr/issues/668#issuecomment-157036678
   getDuration(): TimeValue {
-    if (this.getPlaybackType() === Playback.LIVE) {
+    const type = this.getPlaybackType()
+    if (type === Playback.LIVE) {
       const dvrWindow = this._dash?.getDvrWindow()
       if (dvrWindow) {
+        Log.info(`${T} getDuration LIVE`, { size: dvrWindow.size })
         return dvrWindow.size
       }
     }
@@ -520,6 +522,7 @@ export default class DashPlayback extends BasePlayback {
       this._duration !== null,
       'A valid duration is required to get the duration',
     )
+    Log.info(`${T} getDuration VOD`, { duration: this._duration, type })
     return this._duration
   }
 
@@ -528,14 +531,18 @@ export default class DashPlayback extends BasePlayback {
       return 0
     }
     const absoluteTime = this._dash.time()
+    const type = this.getPlaybackType()
 
-    if (this.getPlaybackType() === Playback.LIVE) {
+    if (type === Playback.LIVE) {
       const windowSize = this.getDuration()
       const liveEdge = this._dash.duration()
       const windowStart = liveEdge - windowSize
-      return Math.max(0, absoluteTime - windowStart)
+      const relativeTime = Math.max(0, absoluteTime - windowStart)
+      Log.info(`${T} getCurrentTime LIVE`, { absoluteTime, liveEdge, windowSize, windowStart, relativeTime })
+      return relativeTime
     }
 
+    Log.info(`${T} getCurrentTime VOD`, { absoluteTime, type })
     return absoluteTime
   }
 
@@ -708,7 +715,7 @@ export default class DashPlayback extends BasePlayback {
 
     // Diagnostic log to see what the UI is receiving
     if (this.getPlaybackType() === Playback.LIVE) {
-       Log.info(`${T} [UI Sync]`, { current: update.current, total: update.total, abs: this._dash?.time() })
+       Log.info(`${T} [UI Sync]`, { current: update.current, total: update.total, abs: this._dash?.time(), type: this.getPlaybackType() })
     }
 
     const isSame =
@@ -931,6 +938,7 @@ export default class DashPlayback extends BasePlayback {
     const prevPlaybackType = this._playbackType
     // @ts-ignore
     this._playbackType = this._dash.isDynamic() ? Playback.LIVE : Playback.VOD
+    Log.info(`${T} _updatePlaybackType`, { prev: prevPlaybackType, current: this._playbackType, isDynamic: this._dash?.isDynamic() })
     if (prevPlaybackType !== this._playbackType) {
       this._updateSettings()
     }
@@ -963,7 +971,9 @@ export default class DashPlayback extends BasePlayback {
   }
 
   getPlaybackType() {
-    return this._playbackType
+    const type = this._playbackType
+    // Log.info(`${T} getPlaybackType`, { type })
+    return type
   }
 
   isSeekEnabled() {
