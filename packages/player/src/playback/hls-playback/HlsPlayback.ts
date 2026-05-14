@@ -113,6 +113,8 @@ export default class HlsPlayback extends BasePlayback {
 
   private _hlsLoadingStopped = false
 
+  private _startLoadOnSource = false
+
   private _segmentTargetDuration: number | null = null
 
   private _timeUpdateTimer: TimerId | null = null
@@ -380,6 +382,10 @@ export default class HlsPlayback extends BasePlayback {
       {
         maxBufferLength: 2,
         maxMaxBufferLength: 4,
+        // Keep preload manifest-only. With autoStartLoad enabled, hls.js starts
+        // level and fragment loading right after loadSource(), which can fetch
+        // media before play. play()/reload() call startLoad() explicitly once a
+        // source is registered so loading starts in the correct lifecycle phase.
         autoStartLoad: false,
         renderTextTracksNatively: false,
         // Proportional catch-up ceiling for live streams: cap at 1.1× instead of
@@ -408,7 +414,10 @@ export default class HlsPlayback extends BasePlayback {
     }
     this._hls.once(HlsEvents.MEDIA_ATTACHED, () => {
       assert.ok(this._hls, 'HLS.js is not initialized')
-      this.options.hlsPlayback.preload && this._hls.loadSource(this.options.src)
+      if (this.options.hlsPlayback.preload) {
+        this._hls.loadSource(this.options.src)
+        this._startLoadOnSource && this._startHLSLoad()
+      }
     })
 
     // TODO drop?
@@ -740,7 +749,20 @@ export default class HlsPlayback extends BasePlayback {
   private reload() {
     this.cues = null
     this.currentCueId = null
-    this._hls?.startLoad(-1)
+    this._startHLSLoad()
+  }
+
+  private _startHLSLoad() {
+    if (!this._hls) {
+      return
+    }
+    if (!this._hls.url) {
+      this._startLoadOnSource = true
+      return
+    }
+    this._hls.startLoad(-1)
+    this._hlsLoadingStopped = false
+    this._startLoadOnSource = false
   }
 
   private _keyIsDenied(data: HlsErrorData) {
@@ -845,9 +867,11 @@ export default class HlsPlayback extends BasePlayback {
       !this.options.hlsPlayback.preload &&
       // @ts-expect-error
       this._hls.loadSource(this.options.src)
-    if (this._hlsLoadingStopped) {
-      this._hls?.startLoad(-1)
-      this._hlsLoadingStopped = false
+    if (
+      this._hls &&
+      (this._hlsLoadingStopped || !this._hls.config.autoStartLoad)
+    ) {
+      this._startHLSLoad()
     }
     super.play()
     this._startTimeUpdateTimer()

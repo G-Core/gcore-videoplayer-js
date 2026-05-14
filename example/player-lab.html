@@ -1416,8 +1416,10 @@
       // ---------------------------------------------------------------------------
       const playerNode    = document.getElementById("test-player");
       const logNode       = document.getElementById("event-log");
+      let eventLogLoadCount = 0;
       document.getElementById("clear-log-btn").addEventListener("click", () => {
         logNode.innerHTML = "";
+        eventLogLoadCount = 0;
       });
       const playBtn       = document.querySelector('[data-action="play"]');
       const pauseBtn      = document.querySelector('[data-action="pause"]');
@@ -1507,6 +1509,7 @@
       let sessionStart = null;      // Date.now() when 'play' first fired this session
       let currentMimeType = "";     // MIME type of the active source
       let autoplayRetryHandles = [];
+      let pendingAudioRestore = null;
       let prevFrameSnapshot = null; // { frames: number, time: number } for FPS delta
       let lastCmcdBrKbps = null;   // latest CMCD `br` (encoded bitrate, kbps)
       let lastCmcdBsValue = false; // latest CMCD `bs` (buffer starvation flag)
@@ -1536,6 +1539,23 @@
       function normalizeVolumePercent(v) {
         if (!Number.isFinite(v)) return 0;
         return v <= 1 ? v * 100 : v;
+      }
+
+      function clampVolumePercent(v) {
+        return Math.min(100, Math.max(0, normalizeVolumePercent(v)));
+      }
+
+      function snapshotAudioStateForReload(autoPlay) {
+        if (gplayer) syncStateFromPlayer();
+
+        const volumePct = clampVolumePercent(state.volumePct);
+        const hasSavedAudioState = Boolean(gplayer) || !state.isMuted || volumePct <= 0;
+        return {
+          // Keep the initial page autoplay policy-safe, but preserve the current
+          // player audio state after the user has changed or loaded audio once.
+          mute: hasSavedAudioState ? state.isMuted || volumePct <= 0 : Boolean(autoPlay),
+          volumePct,
+        };
       }
 
       function describeError(err) {
@@ -1929,6 +1949,15 @@
       function appendLog(eventName, details = "", isError = false) {
         const shouldStick =
           logNode.scrollTop + logNode.clientHeight >= logNode.scrollHeight - 8;
+        if (eventName === "load") {
+          if (eventLogLoadCount > 0) {
+            const separator = document.createElement("span");
+            separator.className = "log-line";
+            separator.textContent = `[${formatUtc()}] ---`;
+            logNode.appendChild(separator);
+          }
+          eventLogLoadCount += 1;
+        }
         const text = `[${formatUtc()}] ${eventName}${details ? ` | ${details}` : ""}`;
         const span = document.createElement("span");
         span.className = "log-line" + (isError ? " log-error" : "");
@@ -2888,6 +2917,12 @@
         switch (eventName) {
           case "ready": {
             syncStateFromPlayer();
+            if (pendingAudioRestore && !pendingAudioRestore.mute && pendingAudioRestore.volumePct > 0) {
+              gplayer.unmute();
+              gplayer.setVolume(pendingAudioRestore.volumePct);
+              appendLog("audio-restore", `volume=${pendingAudioRestore.volumePct.toFixed(0)}%, muted=false`);
+            }
+            pendingAudioRestore = null;
             stopBtn.disabled = false;
             appendLog("ready", "player initialized");
             installSubtitleChangeLogger();
@@ -2974,6 +3009,7 @@
       function destroyPlayer() {
         clearAutoplayRecovery();
         stopStatsPolling();
+        pendingAudioRestore = null;
         if (gplayer) {
           try { gplayer.destroy(); } catch (_) { /* ignore */ }
           gplayer = null;
@@ -3012,7 +3048,9 @@
       }
 
       function loadStream(url, mimeType, playbackType, autoPlay = true, liveDelay = undefined) {
+        const audioState = snapshotAudioStateForReload(autoPlay);
         destroyPlayer();
+        pendingAudioRestore = audioState;
 
         // Clear placeholder so Clappr can attach to an empty div
         playerNode.innerHTML = "";
@@ -3039,7 +3077,7 @@
 
         gplayer = new Player({
           autoPlay:     autoPlay,
-          mute:         autoPlay,
+          mute:         audioState.mute,
           debug:        debugMode || "none",
           ...(playbackType ? { playbackType } : {}),
           ...(liveDelay !== undefined ? { liveDelay } : {}),
