@@ -7,6 +7,9 @@ on:
       - .github/workflows/checks.yaml
       - .github/workflows/license-check.yaml
 
+permissions:
+  contents: read
+
 jobs:
   setup:
     runs-on: ubuntu-latest
