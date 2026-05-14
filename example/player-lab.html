@@ -1001,9 +1001,19 @@
               autocomplete="off"
             />
             <button type="submit" class="load-btn">Load / Reload</button>
+            <button type="button" class="load-btn" id="stop-btn" style="background:#6b7280;" disabled>Stop</button>
             <details class="override-details" id="override-details">
               <summary class="override-summary">Override options</summary>
               <div class="override-body">
+                <p class="override-hint" style="margin:0 0 10px;">Changes take effect after pressing <strong>Load / Reload</strong>.</p>
+                <div class="override-field">
+                  <label class="override-field-label" for="enable-cmcd">Enable CMCD</label>
+                  <select id="enable-cmcd" class="url-select override-select">
+                    <option value="">Enabled</option>
+                    <option value="false">Disabled</option>
+                  </select>
+                  <span class="override-hint">Controls CMCD query parameters on player requests.</span>
+                </div>
                 <div class="override-field">
                   <label class="override-field-label" for="stream-type">Format</label>
                   <select id="stream-type" class="url-select override-select">
@@ -1034,6 +1044,18 @@
                   <span class="override-hint">
                     Higher delay = more buffer cushion for encoder irregularities (e.g. loop stitching)
                     at the cost of latency. Applies to DASH and HLS; ignored for MP4. Reloads the stream.
+                  </span>
+                </div>
+                <div class="override-field">
+                  <label class="override-field-label" for="debug-mode">Debug logs</label>
+                  <select id="debug-mode" class="url-select override-select">
+                    <option value="">Off</option>
+                    <option value="dash" selected>DASH.js debug</option>
+                    <option value="hls">HLS.js debug</option>
+                    <option value="all">All player logs</option>
+                  </select>
+                  <span class="override-hint">
+                    Enables console logs for diagnosing playback. DASH.js debug uses logLevel 5.
                   </span>
                 </div>
                 <div class="override-field">
@@ -1263,7 +1285,10 @@
             </tbody>
           </table>
 
-          <p class="section-label">Player event log</p>
+          <div style="display:flex;align-items:baseline;justify-content:space-between;margin:0 0 10px;">
+            <p class="section-label" style="margin:0;">Player event log</p>
+            <button id="clear-log-btn" type="button" style="background:none;border:none;padding:0;cursor:pointer;color:var(--ink-soft);font-size:11px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;opacity:0.7;line-height:1;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.7'">Clear</button>
+          </div>
           <div
             class="event-log"
             id="event-log"
@@ -1388,6 +1413,9 @@
       // ---------------------------------------------------------------------------
       const playerNode    = document.getElementById("test-player");
       const logNode       = document.getElementById("event-log");
+      document.getElementById("clear-log-btn").addEventListener("click", () => {
+        logNode.innerHTML = "";
+      });
       const playBtn       = document.querySelector('[data-action="play"]');
       const pauseBtn      = document.querySelector('[data-action="pause"]');
       const muteBtn       = document.querySelector('[data-action="mute"]');
@@ -1446,25 +1474,26 @@
       let metricsChart = null;
 
       const CMCD_PARAMS = [
-        { code: "bl",  name: "Buffer Length",           title: "ms of content buffered ahead of current playback position" },
-        { code: "br",  name: "Encoded Bitrate",           title: "Bitrate of the segment being requested (not the segment currently playing). In DASH auto-ABR mode dash.js may report the top available bitrate here instead of the actual segment bitrate." },
-        { code: "bs",  name: "Buffer Starvation",       title: "Buffer ran dry since the last request; player is in a rebuffering state" },
-        { code: "cid", name: "Content ID",              title: "Unique identifier for the content item" },
-        { code: "d",   name: "Object Duration",         title: "Playback duration of the requested segment (ms)" },
-        { code: "dl",  name: "Deadline",                title: "ms until the player needs this segment to avoid a stall" },
-        { code: "mtp", name: "Measured Throughput",     title: "Throughput measured during the last request (kbps)" },
-        { code: "nor", name: "Next Object Request",     title: "Relative URL of the next segment the player expects to request" },
-        { code: "nrr", name: "Next Range Request",      title: "Byte range of the next request (for byte-range delivery)" },
-        { code: "ot",  name: "Object Type",             title: "Type of the requested object: m=manifest, i=init, v=video, a=audio, av=muxed, c=caption, tt=timed-text, k=key, o=other" },
-        { code: "pr",  name: "Playback Rate",           title: "Current playback speed (1=normal, 2=2x, 0.5=half)" },
-        { code: "rtp", name: "Requested Max Throughput", title: "Max throughput the player wants the CDN to use for this request (kbps)" },
-        { code: "sf",  name: "Streaming Format",        title: "d=DASH, h=HLS, s=Smooth, o=other" },
-        { code: "sid", name: "Session ID",              title: "UUID identifying the current playback session" },
-        { code: "st",  name: "Stream Type",             title: "v=VOD, l=live, ll=low-latency live, e=live event" },
-        { code: "su",  name: "Startup",                 title: "This is a startup request (first segment or after a seek/stall)" },
-        { code: "tb",  name: "Top Bitrate",             title: "Highest bitrate level available in the manifest (kbps)" },
-        { code: "v",   name: "Version",                 title: "CMCD spec version (omitted when 1, the default)" },
+        { code: "bl",  name: "Buffer Length",            unit: "ms",   title: "ms of content buffered ahead of current playback position" },
+        { code: "br",  name: "Encoded Bitrate",          unit: "kbps", title: "Bitrate of the segment being requested (not the segment currently playing). In DASH auto-ABR mode dash.js may report the top available bitrate here instead of the actual segment bitrate." },
+        { code: "bs",  name: "Buffer Starvation",        unit: null,   title: "Buffer ran dry since the last request; player is in a rebuffering state" },
+        { code: "cid", name: "Content ID",               unit: null,   title: "Unique identifier for the content item" },
+        { code: "d",   name: "Object Duration",          unit: "ms",   title: "Playback duration of the requested segment (ms)" },
+        { code: "dl",  name: "Deadline",                 unit: "ms",   title: "ms until the player needs this segment to avoid a stall" },
+        { code: "mtp", name: "Measured Throughput",      unit: "kbps", title: "Throughput measured during the last request (kbps)" },
+        { code: "nor", name: "Next Object Request",      unit: null,   title: "Relative URL of the next segment the player expects to request" },
+        { code: "nrr", name: "Next Range Request",       unit: null,   title: "Byte range of the next request (for byte-range delivery)" },
+        { code: "ot",  name: "Object Type",              unit: null,   title: "Type of the requested object: m=manifest, i=init, v=video, a=audio, av=muxed, c=caption, tt=timed-text, k=key, o=other" },
+        { code: "pr",  name: "Playback Rate",            unit: null,   title: "Current playback speed (1=normal, 2=2x, 0.5=half)" },
+        { code: "rtp", name: "Requested Max Throughput", unit: "kbps", title: "Max throughput the player wants the CDN to use for this request (kbps)" },
+        { code: "sf",  name: "Streaming Format",         unit: null,   title: "d=DASH, h=HLS, s=Smooth, o=other" },
+        { code: "sid", name: "Session ID",               unit: null,   title: "UUID identifying the current playback session" },
+        { code: "st",  name: "Stream Type",              unit: null,   title: "v=VOD, l=live, ll=low-latency live, e=live event" },
+        { code: "su",  name: "Startup",                  unit: null,   title: "This is a startup request (first segment or after a seek/stall)" },
+        { code: "tb",  name: "Top Bitrate",              unit: "kbps", title: "Highest bitrate level available in the manifest (kbps)" },
+        { code: "v",   name: "Version",                  unit: null,   title: "CMCD spec version (omitted when 1, the default)" },
       ];
+      const CMCD_UNITS = Object.fromEntries(CMCD_PARAMS.filter(p => p.unit).map(p => [p.code, p.unit]));
 
       // ---------------------------------------------------------------------------
       // Runtime state
@@ -1475,6 +1504,8 @@
       let currentMimeType = "";     // MIME type of the active source
       let autoplayRetryHandles = [];
       let prevFrameSnapshot = null; // { frames: number, time: number } for FPS delta
+      let lastCmcdBrKbps = null;   // latest CMCD `br` (encoded bitrate, kbps)
+      let lastCmcdBsValue = false; // latest CMCD `bs` (buffer starvation flag)
 
       const state = {
         isMuted:    true,
@@ -1509,7 +1540,12 @@
       }
 
       function buildCmcdConfig(url) {
+        if (document.getElementById("enable-cmcd").value === "false") {
+          return { enabled: false };
+        }
+
         return {
+          enabled: true,
           sessionId: crypto.randomUUID(),
           contentId: new URL(url).pathname.replace(/^\//, "").slice(0, 48) || "lab",
         };
@@ -1523,6 +1559,8 @@
       function buildDashConfig(mimeType) {
         if (mimeType !== "application/dash+xml") return undefined;
 
+        const debugMode = document.getElementById("debug-mode").value;
+        const dashDebugEnabled = debugMode === "dash" || debugMode === "all";
         const mode = document.getElementById("dash-catchup-mode").value;
         const maxRate = readOptionalNumber("dash-catchup-max");
         const bufferMin = readOptionalNumber("dash-buffer-min");
@@ -1536,13 +1574,19 @@
           liveCatchup.playbackBufferMin = bufferMin;
         }
 
-        if (Object.keys(liveCatchup).length === 0) return undefined;
+        if (Object.keys(liveCatchup).length === 0 && !dashDebugEnabled) return undefined;
 
-        return {
-          streaming: {
-            liveCatchup,
-          },
-        };
+        const config = {};
+        if (dashDebugEnabled) {
+          config.debug = {
+            logLevel: 5,
+            dispatchEvent: true,
+          };
+        }
+        if (Object.keys(liveCatchup).length > 0) {
+          config.streaming = { liveCatchup };
+        }
+        return config;
       }
 
       // Detect MIME type from URL extension when the user left the selector on "Auto".
@@ -1575,6 +1619,28 @@
       function niceChartMax(value, fallback, step) {
         if (!Number.isFinite(value) || value <= 0) return fallback;
         return Math.max(fallback, Math.ceil(value / step) * step);
+      }
+
+      // Indices of datasets that share the bandwidth y-axis
+      const BANDWIDTH_DATASET_INDICES = [0, 1]; // Bandwidth, Encoded Bitrate
+
+      function recalcBandwidthMax(chart) {
+        let maxVal = 0;
+        for (const idx of BANDWIDTH_DATASET_INDICES) {
+          if (!chart.isDatasetVisible(idx)) continue;
+          for (const v of chart.data.datasets[idx].data) {
+            if (Number.isFinite(v) && v > maxVal) maxVal = v;
+          }
+        }
+        chart.options.scales.bandwidth.max = niceChartMax(maxVal, 1000, 1000);
+      }
+
+      function recalcBufferMax(chart) {
+        let maxVal = 0;
+        for (const v of chart.data.datasets[2].data) {
+          if (Number.isFinite(v) && v > maxVal) maxVal = v;
+        }
+        chart.options.scales.buffer.max = niceChartMax(maxVal, 10, 5);
       }
 
       function formatChartKbps(value) {
@@ -1612,6 +1678,19 @@
                 pointRadius: 0,
                 pointHoverRadius: 3,
                 spanGaps: true,
+                hidden: true,
+              },
+              {
+                label: "Encoded Bitrate",
+                data: [],
+                yAxisID: "bandwidth",
+                borderColor: "#7c3aed",
+                backgroundColor: "rgba(124, 58, 237, 0.08)",
+                borderWidth: 2,
+                tension: 0.22,
+                pointRadius: 0,
+                pointHoverRadius: 3,
+                spanGaps: true,
               },
               {
                 label: "Buffer Level",
@@ -1637,6 +1716,19 @@
                 pointHoverRadius: 3,
                 spanGaps: true,
               },
+              {
+                label: "Buffer Starvation",
+                data: [],
+                yAxisID: "starvation",
+                borderColor: "#f97316",
+                backgroundColor: "rgba(249, 115, 22, 0.18)",
+                borderWidth: 2,
+                stepped: "before",
+                fill: "origin",
+                pointRadius: 0,
+                pointHoverRadius: 3,
+                spanGaps: false,
+              },
             ],
           },
           options: {
@@ -1659,6 +1751,18 @@
                   color: "#1e1b16",
                   font: { size: 11, weight: "700" },
                 },
+                onClick: (e, legendItem, legend) => {
+                  const idx = legendItem.datasetIndex;
+                  const chart = legend.chart;
+                  if (chart.isDatasetVisible(idx)) {
+                    chart.hide(idx);
+                  } else {
+                    chart.show(idx);
+                  }
+                  recalcBandwidthMax(chart);
+                  recalcBufferMax(chart);
+                  chart.update("none");
+                },
               },
               tooltip: {
                 mode: "index",
@@ -1667,10 +1771,12 @@
                   title: items => items[0]?.label ?? "",
                   label: context => {
                     const value = context.parsed.y;
+                    if (context.dataset.yAxisID === "starvation") return `Buffer Starvation: ${value ? "yes" : "no"}`;
                     if (!Number.isFinite(value)) return `${context.dataset.label}: —`;
+                    if (context.dataset.label === "Encoded Bitrate") return `Encoded Bitrate: ${Math.round(value)} kbps`;
                     if (context.dataset.yAxisID === "bandwidth") return `Bandwidth: ${Math.round(value)} kbps`;
                     if (context.dataset.yAxisID === "buffer") return `Buffer Level: ${value.toFixed(2)} s`;
-                    return `Playback Rate: ${value.toFixed(2)}×`;
+                    return `Playback Rate: ${value.toFixed(2)}`;
                   },
                 },
               },
@@ -1721,20 +1827,18 @@
                 },
               },
               rate: {
+                display: false,
                 type: "linear",
                 position: "right",
                 min: 0.5,
                 max: 1.5,
-                title: {
-                  display: true,
-                  text: "Playback Rate",
-                },
-                ticks: {
-                  callback: value => `${Number(value).toFixed(1)}×`,
-                },
-                grid: {
-                  drawOnChartArea: false,
-                },
+              },
+              starvation: {
+                display: false,
+                type: "linear",
+                position: "right",
+                min: 0,
+                max: 1.5,
               },
             },
           },
@@ -1749,15 +1853,15 @@
 
         const chart = ensureMetricsChart();
         const labels = chartHistory.map(item => formatChartMmSs(item.time));
-        const bandwidthMax = niceChartMax(Math.max(...chartHistory.map(item => item.bandwidthKbps || 0)), 1000, 1000);
-        const bufferMax = niceChartMax(Math.max(...chartHistory.map(item => item.buffer || 0)), 10, 5);
 
         chart.data.labels = labels;
         chart.data.datasets[0].data = chartHistory.map(item => item.bandwidthKbps);
-        chart.data.datasets[1].data = chartHistory.map(item => item.buffer);
-        chart.data.datasets[2].data = chartHistory.map(item => item.rate);
-        chart.options.scales.bandwidth.max = bandwidthMax;
-        chart.options.scales.buffer.max = bufferMax;
+        chart.data.datasets[1].data = chartHistory.map(item => item.encodedBitrateKbps);
+        chart.data.datasets[2].data = chartHistory.map(item => item.buffer);
+        chart.data.datasets[3].data = chartHistory.map(item => item.rate);
+        chart.data.datasets[4].data = chartHistory.map(item => item.bufferStarvation);
+        recalcBandwidthMax(chart);
+        recalcBufferMax(chart);
         chart.update("none");
       }
 
@@ -1854,12 +1958,14 @@
       // Button state
       // ---------------------------------------------------------------------------
 
+      const stopBtn = document.getElementById("stop-btn");
+      stopBtn.addEventListener("click", () => destroyPlayer());
+
       function setControlsEnabled(enabled) {
         [playBtn, pauseBtn, muteBtn, volNinetyBtn].forEach((b) => {
-          if (!enabled) {
-            b.disabled = true;
-          }
+          if (!enabled) b.disabled = true;
         });
+        stopBtn.disabled = !enabled;
         if (!enabled) {
           actionCodecSel.disabled = true;
           actionResSel.disabled   = true;
@@ -1945,7 +2051,7 @@
           chartRate = rate;
           setStatValue(
             statEls.playbackRate,
-            `${rate.toFixed(2)}×`,
+            rate.toFixed(2),
             Math.abs(rate - 1) >= 0.06,
             `Playback is running at ${rate.toFixed(2)}×. Any rate above 1× consumes live buffer faster than new content is produced.`,
           );
@@ -2012,8 +2118,10 @@
         updateMetricsChart({
           time: Date.now(),
           bandwidthKbps: chartBandwidthKbps,
+          encodedBitrateKbps: lastCmcdBrKbps,
           buffer: chartBuffer,
           rate: chartRate,
+          bufferStarvation: lastCmcdBsValue ? 1 : 0,
         });
 
         // Session clock
@@ -2223,7 +2331,14 @@
 
       function rebuildResSelect() {
         const codec    = actionCodecSel.value;
-        const pool     = codec ? _actionLevels.filter(l => codecKey(l.codec) === codec) : _actionLevels;
+        const ql       = gplayer?.getPlugin("level_selector");
+        const activeLevels = ql?.core?.activePlayback?.levels;
+        // When a specific codec is selected: show its resolutions from the full list.
+        // When "Auto": show only resolutions from the currently active codec tier so
+        // the dropdown stays consistent with what can actually be switched to.
+        const pool = codec
+          ? _actionLevels.filter(l => codecKey(l.codec) === codec)
+          : (activeLevels?.length ? activeLevels : _actionLevels);
         const heights  = [...new Set(pool.map(l => String(Math.min(l.width, l.height))).filter(h => Number(h) > 0))];
         const curRes   = actionResSel.value;
         actionResSel.innerHTML = '<option value="">Auto</option>';
@@ -2251,7 +2366,14 @@
           appendLog("remote-quality", "Quality → Auto (ABR)");
           return;
         }
-        let pool = _actionLevels;
+        // When a specific codec is selected, search the raw level list so that
+        // cross-codec switches (e.g. forcing H.264 while AV1 is active) are still
+        // reachable. When codec is "Auto", restrict to the playback's currently
+        // active codec tier — using _actionLevels (all-codecs) would pick the
+        // highest-bitrate codec for that resolution, which may have a level ID that
+        // HLS.js no longer honours after a videoPreference-based codec reload.
+        const activeLevels = ql.core?.activePlayback?.levels;
+        let pool = (codec || !activeLevels?.length) ? _actionLevels : activeLevels;
         if (codec) pool = pool.filter(l => codecKey(l.codec) === codec);
         if (res)   pool = pool.filter(l => String(Math.min(l.width, l.height)) === res);
         if (!pool.length) { applyLevel(-1); return; }
@@ -2708,7 +2830,7 @@
         const row = document.getElementById("stat-row-playback-rate");
         if (!active) {
           row.style.display = "";
-          setStatValue(statEls.playbackRate, `${rate.toFixed(2)}×`, false, "");
+          setStatValue(statEls.playbackRate, rate.toFixed(2), false, "");
           return;
         }
         row.style.display = "";
@@ -2717,7 +2839,7 @@
         // the live edge and stalls.
         setStatValue(
           statEls.playbackRate,
-          `${rate.toFixed(2)}×`,
+          rate.toFixed(2),
           true,
           `Live catch-up active at ${rate.toFixed(2)}×. Player consumes buffer ${rate.toFixed(2)}× faster than content is encoded — buffer will drain to the live edge, causing periodic stalls until latency reaches the target.`,
         );
@@ -2731,6 +2853,7 @@
         switch (eventName) {
           case "ready": {
             syncStateFromPlayer();
+            stopBtn.disabled = false;
             appendLog("ready", "player initialized");
             setupClapprInternalListeners();
             startStatsPolling();
@@ -2779,9 +2902,12 @@
             appendLog("fullscreen", `enabled=${Boolean(payload)}`);
             break;
 
-          case "error":
-            appendLog("error", describeError(payload), true);
+          case "error": {
+            const engineLabel = MIME_TO_ENGINE[currentMimeType];
+            const errDetails = (engineLabel ? `[${engineLabel}] ` : "") + describeError(payload);
+            appendLog("error", errDetails, true);
             break;
+          }
 
           case "timeupdate": {
             // payload = { current: number, total: number }
@@ -2822,6 +2948,8 @@
         _currReqStatus = null;
         _requestHistory = [];
         chartHistory.length = 0;
+        lastCmcdBrKbps = null;
+        lastCmcdBsValue = false;
         if (metricsChart) {
           metricsChart.data.labels = [];
           metricsChart.data.datasets.forEach(dataset => {
@@ -2870,10 +2998,12 @@
 
         const cmcdConf = buildCmcdConfig(url);
         const dashConf = buildDashConfig(mimeType);
+        const debugMode = document.getElementById("debug-mode").value;
 
         gplayer = new Player({
           autoPlay:     autoPlay,
           mute:         autoPlay,
+          debug:        debugMode || "none",
           ...(playbackType ? { playbackType } : {}),
           ...(liveDelay !== undefined ? { liveDelay } : {}),
           ...(dashConf ? { dash: dashConf } : {}),
@@ -2898,8 +3028,24 @@
         });
 
         appendLog("load", `${playbackType ? playbackType.toUpperCase() : "AUTO"} | ${url}`);
+        {
+          const active = Object.entries(OVERRIDE_PARAMS)
+            .map(([id, param]) => ({ param, val: document.getElementById(id).value }))
+            .filter(({ val }) => val !== "");
+          if (active.length > 0) {
+            appendLog("overrides", active.map(({ param, val }) => `${param}=${val}`).join(", "));
+          }
+        }
         if (dashConf) {
-          appendLog("dash settings", JSON.stringify(dashConf.streaming.liveCatchup));
+          appendLog("dash settings", JSON.stringify(dashConf));
+        }
+        if (debugMode) {
+          const debugLabel = {
+            dash: "DASH.js logLevel=debug",
+            hls: "HLS.js debug=true",
+            all: "all player logs",
+          }[debugMode] ?? debugMode;
+          appendLog("debug", debugLabel);
         }
 
         gplayer.attachTo(playerNode);
@@ -2926,6 +3072,20 @@
           mode:     "vod",
         },
         {
+          group:    "VOD",
+          label:    "Blender, Sprite Fright (1080p, HLS MPEG-TS, H.264, subtitles multi-lang)",
+          url:      "https://demo-public.gvideo.io/videos/2675_iKbrdNMcS9ylGuw/master.m3u8",
+          mimeType: "application/x-mpegurl",
+          mode:     "vod",
+        },        
+        {
+          group:    "VOD",
+          label:    "Blender, Sprite Fright (1080p, MPEG-DASH CMAF, H.264, subtitles multi-lang)",
+          url:      "https://demo-public.gvideo.io/videos/2675_iKbrdNMcS9ylGuw/master.mpd",
+          mimeType: "application/dash+xml",
+          mode:     "vod",
+        },        
+        {
           group:    "Live",
           label:    "Standard latency (1080p, HLS MPEG-TS, H.264)",
           url:      "https://demo-public.gvideo.io/mpegts/2675_19146/master_mpegts.m3u8",
@@ -2937,6 +3097,13 @@
           label:    "Standard latency with DVR (1080p, HLS MPEG-TS, H.264)",
           url:      "https://demo-public.gvideo.io/mpegts/2675_21960/master_mpegts.m3u8",
           mimeType: "application/x-mpegurl",
+          mode:     "live",
+        },
+        {
+          group:    "Live",
+          label:    "Standard latency with DVR (1080p, MPEG-DASH CMAF, H.264)",
+          url:      "https://demo-public.gvideo.io/cmaf/2675_21960/index.mpd",
+          mimeType: "application/dash+xml",
           mode:     "live",
         },
         {
@@ -2955,15 +3122,15 @@
         },
         {
           group:    "VOD",
-          label:    "Blender, Tears of Steel (4K 4839x2160, HLS CMAF, H.264/HEVC/AV1)",
-          url:      "https://demo-public.gvideo.io/videos/2675_1HlbGeRCqFdFJb2S/master.m3u8",
+          label:    "Blender, Tears of Steel (4K 4838x2160, HLS CMAF, H.264/HEVC/AV1)",
+          url:      "https://demo-public.gvideo.io/videos/2675_5aT2bPTFEN2BSQFm/master.m3u8",
           mimeType: "application/x-mpegurl",
           mode:     "vod",
         },
         {
           group:    "VOD",
-          label:    "Blender, Tears of Steel (4K 4839x2160, MPEG-DASH CMAF, H.264/HEVC/AV1)",
-          url:      "https://demo-public.gvideo.io/videos/2675_1HlbGeRCqFdFJb2S/master.mpd",
+          label:    "Blender, Tears of Steel (4K 4838x2160, MPEG-DASH CMAF, H.264/HEVC/AV1/VP9)",
+          url:      "https://demo-public.gvideo.io/videos/2675_5aT2bPTFEN2BSQFm/master.mpd",
           mimeType: "application/dash+xml",
           mode:     "vod",
         },
@@ -2975,23 +3142,44 @@
 
       const overrideSummary = document.querySelector(".override-summary");
 
+      // Query-param name for each override field.
+      const OVERRIDE_PARAMS = {
+        "enable-cmcd":       "cmcd",
+        "stream-type":       "format",
+        "playback-type":     "mode",
+        "live-delay":        "delay",
+        "debug-mode":        "debug",
+        "dash-catchup-max":  "catchupMax",
+        "dash-catchup-mode": "catchupMode",
+        "dash-buffer-min":   "bufferMin",
+      };
+
       function updateOverrideSummary() {
-        const hasOverride =
-          document.getElementById("stream-type").value !== "" ||
-          document.getElementById("playback-type").value !== "" ||
-          document.getElementById("live-delay").value !== "" ||
-          document.getElementById("dash-catchup-max").value !== "" ||
-          document.getElementById("dash-catchup-mode").value !== "" ||
-          document.getElementById("dash-buffer-min").value !== "";
+        const hasOverride = Object.keys(OVERRIDE_PARAMS).some(
+          id => document.getElementById(id).value !== ""
+        );
         overrideSummary.classList.toggle("override-summary--active", hasOverride);
       }
 
-      document.getElementById("stream-type").addEventListener("change", updateOverrideSummary);
-      document.getElementById("playback-type").addEventListener("change", updateOverrideSummary);
-      document.getElementById("live-delay").addEventListener("change", updateOverrideSummary);
-      document.getElementById("dash-catchup-max").addEventListener("change", updateOverrideSummary);
-      document.getElementById("dash-catchup-mode").addEventListener("change", updateOverrideSummary);
-      document.getElementById("dash-buffer-min").addEventListener("change", updateOverrideSummary);
+      function syncParamsToUrl() {
+        const params = new URLSearchParams(window.location.search);
+        const url = document.getElementById("stream-url").value.trim();
+        if (url) params.set("url", url); else params.delete("url");
+        for (const [id, param] of Object.entries(OVERRIDE_PARAMS)) {
+          const val = document.getElementById(id).value;
+          if (val) params.set(param, val); else params.delete(param);
+        }
+        const qs = params.toString();
+        history.replaceState(null, "", qs ? `?${qs}` : window.location.pathname);
+      }
+
+      for (const id of Object.keys(OVERRIDE_PARAMS)) {
+        document.getElementById(id).addEventListener("change", () => {
+          updateOverrideSummary();
+          syncParamsToUrl();
+        });
+      }
+      document.getElementById("stream-url").addEventListener("change", syncParamsToUrl);
 
       // Fill the URL field from a preset object.
       // Override dropdowns are intentionally left alone — they reflect the user's
@@ -3171,18 +3359,25 @@
           if (el) el.textContent = "—";
         });
 
+        // Reset per-request flags before parsing the new string.
+        lastCmcdBsValue = false;
+
         // Pairs are comma-separated. Quoted strings may contain slashes but not
         // unescaped commas, so a simple split is safe here.
         for (const pair of cmcdStr.split(",")) {
           const eq = pair.indexOf("=");
           if (eq === -1) {
             // Boolean flag — presence means true (e.g. bs, su)
-            setCmcd(pair.trim(), "true");
+            const flag = pair.trim();
+            setCmcd(flag, "true");
+            if (flag === "bs") lastCmcdBsValue = true;
           } else {
             const key = pair.slice(0, eq).trim();
             let val = pair.slice(eq + 1).trim();
             if (val.startsWith('"') && val.endsWith('"')) val = val.slice(1, -1);
-            setCmcd(key, val);
+            const unit = CMCD_UNITS[key];
+            setCmcd(key, unit ? `${val} ${unit}` : val);
+            if (key === "br") lastCmcdBrKbps = Number(val) || null;
           }
         }
       }
@@ -3208,11 +3403,29 @@
       // Page query param bootstrap
       //   ?url=<stream-url>   — pre-fill the URL field and auto-load the stream
       //   ?autostart=false    — skip autoplay (default: true, starts muted)
+      //   ?cmcd=false         — disable CMCD query parameters
+      //   ?format=            — override stream format  (stream-type select)
+      //   ?mode=              — override stream type    (playback-type select)
+      //   ?delay=             — override live delay     (live-delay select)
+      //   ?debug=             — debug logs              (debug-mode select)
+      //   ?catchupMax=        — DASH catch-up max       (dash-catchup-max select)
+      //   ?catchupMode=       — DASH catch-up mode      (dash-catchup-mode select)
+      //   ?bufferMin=         — DASH buffer min         (dash-buffer-min select)
       // ---------------------------------------------------------------------------
       {
         const params    = new URLSearchParams(window.location.search);
         const paramUrl  = params.get("url");
         const autostart = params.get("autostart") !== "false";
+
+        // Restore override selects from query params; only set when the value
+        // matches an existing <option> so invalid params are silently ignored.
+        for (const [id, param] of Object.entries(OVERRIDE_PARAMS)) {
+          const val = params.get(param);
+          if (val === null) continue;
+          const sel = document.getElementById(id);
+          if ([...sel.options].some(o => o.value === val)) sel.value = val;
+        }
+        updateOverrideSummary();
 
         if (paramUrl) {
           let validUrl;
@@ -3221,7 +3434,6 @@
           document.getElementById("stream-url").value = validUrl;
 
           // Match against presets so the selector reflects the active stream.
-          // Override dropdowns are never changed here — user controls them manually.
           const matchedIdx = PRESETS.findIndex((p, i) => i > 0 && p.url === validUrl);
           if (matchedIdx >= 0) {
             document.getElementById("preset-select").value = matchedIdx;
@@ -3230,7 +3442,7 @@
             document.getElementById("preset-select").value = "0";
           }
 
-          // Use override fields as-is; auto-detect fills in when they are empty.
+          // Override fields are now populated from params above.
           const overrideType = document.getElementById("stream-type").value;
           const mimeType = detectMimeType(validUrl, overrideType);
           const liveDelayParam = document.getElementById("live-delay").value;

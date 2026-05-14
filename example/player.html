@@ -894,6 +894,7 @@
               // HLS MPEG-TS: broadest browser/device coverage, higher latency.
               // A single HLS source is enough; SourceController handles failover
               // if you add fallback URLs.
+              poster: "https://static.gvideo.co/videoplatform/posters/video/11450910/e0a5243fdd2ae36061b8cadfa5089fc8.jpeg",
               sources: [
                 {
                   source:
@@ -914,6 +915,7 @@
               reloadOnResume: true,
               // LL-HLS CMAF: sub-3-second latency with CMAF chunked transfer.
               // The player auto-detects LL-HLS from the #EXT-X-PART tags in the manifest.
+              poster: "https://static.gvideo.co/videoplatform/posters/video/11450910/e0a5243fdd2ae36061b8cadfa5089fc8.jpeg",
               sources: [
                 {
                   source: "https://demo-public.gvideo.io/cmaf/2675_19146/master.m3u8",
@@ -946,6 +948,7 @@
               // action. The seek is applied once inside applyPendingStartAt() when
               // the 'play' event fires, then cleared so normal seeking is unaffected.
               startAt: 4,
+              poster: "https://static.gvideo.co/videoplatform/posters/video/11452407/eb4fba797fc1f41309e5b0b552319208.jpeg",
               thumbnails: VOD_THUMBNAILS.sintel,
               sources: [
                 {
@@ -959,6 +962,7 @@
               label: "Blender, Spring",
               description: "Spring VOD HLS playlist",
               startAt: 4,
+              poster: "https://static.gvideo.co/videoplatform/posters/video/11452143/6423b07877c27c372b205aa99fd13f42.jpeg",
               thumbnails: VOD_THUMBNAILS.spring,
               sources: [
                 {
@@ -1106,6 +1110,7 @@
           mute: true,
           playbackType: config.playbackType,
           sources: config.tabs[activeSourceId].sources,
+          poster: config.tabs[activeSourceId].poster,
           cmcd: cmcdConfig,
           qualityLevels: {
             // Map bitrate ladder heights to marketing names shown in the quality menu.
@@ -1179,6 +1184,7 @@
           cmcdConfig = buildCmcdConfig(config.summaryLabel, activeSourceId);
           player.configure({
             cmcd: cmcdConfig,
+            poster: config.tabs[activeSourceId].poster,
             thumbnails: config.tabs[activeSourceId].thumbnails,
           });
         }

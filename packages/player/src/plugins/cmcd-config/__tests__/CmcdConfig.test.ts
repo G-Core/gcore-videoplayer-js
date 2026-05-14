@@ -181,4 +181,32 @@ describe('CmcdConfig', () => {
       )
     })
   })
+  describe('disabled', () => {
+    beforeEach(async () => {
+      core = createMockCore({
+        cmcd: { enabled: false },
+        sources: [
+          {
+            source: 'https://zulu.com/123.mpd',
+            mimeType: 'application/dash+xml',
+          },
+        ],
+      })
+      core.containers[0].playback.name = 'dash'
+      plugin = new CmcdConfig(core)
+      core.trigger(Events.CORE_CONTAINERS_CREATED)
+      await new Promise((resolve) => setTimeout(resolve, 0))
+    })
+    it('should not update playback CMCD settings', () => {
+      expect(core.containers[0].playback.options).not.toEqual(
+        expect.objectContaining({
+          dash: expect.objectContaining({
+            streaming: expect.objectContaining({
+              cmcd: expect.anything(),
+            }),
+          }),
+        }),
+      )
+    })
+  })
 })

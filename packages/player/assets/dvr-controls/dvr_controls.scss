@@ -40,11 +40,22 @@
   }
 
   .live-info {
+    cursor: pointer;
+    outline: none;
+    border: 0;
+    background-color: transparent;
+    padding: 0;
     text-transform: uppercase;
     color: #fffffe;
+    opacity: 1;
+    transition: all 0.1s ease;
 
     &::before {
       background-color: #ed4f4a;
+    }
+
+    &:hover {
+      text-shadow: rgba(255, 255, 255, .75) 0 0 5px;
     }
   }
 

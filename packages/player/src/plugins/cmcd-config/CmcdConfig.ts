@@ -32,6 +32,11 @@ const CMCD_KEYS = [
  */
 export interface CmcdConfigOptions {
   /**
+   * Enables CMCD request metadata.
+   * @defaultValue true
+   */
+  enabled?: boolean
+  /**
    * `sid` value. If ommitted, a random UUID will be generated
    */
   sessionId?: string
@@ -86,7 +91,7 @@ export class CmcdConfig extends CorePlugin {
    * @internal
    */
   get supportedVersion() {
-    return CLAPPR_VERSION
+    return { min: CLAPPR_VERSION }
   }
 
   constructor(core: Core) {
@@ -118,6 +123,10 @@ export class CmcdConfig extends CorePlugin {
   }
 
   private async updateSettings(container: Container) {
+    if (this.options.cmcd?.enabled === false) {
+      return
+    }
+
     switch (container.playback.name) {
       case 'dash':
         $.extend(true, container.playback.options, {
