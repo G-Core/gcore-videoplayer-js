@@ -75,7 +75,7 @@ describe('QualityLevels', () => {
     })
     describe.each([
       ['auto', LEVELS, -1, 'auto'],
-      ['standard label', LEVELS, 0, '360p'],
+      ['standard label', LEVELS, 0, '360p LQ'],
       ['custom label', LEVELS, 1, 'HD'],
     ])('%s', (_, levels, current, label) => {
       beforeEach(() => {
