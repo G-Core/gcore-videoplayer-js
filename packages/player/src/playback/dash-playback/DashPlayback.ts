@@ -509,6 +509,13 @@ export default class DashPlayback extends BasePlayback {
   // as this does not necesarily represent the duration of the stream
   // https://github.com/clappr/clappr/issues/668#issuecomment-157036678
   getDuration(): TimeValue {
+    if (this.getPlaybackType() === Playback.LIVE) {
+      const dvrWindow = this._dash?.getDvrWindow()
+      if (dvrWindow) {
+        return dvrWindow.size
+      }
+    }
+
     assert.ok(
       this._duration !== null,
       'A valid duration is required to get the duration',
@@ -517,7 +524,19 @@ export default class DashPlayback extends BasePlayback {
   }
 
   getCurrentTime(): TimeValue {
-    return this._dash ? this._dash.time() : 0
+    if (!this._dash) {
+      return 0
+    }
+    const absoluteTime = this._dash.time()
+
+    if (this.getPlaybackType() === Playback.LIVE) {
+      const windowSize = this.getDuration()
+      const liveEdge = this._dash.duration()
+      const windowStart = liveEdge - windowSize
+      return Math.max(0, absoluteTime - windowStart)
+    }
+
+    return absoluteTime
   }
 
   private _getIsDvr(time: number): boolean {
@@ -525,7 +544,7 @@ export default class DashPlayback extends BasePlayback {
       return false
     }
 
-    // time is relative here (since it comes from getCurrentTime or is passed to seek)
+    // time is relative now, so we just check if it is sufficiently behind the end of the window (duration)
     return time < this.getDuration() - 10
   }
 
@@ -552,24 +571,22 @@ export default class DashPlayback extends BasePlayback {
   }
 
   override seek(time: TimeValue) {
-    if (time < 0) {
-      // eslint-disable-next-line max-len
-      Log.warn(
-        'Attempt to seek to a negative time. Resetting to live point. Use seekToLivePoint() to seek to the live point.',
-      )
-      time = this.getDuration()
+    if (!this._dash) {
+      return
+    }
+
+    let targetTime = time
+    if (this.getPlaybackType() === Playback.LIVE) {
+      const windowSize = this.getDuration()
+      const liveEdge = this._dash.duration()
+      const windowStart = liveEdge - windowSize
+      targetTime = time + windowStart
     }
 
     const isDvr = this._getIsDvr(time)
-    Log.info(`${T} seek`, { time, isDvr, currentDvrState: this._dvrInUse })
-
     this._updateDvr(isDvr)
-    assert.ok(
-      this._dash,
-      'An instance of dashjs MediaPlayer is required to seek',
-    )
 
-    this._dash.seek(time)
+    this._dash.seek(targetTime)
   }
 
   seekToLivePoint() {
@@ -687,21 +704,26 @@ export default class DashPlayback extends BasePlayback {
     const update: TimePosition = {
       current: this.getCurrentTime(),
       total: this.getDuration(),
-      // firstFragDateTime: this.getProgramDateTime(), // TODO figure out if needed
     }
+
+    // Diagnostic log to see what the UI is receiving
+    if (this.getPlaybackType() === Playback.LIVE) {
+       Log.info(`${T} [UI Sync]`, { current: update.current, total: update.total, abs: this._dash?.time() })
+    }
+
     const isSame =
       this._lastTimeUpdate &&
       update.current === this._lastTimeUpdate.current &&
       update.total === this._lastTimeUpdate.total
 
-    if (isSame) {
-      return
+    if (!isSame) {
+      this._lastTimeUpdate = update
+      this.trigger(Events.PLAYBACK_TIMEUPDATE, update, this.name)
     }
-    this._lastTimeUpdate = update
-    this.trigger(Events.PLAYBACK_TIMEUPDATE, update, this.name)
   }
 
   override _onDurationChange() {
+    // We use the reported duration (which might be the window size)
     const duration = this.getDuration()
 
     if (this._lastDuration === duration) {
@@ -709,7 +731,15 @@ export default class DashPlayback extends BasePlayback {
     }
 
     this._lastDuration = duration
-    super._onDurationChange() // will call _onTimeUpdate
+    super._onDurationChange()
+  }
+
+  override _onSeeking() {
+    this.trigger(Events.PLAYBACK_SEEK, this.name)
+  }
+
+  override _onPause() {
+    this.trigger(Events.PLAYBACK_PAUSE, this.name)
   }
 
   get dvrEnabled() {

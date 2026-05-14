@@ -1305,6 +1305,7 @@
             <tbody>
               <tr><td><code>BigMuteButton</code></td><td>Prominent unmute overlay for muted autoplay</td></tr>
               <tr><td><code>ClapprStats</code></td><td>Playback quality metrics at 1 s intervals (buffer, bandwidth, fps, dropped frames)</td></tr>
+              <tr><td><code>ClosedCaptions</code></td><td>Subtitles and captions selector for streams with text tracks</td></tr>
               <tr><td><code>CmcdConfig</code></td><td>Attaches CMCD session metadata to every media request</td></tr>
               <tr><td><code>DvrControls</code></td><td>Shows live / DVR state for live streams</td></tr>
               <tr><td><code>ErrorScreen</code></td><td>Overlay for fatal playback errors</td></tr>
@@ -1345,6 +1346,7 @@
         BigMuteButton,
         BottomGear,
         ClapprStats,
+        ClosedCaptions,
         CmcdConfig,
         DvrControls,
         ErrorScreen,
@@ -1378,6 +1380,7 @@
         Player.registerPlugin(BigMuteButton);
         Player.registerPlugin(BottomGear);
         Player.registerPlugin(ClapprStats);
+        Player.registerPlugin(ClosedCaptions);
         Player.registerPlugin(PlaybackRate);
         Player.registerPlugin(CmcdConfig);
         Player.registerPlugin(DvrControls);
@@ -1432,6 +1435,7 @@
       let _unsupportedLevelsLogTimer = null;
       let _preferredCodecPrefix = null; // persists across codec-switch reloads; null = auto-detect
       let _pendingManualChange = false;
+      let _subtitleTrackId = null;
 
       // Stat card value elements
       const statEls = {
@@ -1932,6 +1936,37 @@
         logNode.appendChild(span);
         while (logNode.children.length > 1000) logNode.removeChild(logNode.firstChild);
         if (shouldStick) logNode.scrollTop = logNode.scrollHeight;
+      }
+
+      function installSubtitleChangeLogger() {
+        if (window.__gcoreLabSubtitleChangeLogger) return;
+        window.__gcoreLabSubtitleChangeLogger = true;
+
+        playerNode.addEventListener("click", (event) => {
+          const item = event.target?.closest?.("#gplayer-cc-menu [data-item]");
+          if (!item || !playerNode.contains(item)) return;
+
+          const selectedId = Number(item.dataset.item);
+          const label = item.textContent.trim() || (selectedId === -1 ? "Off" : `track ${selectedId}`);
+
+          // Let ClosedCaptions handle the menu click first, then read the applied state.
+          setTimeout(() => {
+            const playback = gplayer?.getPlugin("cc")?.core?.activePlayback;
+            const activeId = Number(playback?.closedCaptionsTrackId ?? selectedId);
+            const previousId = _subtitleTrackId;
+            _subtitleTrackId = activeId;
+
+            if (activeId === -1) {
+              if (previousId !== null && previousId !== -1) appendLog("subtitles", "disabled");
+              return;
+            }
+
+            const action = previousId === null || previousId === -1 ? "enabled" : "changed";
+            if (previousId !== activeId) {
+              appendLog("subtitles", `${action} → ${label} (id ${activeId})`);
+            }
+          }, 0);
+        }, true);
       }
 
       function installUnsupportedCodecWarningLogger() {
@@ -2855,6 +2890,7 @@
             syncStateFromPlayer();
             stopBtn.disabled = false;
             appendLog("ready", "player initialized");
+            installSubtitleChangeLogger();
             setupClapprInternalListeners();
             startStatsPolling();
 
@@ -2992,6 +3028,7 @@
           clearTimeout(_unsupportedLevelsLogTimer);
           _unsupportedLevelsLogTimer = null;
         }
+        _subtitleTrackId = null;
         if (mimeType === "application/dash+xml") {
           captureDashManifestLevels(url);
         }
