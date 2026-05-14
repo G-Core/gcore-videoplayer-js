@@ -90,11 +90,10 @@ export interface QualityLevelsPluginSettings {
  * Configuration options - {@link QualityLevelsPluginSettings}
  *
  * **Multi-codec HLS streams.** When an HLS manifest declares the same resolution at multiple codecs
- * (e.g. `avc1`, `hvc1`, `av01` — common in 4K adaptive streams), the player
- * automatically filters the level list to a single codec before passing it to
- * this plugin. This prevents the selector from showing duplicate resolution entries.
- * The codec is chosen according to {@link QualityLevelsPluginSettings.codecStrategy}
- * (default `'power-efficient'`). The logic lives in `HlsPlayback._selectBestCodecPrefix`.
+ * (e.g. `avc1`, `hvc1`, `av01` — common in 4K adaptive streams), the plugin
+ * automatically filters the level list to a single codec. This prevents the selector
+ * from showing duplicate resolution entries. The codec is chosen according to
+ * {@link QualityLevelsPluginSettings.codecStrategy} (default `'power-efficient'`).
  *
  * **Codec selection by platform:**
  *
@@ -320,7 +319,15 @@ export class QualityLevels extends UICorePlugin {
       : -1
   }
 
-  private onLevelsAvailable(levels: QualityLevel[]) {
+  private onLevelsAvailable(rawLevels: QualityLevel[]) {
+    this.setLevels(rawLevels)
+    // Asynchronously select the best codec and re-render with filtered levels.
+    // Single-codec streams return null immediately so render() above is the
+    // only render. Multi-codec streams get a second render after detection.
+    void this.applyCodecPreference(rawLevels)
+  }
+
+  private setLevels(levels: QualityLevel[]) {
     const maxResolution = this.pluginOptions.restrictResolution
     this.levels = levels
     this.makeLevelsLabels()
@@ -336,6 +343,31 @@ export class QualityLevels extends UICorePlugin {
       this.setLevel(initialLevel?.level ?? 0)
     }
     this.render()
+  }
+
+  private async applyCodecPreference(rawLevels: QualityLevel[]): Promise<void> {
+    const strategy = this.pluginOptions.codecStrategy ?? 'power-efficient'
+    const forcedPrefix =
+      this.pluginOptions.preferredCodecPrefix?.toLowerCase() ?? null
+    const prefix =
+      forcedPrefix ?? (await selectBestCodecPrefix(rawLevels, strategy))
+    if (!prefix) return
+
+    // Filter the UI level list to the chosen codec.
+    const filtered = rawLevels.filter((l) =>
+      l.codec?.toLowerCase().startsWith(prefix),
+    )
+    if (filtered.length > 0 && filtered.length < rawLevels.length) {
+      this.setLevels(filtered)
+    }
+
+    // Tell the playback engine which codec HLS.js should prefer internally.
+    // setCodecPreference() checks hls.config.videoPreference and is a no-op
+    // if the preference is already applied, preventing reload loops.
+    const playback = this.core.activePlayback as any
+    if (typeof playback.setCodecPreference === 'function') {
+      playback.setCodecPreference(prefix)
+    }
   }
 
   private makeLevelsLabels() {
@@ -393,7 +425,10 @@ export class QualityLevels extends UICorePlugin {
     this.currentText = this.getLevelLabel(level)
     this.currentTier = this.getLevelTier(level)
     this.updateButton()
-    ;(this.core.getPlugin('bottom_gear') as BottomGear)?.setQualityBadge(this.currentTier)
+    const bottomGear = this.core.getPlugin('bottom_gear') as
+      | (BottomGear & { setQualityBadge?: (quality: string) => void })
+      | null
+    bottomGear?.setQualityBadge?.(this.currentTier)
   }
 
   private getLevelLabel(id: number): string {
@@ -449,4 +484,72 @@ function qualityTier(height: number): string {
   if (height >= 720) return 'HD'
   if (height >= 420) return 'SD'
   return 'LQ'
+}
+
+/**
+ * Determines the single best video codec prefix (e.g. `"hvc1"`) for the
+ * given level list based on `QualityLevel.codec` strings.
+ *
+ * With `strategy = 'power-efficient'` (default): uses `MediaCapabilities.decodingInfo`
+ * to prefer hardware-accelerated codecs, falling back to `canPlayType`.
+ * With `strategy = 'best-supported'`: picks the highest-preference codec the
+ * browser can play (AV1 → HEVC → H.264) without checking power efficiency.
+ *
+ * Returns `null` when all levels share one codec (no filtering needed).
+ *
+ * Platform behaviour is documented on {@link QualityLevels}.
+ */
+async function selectBestCodecPrefix(
+  levels: QualityLevel[],
+  strategy: CodecStrategy = 'power-efficient',
+): Promise<string | null> {
+  const prefixes = new Set(
+    levels
+      .map((l) => l.codec?.split('.')[0]?.toLowerCase())
+      .filter((p): p is string => !!p),
+  )
+  if (prefixes.size <= 1) return null
+
+  // Preference order: AV1 → HEVC → H.264 (most efficient compression first)
+  const candidates = [
+    { prefix: 'av01', codec: 'av01.0.08M.08' },
+    { prefix: 'hvc1', codec: 'hvc1.1.6.L120.90' },
+    { prefix: 'hev1', codec: 'hev1.1.6.L120.90' },
+    { prefix: 'avc1', codec: 'avc1.640032' },
+    { prefix: 'avc3', codec: 'avc3.640032' },
+  ].filter((c) => prefixes.has(c.prefix))
+
+  if (
+    strategy === 'power-efficient' &&
+    typeof navigator !== 'undefined' &&
+    navigator.mediaCapabilities
+  ) {
+    for (const c of candidates) {
+      try {
+        const info = await navigator.mediaCapabilities.decodingInfo({
+          type: 'media-source',
+          video: {
+            contentType: `video/mp4; codecs="${c.codec}"`,
+            width: 1920,
+            height: 1080,
+            bitrate: 5_000_000,
+            framerate: 30,
+          },
+        })
+        if (info.supported && info.powerEfficient) return c.prefix
+      } catch {
+        // MediaCapabilities not supported for this codec — continue
+      }
+    }
+  }
+
+  // best-supported (or power-efficient fallback): first playable codec in preference order
+  if (typeof document !== 'undefined') {
+    const video = document.createElement('video')
+    for (const c of candidates) {
+      if (video.canPlayType(`video/mp4; codecs="${c.codec}"`)) return c.prefix
+    }
+  }
+
+  return null
 }

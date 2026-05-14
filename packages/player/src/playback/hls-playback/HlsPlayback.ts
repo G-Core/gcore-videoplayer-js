@@ -10,7 +10,6 @@ import HLSJS, {
   HlsListeners,
   type ErrorData as HlsErrorData,
   type Fragment,
-  type Level as HlsLevel,
   type LevelUpdatedData,
   type LevelLoadedData,
   type LevelSwitchingData,
@@ -89,10 +88,6 @@ export default class HlsPlayback extends BasePlayback {
   private _lastTimeUpdate: TimePosition | null = null
 
   private _levels: QualityLevel[] | null = null
-
-  private _codecPrefixPromise: Promise<string | null> | null = null
-
-  private _bestCodecPrefix: string | null = null
 
   private _localStartTimeCorrelation: TimeCorrelation | null = null
 
@@ -380,17 +375,6 @@ export default class HlsPlayback extends BasePlayback {
       ? { liveSyncDuration: this.options.liveDelay }
       : {}
 
-    // If the caller hard-codes a codec prefix, bake it into the constructor config
-    // so HLS.js applies it during getStartCodecTier() — before startLoad() runs.
-    // Runtime mutation of hls.config.videoPreference after MANIFEST_PARSED is not
-    // sufficient because hls.js reads videoPreference only at construction time for
-    // initial codec tier selection.
-    const forcedPrefix = (this.options.qualityLevels ?? this.options.levelSelector)
-      ?.preferredCodecPrefix?.toLowerCase() ?? null
-    const videoPreferenceConfig = forcedPrefix
-      ? { videoPreference: { videoCodec: forcedPrefix } }
-      : {}
-
     const config = $.extend(
       true,
       {
@@ -405,7 +389,6 @@ export default class HlsPlayback extends BasePlayback {
         maxLiveSyncPlaybackRate: 1.1,
       },
       liveDelayConfig,
-      videoPreferenceConfig,
       // playback.hlsjsConfig takes highest priority.
       this.options.playback.hlsjsConfig,
     )
@@ -443,8 +426,7 @@ export default class HlsPlayback extends BasePlayback {
 
     this._hls.on(HlsEvents.MANIFEST_PARSED, () => {
       this._manifestParsed = true
-      this._codecPrefixPromise = null
-      void this._applyCodecPreferenceAndReload()
+      this._fillLevels()
     })
     this._hls.on(
       HlsEvents.LEVEL_LOADED,
@@ -875,7 +857,7 @@ export default class HlsPlayback extends BasePlayback {
     if (!this._hls) {
       return
     }
-    ;(this.el as HTMLMediaElement).pause()
+    ; (this.el as HTMLMediaElement).pause()
     this._hls.stopLoad()
     this._hlsLoadingStopped = true
     if (this.dvrEnabled) {
@@ -914,57 +896,10 @@ export default class HlsPlayback extends BasePlayback {
     }
   }
 
-  private async _applyCodecPreferenceAndReload(): Promise<void> {
-    if (!this._hls) return
-    const hlsLevels = this._hls.levels
-    const opts = this.options.qualityLevels ?? this.options.levelSelector
-    const forcedPrefix = opts?.preferredCodecPrefix?.toLowerCase() ?? null
-
-    if (forcedPrefix) {
-      // Manual override: skip detection, use the given prefix directly
-      this._bestCodecPrefix = forcedPrefix
-      this._codecPrefixPromise = Promise.resolve(forcedPrefix)
-      // Set startLevel to the first matching level so the stream controller
-      // bypasses hls.firstAutoLevel / getStartCodecTier() entirely.
-      // After the first fragment from this codec tier loads, ABR's currentCodecSet
-      // locks to that tier and stays within it — videoPreference alone is unreliable
-      // because hasDefaultAudio filtering can reject the desired codec first.
-      const firstMatch = hlsLevels.findIndex(
-        (l) => l.videoCodec?.toLowerCase().startsWith(forcedPrefix),
-      )
-      if (firstMatch >= 0 && this._hls) {
-        this._hls.startLevel = firstMatch
-      }
-    } else {
-      const strategy = opts?.codecStrategy ?? 'power-efficient'
-      this._codecPrefixPromise = this._selectBestCodecPrefix(hlsLevels, strategy)
-      const bestPrefix = await this._codecPrefixPromise
-      this._bestCodecPrefix = bestPrefix ?? null
-    }
-    // Tell HLS.js which codec tier to use — must be set before startLoad()
-    if (this._bestCodecPrefix && this._hls) {
-      this._hls.config.videoPreference = { videoCodec: this._bestCodecPrefix }
-    }
-    void this._fillLevels()
-    this.reload()
-  }
-
-  private async _fillLevels(): Promise<void> {
+  private _fillLevels(): void {
     assert.ok(this._hls, 'HLS.js is not initialized')
-    const hlsLevels = this._hls.levels
-    if (!this._codecPrefixPromise) {
-      const strategy =
-        (this.options.qualityLevels ?? this.options.levelSelector)
-          ?.codecStrategy ?? 'power-efficient'
-      this._codecPrefixPromise = this._selectBestCodecPrefix(hlsLevels, strategy)
-    }
-    const bestPrefix = await this._codecPrefixPromise
-    this._bestCodecPrefix = bestPrefix ?? null
-    const source = bestPrefix
-      ? hlsLevels.filter((l) => l.videoCodec?.toLowerCase().startsWith(bestPrefix))
-      : hlsLevels
-    this._levels = source.map((level) => ({
-      level: hlsLevels.indexOf(level),
+    this._levels = this._hls.levels.map((level, index) => ({
+      level: index,
       width: level.width,
       height: level.height,
       bitrate: level.bitrate,
@@ -974,70 +909,32 @@ export default class HlsPlayback extends BasePlayback {
   }
 
   /**
-   * Determines the single best video codec prefix (e.g. `"hvc1"`) for the
-   * given HLS level list.
+   * Sets the codec HLS.js should prefer when loading segments, and triggers a
+   * reload so the preference takes effect from the next startLoad().
    *
-   * With `strategy = 'power-efficient'` (default): uses `MediaCapabilities.decodingInfo`
-   * to prefer hardware-accelerated codecs, falling back to `canPlayType`.
-   * With `strategy = 'best-supported'`: picks the highest-preference codec the
-   * browser can play (AV1 → HEVC → H.264) without checking power efficiency.
-   *
-   * Returns `null` when all levels share one codec (no filtering needed).
-   *
-   * Platform behaviour is documented on {@link QualityLevels}.
+   * Called by {@link QualityLevels} after it has selected the best codec for
+   * the current platform. Compares against the current `hls.config.videoPreference`
+   * and is a no-op when unchanged, preventing reload loops.
    */
-  private async _selectBestCodecPrefix(
-    levels: HlsLevel[],
-    strategy: 'power-efficient' | 'best-supported' = 'power-efficient',
-  ): Promise<string | null> {
-    const prefixes = new Set(
-      levels
-        .map((l) => l.videoCodec?.split('.')[0]?.toLowerCase())
-        .filter((p): p is string => !!p),
-    )
-    if (prefixes.size <= 1) return null
-
-    // Preference order: AV1 → HEVC → H.264 (most efficient compression first)
-    const candidates = [
-      { prefix: 'av01', codec: 'av01.0.08M.08' },
-      { prefix: 'hvc1', codec: 'hvc1.1.6.L120.90' },
-      { prefix: 'hev1', codec: 'hev1.1.6.L120.90' },
-      { prefix: 'avc1', codec: 'avc1.640032' },
-      { prefix: 'avc3', codec: 'avc3.640032' },
-    ].filter((c) => prefixes.has(c.prefix))
-
-    // power-efficient: prefer the codec the browser can hardware-decode
-    if (strategy === 'power-efficient' && typeof navigator !== 'undefined' && navigator.mediaCapabilities) {
-      for (const c of candidates) {
-        try {
-          const info = await navigator.mediaCapabilities.decodingInfo({
-            type: 'media-source',
-            video: {
-              contentType: `video/mp4; codecs="${c.codec}"`,
-              width: 1920,
-              height: 1080,
-              bitrate: 5_000_000,
-              framerate: 30,
-            },
-          })
-          if (info.supported && info.powerEfficient) return c.prefix
-        } catch {
-          // MediaCapabilities not supported for this codec — continue
-        }
+  setCodecPreference(prefix: string | null): void {
+    if (!this._hls) return
+    const current = (this._hls.config.videoPreference?.videoCodec ?? null) as
+      | string
+      | null
+    if (prefix === current) return
+    if (prefix) {
+      this._hls.config.videoPreference = { videoCodec: prefix }
+      const firstMatch = this._hls.levels.findIndex((level) =>
+        level.videoCodec?.toLowerCase().startsWith(prefix),
+      )
+      if (firstMatch >= 0) {
+        this._hls.startLevel = firstMatch
       }
+    } else {
+      delete this._hls.config.videoPreference
     }
-
-    // best-supported (or power-efficient fallback): first playable codec in preference order
-    if (typeof document !== 'undefined') {
-      const video = document.createElement('video')
-      for (const c of candidates) {
-        if (video.canPlayType(`video/mp4; codecs="${c.codec}"`)) return c.prefix
-      }
-    }
-
-    return null
+    this.reload()
   }
-
 
   private _onLevelUpdated(
     evt: HlsEvents.LEVEL_UPDATED | HlsEvents.LEVEL_LOADED,
@@ -1187,7 +1084,7 @@ export default class HlsPlayback extends BasePlayback {
 
   _onLevelSwitch(evt: HlsEvents.LEVEL_SWITCHING, data: LevelSwitchingData) {
     if (!this.levels.length) {
-      void this._fillLevels()
+      this._fillLevels()
     }
     this.trigger(Events.PLAYBACK_LEVEL_SWITCH, data)
   }
