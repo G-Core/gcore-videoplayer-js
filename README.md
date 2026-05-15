@@ -34,7 +34,7 @@ More: <https://gcore.com/docs/streaming/video-hosting/hls-and-mp4>
 |  +--------------------------------------------------------+  |
 |  | Gcore JavaScript Player SDK                            |  |
 |  |                                                        |  |
-|  |  Playback: Live / VOD / HLS / DASH / MP4              |  |
+|  |  Playback: Live / VOD / HLS / DASH / MP4               |  |
 |  |                                                        |  |
 |  |  +--------------------------------------------------+  |  |
 |  |  | Plugins                                          |  |  |
@@ -185,13 +185,13 @@ The SDK plugin model is grouped in the same way as the product tutorial: `Playba
 |  | `PictureInPicture` | Enable picture-in-picture mode |
 |  | `PlaybackRate` | Change playback speed |
 |  | `Poster` | Show a poster image and a big play state before playback |
-|  | `QualityLevels` | Let viewers change video quality manually. Config: `restrictResolution` (cap max resolution), `labels` (custom quality names), `codecStrategy` (`'power-efficient'` default — picks the hardware-accelerated codec; `'best-supported'` — picks the best-compression codec the browser can play, e.g. AV1 over HEVC on Chrome) |
+|  | `QualityLevels` | Let viewers change video quality manually|
 |  | `SeekTime` | Show the target time while hovering the seek bar |
 |  | `Share` | Share the current video from the player UI |
 |  | `SkipTime` | Jump forward or backward with tap controls |
 |  | `SourceController` | Play one or several media sources with automatic switching and failover |
 |  | `Subtitles` / `ClosedCaptions` | Select subtitle or caption tracks |
-|  | `TokenRefreshPlugin` | Automatically refresh security tokens for Gcore protected-content streams. Rewrites the `/{token}/{expires}/` path segment in every hls.js, dash.js, and native `<video>` request without interrupting playback |
+|  | `TokenRefreshPlugin` | Automatically refresh security tokens |
 |  | `Thumbnails` | Show preview thumbnails over the timeline |
 | `UI` | `BigMuteButton` | Show a prominent unmute button for muted autoplay flows |
 |  | `BottomGear` | Extend the control bar with additional settings/actions |
@@ -214,7 +214,7 @@ API details for plugins: [packages/player/docs/api/player.md](./packages/player/
 
 ### Vanilla JS demo
 
-Demo page: [example/index.html](example/index.html)
+Demo page: [example/player.html](example/player.html)
 
 This demo includes both VOD and live streams. The players are embedded directly into the page with custom controls and dedicated log panels, making playback events easy to follow. The demo is available 24/7.
 
@@ -231,7 +231,15 @@ The plugin fetches a new token before expiry and rewrites every outgoing request
 
 ![Protected-content demo](./docs/images/demo-protected-content.png)
 
+### Player laboratory
 
+A diagnostic tool to test HLS and MPEG-DASH live and VOD streams. Allows you to test different playback scenarios with real-time analytics, buffer metrics, and request logs for performance troubleshooting.
+
+Also allows testing of LL-HLS and LL-DASH with 2 seconds low-latency delivery.
+
+Demo page: [example/player-lab.html](example/player-lab.html)
+
+![Player laboratory](./docs/images/demo-player-lab.png)
 
 ### Interactive demo with plugin settings
 
