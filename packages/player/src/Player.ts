@@ -64,7 +64,12 @@ const DEFAULT_OPTIONS: PlayerConfig = {
   playbackType: 'vod',
   priorityTransport: 'dash',
   sources: [],
-  strings: {},
+  strings: {
+    en: {
+      quality: 'Quality',
+      auto: 'Auto',
+    },
+  },
 }
 
 /**
@@ -283,7 +288,8 @@ export class Player {
    *
    * @example
    * ```ts
-   * const tokenRefresh = player.getPlugin('token_refresh') as TokenRefreshPlugin | null
+   * const tokenRefresh = player.getPlugin('token_refresh') as TokenRefreshPlugin
+   * tokenRefresh?.pause()
    * ```
    */
   getPlugin(name: string) {

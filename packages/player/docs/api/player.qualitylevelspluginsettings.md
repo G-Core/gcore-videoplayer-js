@@ -37,6 +37,25 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
+[codecStrategy?](./player.qualitylevelspluginsettings.codecstrategy.md)
+
+
+</td><td>
+
+
+</td><td>
+
+[CodecStrategy](./player.codecstrategy.md)
+
+
+</td><td>
+
+_(Optional)_ Codec selection strategy for multi-codec HLS streams. Defaults to `'power-efficient'`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
 [labels?](./player.qualitylevelspluginsettings.labels.md)
 
 

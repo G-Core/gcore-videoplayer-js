@@ -22,6 +22,7 @@ import {
   Representation,
   CueEnterEvent,
   CueExitEvent,
+  FragmentLoadingCompletedEvent,
 } from 'dashjs'
 
 import {
@@ -33,7 +34,7 @@ import {
 } from '../../playback.types.js'
 import { isDashSource } from '../../utils/mediaSources.js'
 import { BasePlayback } from '../BasePlayback.js'
-import { PlaybackEvents, VTTCueInfo } from '../types.js'
+import { LiveMetrics, PlaybackEvents, VTTCueInfo } from '../types.js'
 import { AudioTrack } from '@clappr/core/types/base/playback/playback.js'
 
 const AUTO = -1
@@ -110,6 +111,20 @@ export default class DashPlayback extends BasePlayback {
   manifestInfo: IManifestInfo | null = null
 
   _timeUpdateTimer: ReturnType<typeof setInterval> | null = null
+
+  private _accumulatedSegmentDrift = 0
+
+  private _lastSegmentDrift: number | null = null
+
+  private _liveMetricsTimer: ReturnType<typeof setInterval> | null = null
+
+  private _liveResyncTimer: ReturnType<typeof setTimeout> | null = null
+
+  private _liveResyncInProgress = false
+
+  private _dvrInUse = false
+
+  private _minDvrSize = 60
 
   oncueenter: ((e: VTTCueInfo) => void) | null = null
 
@@ -235,6 +250,29 @@ export default class DashPlayback extends BasePlayback {
     if (this.options.playbackType) {
       this._playbackType = this.options.playbackType
     }
+    this._minDvrSize =
+      typeof this.options.dashMinimumDvrSize === 'undefined'
+        ? 30
+        : this.options.dashMinimumDvrSize
+  }
+
+  private get debugEnabled() {
+    return this.options.debug === true ||
+      this.options.debug === 'all' ||
+      this.options.debug === 'dash'
+  }
+
+  private debugInfo(message: string, data?: unknown) {
+    if (!this.debugEnabled) {
+      return
+    }
+
+    if (data === undefined) {
+      Log.info(message)
+      return
+    }
+
+    Log.info(message, data)
   }
 
   _setup() {
@@ -242,29 +280,84 @@ export default class DashPlayback extends BasePlayback {
     this._dash = dash
     this._dash.initialize()
 
-    if (this.options.dash) {
-      const { requestInterceptor, ...dashSettings } = this.options.dash as Record<string, unknown>
-      const settings = $.extend(
-        true,
-        {
+    const { requestInterceptor, ...dashSettings } = ((this.options.dash ?? {}) as Record<string, unknown>)
+
+    const liveDelaySettings = typeof this.options.liveDelay === 'number'
+      ? {
           streaming: {
-            text: {
-              defaultEnabled: false,
-              // NOTE: dispatchForManualRendering is not correctly implemented in DASH.js;
-              // it does not work when there are multiple text tracks.
-              // CUE_ENTER and CUE_EXIT events might be dispatched additionally
-              // for a track, other than the currently active one.
-              // dispatchForManualRendering: true, // TODO only when useNativeSubtitles is not true?
+            delay: {
+              liveDelay: this.options.liveDelay,
+              // Prevent the manifest's suggestedPresentationDelay from overriding
+              // the explicitly requested live delay.
+              useSuggestedPresentationDelay: false,
             },
           },
-        },
-        dashSettings,
-      )
-      this._dash.updateSettings(settings)
+        }
+      : {}
 
-      if (typeof requestInterceptor === 'function') {
-        this._dash.addRequestInterceptor(requestInterceptor as Parameters<typeof this._dash.addRequestInterceptor>[0])
+    const settings = $.extend(
+      true,
+      {
+        streaming: {
+          text: {
+            defaultEnabled: false,
+            // NOTE: dispatchForManualRendering is not correctly implemented in DASH.js;
+            // it does not work when there are multiple text tracks.
+            // CUE_ENTER and CUE_EXIT events might be dispatched additionally
+            // for a track, other than the currently active one.
+            // dispatchForManualRendering: true, // TODO only when useNativeSubtitles is not true?
+          },
+          gaps: {
+            jumpGaps: true,
+            jumpLargeGaps: true,
+          },
+          liveCatchup: {
+            // Proportional catch-up: rate scales smoothly with latency distance
+            // instead of binary 1.0×/1.5× switching. Near target → minimal speed
+            // increase; far behind → approaches 1.5×. Override via
+            // options.dash.streaming.liveCatchup.mode.
+            mode: 'liveCatchupModeLoLP',
+            // Require at least half the live-delay target in buffer before
+            // activating catch-up. Prevents the post-stall "live-edge chasing"
+            // cascade where the player catches up too aggressively on a thin
+            // buffer and immediately stalls again. Override via
+            // options.dash.streaming.liveCatchup.playbackBufferMin.
+            playbackBufferMin: typeof this.options.liveDelay === 'number'
+              ? this.options.liveDelay * 0.5
+              : 1.0,
+            // Hard seek to live edge if drifted more than 3 seconds.
+            maxDrift: 3.0,
+            // Cap catch-up speed at 1.15× to avoid audible distortion and
+            // aggressive buffer depletion on micro-stalls.
+            playbackRate: { min: 1.0, max: 1.15 },
+          },
+        },
+      },
+      liveDelaySettings,
+      // options.dash takes highest priority — overrides both defaults above.
+      dashSettings,
+    )
+    this._dash.updateSettings(settings)
+
+    // Live DASH manifests (type="dynamic") must be re-fetched at every
+    // minimumUpdatePeriod interval. CDNs often serve MPDs with a non-zero
+    // Cache-Control max-age, which causes the browser to return a stale cached
+    // copy for every periodic refresh request, making the player appear to read
+    // the manifest only once. Appending a timestamp query param forces the
+    // browser to treat each refresh as a distinct URL and go to the origin.
+    // Safe for VOD too: only one MPD fetch happens for static manifests.
+    // Note: request.type ('mpd') is added by dash.js at runtime and is not in the
+    // CommonMediaRequest type definition, hence the cast.
+    this._dash.addRequestInterceptor((request) => {
+      if ((request as any).type === 'mpd') {
+        const sep = request.url.includes('?') ? '&' : '?'
+        request.url = `${request.url}${sep}_t=${Date.now()}`
       }
+      return Promise.resolve(request)
+    })
+
+    if (typeof requestInterceptor === 'function') {
+      this._dash.addRequestInterceptor(requestInterceptor as Parameters<typeof this._dash.addRequestInterceptor>[0])
     }
 
     this._dash.attachView(this.el as HTMLMediaElement)
@@ -299,6 +392,16 @@ export default class DashPlayback extends BasePlayback {
     this._dash.on(
       MediaPlayer.events.QUALITY_CHANGE_RENDERED,
       (evt: QualityChangeRenderedEvent) => {
+        if (evt.mediaType === 'video') {
+          // After a codec switch (resetSourceBuffersForTrackSwitch), the stream
+          // re-initializes without firing STREAM_INITIALIZED again, so _levels
+          // stays stale with the old codec's representations.  Detect the
+          // mismatch and refresh before reporting the level change upstream.
+          const incomingCodec = evt.newRepresentation.codecs
+          if (incomingCodec && this._levels[evt.newRepresentation.index]?.codec !== incomingCodec) {
+            this._fillLevels(this._dash!.getRepresentationsByType('video'))
+          }
+        }
         const currentLevel = this.getLevel(evt.newRepresentation.index)
         this.onLevelSwitchEnd(currentLevel)
       },
@@ -329,6 +432,33 @@ export default class DashPlayback extends BasePlayback {
         this.trigger(PlaybackEvents.PLAYBACK_RATE_CHANGED, e.playbackRate)
       },
     )
+
+    this._dash.on(
+      MediaPlayer.events.FRAGMENT_LOADING_COMPLETED,
+      (e: FragmentLoadingCompletedEvent) => {
+        const req = e.request
+        if (req.type !== 'MediaSegment' || req.mediaType !== 'video') {
+          return
+        }
+        if (!req.requestEndDate || !req.startDate || !req.duration) {
+          return
+        }
+        // Skip LL-DASH chunks (parts) — their 500 ms duration produces
+        // noisy per-part readings; we only want full-segment drift.
+        if (req.duration < 1) {
+          return
+        }
+        const transferMs = req.requestEndDate.getTime() - req.startDate.getTime()
+        const drift = transferMs / 1000 - req.duration
+        this._lastSegmentDrift = drift
+        this._accumulatedSegmentDrift += drift
+      },
+    )
+
+    this._dash.on(MediaPlayer.events.BUFFER_EMPTY, this._onBufferEmpty)
+    this._dash.on(MediaPlayer.events.BUFFER_LOADED, this._onBufferLoaded)
+    this._dash.on(MediaPlayer.events.PLAYBACK_WAITING, this._onPlaybackWaiting)
+    this._dash.on(MediaPlayer.events.PLAYBACK_STALLED, this._onPlaybackWaiting)
   }
 
   render() {
@@ -360,6 +490,36 @@ export default class DashPlayback extends BasePlayback {
     }
   }
 
+  private _startLiveMetricsTimer() {
+    this._stopLiveMetricsTimer()
+    this._liveMetricsTimer = setInterval(() => {
+      if (!this._dash) {
+        return
+      }
+      const liveLatency = this._dash.getCurrentLiveLatency()
+      const targetLatency = this._dash.getTargetLiveDelay()
+      if (isNaN(liveLatency) || liveLatency <= 0) {
+        return
+      }
+      const metrics: LiveMetrics = {
+        liveLatency,
+        targetLatency,
+        ...(this._lastSegmentDrift !== null && {
+          segmentDrift: this._lastSegmentDrift,
+          accumulatedDrift: this._accumulatedSegmentDrift,
+        }),
+      }
+      this.trigger(PlaybackEvents.LIVE_METRICS, metrics)
+    }, 1000)
+  }
+
+  private _stopLiveMetricsTimer() {
+    if (this._liveMetricsTimer) {
+      clearInterval(this._liveMetricsTimer)
+      this._liveMetricsTimer = null
+    }
+  }
+
   // getProgramDateTime() {
   //   return this._programDateTime
   // }
@@ -368,15 +528,50 @@ export default class DashPlayback extends BasePlayback {
   // as this does not necesarily represent the duration of the stream
   // https://github.com/clappr/clappr/issues/668#issuecomment-157036678
   getDuration(): TimeValue {
+    const type = this.getPlaybackType()
+    if (type === Playback.LIVE) {
+      const dvrWindow = this._dash?.getDvrWindow()
+      if (dvrWindow) {
+        this.debugInfo(`${T} getDuration LIVE`, { size: dvrWindow.size })
+        return dvrWindow.size
+      }
+    }
+
     assert.ok(
       this._duration !== null,
       'A valid duration is required to get the duration',
     )
+    this.debugInfo(`${T} getDuration VOD`, { duration: this._duration, type })
     return this._duration
   }
 
   getCurrentTime(): TimeValue {
-    return this._dash ? this._dash.time() : 0
+    if (!this._dash) {
+      return 0
+    }
+    const absoluteTime = this._dash.time()
+    const type = this.getPlaybackType()
+
+    if (type === Playback.LIVE) {
+      const windowSize = this.getDuration()
+      const liveEdge = this._dash.duration()
+      const windowStart = liveEdge - windowSize
+      const relativeTime = Math.max(0, absoluteTime - windowStart)
+      this.debugInfo(`${T} getCurrentTime LIVE`, { absoluteTime, liveEdge, windowSize, windowStart, relativeTime })
+      return relativeTime
+    }
+
+    this.debugInfo(`${T} getCurrentTime VOD`, { absoluteTime, type })
+    return absoluteTime
+  }
+
+  private _getIsDvr(time: number): boolean {
+    if (!this.dvrEnabled) {
+      return false
+    }
+
+    // time is relative now, so we just check if it is sufficiently behind the end of the window (duration)
+    return time < this.getDuration() - 10
   }
 
   // the time that "0" now represents relative to when playback started
@@ -402,19 +597,22 @@ export default class DashPlayback extends BasePlayback {
   }
 
   override seek(time: TimeValue) {
-    if (time < 0) {
-      // eslint-disable-next-line max-len
-      Log.warn(
-        'Attempt to seek to a negative time. Resetting to live point. Use seekToLivePoint() to seek to the live point.',
-      )
-      time = this.getDuration()
+    if (!this._dash) {
+      return
     }
-    this.dvrEnabled && this._updateDvr(time < this.getDuration() - 10)
-    assert.ok(
-      this._dash,
-      'An instance of dashjs MediaPlayer is required to seek',
-    )
-    this._dash.seek(time)
+
+    let targetTime = time
+    if (this.getPlaybackType() === Playback.LIVE) {
+      const windowSize = this.getDuration()
+      const liveEdge = this._dash.duration()
+      const windowStart = liveEdge - windowSize
+      targetTime = time + windowStart
+    }
+
+    const isDvr = this._getIsDvr(time)
+    this._updateDvr(isDvr)
+
+    this._dash.seek(targetTime)
   }
 
   seekToLivePoint() {
@@ -422,8 +620,33 @@ export default class DashPlayback extends BasePlayback {
   }
 
   _updateDvr(status: boolean) {
+    this.debugInfo(`${T} _updateDvr`, { status, prev: this._dvrInUse })
+    this._dvrInUse = status
     this.trigger(Events.PLAYBACK_DVR, status)
     this.trigger(Events.PLAYBACK_STATS_ADD, { dvr: status })
+
+    if (this._dash) {
+      const settings = {
+        streaming: {
+          liveCatchup: {
+            enabled: !status,
+            // Lock playback rate to 1.0 when in DVR to prevent dash.js from
+            // trying to catch up to the live edge.
+            playbackRate: status ? { min: 1.0, max: 1.0 } : { min: 1.0, max: 1.15 },
+            // Set an extremely high drift threshold in DVR mode to prevent
+            // automatic "hard" seeks to the live edge.
+            maxDrift: status ? 1000000 : 3.0,
+          },
+          gaps: {
+            // Disable gap jumping in DVR to prevent accidental skips to live.
+            jumpGaps: !status,
+            jumpLargeGaps: !status,
+          },
+        },
+      }
+      this.debugInfo(`${T} updating dash settings`, settings)
+      this._dash.updateSettings(settings)
+    }
   }
 
   // TODO move to the base class
@@ -507,21 +730,26 @@ export default class DashPlayback extends BasePlayback {
     const update: TimePosition = {
       current: this.getCurrentTime(),
       total: this.getDuration(),
-      // firstFragDateTime: this.getProgramDateTime(), // TODO figure out if needed
     }
+
+    // Diagnostic log to see what the UI is receiving
+    if (this.getPlaybackType() === Playback.LIVE) {
+      this.debugInfo(`${T} [UI Sync]`, { current: update.current, total: update.total, abs: this._dash?.time(), type: this.getPlaybackType() })
+    }
+
     const isSame =
       this._lastTimeUpdate &&
       update.current === this._lastTimeUpdate.current &&
       update.total === this._lastTimeUpdate.total
 
-    if (isSame) {
-      return
+    if (!isSame) {
+      this._lastTimeUpdate = update
+      this.trigger(Events.PLAYBACK_TIMEUPDATE, update, this.name)
     }
-    this._lastTimeUpdate = update
-    this.trigger(Events.PLAYBACK_TIMEUPDATE, update, this.name)
   }
 
   override _onDurationChange() {
+    // We use the reported duration (which might be the window size)
     const duration = this.getDuration()
 
     if (this._lastDuration === duration) {
@@ -529,17 +757,27 @@ export default class DashPlayback extends BasePlayback {
     }
 
     this._lastDuration = duration
-    super._onDurationChange() // will call _onTimeUpdate
+    super._onDurationChange()
+  }
+
+  override _onSeeking() {
+    this.trigger(Events.PLAYBACK_SEEK, this.getCurrentTime())
+  }
+
+  override _onPause() {
+    this.trigger(Events.PLAYBACK_PAUSE, this.name)
   }
 
   get dvrEnabled() {
     if (!this._dash) {
       return false
     }
-    return (
-      this._dash?.getDvrWindow()?.size >= this._minDvrSize &&
-      this.getPlaybackType() === Playback.LIVE
-    )
+    const dvrWindow = this._dash.getDvrWindow()
+    const size = dvrWindow ? dvrWindow.size : 0
+    const playbackType = this.getPlaybackType()
+    const enabled = size >= this._minDvrSize && playbackType === Playback.LIVE
+    trace(`${T} dvrEnabled`, { size, minDvrSize: this._minDvrSize, playbackType, enabled })
+    return enabled
   }
 
   override _onProgress() {
@@ -560,8 +798,20 @@ export default class DashPlayback extends BasePlayback {
 
   override play() {
     !this._dash && this._setup()
+    assert(this._dash, 'An instance of dashjs MediaPlayer is required to play')
+    const dash = this._dash
     super.play()
+    // super.play() → el.play() races with PlaybackController.addAllListeners():
+    // for autoPlay, the stream is not yet initialized when play() is first called,
+    // so the native 'play' event fires before dash.js registers its listener and
+    // ManifestUpdater never receives PLAYBACK_STARTED → the manifest refresh timer
+    // never starts → live manifests are only fetched once.
+    // this._dash.play() uses dash.js's internal playOnceInitialized mechanism to
+    // defer el.play() until after addAllListeners() is set up, guaranteeing
+    // PLAYBACK_STARTED fires and the ManifestUpdater 4-second refresh timer starts.
+    dash.play()
     this._startTimeUpdateTimer()
+    this._startLiveMetricsTimer()
   }
 
   override pause() {
@@ -577,6 +827,12 @@ export default class DashPlayback extends BasePlayback {
   override stop() {
     if (this._dash) {
       this._stopTimeUpdateTimer()
+      this._stopLiveMetricsTimer()
+      this._clearLiveResyncTimer()
+      this._liveResyncInProgress = false
+      this._accumulatedSegmentDrift = 0
+      this._lastSegmentDrift = null
+      this._dvrInUse = false
       this.destroyInstance()
       super.stop()
     }
@@ -593,6 +849,10 @@ export default class DashPlayback extends BasePlayback {
         MediaPlayer.events.MANIFEST_LOADED,
         this.getDuration,
       )
+      this._dash.off(MediaPlayer.events.BUFFER_EMPTY, this._onBufferEmpty)
+      this._dash.off(MediaPlayer.events.BUFFER_LOADED, this._onBufferLoaded)
+      this._dash.off(MediaPlayer.events.PLAYBACK_WAITING, this._onPlaybackWaiting)
+      this._dash.off(MediaPlayer.events.PLAYBACK_STALLED, this._onPlaybackWaiting)
       const tracks = this._dash.getTracksFor('text')
       tracks.forEach(track => {
         if (track.id) {
@@ -605,6 +865,88 @@ export default class DashPlayback extends BasePlayback {
     }
   }
 
+  private _onBufferEmpty = () => {
+    if (this._playbackType !== Playback.LIVE) return
+    trace(`${T} _onBufferEmpty`, { dvrInUse: this._dvrInUse })
+    if (this._resyncToLive('buffer-empty')) return
+    if (this._liveResyncTimer !== null) return
+    this._liveResyncTimer = setTimeout(() => {
+      this._liveResyncTimer = null
+      this._resyncToLive('buffer-empty-delayed')
+    }, 500)
+  }
+
+  private _onBufferLoaded = () => {
+    this._clearLiveResyncTimer()
+  }
+
+  private _onPlaybackWaiting = () => {
+    this.debugInfo(`${T} _onPlaybackWaiting`, { dvrInUse: this._dvrInUse })
+    this._resyncToLive('playback-waiting')
+  }
+
+  private _clearLiveResyncTimer() {
+    if (this._liveResyncTimer !== null) {
+      clearTimeout(this._liveResyncTimer)
+      this._liveResyncTimer = null
+    }
+  }
+
+  private _resyncToLive(reason: string) {
+    if (!this._dash || this._playbackType !== Playback.LIVE) return false
+    
+    const currentTime = this._dash.time()
+    const liveLatency = this._dash.getCurrentLiveLatency()
+    const targetDelay = this._dash.getTargetLiveDelay()
+    const dvrWindow = this._dash.getDvrWindow()
+    const dvrSize = dvrWindow ? dvrWindow.size : 0
+
+    const isDeepInDvr = liveLatency > this._minDvrSize
+    const guardActive = this._liveResyncInProgress || this._dvrInUse || isDeepInDvr
+
+    this.debugInfo(`${T} _resyncToLive check`, {
+      reason,
+      guardActive,
+      dvrInUse: this._dvrInUse,
+      isDeepInDvr,
+      resyncInProgress: this._liveResyncInProgress,
+      currentTime,
+      liveLatency,
+      targetDelay,
+      dvrSize
+    })
+
+    if (guardActive) {
+      this.debugInfo(`${T} _resyncToLive skipping`, { reason: 'guard-active', dvr: this._dvrInUse, deep: isDeepInDvr, resync: this._liveResyncInProgress })
+      return false
+    }
+
+    if (isNaN(liveLatency) || liveLatency <= 0) return false
+    if (isNaN(targetDelay) || targetDelay <= 0) return false
+
+    const latencyDrift = liveLatency - targetDelay
+    const shouldResync =
+      latencyDrift > Math.max(1, targetDelay) ||
+      liveLatency > targetDelay * 2
+
+    trace(`${T} _resyncToLive decision`, { shouldResync, latencyDrift })
+
+    if (!shouldResync) return false
+
+    const liveEdge = currentTime + liveLatency
+    const seekTo = liveEdge - targetDelay
+    
+    trace(`${T} _resyncToLive executing seek`, { liveEdge, seekTo, current: currentTime })
+
+    if (seekTo <= currentTime) return false
+
+    this._liveResyncInProgress = true
+    setTimeout(() => { this._liveResyncInProgress = false }, 5000)
+
+    this._dash.seek(seekTo)
+    return true
+  }
+
   override destroy() {
     this._stopTimeUpdateTimer()
     this.destroyInstance()
@@ -615,6 +957,7 @@ export default class DashPlayback extends BasePlayback {
     const prevPlaybackType = this._playbackType
     // @ts-ignore
     this._playbackType = this._dash.isDynamic() ? Playback.LIVE : Playback.VOD
+    this.debugInfo(`${T} _updatePlaybackType`, { prev: prevPlaybackType, current: this._playbackType, isDynamic: this._dash?.isDynamic() })
     if (prevPlaybackType !== this._playbackType) {
       this._updateSettings()
     }
@@ -627,6 +970,7 @@ export default class DashPlayback extends BasePlayback {
         bitrate: level.bitrateInKbit * 1000,
         width: level.width,
         height: level.height,
+        codec: level.codecs || undefined,
       }
     })
     this.trigger(Events.PLAYBACK_LEVELS_AVAILABLE, this._levels)
@@ -646,7 +990,9 @@ export default class DashPlayback extends BasePlayback {
   }
 
   getPlaybackType() {
-    return this._playbackType
+    const type = this._playbackType
+    // Log.info(`${T} getPlaybackType`, { type })
+    return type
   }
 
   isSeekEnabled() {

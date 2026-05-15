@@ -111,6 +111,10 @@ export default class HlsPlayback extends BasePlayback {
 
   private _recoveredDecodingError = false
 
+  private _hlsLoadingStopped = false
+
+  private _startLoadOnSource = false
+
   private _segmentTargetDuration: number | null = null
 
   private _timeUpdateTimer: TimerId | null = null
@@ -369,14 +373,29 @@ export default class HlsPlayback extends BasePlayback {
   }
 
   private _createHLSInstance() {
+    const liveDelayConfig = typeof this.options.liveDelay === 'number'
+      ? { liveSyncDuration: this.options.liveDelay }
+      : {}
+
     const config = $.extend(
       true,
       {
         maxBufferLength: 2,
         maxMaxBufferLength: 4,
+        // Keep preload manifest-only. With autoStartLoad enabled, hls.js starts
+        // level and fragment loading right after loadSource(), which can fetch
+        // media before play. play()/reload() call startLoad() explicitly once a
+        // source is registered so loading starts in the correct lifecycle phase.
         autoStartLoad: false,
         renderTextTracksNatively: false,
+        // Proportional catch-up ceiling for live streams: cap at 1.1× instead of
+        // the default 1.5×. Prevents buffer-drain stalls caused by aggressive
+        // catch-up when a segment is delayed. Override via
+        // playback.hlsjsConfig.maxLiveSyncPlaybackRate.
+        maxLiveSyncPlaybackRate: 1.1,
       },
+      liveDelayConfig,
+      // playback.hlsjsConfig takes highest priority.
       this.options.playback.hlsjsConfig,
     )
     this._hls = new HLSJS(config)
@@ -395,7 +414,10 @@ export default class HlsPlayback extends BasePlayback {
     }
     this._hls.once(HlsEvents.MEDIA_ATTACHED, () => {
       assert.ok(this._hls, 'HLS.js is not initialized')
-      this.options.hlsPlayback.preload && this._hls.loadSource(this.options.src)
+      if (this.options.hlsPlayback.preload) {
+        this._hls.loadSource(this.options.src)
+        this._startLoadOnSource && this._startHLSLoad()
+      }
     })
 
     // TODO drop?
@@ -413,7 +435,7 @@ export default class HlsPlayback extends BasePlayback {
 
     this._hls.on(HlsEvents.MANIFEST_PARSED, () => {
       this._manifestParsed = true
-      this.reload()
+      this._fillLevels()
     })
     this._hls.on(
       HlsEvents.LEVEL_LOADED,
@@ -727,7 +749,20 @@ export default class HlsPlayback extends BasePlayback {
   private reload() {
     this.cues = null
     this.currentCueId = null
-    this._hls?.startLoad(-1)
+    this._startHLSLoad()
+  }
+
+  private _startHLSLoad() {
+    if (!this._hls) {
+      return
+    }
+    if (!this._hls.url) {
+      this._startLoadOnSource = true
+      return
+    }
+    this._hls.startLoad(-1)
+    this._hlsLoadingStopped = false
+    this._startLoadOnSource = false
   }
 
   private _keyIsDenied(data: HlsErrorData) {
@@ -832,6 +867,12 @@ export default class HlsPlayback extends BasePlayback {
       !this.options.hlsPlayback.preload &&
       // @ts-expect-error
       this._hls.loadSource(this.options.src)
+    if (
+      this._hls &&
+      (this._hlsLoadingStopped || !this._hls.config.autoStartLoad)
+    ) {
+      this._startHLSLoad()
+    }
     super.play()
     this._startTimeUpdateTimer()
   }
@@ -840,7 +881,9 @@ export default class HlsPlayback extends BasePlayback {
     if (!this._hls) {
       return
     }
-    ;(this.el as HTMLMediaElement).pause()
+    ; (this.el as HTMLMediaElement).pause()
+    this._hls.stopLoad()
+    this._hlsLoadingStopped = true
     if (this.dvrEnabled) {
       this._updateDvr(true)
     }
@@ -848,6 +891,7 @@ export default class HlsPlayback extends BasePlayback {
 
   stop() {
     this._stopTimeUpdateTimer()
+    this._hlsLoadingStopped = false
     if (this._hls) {
       super.stop()
     }
@@ -876,17 +920,44 @@ export default class HlsPlayback extends BasePlayback {
     }
   }
 
-  private _fillLevels() {
+  private _fillLevels(): void {
     assert.ok(this._hls, 'HLS.js is not initialized')
-    this._levels = this._hls.levels.map((level, index) => {
-      return {
-        level: index, // or level.id?
-        width: level.width,
-        height: level.height,
-        bitrate: level.bitrate,
-      }
-    })
+    this._levels = this._hls.levels.map((level, index) => ({
+      level: index,
+      width: level.width,
+      height: level.height,
+      bitrate: level.bitrate,
+      codec: level.videoCodec,
+    }))
     this.trigger(Events.PLAYBACK_LEVELS_AVAILABLE, this._levels)
+  }
+
+  /**
+   * Sets the codec HLS.js should prefer when loading segments, and triggers a
+   * reload so the preference takes effect from the next startLoad().
+   *
+   * Called by {@link QualityLevels} after it has selected the best codec for
+   * the current platform. Compares against the current `hls.config.videoPreference`
+   * and is a no-op when unchanged, preventing reload loops.
+   */
+  setCodecPreference(prefix: string | null): void {
+    if (!this._hls) return
+    const current = (this._hls.config.videoPreference?.videoCodec ?? null) as
+      | string
+      | null
+    if (prefix === current) return
+    if (prefix) {
+      this._hls.config.videoPreference = { videoCodec: prefix }
+      const firstMatch = this._hls.levels.findIndex((level) =>
+        level.videoCodec?.toLowerCase().startsWith(prefix),
+      )
+      if (firstMatch >= 0) {
+        this._hls.startLevel = firstMatch
+      }
+    } else {
+      delete this._hls.config.videoPreference
+    }
+    this.reload()
   }
 
   private _onLevelUpdated(
@@ -1057,6 +1128,7 @@ export default class HlsPlayback extends BasePlayback {
       width: currentLevel.width,
       bitrate: currentLevel.bitrate,
       level: data.level,
+      codec: currentLevel.videoCodec,
     })
     this.trigger(Events.PLAYBACK_LEVEL_SWITCH_END)
   }
