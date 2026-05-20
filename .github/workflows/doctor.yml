@@ -92,7 +92,6 @@ jobs:
       analyze_day: ${{ steps.collect.outputs.analyze_day }}
       report_tz: ${{ steps.collect.outputs.report_tz }}
       observed_findings_present: ${{ steps.collect.outputs.observed_findings_present }}
-      findings_artifact_name: ${{ steps.collect.outputs.findings_artifact_name }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -128,7 +127,7 @@ jobs:
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ steps.collect.outputs.findings_artifact_name }}
+          name: doctor-findings
           path: ${{ runner.temp }}/doctor/doctor-findings.json
           if-no-files-found: error
 
@@ -149,7 +148,7 @@ jobs:
       - name: Download doctor-findings artifact
         uses: actions/download-artifact@v4
         with:
-          name: ${{ needs.collect.outputs.findings_artifact_name }}
+          name: doctor-findings
           path: ${{ runner.temp }}/doctor-findings
 
       - name: Checkout toolkit source
@@ -214,7 +213,7 @@ jobs:
       report_tz: ${{ needs.collect.outputs.report_tz }}
       issues_enabled: ${{ github.event.repository.has_issues && 'true' || 'false' }}
       observed_findings_present: ${{ needs.collect.outputs.observed_findings_present }}
-      findings_artifact_name: ${{ needs.collect.outputs.findings_artifact_name }}
+      findings_artifact_name: doctor-findings
       source_sha: ${{ needs.collect.outputs.source_sha }}
       installed_source_sha: ${{ needs.collect.outputs.installed_source_sha }}
       installed_runtime_sha: ${{ needs.collect.outputs.installed_runtime_sha }}
@@ -250,7 +249,7 @@ jobs:
       report_tz: ${{ needs.collect.outputs.report_tz }}
       issues_enabled: ${{ github.event.repository.has_issues && 'true' || 'false' }}
       observed_findings_present: ${{ needs.collect.outputs.observed_findings_present }}
-      findings_artifact_name: ${{ needs.collect.outputs.findings_artifact_name }}
+      findings_artifact_name: doctor-findings
       source_sha: ${{ needs.collect.outputs.source_sha }}
       installed_source_sha: ${{ needs.collect.outputs.installed_source_sha }}
       installed_runtime_sha: ${{ needs.collect.outputs.installed_runtime_sha }}
