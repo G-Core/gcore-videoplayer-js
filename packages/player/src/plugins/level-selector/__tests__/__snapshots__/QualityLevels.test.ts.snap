@@ -32,7 +32,7 @@ exports[`QualityLevels > basically > auto > should render the selected level 1`]
         <li class="">
             <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="0" aria-disabled="false" aria-checked="false" role="menuitemradio" id="level_selector_360">
                 <span class="check-icon">/assets/icons/new/check.svg</span>
-                360p
+                360p LQ
             </a>
         </li>
     
@@ -72,7 +72,7 @@ exports[`QualityLevels > basically > custom label > should render the selected l
         <li class="">
             <a href="#" class="gear-sub-menu_btn gcore-skin-text-color" data-id="0" aria-disabled="false" aria-checked="false" role="menuitemradio" id="level_selector_360">
                 <span class="check-icon">/assets/icons/new/check.svg</span>
-                360p
+                360p LQ
             </a>
         </li>
     
@@ -112,7 +112,7 @@ exports[`QualityLevels > basically > standard label > should render the selected
         <li class="current">
             <a href="#" class="gear-sub-menu_btn gcore-skin-text-color gcore-skin-active" data-id="0" aria-disabled="false" aria-checked="false" role="menuitemradio" id="level_selector_360">
                 <span class="check-icon">/assets/icons/new/check.svg</span>
-                360p
+                360p LQ
             </a>
         </li>
     
@@ -155,7 +155,7 @@ exports[`QualityLevels > options.restrictResolution > given vertical video forma
 
 exports[`QualityLevels > options.restrictResolution > initially > should render the restricted quality level label 1`] = `
 "<button class="gplayer-lite-btn gcore-skin-text-color gear-option" aria-haspopup="menu" id="quality-levels">
-    <span class="gear-option_icon hidden">/assets/icons/new/hd.svg</span>
+    <span class="gear-option_tier">LQ</span>
     <span class="gear-option_label">quality</span>
     <span class="gear-option_value">360p</span>
     <span class="gear-option_arrow-right-icon">/assets/icons/new/arrow-right.svg</span>

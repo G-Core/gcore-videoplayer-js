@@ -56,6 +56,25 @@ Bitrate of the video, bps.
 </td></tr>
 <tr><td>
 
+[codec?](./player.qualitylevel.codec.md)
+
+
+</td><td>
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+_(Optional)_ Video codec string as declared in the manifest (e.g. `avc1.640032`<!-- -->, `hvc1.1.6`<!-- -->). `undefined` when not available.
+
+
+</td></tr>
+<tr><td>
+
 [height](./player.qualitylevel.height.md)
 
 

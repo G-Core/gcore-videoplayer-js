@@ -56,6 +56,25 @@ _(Optional)_ `cid` value. If ommitted, the pathname part of the first source URL
 </td></tr>
 <tr><td>
 
+[enabled?](./player.cmcdconfigoptions.enabled.md)
+
+
+</td><td>
+
+
+</td><td>
+
+boolean
+
+
+</td><td>
+
+_(Optional)_ Enables CMCD request metadata.
+
+
+</td></tr>
+<tr><td>
+
 [sessionId?](./player.cmcdconfigoptions.sessionid.md)
 
 

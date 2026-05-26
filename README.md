@@ -34,7 +34,7 @@ More: <https://gcore.com/docs/streaming/video-hosting/hls-and-mp4>
 |  +--------------------------------------------------------+  |
 |  | Gcore JavaScript Player SDK                            |  |
 |  |                                                        |  |
-|  |  Playback: Live / VOD / HLS / DASH / MP4              |  |
+|  |  Playback: Live / VOD / HLS / DASH / MP4               |  |
 |  |                                                        |  |
 |  |  +--------------------------------------------------+  |  |
 |  |  | Plugins                                          |  |  |
@@ -81,6 +81,42 @@ This covers typical OTT and video platform delivery patterns where the same asse
 
 - Follow [Install and configure guide](./docs/install-and-configure.md) for installation and configuration.
 - Follow [Quick start guide](./docs/quick-start.md) for basic usage.
+- Follow [AI-assisted development guide](./AI-DEVELOPMENT.md) for faster feature delivery.
+
+## Development
+
+### Building the player locally
+
+If you need to build the player from source (e.g., to test local changes or debug performance):
+
+1. **Install dependencies** at the root of the repository:
+   ```bash
+   npm install
+   ```
+
+2. **Build the player bundle**:
+   Navigate to the player package and run the build script:
+   ```bash
+   cd packages/player
+   npm run build:bundle
+   ```
+
+The built assets (JavaScript and CSS) will be generated in `packages/player/dist/`.
+
+### Testing with demo pages
+
+The pages in the `example/` directory are configured to automatically load the local build from `packages/player/dist/` when served from `localhost`.
+
+To run the demos:
+1. Ensure you have built the player as described above.
+2. Start a static HTTP server from the **root** of the repository:
+   ```bash
+    # Using 'serve' on port 4444
+    npx serve . -l 4444
+    # or using 'http-server'
+    npx http-server . -p 4444
+    ```
+3. Open the demo in your browser: `http://localhost:4444/example/player.html` (or `player-lab.html` for diagnostics)
 
 ## Developer view, at a high level
 
@@ -149,13 +185,13 @@ The SDK plugin model is grouped in the same way as the product tutorial: `Playba
 |  | `PictureInPicture` | Enable picture-in-picture mode |
 |  | `PlaybackRate` | Change playback speed |
 |  | `Poster` | Show a poster image and a big play state before playback |
-|  | `QualityLevels` | Let viewers change video quality manually |
+|  | `QualityLevels` | Let viewers change video quality manually|
 |  | `SeekTime` | Show the target time while hovering the seek bar |
 |  | `Share` | Share the current video from the player UI |
 |  | `SkipTime` | Jump forward or backward with tap controls |
 |  | `SourceController` | Play one or several media sources with automatic switching and failover |
 |  | `Subtitles` / `ClosedCaptions` | Select subtitle or caption tracks |
-|  | `TokenRefreshPlugin` | Automatically refresh security tokens for Gcore protected-content streams. Rewrites the `/{token}/{expires}/` path segment in every hls.js, dash.js, and native `<video>` request without interrupting playback |
+|  | `TokenRefreshPlugin` | Automatically refresh security tokens |
 |  | `Thumbnails` | Show preview thumbnails over the timeline |
 | `UI` | `BigMuteButton` | Show a prominent unmute button for muted autoplay flows |
 |  | `BottomGear` | Extend the control bar with additional settings/actions |
@@ -178,7 +214,7 @@ API details for plugins: [packages/player/docs/api/player.md](./packages/player/
 
 ### Vanilla JS demo
 
-Live demo: <https://g-core.github.io/gcore-videoplayer-js/example/index.html>
+Demo page: [example/player.html](example/player.html)
 
 This demo includes both VOD and live streams. The players are embedded directly into the page with custom controls and dedicated log panels, making playback events easy to follow. The demo is available 24/7.
 
@@ -195,7 +231,15 @@ The plugin fetches a new token before expiry and rewrites every outgoing request
 
 ![Protected-content demo](./docs/images/demo-protected-content.png)
 
+### Player laboratory
 
+A diagnostic tool to test HLS and MPEG-DASH live and VOD streams. Allows you to test different playback scenarios with real-time analytics, buffer metrics, and request logs for performance troubleshooting.
+
+Also allows testing of LL-HLS and LL-DASH with 2 seconds low-latency delivery.
+
+Demo page: [example/player-lab.html](example/player-lab.html)
+
+![Player laboratory](./docs/images/demo-player-lab.png)
 
 ### Interactive demo with plugin settings
 

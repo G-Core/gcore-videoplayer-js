@@ -54,6 +54,7 @@ any
 
 
 ```ts
-const tokenRefresh = player.getPlugin('token_refresh') as TokenRefreshPlugin | null
+const tokenRefresh = player.getPlugin('token_refresh') as TokenRefreshPlugin
+tokenRefresh?.pause()
 ```
 

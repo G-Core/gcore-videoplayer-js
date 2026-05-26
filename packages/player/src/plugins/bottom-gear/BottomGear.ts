@@ -14,7 +14,6 @@ import pluginHtml from '../../../assets/bottom-gear/bottomgear.ejs'
 import '../../../assets/bottom-gear/gear.scss'
 import '../../../assets/bottom-gear/gear-sub-menu.scss'
 import gearIcon from '../../../assets/icons/new/gear.svg'
-import gearHdIcon from '../../../assets/icons/new/gear-hd.svg'
 import { ZeptoResult } from '../../types.js'
 import { ExtendedEvents } from '../media-control/MediaControl.js'
 import { mediaControlClickaway } from '../../utils/clickaway.js'
@@ -106,6 +105,8 @@ export enum GearEvents {
  */
 export class BottomGear extends UICorePlugin {
   private hd = false
+
+  private manualBadge = ''
 
   private numItems = 0
 
@@ -220,9 +221,32 @@ export class BottomGear extends UICorePlugin {
     })
   }
 
+  /**
+   * Sets the quality tier badge on the gear button.
+   * Call with the tier string (e.g. `'HD'`, `'4K'`) when a manual quality is
+   * selected, or with `''` to revert to the auto-HD indicator.
+   * @public
+   */
+  setQualityBadge(tier: string): void {
+    this.manualBadge = tier
+    this.updateBadge()
+  }
+
+  private getBadge(): string {
+    return this.manualBadge || (this.hd ? 'HD' : '')
+  }
+
+  private updateBadge(): void {
+    const badge = this.getBadge()
+    this.$el
+      .find('#gear-button .gear-badge')
+      .text(badge)
+      .toggleClass('hidden', !badge)
+  }
+
   private highDefinitionUpdate(isHd: boolean) {
     this.hd = isHd
-    this.$el.find('#gear-button').html(isHd ? gearHdIcon : gearIcon)
+    this.updateBadge()
   }
 
   /**
@@ -233,11 +257,10 @@ export class BottomGear extends UICorePlugin {
     if (!mediaControl) {
       return this // TODO test
     }
-    const icon = this.hd ? gearHdIcon : gearIcon
     this.collapsed = true
     this.numItems = 0
     this.$el
-      .html(BottomGear.template({ icon }))
+      .html(BottomGear.template({ icon: gearIcon, badge: this.getBadge() }))
       .hide() // until numItems > 0
       .find('#gear-options-wrapper')
       .hide()
@@ -269,8 +292,10 @@ export class BottomGear extends UICorePlugin {
       .trigger(ExtendedEvents.MEDIACONTROL_MENU_COLLAPSE, this.name)
     this.collapsed = !this.collapsed
     if (this.collapsed) {
+      this.collapseSubmenus()
       this.$el.find('#gear-options-wrapper').hide()
     } else {
+      this.collapseSubmenus()
       this.$el.find('#gear-options-wrapper').show()
     }
     this.$el
@@ -281,7 +306,7 @@ export class BottomGear extends UICorePlugin {
 
   private setKeepVisible(keepVisible: boolean) {
     this.core.getPlugin('media_control').setKeepVisible(keepVisible)
-    this.clickaway(keepVisible ? this.core.activeContainer.$el[0] : null)
+    this.clickaway(keepVisible ? this.core.$el[0] : null)
   }
 
   private collapse() {

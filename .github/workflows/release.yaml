@@ -3,6 +3,7 @@ name: Release
 permissions:
   contents: read
   packages: read
+  id-token: write # Required for OIDC from npm.yaml
 
 on:
   push:
