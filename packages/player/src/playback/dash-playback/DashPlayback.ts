@@ -588,10 +588,10 @@ export default class DashPlayback extends BasePlayback {
       const liveEdge = this._dash.duration()
       const windowStart = liveEdge - windowSize
       targetTime = time + windowStart
+      const isDvr = this._getIsDvr(time)
+      this._updateDvr(isDvr)
     }
 
-    const isDvr = this._getIsDvr(time)
-    this._updateDvr(isDvr)
 
     this._dash.seek(targetTime)
   }
