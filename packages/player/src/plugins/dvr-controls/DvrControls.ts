@@ -46,6 +46,7 @@ export class DvrControls extends UICorePlugin {
    */
   override get events() {
     return {
+      'click #gplayer-mc-live': 'clicked',
       'click #gplayer-mc-back-to-live': 'clicked',
     }
   }

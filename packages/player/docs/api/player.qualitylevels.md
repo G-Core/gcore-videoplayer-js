@@ -25,6 +25,12 @@ The plugin is rendered as an item in the gear menu, which, when clicked, shows a
 
 Configuration options - [QualityLevelsPluginSettings](./player.qualitylevelspluginsettings.md)
 
+\*\*Multi-codec HLS streams.\*\* When an HLS manifest declares the same resolution at multiple codecs (e.g. `avc1`<!-- -->, `hvc1`<!-- -->, `av01` — common in 4K adaptive streams), the plugin automatically filters the level list to a single codec. This prevents the selector from showing duplicate resolution entries. The codec is chosen according to [QualityLevelsPluginSettings.codecStrategy](./player.qualitylevelspluginsettings.codecstrategy.md) (default `'power-efficient'`<!-- -->).
+
+\*\*Codec selection by platform:\*\*
+
+<table> <thead><tr><th>Platform</th><th>AV1 hw</th><th>HEVC hw</th><th>H.264 hw</th><th>Selected</th></tr></thead> <tbody> <tr><td>macOS Safari, Apple Silicon M3+</td><td>✓</td><td>✓</td><td>✓</td><td>AV1</td></tr> <tr><td>macOS Safari, Apple Silicon M1–M2</td><td>✗</td><td>✓</td><td>✓</td><td>HEVC</td></tr> <tr><td>macOS Safari, Intel</td><td>✗</td><td>✗</td><td>✓</td><td>H.264</td></tr> <tr><td>macOS Chrome, Edge</td><td>✗ (not powerEfficient via MSE)</td><td>✓ (Chrome 107+ via VideoToolbox)</td><td>✓</td><td>HEVC — or AV1 with codecStrategy:'best-supported'</td></tr> <tr><td>Windows Chrome, Edge</td><td>✓ (GPU-dependent)</td><td>✓ (Chrome 107+)</td><td>✓</td><td>AV1 or HEVC</td></tr> <tr><td>Windows Firefox</td><td>✓</td><td>✗</td><td>✓</td><td>AV1 or H.264</td></tr> <tr><td>iOS Safari, iPhone 15 Pro+ (A17 Pro+)</td><td>✓</td><td>✓</td><td>✓</td><td>AV1</td></tr> <tr><td>iOS Safari, iPhone 7–15 (A10–A16)</td><td>✗</td><td>✓</td><td>✓</td><td>HEVC</td></tr> <tr><td>Android Chrome, flagship (SD 8 Gen 2+ / Tensor G2+)</td><td>✓</td><td>✗ (blocked)</td><td>✓</td><td>AV1</td></tr> <tr><td>Android Chrome, mid-range / older</td><td>✗</td><td>✗</td><td>✓</td><td>H.264</td></tr> <tr><td>Android Firefox</td><td>✓ (if hw)</td><td>✗</td><td>✓</td><td>AV1 or H.264</td></tr> <tr><td>Samsung Internet, Galaxy S22+</td><td>✗</td><td>✓</td><td>✓</td><td>HEVC</td></tr> </tbody> </table>
+
 ## Example
 
 

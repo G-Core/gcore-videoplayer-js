@@ -47,6 +47,18 @@ const DEFAULT_PLAYBACK_RATE = 1
 const T = 'plugins.playback_rate'
 
 /**
+ * Events emitted by the {@link PlaybackRate} plugin.
+ * @public
+ */
+export enum PlaybackRateEvents {
+  /**
+   * Emitted when the live catch-up algorithm activates, changes rate, or deactivates.
+   * Payload: `{ active: boolean; rate: number }`
+   */
+  CATCHUP_STATE_CHANGED = 'playback_rate:catchup-state-changed',
+}
+
+/**
  * `PLUGIN` that allows changing the playback speed of the video.
  * @public
  *
@@ -82,6 +94,8 @@ export class PlaybackRate extends UICorePlugin {
   // private prevSelectedRate: string | undefined
 
   private selectedRate = DEFAULT_PLAYBACK_RATE
+
+  private catchupActive = false
 
   private metadataLoaded = false
 
@@ -234,17 +248,20 @@ export class PlaybackRate extends UICorePlugin {
   }
 
   private onPlaybackRateChange(playbackRate: number) {
-    // TODO check it doesn't interfere with the DASH.js or HLS.js playback live catchup
     if (Math.abs(playbackRate - this.selectedRate) > 0.1) {
-      this.core.activePlayback?.setPlaybackRate(this.selectedRate)
+      // dash.js / hls.js live catch-up algorithm changed the rate — don't fight it
+      const wasActive = this.catchupActive
+      this.catchupActive = true
+      if (!wasActive || playbackRate !== this.selectedRate) {
+        trace(`${T} live catch-up active`, { playbackRate, selectedRate: this.selectedRate })
+        this.trigger(PlaybackRateEvents.CATCHUP_STATE_CHANGED, { active: true, rate: playbackRate })
+      }
     } else {
-      trace(
-        `${T} onPlaybackRateChange not steering to the selected rate, it is seemingly a catchup algorithm working`,
-        {
-          playbackRate,
-          selectedRate: this.selectedRate,
-        },
-      )
+      if (this.catchupActive) {
+        this.catchupActive = false
+        trace(`${T} live catch-up ended`, { playbackRate })
+        this.trigger(PlaybackRateEvents.CATCHUP_STATE_CHANGED, { active: false, rate: playbackRate })
+      }
     }
   }
 
@@ -333,7 +350,12 @@ export class PlaybackRate extends UICorePlugin {
     this.selectedRate = DEFAULT_PLAYBACK_RATE
   }
 
-  private onStop() {}
+  private onStop() {
+    if (this.catchupActive) {
+      this.catchupActive = false
+      this.trigger(PlaybackRateEvents.CATCHUP_STATE_CHANGED, { active: false, rate: this.selectedRate })
+    }
+  }
 
   private onSelect(event: MouseEvent) {
     event.stopPropagation()

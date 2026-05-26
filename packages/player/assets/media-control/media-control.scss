@@ -59,6 +59,7 @@
 
     .media-control-layer[data-controls] {
       bottom: -50px;
+      pointer-events: none;
 
       .bar-scrubber[data-seekbar] {
         opacity: 0;

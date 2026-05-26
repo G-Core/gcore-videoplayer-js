@@ -17,7 +17,8 @@
             </a>
         </li>
     <% } %>
-    <% for (const item of levels.slice().reverse()) {
+    <% for (let i = levels.length - 1; i >= 0; i--) {
+        var item = levels[i];
         var disabled = maxLevel >= 0 && item.level > maxLevel
         var checked = item.level === current
     %>
@@ -31,7 +32,7 @@
                 id="level_selector_<%= item.width > item.height ? item.height : item.width %>"
             >
                 <span class="check-icon"><%= checkIcon %></span>
-                <%= labels[item.level] %>
+                <%= labels[i] %>
             </a>
         </li>
     <% } %>

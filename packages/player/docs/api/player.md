@@ -468,6 +468,17 @@ Codes of errors occurring within the playback component.
 </td></tr>
 <tr><td>
 
+[PlaybackRateEvents](./player.playbackrateevents.md)
+
+
+</td><td>
+
+Events emitted by the [PlaybackRate](./player.playbackrate.md) plugin.
+
+
+</td></tr>
+<tr><td>
+
 [PlayerEvent](./player.playerevent.md)
 
 
@@ -813,6 +824,17 @@ Description
 </td><td>
 
 Configuration options for the [ClosedCaptions](./player.closedcaptions.md) plugin.
+
+
+</td></tr>
+<tr><td>
+
+[CodecStrategy](./player.codecstrategy.md)
+
+
+</td><td>
+
+Controls which codec is selected when a multi-codec HLS manifest is loaded.
 
 
 </td></tr>

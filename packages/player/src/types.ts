@@ -186,6 +186,35 @@ export interface PlayerConfig extends Record<string, unknown> {
    * Localization strings for the player UI.
    */
   strings?: TranslationSettings
+
+  /**
+   * Target live latency in seconds — how far behind the live edge the player aims to stay.
+   *
+   * @remarks
+   * Lower values give near-real-time delivery but leave little buffer to absorb encoder
+   * hiccups or CDN jitter. Higher values add cushion so the player rides through brief
+   * delays (e.g. loop-stitch pauses in ffmpeg) without rebuffering, at the cost of
+   * increased latency.
+   *
+   * When not set the player uses the value from the manifest:
+   * `suggestedPresentationDelay` for DASH, `HOLD-BACK` / `PART-HOLD-BACK` for HLS.
+   *
+   * Engine mapping:
+   * - **DASH** — `streaming.delay.liveDelay`; also disables
+   *   `useSuggestedPresentationDelay` so the manifest value is not applied.
+   * - **HLS** — `liveSyncDuration` in hls.js config.
+   * - **HTML5 native** — no effect.
+   *
+   * | Seconds | Behaviour |
+   * |---------|-----------|
+   * | 1–2     | Ultra / low latency — minimal stall tolerance |
+   * | 3–4     | Balanced — good default for most streams |
+   * | 6–8     | Resilient — survives encoder irregularities, broadcast-style |
+   *
+   * @defaultValue taken from manifest
+   * @public
+   */
+  liveDelay?: number
 }
 
 /**

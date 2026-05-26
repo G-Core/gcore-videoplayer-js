@@ -184,6 +184,11 @@
       "description": "Configuration for the CmcdConfig plugin (Common Media Client Data). Requires Player.registerPlugin(CmcdConfig).",
       "type": "object",
       "properties": {
+        "enabled": {
+          "description": "Enable CMCD request metadata.",
+          "type": "boolean",
+          "default": true
+        },
         "sessionId": {
           "description": "Session identifier UUID. Auto-generated if omitted.",
           "type": "string"

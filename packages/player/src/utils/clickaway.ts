@@ -25,7 +25,7 @@ export function clickaway(callback: () => void) {
 
 /**
  * Sets up a clickaway handler for the media control on mobile devices.
- * The handler is deferred to ensure it is called after the next event loop tick.
+ * The handler is deferred to ensure the click that opened the menu does not immediately re-trigger it.
  *
  * @param {() => void} callback - The callback to call when the user clicks away from the media control
  * @returns {(HTMLElement | null) => void}

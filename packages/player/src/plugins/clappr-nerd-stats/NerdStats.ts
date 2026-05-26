@@ -33,6 +33,8 @@ import pluginHtml from '../../../assets/clappr-nerd-stats/clappr-nerd-stats.ejs'
 import buttonHtml from '../../../assets/clappr-nerd-stats/button.ejs'
 import statsIcon from '../../../assets/icons/new/stats.svg'
 import { BottomGear, GearEvents } from '../bottom-gear/BottomGear.js'
+import { PlaybackRate, PlaybackRateEvents } from '../playback-rate/PlaybackRate.js'
+import { LiveMetrics, PlaybackEvents } from '../../playback/types.js'
 import { drawSummary, getPingQuality } from './utils.js'
 import { getDownloadQuality } from './utils.js'
 import { trace } from '@gcorevideo/utils'
@@ -90,6 +92,10 @@ export class NerdStats extends UICorePlugin {
   private metrics: Metrics = newMetrics()
 
   private open = false
+
+  private catchupRate: number | null = null
+
+  private liveMetrics: LiveMetrics | null = null
 
   private shortcut: string[]
 
@@ -223,6 +229,13 @@ export class NerdStats extends UICorePlugin {
       .find('#nerd-stats-playback-name')
       .text(PLAYBACK_NAMES[this.core.activePlayback.name] ?? '-')
     this.core.activeContainer.$el.append(this.$el)
+
+    const playbackRate = this.core.getPlugin('playback_rate') as PlaybackRate | null
+    if (playbackRate) {
+      this.listenTo(playbackRate, PlaybackRateEvents.CATCHUP_STATE_CHANGED, this.onCatchupStateChanged)
+    }
+
+    this.listenTo(this.core.activePlayback, PlaybackEvents.LIVE_METRICS, this.onLiveMetrics)
   }
 
   /**
@@ -492,6 +505,48 @@ export class NerdStats extends UICorePlugin {
     setTimeout(() => {
       startSpeedtest()
     }, 800)
+  }
+
+  private onCatchupStateChanged({ active, rate }: { active: boolean; rate: number }) {
+    this.catchupRate = active ? rate : null
+    this.updateCatchupRateRow()
+  }
+
+  private updateCatchupRateRow() {
+    const row = this.$el.find('#nerd-stats-catchup-rate-row')
+    if (this.catchupRate !== null) {
+      row.show()
+      this.$el.find('#nerd-stats-catchup-rate').text(`${this.catchupRate.toFixed(2)}×`)
+    } else {
+      row.hide()
+    }
+  }
+
+  private onLiveMetrics(metrics: LiveMetrics) {
+    this.liveMetrics = metrics
+    this.updateLiveMetricsRows()
+  }
+
+  private updateLiveMetricsRows() {
+    const m = this.liveMetrics
+    if (!m) {
+      return
+    }
+    const latencyRow = this.$el.find('#nerd-stats-live-latency-row')
+    latencyRow.show()
+    this.$el.find('#nerd-stats-live-latency').text(`${m.liveLatency.toFixed(2)} s`)
+    this.$el.find('#nerd-stats-target-latency').text(`${m.targetLatency.toFixed(2)} s`)
+
+    const driftRow = this.$el.find('#nerd-stats-segment-drift-row')
+    if (m.segmentDrift !== undefined && m.accumulatedDrift !== undefined) {
+      driftRow.show()
+      const sign = m.segmentDrift >= 0 ? '+' : ''
+      this.$el.find('#nerd-stats-segment-drift').text(`${sign}${m.segmentDrift.toFixed(3)} s`)
+      const accSign = m.accumulatedDrift >= 0 ? '+' : ''
+      this.$el.find('#nerd-stats-accumulated-drift').text(`${accSign}${m.accumulatedDrift.toFixed(2)} s`)
+    } else {
+      driftRow.hide()
+    }
   }
 
   private formatPlaybackName(playbackType: PlaybackType): string {

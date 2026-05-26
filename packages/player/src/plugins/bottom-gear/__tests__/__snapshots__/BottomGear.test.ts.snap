@@ -3,6 +3,7 @@
 exports[`BottomGear > basically > should render 1`] = `
 "<button class="media-control-button gplayer-lite-btn gcore-skin-button-color gear-icon" id="gear-button" aria-expanded="false" aria-controls="gear-options">
     /assets/icons/new/gear.svg
+    <span class="gear-badge hidden"></span>
 </button>
 <div class="gear-wrapper gcore-skin-bg-color" id="gear-options-wrapper" style="display: none;">
     <ul class="gear-options-list" id="gear-options" role="menu"><li data-test=""><button>test</button></li><li data-more=""><button id="more-button">more options</button></li></ul>

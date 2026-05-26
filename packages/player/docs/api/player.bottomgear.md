@@ -125,5 +125,19 @@ Collapses any submenu open back to the gear menu.
 
 
 </td></tr>
+<tr><td>
+
+[setQualityBadge(tier)](./player.bottomgear.setqualitybadge.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Sets the quality tier badge on the gear button. Call with the tier string (e.g. `'HD'`<!-- -->, `'4K'`<!-- -->) when a manual quality is selected, or with `''` to revert to the auto-HD indicator.
+
+
+</td></tr>
 </tbody></table>
 
