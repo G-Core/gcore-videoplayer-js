@@ -4,7 +4,7 @@
   "description": "Gcore JavaScript video player",
   "main": "index.js",
   "scripts": {
-    "check:license": "./node_modules/.bin/license-checker --onlyAllow \"Apache-2.0;0BSD;BSD-2-Clause;BSD-3-Clause;ISC;MIT;Python-2.0\" --summary --start",
+    "check:license": "./node_modules/.bin/license-checker --onlyAllow \"Apache-2.0;0BSD;BSD-2-Clause;BSD-3-Clause;ISC;MIT;BlueOak-1.0.0;Python-2.0\" --summary --start",
     "test": "echo \"Error: no test specified\" && exit 1",
     "prepare": "husky"
   },
@@ -22,6 +22,6 @@
     "husky": "^9.1.7",
     "license-checker": "^25.0.1",
     "prettier": "^3.8.3",
-    "oxlint": "^1.64.0"
+    "oxlint": "^1.66.0"
   }
 }
