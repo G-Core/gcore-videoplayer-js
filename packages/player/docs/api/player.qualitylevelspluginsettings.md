@@ -75,6 +75,27 @@ _(Optional)_ The labels to show in the level selector.
 </td></tr>
 <tr><td>
 
+[preferredCodecPrefix?](./player.qualitylevelspluginsettings.preferredcodecprefix.md)
+
+
+</td><td>
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+_(Optional)_ Force a specific codec prefix (e.g. `'av01'`<!-- -->, `'hvc1'`<!-- -->, `'avc1'`<!-- -->) for HLS or DASH streams, bypassing the automatic codec detection. Takes precedence over .
+
+Useful for letting the user manually switch codec tiers at runtime by reloading the player with the desired prefix.
+
+
+</td></tr>
+<tr><td>
+
 [restrictResolution?](./player.qualitylevelspluginsettings.restrictresolution.md)
 
 

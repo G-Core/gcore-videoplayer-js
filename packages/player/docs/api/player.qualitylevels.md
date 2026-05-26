@@ -25,7 +25,7 @@ The plugin is rendered as an item in the gear menu, which, when clicked, shows a
 
 Configuration options - [QualityLevelsPluginSettings](./player.qualitylevelspluginsettings.md)
 
-\*\*Multi-codec HLS streams.\*\* When an HLS manifest declares the same resolution at multiple codecs (e.g. `avc1`<!-- -->, `hvc1`<!-- -->, `av01` — common in 4K adaptive streams), the player automatically filters the level list to a single codec before passing it to this plugin. This prevents the selector from showing duplicate resolution entries. The codec is chosen according to [QualityLevelsPluginSettings.codecStrategy](./player.qualitylevelspluginsettings.codecstrategy.md) (default `'power-efficient'`<!-- -->). The logic lives in `HlsPlayback._selectBestCodecPrefix`<!-- -->.
+\*\*Multi-codec HLS streams.\*\* When an HLS manifest declares the same resolution at multiple codecs (e.g. `avc1`<!-- -->, `hvc1`<!-- -->, `av01` — common in 4K adaptive streams), the plugin automatically filters the level list to a single codec. This prevents the selector from showing duplicate resolution entries. The codec is chosen according to [QualityLevelsPluginSettings.codecStrategy](./player.qualitylevelspluginsettings.codecstrategy.md) (default `'power-efficient'`<!-- -->).
 
 \*\*Codec selection by platform:\*\*
 
