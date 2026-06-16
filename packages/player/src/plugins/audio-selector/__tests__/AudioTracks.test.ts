@@ -194,6 +194,30 @@ describe('AudioTracks', () => {
       })
     })
   })
+  describe('XSS: malicious track metadata from a manifest', () => {
+    const PAYLOAD = '<img src=x onerror=__xss__()>'
+    const ID_PAYLOAD = '"><img src=x onerror=__xss__()>'
+    const MALICIOUS_TRACKS = [
+      { id: '1', label: 'English', language: 'en', track: {} },
+      { id: ID_PAYLOAD, label: PAYLOAD, language: 'en', track: {} },
+    ]
+    beforeEach(() => {
+      emitTracksAvailable(core, MALICIOUS_TRACKS)
+    })
+    it('should not materialize an injected element from track metadata', () => {
+      expect(audioTracks.el.querySelectorAll('img').length).toBe(0)
+    })
+    it('should render the label payload as literal text', () => {
+      const items = audioTracks.$el.find('#gplayer-audiotracks-menu li')
+      expect(items.eq(1).text()).toContain(PAYLOAD)
+    })
+    it('should keep a malicious track id confined to its attribute value', () => {
+      const links = audioTracks.$el.find('#gplayer-audiotracks-menu a[data-item]')
+      expect(links.length).toBe(2)
+      expect(links.eq(1).attr('data-item')).toBe(ID_PAYLOAD)
+    })
+  })
+
   describe('when container is clicked', () => {
     beforeEach(() => {
       emitTracksAvailable(core, TRACKS)
