@@ -503,6 +503,70 @@ describe('ClosedCaptions', () => {
       },
     )
   })
+  describe('XSS: malicious subtitle metadata and cue text', () => {
+    const NAME_PAYLOAD = '<img src=x onerror=__xss_name__()>'
+    const LANG_PAYLOAD = '<img src=x onerror=__xss_lang__()>'
+    const ID_PAYLOAD = '"><img src=x onerror=__xss_id__()>'
+    const CUE_PAYLOAD = '<img src=x onerror=__xss_cue__()>'
+    beforeEach(() => {
+      core.options.cc = { language: 'none' }
+      core.emit(Events.CORE_READY)
+      core.activePlayback.el = document.createElement('video')
+      core.emit(Events.CORE_ACTIVE_CONTAINER_CHANGED, core.activeContainer)
+      // Track metadata as it would arrive from a crafted manifest:
+      // - track 0 carries the payload in its NAME (label)
+      // - track 1 has no name, so its language is used as the displayed name,
+      //   and carries the payload in its id (rendered into data-item)
+      const nativeTracks = [
+        {
+          language: 'en',
+          kind: 'subtitles',
+          label: NAME_PAYLOAD,
+          mode: 'hidden',
+          cues: [],
+          id: '01en',
+        },
+        {
+          language: LANG_PAYLOAD,
+          kind: 'subtitles',
+          label: '',
+          mode: 'hidden',
+          cues: [],
+          id: ID_PAYLOAD,
+        },
+      ]
+      core.activePlayback.closedCaptionsTracks = [
+        { id: 0, name: nativeTracks[0].label, track: nativeTracks[0] },
+        { id: ID_PAYLOAD, name: nativeTracks[1].label, track: nativeTracks[1] },
+      ]
+      vi.spyOn(core.activePlayback.el, 'textTracks', 'get').mockReturnValue(
+        nativeTracks,
+      )
+      core.activePlayback.emit(Events.PLAYBACK_SUBTITLE_AVAILABLE)
+      core.activeContainer.emit(Events.CONTAINER_SUBTITLE_AVAILABLE)
+      vi.advanceTimersByTime(1)
+    })
+    it('should not materialize any injected element in the menu', () => {
+      expect(cc.$el.find('#gplayer-cc-menu').find('img').length).toBe(0)
+    })
+    it('should render a subtitle name payload as literal text', () => {
+      expect(cc.$el.find('#gplayer-cc-menu').text()).toContain(NAME_PAYLOAD)
+    })
+    it('should render a language-fallback name payload as literal text', () => {
+      expect(cc.$el.find('#gplayer-cc-menu').text()).toContain(LANG_PAYLOAD)
+    })
+    it('should keep a malicious track id confined to its attribute value', () => {
+      const link = cc.$el.find('#gplayer-cc-menu li:nth-child(2) a')
+      expect(link.attr('data-item')).toBe(ID_PAYLOAD)
+      expect(link.find('img').length).toBe(0)
+    })
+    it('should not execute markup injected via a subtitle cue', () => {
+      core.activePlayback.oncueenter({ text: CUE_PAYLOAD })
+      const line = core.activeContainer.$el.find('#gplayer-cc-line p')
+      expect(line.find('img').length).toBe(0)
+      expect(line.text()).toContain(CUE_PAYLOAD)
+    })
+  })
 })
 
 function emitSubtitleAvailable(core: any, selectedTrackId?: number) {
