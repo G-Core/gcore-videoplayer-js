@@ -54,6 +54,48 @@ describe('ErrorScreen', () => {
         })
       }
     })
+    describe('XSS: malicious error fields', () => {
+      const TITLE_PAYLOAD = '<img src=x onerror=__xss_title__()>'
+      const MESSAGE_PAYLOAD = '<img src=x onerror=__xss_message__()>'
+      const CODE_PAYLOAD = '<img src=x onerror=__xss_code__()>'
+      beforeEach(() => {
+        errorScreen = new ErrorScreen(core)
+        core.emit('core:ready')
+        core.emit('core:active:container:changed')
+        core.emit('error', {
+          code: CODE_PAYLOAD,
+          UI: {
+            title: TITLE_PAYLOAD,
+            message: MESSAGE_PAYLOAD,
+            icon: '<svg></svg>',
+          },
+        })
+      })
+      it('should not inject an element with an event handler', () => {
+        expect(errorScreen.el.querySelectorAll('[onerror]').length).toBe(0)
+      })
+      it('should not materialize any injected image element', () => {
+        expect(errorScreen.el.querySelectorAll('img').length).toBe(0)
+      })
+      it('should render the error title as literal text', () => {
+        expect(
+          errorScreen.el.querySelector('.player-error-screen__title')
+            ?.textContent,
+        ).toContain(TITLE_PAYLOAD)
+      })
+      it('should render the error message as literal text', () => {
+        expect(
+          errorScreen.el.querySelector('.player-error-screen__message')
+            ?.textContent,
+        ).toContain(MESSAGE_PAYLOAD)
+      })
+      it('should render the error code as literal text', () => {
+        expect(
+          errorScreen.el.querySelector('.player-error-screen__code')
+            ?.textContent,
+        ).toContain(CODE_PAYLOAD)
+      })
+    })
     describe('reload button', () => {
       describe('basically', () => {
         beforeEach(() => {
