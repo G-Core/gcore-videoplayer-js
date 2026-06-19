@@ -11,3 +11,8 @@ Start playback automatically when the player is ready
 ```typescript
 autoPlay?: boolean;
 ```
+
+## Default Value
+
+false
+

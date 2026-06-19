@@ -12,6 +12,10 @@ Target live latency in seconds — how far behind the live edge the player aims 
 liveDelay?: number;
 ```
 
+## Default Value
+
+taken from manifest
+
 ## Remarks
 
 Lower values give near-real-time delivery but leave little buffer to absorb encoder hiccups or CDN jitter. Higher values add cushion so the player rides through brief delays (e.g. loop-stitch pauses in ffmpeg) without rebuffering, at the cost of increased latency.

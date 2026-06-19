@@ -11,3 +11,8 @@ Controls the debug output level
 ```typescript
 debug?: PlayerDebugSettings;
 ```
+
+## Default Value
+
+'none'
+

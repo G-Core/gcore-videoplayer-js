@@ -11,3 +11,8 @@ Preferred transport protocol when multiple sources are available.
 ```typescript
 priorityTransport?: TransportPreference;
 ```
+
+## Default Value
+
+'dash'
+

@@ -11,3 +11,8 @@ Repeat playback when the media ends. Is used with the `vod` [playbackType](./pla
 ```typescript
 loop?: boolean;
 ```
+
+## Default Value
+
+false
+
