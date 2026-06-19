@@ -1,5 +1,5 @@
 import {
-  Events as Events,
+  Events,
   CorePlugin,
   type Core as ClapprCore,
 } from '@clappr/core'
