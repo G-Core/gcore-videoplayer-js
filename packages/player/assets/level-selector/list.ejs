@@ -25,14 +25,14 @@
         <li class="<%= disabled ? ' disabled' : ''%><%=checked ? ' current' : ''%>">
             <a href="#"
                 class="gear-sub-menu_btn gcore-skin-text-color<%= checked ? ' gcore-skin-active' : '' %>"
-                data-id="<%= item.level %>"
-                aria-disabled="<%= disabled %>"
-                aria-checked="<%= checked %>"
+                data-id="<%- item.level %>"
+                aria-disabled="<%- disabled %>"
+                aria-checked="<%- checked %>"
                 role="menuitemradio"
                 id="level_selector_<%= item.width > item.height ? item.height : item.width %>"
             >
                 <span class="check-icon"><%= checkIcon %></span>
-                <%= labels[i] %>
+                <%- labels[i] %>
             </a>
         </li>
     <% } %>

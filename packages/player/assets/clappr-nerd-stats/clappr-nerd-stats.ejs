@@ -26,26 +26,26 @@
             <li class="title"><span><%= i18n.t('stats.general') %></span></li>
             <li>
                 <%= i18n.t('stats.display_resolution') %>
-                <div><span><span id="nerd-stats-resolution-width"><%= general.resolution.width %></span>&times;<span id="nerd-stats-resolution-height"><%= general.resolution.height %></span></span></div>
+                <div><span><span id="nerd-stats-resolution-width"><%- general.resolution.width %></span>&times;<span id="nerd-stats-resolution-height"><%- general.resolution.height %></span></span></div>
             </li>
             <li>
                 <%= i18n.t('stats.volume') %>
-                <div id="nerd-stats-volume"><span><%= general.volume %></span></div>
+                <div id="nerd-stats-volume"><span><%- general.volume %></span></div>
             </li>
             <li>
                 <%= i18n.t('stats.connection_speed') %>
-                <div><span id="nerd-stats-dl-text"><%= custom.connectionSpeed %></span> <%= i18n.t('mbps') %></div>
+                <div><span id="nerd-stats-dl-text"><%- custom.connectionSpeed %></span> <%= i18n.t('mbps') %></div>
             </li>
             <li class="canvas-wrapper">
                 <canvas id="nerd-stats-speed-test-canvas" width="190" height="20"></canvas>
             </li>
             <li>
                 <%= i18n.t('stats.ping') %>
-                <div><span id="nerd-stats-ping-text"><%= custom.ping %></span> <%= i18n.t('ms') %></div>
+                <div><span id="nerd-stats-ping-text"><%- custom.ping %></span> <%= i18n.t('ms') %></div>
             </li>
             <li>
                 <%= i18n.t('stats.jitter') %>
-                <div><span id="nerd-stats-jitter-text"><%= custom.jitter %></span> <%= i18n.t('ms') %></div>
+                <div><span id="nerd-stats-jitter-text"><%- custom.jitter %></span> <%= i18n.t('ms') %></div>
             </li>
         </ul>
 
@@ -53,23 +53,23 @@
             <li class="title"><span><%= i18n.t('stats.duration') %></span></li>
             <li>
                 <%= i18n.t('stats.startup') %>
-                <div><span id="nerd-stats-startup-time"><%= timers.startup %></span></div>
+                <div><span id="nerd-stats-startup-time"><%- timers.startup %></span></div>
             </li>
             <li>
                 <%= i18n.t('stats.watching') %>
-                <div><span id="nerd-stats-watch-time"><%= timers.watch %></span></div>
+                <div><span id="nerd-stats-watch-time"><%- timers.watch %></span></div>
             </li>
             <li>
                 <%= i18n.t('stats.paused') %>
-                <div><span id="nerd-stats-pause-time"><%= timers.pause %></span></div>
+                <div><span id="nerd-stats-pause-time"><%- timers.pause %></span></div>
             </li>
             <li>
                 <%= i18n.t('stats.buffering') %>
-                <div><span id="nerd-stats-buffering-time"><%= timers.buffering %></span></div>
+                <div><span id="nerd-stats-buffering-time"><%- timers.buffering %></span></div>
             </li>
             <li>
                 <%= i18n.t('stats.session') %>
-                <div><span id="nerd-stats-session-time"><%= timers.session %></span></div>
+                <div><span id="nerd-stats-session-time"><%- timers.session %></span></div>
             </li>
         </ul>
 
@@ -77,47 +77,47 @@
             <li class="title"><span><%= i18n.t('stats.counters') %></span></li>
             <li>
                 <%= i18n.t('stats.plays') %>
-                <div><span id="nerd-stats-plays"><%= counters.play %></span></div>
+                <div><span id="nerd-stats-plays"><%- counters.play %></span></div>
             </li>
             <li>
                 <%= i18n.t('stats.pauses') %>
-                <div><span id="nerd-stats-pauses"><%= counters.pause %></span></div>
+                <div><span id="nerd-stats-pauses"><%- counters.pause %></span></div>
             </li>
             <li>
                 <%= i18n.t('stats.errors') %>
-                <div><span id="nerd-stats-errors"><%= counters.error %></span></div>
+                <div><span id="nerd-stats-errors"><%- counters.error %></span></div>
             </li>
             <li>
                 <%= i18n.t('stats.bufferings') %>
-                <div><span id="nerd-stats-bufferings"><%= counters.buffering %></span></div>
+                <div><span id="nerd-stats-bufferings"><%- counters.buffering %></span></div>
             </li>
             <li>
                 <%= i18n.t('stats.decoded_frames') %>
-                <div><span id="nerd-stats-decoded-frames"><%= counters.decodedFrames %></span></div>
+                <div><span id="nerd-stats-decoded-frames"><%- counters.decodedFrames %></span></div>
             </li>
             <li>
                 <%= i18n.t('stats.dropped_frames') %>
-                <div><span id="nerd-stats-dropped-frames"><%= counters.droppedFrames %></span></div>
+                <div><span id="nerd-stats-dropped-frames"><%- counters.droppedFrames %></span></div>
             </li>
             <li>
                 <%= i18n.t('stats.fps') %>
-                <div><span id="nerd-stats-fps"><%= counters.fps %></span></div>
+                <div><span id="nerd-stats-fps"><%- counters.fps %></span></div>
             </li>
             <li>
                 <%= i18n.t('stats.bitrate_changes') %>
-                <div><span id="nerd-stats-bitrate-changes"><%= counters.changeLevel %></span></div>
+                <div><span id="nerd-stats-bitrate-changes"><%- counters.changeLevel %></span></div>
             </li>
             <li>
                 <%= i18n.t('stats.seeks') %>
-                <div><span id="nerd-stats-seeks"><%= counters.seek %></span></div>
+                <div><span id="nerd-stats-seeks"><%- counters.seek %></span></div>
             </li>
             <li>
                 <%= i18n.t('stats.fullscreen') %>
-                <div><span id="nerd-stats-fullscreen"><%= counters.fullscreen %></span></div>
+                <div><span id="nerd-stats-fullscreen"><%- counters.fullscreen %></span></div>
             </li>
             <li>
                 <%= i18n.t('stats.dvr_seeks') %>
-                <div><span id="nerd-stats-dvr-usage"><%= counters.dvrUsage %></span></div>
+                <div><span id="nerd-stats-dvr-usage"><%- counters.dvrUsage %></span></div>
             </li>
         </ul>
 
@@ -125,11 +125,11 @@
             <li class="title"><span><%= i18n.t('stats.extra') %></span></li>
             <li>
                 <%= i18n.t('stats.playback') %>
-                <div><span id="nerd-stats-playback-name"><%= extra.playbackName %></span></div>
+                <div><span id="nerd-stats-playback-name"><%- extra.playbackName %></span></div>
             </li>
             <li>
                 <%= i18n.t('stats.playback_type') %>
-                <div><span id="nerd-stats-playback-type"><%= extra.playbackType %></span></div>
+                <div><span id="nerd-stats-playback-type"><%- extra.playbackType %></span></div>
             </li>
             <li id="nerd-stats-catchup-rate-row" style="display:none">
                 Live catch-up
@@ -141,7 +141,7 @@
             </li>
             <li>
                 <%= i18n.t('stats.buffer_size') %>
-                <div><span id="nerd-stats-buffer-size"><%= extra.buffersize %></span></div>
+                <div><span id="nerd-stats-buffer-size"><%- extra.buffersize %></span></div>
             </li>
             <li id="nerd-stats-segment-drift-row" style="display:none">
                 Segment drift / total
@@ -149,27 +149,27 @@
             </li>
             <li>
                 <%= i18n.t('stats.video_duration') %>
-                <div><span id="nerd-stats-video-duration"><%= extra.duration %></span></div>
+                <div><span id="nerd-stats-video-duration"><%- extra.duration %></span></div>
             </li>
             <li>
                 <%= i18n.t('stats.current_time') %>
-                <div><span id="nerd-stats-current-time"><%= extra.currentTime %></span></div>
+                <div><span id="nerd-stats-current-time"><%- extra.currentTime %></span></div>
             </li>
             <li>
                 <%= i18n.t('stats.bitrate_weighted_mean') %>
-                <div><span id="nerd-stats-bitrate-weighted-mean"><%= extra.bitrateWeightedMean %></span></div>
+                <div><span id="nerd-stats-bitrate-weighted-mean"><%- extra.bitrateWeightedMean %></span></div>
             </li>
             <li>
                 <%= i18n.t('stats.bitrate_most_used') %>
-                <div><span id="nerd-stats-bitrate-most-used"><%= extra.bitrateMostUsed %></span></div>
+                <div><span id="nerd-stats-bitrate-most-used"><%- extra.bitrateMostUsed %></span></div>
             </li>
             <li>
                 <%= i18n.t('stats.watched_percentage') %>
-                <div><span id="nerd-stats-watched-percentage"><%= extra.watchedPercentage %></span></div>
+                <div><span id="nerd-stats-watched-percentage"><%- extra.watchedPercentage %></span></div>
             </li>
             <li>
                 <%= i18n.t('stats.buffering_percentage') %>
-                <div><span id="nerd-stats-buffering-percentage"><%= extra.bufferingPercentage %></span></div>
+                <div><span id="nerd-stats-buffering-percentage"><%- extra.bufferingPercentage %></span></div>
             </li>
         </ul>
     </div>
@@ -180,7 +180,7 @@
                 <div class="speedtest-summary-subblock-content">
                     <div class="speedtest-quality">
                         <div class="speedtest-quality-header"><%= i18n.t('vod') %>: 
-                            <span id="nerd-stats-quality-vod-text"><%= custom.vodQuality %></span></div>
+                            <span id="nerd-stats-quality-vod-text"><%- custom.vodQuality %></span></div>
                         <div class="speedtest-quality-content" data-streaming-type="vod" id="nerd-stats-quality-vod">
                             <div class="speedtest-quality-content-item"></div>
                             <div class="speedtest-quality-content-item"></div>
@@ -195,7 +195,7 @@
                 <div class="speedtest-summary-subblock-content">
                     <div class="speedtest-quality">
                         <div class="speedtest-quality-header"><%= i18n.t('live') %>: 
-                            <span id="nerd-stats-quality-live-text"><%= custom.liveQuality %></span></div>
+                            <span id="nerd-stats-quality-live-text"><%- custom.liveQuality %></span></div>
                         <div class="speedtest-quality-content" data-streaming-type="live" id="nerd-stats-quality-live">
                             <div class="speedtest-quality-content-item"></div>
                             <div class="speedtest-quality-content-item"></div>

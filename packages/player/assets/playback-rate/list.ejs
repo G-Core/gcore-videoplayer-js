@@ -5,9 +5,9 @@
 <ul class="gear-sub-menu" id="playback-rate-menu">
     <% for (const item of playbackRates) { %>
         <li<%= item.value === current ? ' class="current"' : '' %>>
-            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color<%= item.value === current ? ' gcore-skin-active' : '' %>" data-rate="<%= item.value %>">
+            <a href="#" class="gear-sub-menu_btn gcore-skin-text-color<%= item.value === current ? ' gcore-skin-active' : '' %>" data-rate="<%- item.value %>">
                 <span class="check-icon"><%= checkIcon %></span>
-                <%= item.label %>
+                <%- item.label %>
             </a>
         </li>
     <% } %>
