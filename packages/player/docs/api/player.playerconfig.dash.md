@@ -11,3 +11,8 @@ Configuration settings for the DASH playback engine
 ```typescript
 dash?: DashSettings;
 ```
+
+## Default Value
+
+{<!-- -->} [https://cdn.dashjs.org/latest/jsdoc/module-Settings.html](https://cdn.dashjs.org/latest/jsdoc/module-Settings.html)
+

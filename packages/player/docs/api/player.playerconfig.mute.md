@@ -11,3 +11,8 @@ Mute the audio output in order to comply with browsers' autoplay policy.
 ```typescript
 mute?: boolean;
 ```
+
+## Default Value
+
+false
+

@@ -11,3 +11,8 @@ A language code for the player UI, for example, `es`<!-- -->. Must reference a k
 ```typescript
 language?: string;
 ```
+
+## Default Value
+
+'en'
+

@@ -11,3 +11,8 @@ Enables CMCD request metadata.
 ```typescript
 enabled?: boolean;
 ```
+
+## Default Value
+
+true
+
