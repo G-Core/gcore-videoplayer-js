@@ -527,7 +527,13 @@ export class ClosedCaptions extends UICorePlugin {
   }
 
   private setSubtitleText(text: string | DocumentFragment) {
-    this.$line.find('p').html(text)
+    // A raw string here originates from a cue payload (e.g. oncueenter) and may
+    // contain untrusted manifest/VTT markup. Parse it into a sanitized fragment
+    // via the browser's WebVTT parser instead of injecting it as raw HTML.
+    // DocumentFragment inputs are already produced by getCueAsHTML and are safe.
+    const content =
+      typeof text === 'string' ? cueTextToFragment(text) : text
+    this.$line.find('p').html(content)
   }
 
   private clearSubtitleText() {
@@ -611,4 +617,25 @@ export class ClosedCaptions extends UICorePlugin {
   }
 
   private clickaway = mediaControlClickaway(() => this.hideMenu())
+}
+
+/**
+ * Turns a raw cue-text string into a sanitized DocumentFragment using the
+ * browser's native WebVTT parser (`VTTCue.getCueAsHTML`). The parser only emits
+ * the WebVTT-allowed element set (`<c>`, `<i>`, `<b>`, `<u>`, `<ruby>`, `<rt>`,
+ * `<v>`, `<lang>`) and HTML-escapes everything else, so injected markup such as
+ * `<img onerror=...>` cannot execute. Falls back to a plain text node when the
+ * WebVTT API is unavailable.
+ */
+function cueTextToFragment(text: string): DocumentFragment | string {
+  try {
+    if (typeof VTTCue !== 'undefined') {
+      return new VTTCue(0, 0, text).getCueAsHTML()
+    }
+  } catch {
+    // fall through to the text-node fallback
+  }
+  const fragment = document.createDocumentFragment()
+  fragment.appendChild(document.createTextNode(text))
+  return fragment
 }
