@@ -66,7 +66,7 @@ export interface QualityLevelsPluginSettings {
   /**
    * Force a specific codec prefix (e.g. `'av01'`, `'hvc1'`, `'avc1'`) for HLS
    * or DASH streams, bypassing the automatic codec detection. Takes precedence
-   * over {@link codecStrategy}.
+   * over {@link QualityLevelsPluginSettings.codecStrategy}.
    *
    * Useful for letting the user manually switch codec tiers at runtime by
    * reloading the player with the desired prefix.

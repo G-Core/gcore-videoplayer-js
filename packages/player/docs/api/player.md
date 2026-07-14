@@ -195,6 +195,8 @@ A `PLUGIN` that configures [CMCD](https://cdn.cta.tech/cta/media/media/resources
 
 **_(BETA)_** `PLUGIN` that adds custom logo to the player.
 
+Expects `options.logo` of shape [LogoOptions](./player.logooptions.md)<!-- -->. Set documentation on [player configuration](./player.playerconfig.md)<!-- -->.
+
 
 </td></tr>
 <tr><td>
@@ -923,6 +925,17 @@ Settings for the [ErrorScreen](./player.errorscreen.md) plugin.
 </td><td>
 
 An ISO 639-1 language code.
+
+
+</td></tr>
+<tr><td>
+
+[LogoOptions](./player.logooptions.md)
+
+
+</td><td>
+
+**_(BETA)_**
 
 
 </td></tr>

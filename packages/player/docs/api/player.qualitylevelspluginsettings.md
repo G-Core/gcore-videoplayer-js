@@ -88,7 +88,7 @@ string
 
 </td><td>
 
-_(Optional)_ Force a specific codec prefix (e.g. `'av01'`<!-- -->, `'hvc1'`<!-- -->, `'avc1'`<!-- -->) for HLS or DASH streams, bypassing the automatic codec detection. Takes precedence over .
+_(Optional)_ Force a specific codec prefix (e.g. `'av01'`<!-- -->, `'hvc1'`<!-- -->, `'avc1'`<!-- -->) for HLS or DASH streams, bypassing the automatic codec detection. Takes precedence over [QualityLevelsPluginSettings.codecStrategy](./player.qualitylevelspluginsettings.codecstrategy.md)<!-- -->.
 
 Useful for letting the user manually switch codec tiers at runtime by reloading the player with the desired prefix.
 

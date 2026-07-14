@@ -9,6 +9,8 @@
 
 `PLUGIN` that adds custom logo to the player.
 
+Expects `options.logo` of shape [LogoOptions](./player.logooptions.md)<!-- -->. Set documentation on [player configuration](./player.playerconfig.md)<!-- -->.
+
 **Signature:**
 
 ```typescript

@@ -4,6 +4,7 @@ import {
   template as t,
   Container,
 } from '@clappr/core'
+// import { trace } from '@gcorevideo/utils'
 
 import { CLAPPR_VERSION } from '../../build.js'
 import { calculateSize } from './utils/index.js'
@@ -14,20 +15,57 @@ import '../../../assets/logo/styles/logo.scss'
 
 type PositionStyleAttr = 'top' | 'bottom' | 'left' | 'right'
 
-type LogoOptions = {
-  // TODO check
+/**
+ * @beta
+ * @remarks Do not specify opposite offsets (i.e., top and bottom, or left and right) at the same time.
+ * If you need to change "snap"-side using {@link Player.configure}, always reset old offsets to zero.
+ * @example
+ * ```ts
+ * player.configure({ logo: { left: 0, top: 0, right: 25, bottom: 20}})
+ * ```
+ */
+export type LogoOptions = {
+  /**
+   * Logo image URL
+   */
+  path: string
+  /**
+   * CSS with
+   */
   width?: number
+  /**
+   * CSS height
+   */
   height?: number
+  /**
+   * CSS top position
+   */
   top?: number
+  /**
+   * CSS bottom position
+   */
   bottom?: number
+  /**
+   * CSS left position
+   */
   left?: number
+  /**
+   * CSS right position
+   */
   right?: number
+  /**
+   * CSS {@link https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/object-fit | object-fit}
+   */
   objectFit?: 'contain' | 'cover' | 'fill' | 'none' | 'scale-down'
 }
+
+// const T = 'plugins.logo'
 
 /**
  * `PLUGIN` that adds custom logo to the player.
  * @beta
+ *
+ * Expects `options.logo` of shape {@link LogoOptions}. Set documentation on {@link PlayerConfig | player configuration}.
  */
 export class Logo extends UIContainerPlugin {
   private hasStartedPlaying = false
