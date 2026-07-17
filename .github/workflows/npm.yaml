@@ -1,4 +1,5 @@
 name: Upload to NPM
+description: Upload to the public NPM registry
 
 # Version is taken from the package.json on the current commit, if the version is already published, the operation will fail
 
@@ -38,14 +39,14 @@ jobs:
         with:
           node-version: 22
           cache: 'npm'
-          cache-dependency-path: packages/player/package-lock.json
+          cache-dependency-path: packages/${{ env.PACKAGE }}/package-lock.json
           registry-url: https://registry.npmjs.org/
           scope: '@gcorevideo'
       - name: Check version
         id: version
         run: |
           version=${{ inputs.version }}
-          pkg_version=$(jq -r '.version' packages/player/package.json)
+          pkg_version=$(jq -r '.version' packages/${{ env.PACKAGE }}/package.json)
           case "$version" in
             "" | "latest" | "$pkg_version")
               echo "INFO current version is '$pkg_version'"
@@ -58,15 +59,17 @@ jobs:
             ;;
           esac
       - name: Install dependencies
-        run: npm -C packages/player ci
+        run: npm -C packages/${{ env.PACKAGE }} ci
       - name: Build
-        run: npm -C packages/player run build
+        run: npm -C packages/${{ env.PACKAGE }} run build
       - name: Publish
         if: inputs.dry_run != true
         run: |
-          cd packages/player
+          cd packages/${{ env.PACKAGE }}
           npm publish --access public --provenance
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
     outputs:
       version: ${{ steps.version.outputs.version }}
+    env:
+      PACKAGE: player

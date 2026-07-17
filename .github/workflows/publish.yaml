@@ -50,9 +50,9 @@ jobs:
           curl \
             -LSfs \
             -o package.tgz \
-            https://registry.npmjs.org/@gcorevideo/player/-/player-$VERSION.tgz
+            https://registry.npmjs.org/@gcorevideo/${{ env.PACKAGE }}/-/${{ env.PACKAGE }}-$VERSION.tgz
           tar xf package.tgz
-      - name: Upload to the bucket
+      - name: Upload to S3
         run: |
           LIBDIR=`pwd`/ci
           VERSION=${{ steps.version.outputs.version }}
@@ -61,20 +61,24 @@ jobs:
             -a sha256 \
             ./*.* > ./SHA256.txt
           python $LIBDIR/upload-s3.py \
-            --endpoint https://$S3_HOSTNAME \
-            --bucket player \
+            --endpoint https://${{ env.S3_HOSTNAME }} \
+            --bucket ${{ env.S3_BUCKET }} \
             . \
             $VERSION
-          echo "OK published as https://player.gvideo.co/v2/assets/$VERSION/index.js"
+          echo "OK published as ${{ env.CDN_URL }}/$VERSION/index.js"
           if [ "${{ inputs.latest }}" = true ]; then
             python $LIBDIR/upload-s3.py \
-              --endpoint https://$S3_HOSTNAME \
-              --bucket player \
+              --endpoint https://${{ env. S3_HOSTNAME }} \
+              --bucket ${{ env.S3_BUCKET }} \
               . \
               latest
-            echo "OK published https://player.gvideo.co/v2/assets/latest/[...] -> https://player.gvideo.co/v2/assets/$VERSION/[...]"
+            echo "OK published ${{ env.CDN_URL }}/latest/[...] -> ${{ env.CDN_URL }}/$VERSION/[...]"
           fi
         env:
           S3_HOSTNAME: ${{ secrets.S3_HOSTNAME }}
           S3_ACCESS_KEY: ${{ secrets.S3_ACCESS_KEY }}
           S3_SECRET_KEY: ${{ secrets.S3_SECRET_KEY }}
+          S3_BUCKET: player
+    env:
+      PACKAGE: player
+      CDN_URL: https://player.gvideo.co/v2/assets
