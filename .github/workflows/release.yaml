@@ -27,7 +27,7 @@ jobs:
     secrets: inherit
     with:
       version: ${{ inputs.version || github.ref_name }}
-      dry_run: ${{ inputs.skip_npm }}
+      dry_run: ${{ inputs.skip_npm || false }}
   cdn:
     needs: npm
     uses: ./.github/workflows/publish.yaml
