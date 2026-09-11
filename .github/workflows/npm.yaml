@@ -46,6 +46,7 @@ jobs:
         id: version
         run: |
           version=${{ inputs.version }}
+          version=${version#v}
           pkg_version=$(jq -r '.version' packages/${{ env.PACKAGE }}/package.json)
           case "$version" in
             "" | "latest" | "$pkg_version")
@@ -54,7 +55,7 @@ jobs:
               exit 0
             ;;
             *)
-              echo "ERR Version given is '$version' but version in package.json is '$pkg_version'"
+              echo "ERR Version given is '${{ inputs.version }}' but version in package.json is '$pkg_version'"
               exit 1
             ;;
           esac
