@@ -174,12 +174,41 @@
       .demo-header__notice-inner {
         display: flex;
         align-items: center;
+        flex-wrap: wrap;
         min-height: 36px;
         padding: 8px 0;
-        color: rgba(255,255,255,.86);
+        color: rgba(255, 255, 255, 0.86);
         font-size: 13px;
         font-weight: 650;
-        line-height: 1.4;
+        line-height: 1.5;
+      }
+
+      .demo-header__notice-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        color: #fff;
+        text-decoration: underline;
+        text-decoration-color: rgba(255, 255, 255, 0.4);
+        text-underline-offset: 3px;
+        margin: 0 4px;
+        transition: color 160ms ease, text-decoration-color 160ms ease;
+      }
+
+      .demo-header__notice-link:hover {
+        color: #ff8552;
+        text-decoration-color: #ff8552;
+      }
+
+      .demo-header__notice-icon {
+        flex-shrink: 0;
+        opacity: 0.75;
+        transition: opacity 160ms ease, transform 160ms ease;
+      }
+
+      .demo-header__notice-link:hover .demo-header__notice-icon {
+        opacity: 1;
+        transform: translate(1px, -1px);
       }
 
       .demo-header__bar {
@@ -509,7 +538,7 @@
     <header class="demo-header">
       <div class="demo-header__notice">
         <div class="demo-header__notice-inner">
-          Demo pages for testing Gcore Video Streaming and JavaScript video player behavior
+          Demo pages for testing <a class="demo-header__notice-link" href="https://docs.gcore.com/streaming" target="_blank" rel="noopener">Gcore Video Streaming<svg class="demo-header__notice-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg></a> and <a class="demo-header__notice-link" href="https://docs.gcore.com/streaming/player/player-api-tutorial" target="_blank" rel="noopener">JavaScript video player<svg class="demo-header__notice-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg></a> behavior
         </div>
       </div>
       <nav class="demo-header__bar" aria-label="Demo pages">

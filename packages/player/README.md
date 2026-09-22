@@ -184,6 +184,8 @@ console.log(plugin.isPaused)  // → true | false
 
 ### Working demo
 
+Live demo: <https://g-core.github.io/gcore-videoplayer-js/example/protected-content.html>
+
 See [`example/protected-content.html`](../../example/protected-content.html) and
 [`example/protected-content.js`](../../example/protected-content.js) for a fully
 annotated end-to-end integration, including UI feedback, IP-bound token switching,
