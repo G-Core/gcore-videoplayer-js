@@ -10,6 +10,9 @@ It keeps the same high-level section structure, but the content is rewritten for
 
 - Full demo with plugin settings: <https://gcore-videoplayer-js-nuxt.vercel.app/settings>
 - Vanilla JS demo: <https://codepen.io/dmitritz/pen/OPLdEab?editors=1000>
+- GitHub Pages demo (Live & VOD): <https://g-core.github.io/gcore-videoplayer-js/example/player.html>
+- GitHub Pages protected content demo: <https://g-core.github.io/gcore-videoplayer-js/example/protected-content.html>
+- GitHub Pages player lab: <https://g-core.github.io/gcore-videoplayer-js/example/player-lab.html>
 
 Real demo media URLs used in the product docs:
 

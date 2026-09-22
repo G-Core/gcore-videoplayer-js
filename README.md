@@ -214,7 +214,7 @@ API details for plugins: [packages/player/docs/api/player.md](./packages/player/
 
 ### Vanilla JS demo
 
-Demo page: [example/player.html](example/player.html)
+Demo page: <https://g-core.github.io/gcore-videoplayer-js/example/player.html>
 
 This demo includes both VOD and live streams. The players are embedded directly into the page with custom controls and dedicated log panels, making playback events easy to follow. The demo is available 24/7.
 
@@ -223,7 +223,7 @@ This demo includes both VOD and live streams. The players are embedded directly 
 
 ### Protected-content demo
 
-Demo page: [example/protected-content.html](example/protected-content.html)
+Demo page: <https://g-core.github.io/gcore-videoplayer-js/example/protected-content.html>
 
 Shows **automatic token refresh** each N seconds for a Gcore protected HLS stream using `TokenRefreshPlugin`.
 Tokens are embedded directly in the URL path (`/{token}/{expires}/master.m3u8`) and expire after a configurable interval.
@@ -237,7 +237,7 @@ A diagnostic tool to test HLS and MPEG-DASH live and VOD streams. Allows you to 
 
 Also allows testing of LL-HLS and LL-DASH with 2 seconds low-latency delivery.
 
-Demo page: [example/player-lab.html](example/player-lab.html)
+Demo page: <https://g-core.github.io/gcore-videoplayer-js/example/player-lab.html>
 
 ![Player laboratory](./docs/images/demo-player-lab.png)
 
