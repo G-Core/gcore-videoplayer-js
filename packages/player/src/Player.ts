@@ -401,7 +401,7 @@ export class Player {
       return
     }
     // Prevent "overriding plugin entry" warning
-    Loader.unregisterPlugin(plugin)
+    Loader.unregisterPlugin(plugin.prototype.name)
     Loader.registerPlugin(plugin)
   }
 
