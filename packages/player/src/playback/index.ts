@@ -6,7 +6,7 @@ import HTML5Video from './HTML5Video.js'
 
 export function registerPlaybacks() {
   // Prevent "overriding playback entry" warning
-  Loader.unregisterPlayback(HTML5Video)
+  Loader.unregisterPlayback(HTML5Video.prototype.name)
   Loader.registerPlayback(HTML5Video)
   Loader.registerPlayback(HlsPlayback)
   Loader.registerPlayback(DashPlayback)
