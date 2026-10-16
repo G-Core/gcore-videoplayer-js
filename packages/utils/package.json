@@ -1,10 +1,10 @@
 {
   "name": "@gcorevideo/utils",
-  "version": "0.7.1",
+  "version": "0.7.4",
   "description": "Miscellaneous utilities for the Gcore streaming platform projects",
   "repository": {
     "type": "git",
-    "url": "https://github.com/G-Core/gcore-videoplayer-js/packages/utils"
+    "url": "git+https://github.com/G-Core/gcore-videoplayer-js.git"
   },
   "license": "Apache-2.0",
   "author": "Dmitriy Tkach <dmitrii.tkach@gcore.com>",

@@ -26,6 +26,10 @@ on:
         type: boolean
         description: 'Skip the NPM upload step'
         default: false
+      package:
+        type: string
+        description: 'The package to publish (player, utils)'
+        default: 'player'
 permissions:
   id-token: write # Required for OIDC
   contents: read
@@ -73,4 +77,4 @@ jobs:
     outputs:
       version: ${{ steps.version.outputs.version }}
     env:
-      PACKAGE: player
+      PACKAGE: ${{ inputs.package || 'player' }}

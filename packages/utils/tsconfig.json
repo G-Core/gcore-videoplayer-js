@@ -9,7 +9,9 @@
   ],
   "compilerOptions": {
     "composite": true,
-    "baseUrl": ".",
+    "paths": {
+      "*": ["./*"]
+    },
     "target": "es2022",
     "strict": true,
     "esModuleInterop": true,
