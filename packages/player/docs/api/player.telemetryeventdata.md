@@ -12,7 +12,7 @@ Telemetry event data
 **Signature:**
 
 ```typescript
-export type TelemetryEventData = StallEventData | InitEventData | StartEventData | WatchEventData;
+export type TelemetryEventData = StallEventData | InitEventData | StartEventData | WatchEventData | PlaybackEventData;
 ```
-**References:** [StallEventData](./player.stalleventdata.md)<!-- -->, [InitEventData](./player.initeventdata.md)<!-- -->, [StartEventData](./player.starteventdata.md)<!-- -->, [WatchEventData](./player.watcheventdata.md)
+**References:** [StallEventData](./player.stalleventdata.md)<!-- -->, [InitEventData](./player.initeventdata.md)<!-- -->, [StartEventData](./player.starteventdata.md)<!-- -->, [WatchEventData](./player.watcheventdata.md)<!-- -->, [PlaybackEventData](./player.playbackeventdata.md)
 

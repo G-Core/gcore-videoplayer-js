@@ -51,6 +51,22 @@ Init
 </td></tr>
 <tr><td>
 
+PlaybackReport
+
+
+</td><td>
+
+`5`
+
+
+</td><td>
+
+**_(BETA)_**
+
+
+</td></tr>
+<tr><td>
+
 Stall
 
 

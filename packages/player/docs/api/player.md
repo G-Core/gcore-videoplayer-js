@@ -625,7 +625,7 @@ Context menu plugin settings
 
 </td><td>
 
-**_(BETA)_** Telemetry init event data
+**_(BETA)_** Telemetry event: playback is ready
 
 
 </td></tr>
@@ -637,6 +637,17 @@ Context menu plugin settings
 </td><td>
 
 An error occurred during the playback.
+
+
+</td></tr>
+<tr><td>
+
+[PlaybackEventData](./player.playbackeventdata.md)
+
+
+</td><td>
+
+**_(BETA)_** Telemetry event: playback statistics
 
 
 </td></tr>
@@ -702,7 +713,7 @@ Configuration options for the [QualityLevels](./player.qualitylevels.md) plugin.
 
 </td><td>
 
-**_(BETA)_** Playback stall event data
+**_(BETA)_** Telemetry event: playback stall
 
 
 </td></tr>
@@ -713,7 +724,7 @@ Configuration options for the [QualityLevels](./player.qualitylevels.md) plugin.
 
 </td><td>
 
-**_(BETA)_** Telemetry start event data
+**_(BETA)_** Telemetry event: playback start
 
 
 </td></tr>
@@ -779,7 +790,7 @@ Response shape expected from your token-refresh API endpoint.
 
 </td><td>
 
-**_(BETA)_** Telemetry watch event data
+**_(BETA)_** Telemetry watch: watch (playback has started)
 
 
 </td></tr>
@@ -1212,7 +1223,7 @@ Built-in media control elements.
 
 </td><td>
 
-Playback time position in seconds since the beginning of the stream. For the live streams this is limited to the length of a segment. When DVR is enabled, this refers to the
+Playback time position in seconds since the beginning of the stream. For the live streams this is limited to the length of a segment.
 
 
 </td></tr>

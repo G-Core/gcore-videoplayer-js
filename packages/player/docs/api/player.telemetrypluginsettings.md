@@ -40,6 +40,25 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
+[playbackReportInterval?](./player.telemetrypluginsettings.playbackreportinterval.md)
+
+
+</td><td>
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+**_(BETA)_** _(Optional)_
+
+
+</td></tr>
+<tr><td>
+
 [send](./player.telemetrypluginsettings.send.md)
 
 
@@ -54,6 +73,25 @@ Description
 </td><td>
 
 **_(BETA)_** Sends the statistics record to the storage. The actual delivery is presumably async and batched.
+
+
+</td></tr>
+<tr><td>
+
+[watchCutoff?](./player.telemetrypluginsettings.watchcutoff.md)
+
+
+</td><td>
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+**_(BETA)_** _(Optional)_
 
 
 </td></tr>
