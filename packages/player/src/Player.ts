@@ -284,7 +284,7 @@ export class Player {
   }
 
   /**
-   * Returns a registered core plugin instance by name, or `null` if not found.
+   * Returns a registered plugin instance by name, or `null` if not found.
    *
    * @example
    * ```ts
@@ -293,7 +293,7 @@ export class Player {
    * ```
    */
   getPlugin(name: string) {
-    return this.player?.core.getPlugin(name) ?? null
+    return this.player?.getPlugin(name) ?? null
   }
 
   /**

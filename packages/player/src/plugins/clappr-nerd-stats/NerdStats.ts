@@ -206,7 +206,7 @@ export class NerdStats extends UICorePlugin {
       'clappr-stats not available. Please, include it as a plugin of your Clappr instance.\n' +
         'For more info, visit: https://github.com/clappr/clappr-stats.',
     )
-    this.listenTo(clapprStats, ClapprStatsEvents.REPORT, this.updateMetrics)
+    this.listenTo(clapprStats, ClapprStatsEvents.REPORT, this.safeUpdateMetrics)
     this.listenTo(this.core.activeContainer, Events.CONTAINER_VOLUME, () => {
       this.metrics.general.volume = this.container?.volume ?? 0
       this.$el
@@ -224,7 +224,7 @@ export class NerdStats extends UICorePlugin {
           )
       },
     )
-    this.updateMetrics(clapprStats.exportMetrics())
+    this.safeUpdateMetrics(clapprStats.exportMetrics())
     this.$el
       .find('#nerd-stats-playback-name')
       .text(PLAYBACK_NAMES[this.core.activePlayback.name] ?? '-')
@@ -329,12 +329,22 @@ export class NerdStats extends UICorePlugin {
       prefix + videoQualityNames[liveQuality - 1]
   }
 
-  private updateMetrics(metrics: PerfMetrics) {
+  private safeUpdateMetrics(metrics: PerfMetrics) {
     Object.assign(this.metrics, metrics)
     this.metrics.custom = {
       ...this.speedtestMetrics,
     }
+    try {
+      this.updateMetrics()
+    } catch (e) {
+      reportError(e)
+      trace(`${T} updateMetrics error`, {
+        error: e,
+      })
+    }
+  }
 
+  private updateMetrics() {
     this.updateCustomMetrics()
 
     this.$el
@@ -491,7 +501,7 @@ export class NerdStats extends UICorePlugin {
 
     if (clapprStats) {
       clapprStats.clearMetrics()
-      this.updateMetrics(clapprStats.exportMetrics())
+      this.safeUpdateMetrics(clapprStats.exportMetrics())
     }
   }
 

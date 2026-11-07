@@ -22,7 +22,7 @@ Lower values give near-real-time delivery but leave little buffer to absorb enco
 
 When not set the player uses the value from the manifest: `suggestedPresentationDelay` for DASH, `HOLD-BACK` / `PART-HOLD-BACK` for HLS.
 
-Engine mapping: - \*\*DASH\*\* — `streaming.delay.liveDelay`<!-- -->; also disables  `useSuggestedPresentationDelay` so the manifest value is not applied. - \*\*HLS\*\* — `liveSyncDuration` in hls.js config. - \*\*HTML5 native\*\* — no effect.
+Engine mapping: - \*\*DASH\*\* — `streaming.delay.liveDelay`<!-- -->; also disables `useSuggestedPresentationDelay` so the manifest value is not applied. - \*\*HLS\*\* — `liveSyncDuration` in hls.js config. - \*\*HTML5 native\*\* — no effect.
 
 \| Seconds \| Behaviour \| \|\-\-\-\-\-\-\-\-\-\|\-\-\-\-\-\-\-\-\---\| \| 1–2 \| Ultra / low latency — minimal stall tolerance \| \| 3–4 \| Balanced — good default for most streams \| \| 6–8 \| Resilient — survives encoder irregularities, broadcast-style \|
 
