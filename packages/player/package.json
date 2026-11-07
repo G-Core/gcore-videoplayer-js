@@ -47,7 +47,7 @@
     "@types/videojs-vtt.js": "^0.15.3",
     "assert": "^2.1.0",
     "eventemitter3": "^5.0.1",
-    "happy-dom": "^20.0.8",
+    "happy-dom": "^21.0.4",
     "nodemon": "^3.1.9",
     "rollup": "^4.27.4",
     "rollup-plugin-polyfill-node": "^0.13.0",
