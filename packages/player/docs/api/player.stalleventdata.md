@@ -7,7 +7,12 @@
 > This API is provided as a beta preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
 > 
 
-Playback stall event data
+> Warning: This API is now obsolete.
+> 
+> [PlaybackEventData](./player.playbackeventdata.md) is sent at a regular pace and bears the stall statistics information.
+> 
+
+Telemetry event: playback stall
 
 **Signature:**
 

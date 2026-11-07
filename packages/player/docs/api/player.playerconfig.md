@@ -15,7 +15,7 @@ export interface PlayerConfig extends Record<string, unknown>
 
 ## Remarks
 
-You can specify multiple sources, each in two forms: just a plain URL or a full object with `source` and `mimeType` fields [PlayerMediaSource](./player.playermediasource.md)<!-- -->. The player will pick the first viable media source according to the source availability, and either the transport preference or standard transport selection order.
+You can specify multiple sources, each in two forms: just a plain URL or a full object with `source` and `mimeType` fields [PlayerMediaSource](./player.playermediasource.md)<!-- -->.  The player will pick the first viable media source according to the source availability, and either the transport preference or standard transport selection order.
 
 `priorityTransport` is used to specify the preferred transport protocol when multiple sources are available. It will first try to use the transport specified if it's supported (by a playback engine) and the source is available. Otherwise it will try the other transports in the regular order (dash, hls, mpegts).
 
