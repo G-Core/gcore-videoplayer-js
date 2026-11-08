@@ -82,7 +82,7 @@ Plugin-specific options are nested under a key matching the plugin name (e.g. `p
 `BigMuteButton`, `BottomGear`, `ContextMenu`, `ErrorScreen`, `Favicon`, `Logo`, `MediaControl`, `SpinnerThreeBounce` (alias: `Spinner`), `VolumeFade`
 
 ### Analytics
-`ClapprStats`, `CmcdConfig`, `GoogleAnalytics`, `NerdStats`, `Telemetry`
+`ClapprStats`, `CmcdConfig`, `GoogleAnalytics`, `NerdStats`, `PlaybackStats`
 
 ## Player methods
 

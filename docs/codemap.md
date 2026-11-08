@@ -50,7 +50,7 @@ Publicly exported plugin families include:
 - track and quality controls: `Subtitles`, `AudioTracks`, `QualityLevels`
 - discovery and richer viewing: `Thumbnails`, `Clips`, `MultiCamera`
 - branding and actions: `Logo`, `Share`, `Favicon`
-- observability and delivery: `Telemetry`, `ClapprStats`, `NerdStats`, `CmcdConfig`, `GoogleAnalytics`
+- observability and delivery: `PlaybackStats`, `ClapprStats`, `NerdStats`, `CmcdConfig`, `GoogleAnalytics`
 - source management: `SourceController`
 
 If a feature is present in `src/plugins/` but not exported from `src/index.plugins.ts`, treat it as non-primary or non-public for general SDK messaging.

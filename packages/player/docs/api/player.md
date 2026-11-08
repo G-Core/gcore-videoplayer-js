@@ -256,6 +256,17 @@ Expects `options.logo` of shape [LogoOptions](./player.logooptions.md)<!-- -->. 
 </td></tr>
 <tr><td>
 
+[PlaybackStats](./player.playbackstats.md)
+
+
+</td><td>
+
+**_(BETA)_** Collects playback metrics and reports them periodically.
+
+
+</td></tr>
+<tr><td>
+
 [Player](./player.player.md)
 
 
@@ -339,17 +350,6 @@ Expects `options.logo` of shape [LogoOptions](./player.logooptions.md)<!-- -->. 
 </td><td>
 
 `PLUGIN` that shows a pending operation indicator when playback is buffering or in a similar state.
-
-
-</td></tr>
-<tr><td>
-
-[Telemetry](./player.telemetry.md)
-
-
-</td><td>
-
-**_(BETA)_** `PLUGIN` that collects and reports the performance statistics.
 
 
 </td></tr>
@@ -503,17 +503,6 @@ Custom events emitted by the plugin
 </td></tr>
 <tr><td>
 
-[TelemetryEvent](./player.telemetryevent.md)
-
-
-</td><td>
-
-**_(BETA)_** Telemetry event type
-
-
-</td></tr>
-<tr><td>
-
 [VolumeFadeEvents](./player.volumefadeevents.md)
 
 
@@ -620,17 +609,6 @@ Context menu plugin settings
 </td></tr>
 <tr><td>
 
-[InitEventData](./player.initeventdata.md)
-
-
-</td><td>
-
-**_(BETA)_** Telemetry init event data
-
-
-</td></tr>
-<tr><td>
-
 [PlaybackError](./player.playbackerror.md)
 
 
@@ -697,39 +675,6 @@ Configuration options for the [QualityLevels](./player.qualitylevels.md) plugin.
 </td></tr>
 <tr><td>
 
-[StallEventData](./player.stalleventdata.md)
-
-
-</td><td>
-
-**_(BETA)_** Playback stall event data
-
-
-</td></tr>
-<tr><td>
-
-[StartEventData](./player.starteventdata.md)
-
-
-</td><td>
-
-**_(BETA)_** Telemetry start event data
-
-
-</td></tr>
-<tr><td>
-
-[TelemetryPluginSettings](./player.telemetrypluginsettings.md)
-
-
-</td><td>
-
-**_(BETA)_** Plugin settings
-
-
-</td></tr>
-<tr><td>
-
 [ThumbnailsPluginSettings](./player.thumbnailspluginsettings.md)
 
 
@@ -769,17 +714,6 @@ Configuration options for [TokenRefreshPlugin](./player.tokenrefreshplugin.md)<!
 </td><td>
 
 Response shape expected from your token-refresh API endpoint.
-
-
-</td></tr>
-<tr><td>
-
-[WatchEventData](./player.watcheventdata.md)
-
-
-</td><td>
-
-**_(BETA)_** Telemetry watch event data
 
 
 </td></tr>
@@ -919,6 +853,17 @@ Settings for the [ErrorScreen](./player.errorscreen.md) plugin.
 </td></tr>
 <tr><td>
 
+[ExtraPlaybackMetrics](./player.extraplaybackmetrics.md)
+
+
+</td><td>
+
+**_(BETA)_** Extra metrics that can be added to the stats report.
+
+
+</td></tr>
+<tr><td>
+
 [LangTag](./player.langtag.md)
 
 
@@ -1032,6 +977,28 @@ Module to perform the playback.
 
 </td><td>
 
+
+
+</td></tr>
+<tr><td>
+
+[PlaybackStatsPluginSettings](./player.playbackstatspluginsettings.md)
+
+
+</td><td>
+
+**_(BETA)_** Options for the [PlaybackStats](./player.playbackstats.md) plugin.
+
+
+</td></tr>
+<tr><td>
+
+[PlaybackStatsReport](./player.playbackstatsreport.md)
+
+
+</td><td>
+
+**_(BETA)_** Stats report containing playback metrics.
 
 
 </td></tr>
@@ -1152,39 +1119,6 @@ Built-in media control elements.
 </td></tr>
 <tr><td>
 
-[TelemetryEventData](./player.telemetryeventdata.md)
-
-
-</td><td>
-
-**_(BETA)_** Telemetry event data
-
-
-</td></tr>
-<tr><td>
-
-[TelemetryRecord](./player.telemetryrecord.md)
-
-
-</td><td>
-
-**_(BETA)_** Telemetry record
-
-
-</td></tr>
-<tr><td>
-
-[TelemetrySendFn](./player.telemetrysendfn.md)
-
-
-</td><td>
-
-**_(BETA)_** Callback to send the telemetry record to the storage.
-
-
-</td></tr>
-<tr><td>
-
 [TimeProgress](./player.timeprogress.md)
 
 
@@ -1212,7 +1146,7 @@ Built-in media control elements.
 
 </td><td>
 
-Playback time position in seconds since the beginning of the stream. For the live streams this is limited to the length of a segment. When DVR is enabled, this refers to the
+Playback time position in seconds since the beginning of the stream. For the live streams this is limited to the length of a segment.
 
 
 </td></tr>

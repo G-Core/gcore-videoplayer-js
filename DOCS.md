@@ -58,12 +58,13 @@ Top-level built-in capabilities exposed as plugins include:
 - subtitles and audio track selection
 - quality selection
 - playback speed
+- playback stats
 - picture-in-picture
 - thumbnails and posters
 - DVR controls
 - multi-camera switching
 - logo and share actions
-- telemetry and CMCD configuration
+- CMCD configuration
 
 ## HLS.js integration notes
 

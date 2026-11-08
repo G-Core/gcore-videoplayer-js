@@ -39,7 +39,7 @@ More: <https://gcore.com/docs/streaming/video-hosting/hls-and-mp4>
 |  |  +--------------------------------------------------+  |  |
 |  |  | Plugins                                          |  |  |
 |  |  | MediaControl, Subtitles, QualityLevels,          |  |  |
-|  |  | PlaybackRate, Poster, Spinner, Telemetry, etc.   |  |  |
+|  |  | PlaybackRate, PlaybackStats, Poster, ...         |  |  |
 |  |  +--------------------------------------------------+  |  |
 |  +--------------------------------------------------------+  |
 +--------------------------------------------------------------+
@@ -155,7 +155,7 @@ Web page / application
                 +-- Subtitles / AudioTracks
                 +-- QualityLevels / PlaybackRate
                 +-- Poster / Spinner / ErrorScreen
-                +-- Telemetry / CMCD / other plugins
+                +-- PlaybackStats / CMCD / other plugins
 ```
 
 Typical developer workflows:
@@ -206,7 +206,7 @@ The SDK plugin model is grouped in the same way as the product tutorial: `Playba
 |  | `CmcdConfig` | Send CMCD metadata with playback requests |
 |  | `GoogleAnalytics` | Report playback events to Google Analytics |
 |  | `NerdStats` | Show detailed playback and network diagnostics |
-|  | `Telemetry` | Collect and send performance statistics |
+|  | `PlaybackStats` | Collect playback performance statistics |
 
 API details for plugins: [packages/player/docs/api/player.md](./packages/player/docs/api/player.md)  
 

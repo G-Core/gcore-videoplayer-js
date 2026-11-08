@@ -21,6 +21,7 @@ export * from './plugins/media-control/MediaControl.js'
 export * from './plugins/multi-camera/MultiCamera.js'
 export * from './plugins/picture-in-picture/PictureInPicture.js'
 export * from './plugins/playback-rate/PlaybackRate.js'
+export * from './plugins/playback-stats/PlaybackStats.js'
 export * from './plugins/poster/Poster.js'
 export * from './plugins/level-selector/QualityLevels.js'
 export { QualityLevels as LevelSelector } from './plugins/level-selector/QualityLevels.js'
@@ -32,9 +33,6 @@ export { SpinnerThreeBounce as Spinner } from './plugins/spinner-three-bounce/Sp
 export * from './plugins/source-controller/SourceController.js'
 export * from './plugins/subtitles/ClosedCaptions.js'
 export { ClosedCaptions as Subtitles } from './plugins/subtitles/ClosedCaptions.js' // TODO remove in future versions
-export * from './plugins/telemetry/Telemetry.js'
 export * from './plugins/thumbnails/Thumbnails.js'
-// _ vast-ads
-// _ video360
 export * from './plugins/token-refresh/index.js'
 export * from './plugins/volume-fade/VolumeFade.js'

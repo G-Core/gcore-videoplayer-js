@@ -4,7 +4,7 @@
 
 ## Player.getPlugin() method
 
-Returns a registered core plugin instance by name, or `null` if not found.
+Returns a registered plugin instance by name, or `null` if not found.
 
 **Signature:**
 

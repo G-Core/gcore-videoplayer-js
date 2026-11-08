@@ -112,7 +112,7 @@ Import all from `@gcorevideo/player`:
 
 **UI:** `BigMuteButton`, `BottomGear`, `ContextMenu`, `ErrorScreen`, `Favicon`, `Logo`, `MediaControl`, `SpinnerThreeBounce`, `VolumeFade`
 
-**Analytics:** `ClapprStats`, `CmcdConfig`, `GoogleAnalytics`, `NerdStats`, `Telemetry`
+**Analytics:** `ClapprStats`, `CmcdConfig`, `GoogleAnalytics`, `NerdStats`, `PlaybackStats`
 
 ## Player API
 

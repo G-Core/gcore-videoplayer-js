@@ -148,7 +148,7 @@ Duration of the current media in seconds, if appropriate.
 
 </td><td>
 
-Returns a registered core plugin instance by name, or `null` if not found.
+Returns a registered plugin instance by name, or `null` if not found.
 
 
 </td></tr>
